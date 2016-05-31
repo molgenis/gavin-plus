@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.molgenis.calibratecadd.support.CCGGUtils;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
-import org.molgenis.calibratecadd.support.VariantClassificationException;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.cmd.CommandLineAnnotatorConfig;
 import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner.Impact;

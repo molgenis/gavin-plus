@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.molgenis.calibratecadd.support.CCGGUtils;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.cmd.CommandLineAnnotatorConfig;
@@ -20,7 +21,6 @@ import org.molgenis.data.annotation.joeri282exomes.Judgment.Classification;
 import org.molgenis.data.annotation.joeri282exomes.Judgment.Method;
 import org.molgenis.data.annotation.joeri282exomes.struct.CGDgenes;
 import org.molgenis.data.vcf.VcfRepository;
-import org.molgenis.data.vcf.utils.VcfUtils;
 import org.molgenis.data.vcf.utils.VcfWriterUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
