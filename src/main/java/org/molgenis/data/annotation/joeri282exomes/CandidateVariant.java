@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.molgenis.data.Entity;
+import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 
 public class CandidateVariant
 {

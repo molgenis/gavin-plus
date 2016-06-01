@@ -17,13 +17,15 @@ import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.cmd.CommandLineAnnotatorConfig;
 import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner.Impact;
-import org.molgenis.data.annotation.joeri282exomes.Judgment.Classification;
-import org.molgenis.data.annotation.joeri282exomes.Judgment.Method;
+
 import org.molgenis.data.annotation.joeri282exomes.struct.CGDgenes;
 import org.molgenis.data.vcf.VcfRepository;
 import org.molgenis.data.vcf.utils.VcfWriterUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
+import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
+import org.molgenis.data.annotation.entity.impl.gavin.Judgment.Method;
+import org.molgenis.data.annotation.entity.impl.gavin.Judgment.Classification;
 
 @Component
 public class CalibratedExomeAnalysis
@@ -83,9 +85,9 @@ public class CalibratedExomeAnalysis
 			String altAff = cv.allele;
 			int altIndex = cv.altIndex;
 			String gene = cv.gene;
-			Classification clsf = cv.judgment.classification;
-			Method method = cv.judgment.method;
-			String reason = cv.judgment.reason;
+			Classification clsf = cv.judgment.getClassification();
+			Method method = cv.judgment.getConfidence();
+			String reason = cv.judgment.getReason();
 			String ann = CCGGUtils.getAnn(cv.getVcfRecord().getString("ANN"), cv.gene, cv.allele);
 			String[] annSplit = ann.split("\\|", -1);
 			String cDNA = annSplit[9];
@@ -284,20 +286,20 @@ public class CalibratedExomeAnalysis
 				
 					judgment = ccgg.classifyVariant(gene, exac_af, impact, cadd);
 
-					if (judgment.classification.equals(Judgment.Classification.Pathogn) || judgment.classification.equals(Judgment.Classification.VOUS))
+					if (judgment.getClassification().equals(Judgment.Classification.Pathogn) || judgment.getClassification().equals(Judgment.Classification.VOUS))
 					{
 						HashMap<String, Entity> samples = findInterestingSamples(record, gene, i, exac_het, exac_hom);
 						if(samples.size() > 0)
 						{
 							CandidateVariant cv = new CandidateVariant(record, alt, i, gene, cadd, judgment, samples);
-							if(judgment.classification.equals(Judgment.Classification.Pathogn))
+							if(judgment.getClassification().equals(Judgment.Classification.Pathogn))
 							{
 								pathoVariants.add(cv);
 								variantRefAltGenePatho++;
 								VcfWriterUtils.writeToVcf(record, pathogenicVariantsVCF);
 								pathogenicVariantsVCF.write('\n');
 							}
-							if(judgment.classification.equals(Judgment.Classification.VOUS))
+							if(judgment.getClassification().equals(Judgment.Classification.VOUS))
 							{
 								vousVariants.add(cv);
 								variantRefAltGeneVOUS++;
@@ -310,7 +312,7 @@ public class CalibratedExomeAnalysis
 							noSamples++;
 						}
 					}
-					else if(judgment.classification.equals(Judgment.Classification.Benign))
+					else if(judgment.getClassification().equals(Judgment.Classification.Benign))
 					{
 			//			HashMap<String, Entity> samples = findInterestingSamples(record, i, exac_het, exac_hom);
 			//			CandidateVariant cv = new CandidateVariant(record, alt, i, gene, cadd, judgment, samples);
@@ -369,7 +371,7 @@ public class CalibratedExomeAnalysis
 			System.out.println("# " + name + " candidates, method: " + conf + "\n");
 			for(CandidateVariant cv : candVariants)
 			{
-				if(cv.judgment.method.equals(conf))
+				if(cv.judgment.getConfidence().equals(conf))
 				{
 			//		System.out.println(cv.toString());
 					
@@ -386,7 +388,7 @@ public class CalibratedExomeAnalysis
 					
 					System.out.println("Variant: " + cv.gene + ":" + cDNA + (aaChange != null || id != null ? " (" : "") + (aaChange != null ? aaChange + (id != null ? ", " + id: "") : "") + (aaChange != null || id != null ? ")" : "") + ", genomic: " +genomic + " (pathogenic allele: " + cv.allele + ")");
 					System.out.println("Effect: " + effect + ", GoNL MAF: " + gonlAF+ ", ExAC MAF: " + exacAF+ ", 1KG MAF: " + _1kgAF);
-					System.out.println("Reason: " + cv.getJudgment().reason);
+					System.out.println("Reason: " + cv.getJudgment().getReason());
 					
 					System.out.println("Samples carrying this allele:");
 					for(String sampleId : cv.getSampleIds().keySet())

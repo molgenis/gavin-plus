@@ -20,6 +20,8 @@ import org.molgenis.data.annotation.joeri282exomes.struct.GeneGroupsAlleleCountU
 import org.molgenis.data.vcf.VcfRepository;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
+import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
+
 
 /**
  * Fisher's Exact Exome-Wide Association Study
@@ -178,14 +180,14 @@ public class FEEWAS
 					
 					judgment = ccgg.classifyVariant(gene, exac_af, impact, cadd);
 					
-					if(judgment.classification.equals(Judgment.Classification.Pathogn))
+					if(judgment.getClassification().equals(Judgment.Classification.Pathogn))
 					{
 						
 						countGroupSamples(record, i, geneGroupCountsPathogenic, gene);
 						if(!geneLocs.containsKey(gene)) { geneLocs.put(gene, chr + "\t" + pos); }
 				//		System.out.println("geneGroupCountsPathogenic=" + geneGroupCountsPathogenic.toString());
 					}
-					else if(judgment.classification.equals(Judgment.Classification.VOUS))
+					else if(judgment.getClassification().equals(Judgment.Classification.VOUS))
 					{
 						countGroupSamples(record, i, geneGroupCountsVOUS, gene);
 						if(!geneLocs.containsKey(gene)) { geneLocs.put(gene, chr + "\t" + pos); }
