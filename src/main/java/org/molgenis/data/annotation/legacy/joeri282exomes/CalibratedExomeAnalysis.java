@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.molgenis.calibratecadd.support.CCGGUtils;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.cmd.CommandLineAnnotatorConfig;
@@ -88,7 +88,7 @@ public class CalibratedExomeAnalysis
 			Classification clsf = cv.judgment.getClassification();
 			Method method = cv.judgment.getConfidence();
 			String reason = cv.judgment.getReason();
-			String ann = CCGGUtils.getAnn(cv.getVcfRecord().getString("ANN"), cv.gene, cv.allele);
+			String ann = GavinUtils.getAnn(cv.getVcfRecord().getString("ANN"), cv.gene, cv.allele);
 			String[] annSplit = ann.split("\\|", -1);
 			String cDNA = annSplit[9];
 			String aaChange = annSplit[10].isEmpty() ? "" : annSplit[10];
@@ -146,7 +146,7 @@ public class CalibratedExomeAnalysis
 		benignVariants = new ArrayList<CandidateVariant>();
 		loadSampleToGroup(patientGroups);
 
-		CCGGUtils ccgg = new CCGGUtils(ccggFile);
+		GavinUtils ccgg = new GavinUtils(ccggFile);
 		
 		BufferedWriter pathogenicVariantsVCF = new BufferedWriter(new PrintWriter(new File(vcfFile.getParent(), "pathogenicVariants.vcf")));
 		BufferedWriter benignVariantsVCF = new BufferedWriter(new PrintWriter(new File(vcfFile.getParent(), "benignVariants.vcf")));
@@ -223,7 +223,7 @@ public class CalibratedExomeAnalysis
 				cadd_split = cadd_STR.split(",", -1);
 			}
 			
-			Set<String> genes = CCGGUtils.getGenesFromAnn(ann);
+			Set<String> genes = GavinUtils.getGenesFromAnn(ann);
 			
 			
 			/**
@@ -275,7 +275,7 @@ public class CalibratedExomeAnalysis
 					genesForVcfStats.add(gene);
 					totalVariantRefAltGeneCombinationsSeen++;
 					
-					Impact impact = CCGGUtils.getImpact(ann, gene, alt);
+					Impact impact = GavinUtils.getImpact(ann, gene, alt);
 					if(impact == null)
 					{
 						noImpact++;
@@ -375,7 +375,7 @@ public class CalibratedExomeAnalysis
 				{
 			//		System.out.println(cv.toString());
 					
-					String ann = CCGGUtils.getAnn(cv.getVcfRecord().getString("ANN"), cv.gene, cv.allele);
+					String ann = GavinUtils.getAnn(cv.getVcfRecord().getString("ANN"), cv.gene, cv.allele);
 					String[] annSplit = ann.split("\\|", -1);
 					String cDNA = annSplit[9];
 					String aaChange = annSplit[10].isEmpty() ? null : annSplit[10];

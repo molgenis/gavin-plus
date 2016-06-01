@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.molgenis.calibratecadd.support.CCGGUtils;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.cmd.CommandLineAnnotatorConfig;
@@ -75,7 +75,7 @@ public class FEEWAS
 		GeneGroupsAlleleCountUtils geneGroupCountsPathogenic = new GeneGroupsAlleleCountUtils();
 		GeneGroupsAlleleCountUtils geneGroupCountsVOUS = new GeneGroupsAlleleCountUtils();
 
-		CCGGUtils ccgg = new CCGGUtils(ccggFile);
+		GavinUtils ccgg = new GavinUtils(ccggFile);
 		
 		VcfRepository vcf = new VcfRepository(vcfFile, "vcf");
 		Iterator<Entity> it = vcf.iterator();
@@ -113,7 +113,7 @@ public class FEEWAS
 			String[] alts = altStr.split(",", -1);
 			String[] exac_af_split = exac_af_STR != null ? exac_af_STR.split(",", -1) : null;
 			String[] cadd_split = cadd_STR != null ? cadd_STR.split(",", -1) : null;
-			Set<String> genes = CCGGUtils.getGenesFromAnn(ann);
+			Set<String> genes = GavinUtils.getGenesFromAnn(ann);
 			
 			
 			if (filter != null && !filter.equals("PASS"))
@@ -170,7 +170,7 @@ public class FEEWAS
 				{
 					totalVariantRefAltGeneCombinationsSeen++;
 					
-					Impact impact = CCGGUtils.getImpact(ann, gene, alt);
+					Impact impact = GavinUtils.getImpact(ann, gene, alt);
 					if(impact == null)
 					{
 						continue;
