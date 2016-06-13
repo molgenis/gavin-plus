@@ -1,7 +1,9 @@
 package org.molgenis.data.annotation.makervcf.cadd;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.molgenis.calibratecadd.Step9_Validation;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
+import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,61 +15,71 @@ import java.util.HashMap;
  */
 public class HandleMissingCaddScores {
 
-    private enum Mode { ANALYSIS, CREATEFILEFORCADD}
+    public enum Mode { ANALYSIS, CREATEFILEFORCADD }
     private Mode mode;
+    private PrintWriter pw;
+    private HashMap<String, Double> caddScores;
 
-    public HandleMissingCaddScores(String mode) throws Exception {
-        if(!EnumUtils.isValidEnum(Mode.class, mode))
-        {
-            throw new Exception("Not a valid mode: '"+mode+"'. Please use one of: " + Mode.values().toString());
-        }
-    }
+    public HandleMissingCaddScores(Mode mode, File caddFile) throws Exception
+    {
+        this.mode = mode;
 
-    public void init(String mode, File caddFile) throws FileNotFoundException {
         //either print missing cadd scores to this file, or read from file to get them, depending on mode
-        PrintWriter pw = null;
         if(mode.equals(Mode.CREATEFILEFORCADD))
         {
-            pw = new PrintWriter(caddFile);
+            this.pw = new PrintWriter(caddFile);
         }
-        HashMap<String, Double> caddScores = null;
-        if(mode.equals(Mode.ANALYSIS))
+        else if(mode.equals(Mode.ANALYSIS))
         {
-            caddScores = LoadCADDWebserviceOutput.load(caddFile);
+            this.caddScores = LoadCADDWebserviceOutput.load(caddFile);
+        }
+        else
+        {
+            throw new Exception("Mode unknown: " + mode);
         }
     }
 
-    public void dealWithMissingCaddScore(Double cadd)
-    {
-        if(cadd == null)
+
+    public Double dealWithCaddScores(VcfEntity record, int altIndex) throws Exception {
+        if(record.getCaddPhredScores(altIndex) == null)
         {
             if(mode.equals(Mode.CREATEFILEFORCADD))
             {
-                String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(ref, alt, "\t");
-                pw.println(chr + "\t" + pos + "\t" + "." + "\t" + trimmedRefAlt);
+                String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), record.getAlts(altIndex), "\t");
+                this.pw.println(record.getChr() + "\t" + record.getPos() + "\t" + "." + "\t" + trimmedRefAlt);
+                this.pw.flush();
+                return null;
             }
             else if(mode.equals(Mode.ANALYSIS))
             {
-                String key = chr + "_" + pos + "_" + ref + "_" + alt;
-                if(caddScores.containsKey(key))
+                String key = record.getChr() + "_" + record.getPos() + "_" + record.getRef() + "_" + record.getAlts(altIndex);
+                if(this.caddScores.containsKey(key))
                 {
-                    cadd = caddScores.get(key);
+                    return this.caddScores.get(key);
                 }
                 else
                 {
-                    String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(ref, alt, "_");
-                    key = chr + "_" + pos + "_" + trimmedRefAlt;
-                    if(caddScores.containsKey(key))
+                    String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), record.getAlts(altIndex), "_");
+                    key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
+                    if(this.caddScores.containsKey(key))
                     {
-                        cadd = caddScores.get(key);
+                        return this.caddScores.get(key);
                     }
                     else
                     {
-                        System.out.println("WARNING: CADD score missing for " + chr + " " + pos + " " + ref + " " + alt + " ! (even when using trimmed key '"+key+"')");
+                        System.out.println("WARNING: CADD score missing for " + record.getChr() + " " + record.getPos() + " " + record.getRef() + " " + record.getAlts(altIndex) + " ! (even when using trimmed key '"+key+"')");
+                        return null;
                     }
-
                 }
             }
+            else
+            {
+                throw new Exception("Mode unknown: " + mode);
+            }
+        }
+        else
+        {
+            return record.getCaddPhredScores(altIndex);
         }
     }
 }

@@ -1,14 +1,17 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.calibratecadd.support.JudgedVariant;
+import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
+import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner.Impact;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores;
+import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,20 +25,22 @@ import java.util.List;
  */
 public class DiscoverRelevantVariants {
 
-    private List<JudgedVariant> relevantVariants;
     private VcfRepository vcf;
     private GavinUtils gavin;
     private HandleMissingCaddScores hmcs;
+    private VcfRepository clinvar;
 
-    public DiscoverRelevantVariants(File vcfFile, File gavinFile, String mode) throws Exception
+    public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, Mode mode) throws Exception
     {
         this.vcf = new VcfRepository(vcfFile, "vcf");
+        this.clinvar = new VcfRepository(clinvarFile, "clinvar");
         this.gavin = new GavinUtils(gavinFile);
-        this.hmcs = new HandleMissingCaddScores(mode);
+        this.hmcs = new HandleMissingCaddScores(mode, caddFile);
     }
 
-    public List<JudgedVariant> findRelevantVariants() throws Exception
+    public List<RelevantVariant> findRelevantVariants() throws Exception
     {
+        List<RelevantVariant> relevantVariants = new ArrayList<>();
         Iterator<Entity> it = vcf.iterator();
 
         while (it.hasNext())
@@ -48,19 +53,22 @@ public class DiscoverRelevantVariants {
             for (int i = 0; i < record.getAlts().length; i++)
             {
 
-                hmcs.dealWithMissingCaddScore(record.getCadd(i));
-
+                Double cadd = hmcs.dealWithCaddScores(record, i);
                 for(String gene : record.getGenes())
                 {
-
-                    Judgment judgment = gavin.classifyVariant(gene, exac_af, impact, cadd);
-
+                    Impact impact = record.getImpact(i, gene);
+                    Judgment judgment = gavin.classifyVariant(gene, record.getExac_AFs(i), impact, cadd);
+                    if(judgment.getClassification().equals(Judgment.Classification.Pathogn))
+                    {
+                        relevantVariants.add(new RelevantVariant(record, judgment, null));
+                    }
                 }
 
                 //TODO: clinvar check
-
+                //overlap with gavin, but also separate check with only clinvar
 
             }
         }
+        return relevantVariants;
     }
 }

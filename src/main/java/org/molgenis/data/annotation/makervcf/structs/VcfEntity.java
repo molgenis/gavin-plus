@@ -2,6 +2,8 @@ package org.molgenis.data.annotation.makervcf.structs;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.Entity;
+import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner;
+
 
 import java.util.Set;
 
@@ -12,56 +14,73 @@ public class VcfEntity {
     String chr;
     String pos;
     String ref;
-    String[] alts;
-    String[] exac_af;
-    String[] exac_af_split;
+    String ann;
+    String[] alts; //alternative alleles, in order
+    Double[] exac_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
+    Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
+    Set<String> genes; //any associated genes, not in any given order
 
-    public VcfEntity(Entity record) throws Exception {
-        String chr = record.getString("#CHROM");
-        String pos = record.getString("POS");
-        String ref = record.getString("REF");
-        String altStr = record.getString("ALT");
-        String exac_af_STR = record.get("EXAC_AF") == null ? null : record.get("EXAC_AF").toString();
-        String exac_ac_hom_STR = record.get("EXAC_AC_HOM") == null ? null : record.get("EXAC_AC_HOM").toString();
-        String exac_ac_het_STR = record.get("EXAC_AC_HET") == null ? null : record.get("EXAC_AC_HET").toString();
-
-        String ann = record.getString("ANN");
-
-        String cadd_STR = record.get("CADD_SCALED") == null ? null : record.get("CADD_SCALED").toString();
-
-        String[] alts = altStr.split(",", -1);
+    //more? "EXAC_AC_HOM", "EXAC_AC_HET"
 
 
-        String[] exac_af_split = new String[alts.length];
-        if (exac_af_STR != null)
+    public Double[] setAltAlleleOrderedDoubleField(Entity record, String fieldName, boolean zeroForNull) throws Exception {
+        Double[] res = new Double[this.alts.length];
+        if(record.get(fieldName) == null)
         {
-            exac_af_split = exac_af_STR.split(",", -1);
+            //the entire field is not present
+            //for '0 for null' attributes, fill array with 0s
+            if(zeroForNull)
+            {
+                for(int i = 0; i < this.alts.length; i++)
+                {
+                    res[i] = 0.0;
+                }
+                return res;
+            }
+            else
+            {
+                return res;
+            }
         }
-        String[] exac_ac_hom_split = new String[alts.length];
-        if (exac_ac_hom_STR != null)
+        String[] split = record.get(fieldName) == null ? null : record.getString(fieldName).split(",", -1);
+        if(split != null)
         {
-            exac_ac_hom_split = exac_ac_hom_STR.split(",", -1);
+            if(split.length != this.alts.length)
+            {
+                throw new Exception(fieldName + " split length not equal to alt allele split length");
+            }
+            for(int i = 0; i < split.length; i++)
+            {
+                //  exac_AFs[i] = (exac_af_split[i] != null && !exac_af_split[i].isEmpty() && !exac_af_split[i].equals(".")) ? Double.parseDouble(exac_af_split[i]) : 0;
+                res[i] = (split[i] != null && !split[i].isEmpty() && !split[i].equals(".")) ? Double.parseDouble(split[i]) : (zeroForNull ? 0 : null);
+            }
+        }
+        else
+        {
+            throw new Exception(fieldName + " split is null");
         }
 
-        String[] exac_ac_het_split = new String[alts.length];
-        if (exac_ac_het_STR != null)
-        {
-            exac_ac_het_split = exac_ac_het_STR.split(",", -1);
-        }
-        String[] cadd_split = new String[alts.length];
-        if (cadd_STR != null)
-        {
-            cadd_split = cadd_STR.split(",", -1);
-        }
-
-        Set<String> genes = GavinUtils.getGenesFromAnn(ann);
-
-        if (exac_af_STR != null)
-        {
-            exac_af_split = exac_af_STR.split(",", -1);
-        }
+        return res;
     }
 
+
+    public VcfEntity(Entity record) throws Exception
+    {
+        this.chr = record.getString("#CHROM");
+        this.pos = record.getString("POS");
+        this.ref = record.getString("REF");
+        this.alts = record.getString("ALT").split(",", -1);
+        this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF", true);
+        this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED", true);
+        this.ann = record.getString("ANN");
+        this.genes = GavinUtils.getGenesFromAnn(ann);
+
+
+    }
+
+    public SnpEffRunner.Impact getImpact(int i, String gene) throws Exception {
+        return GavinUtils.getImpact(this.ann, gene, this.alts[i]);
+    }
 
     public String getChr() {
         return chr;
@@ -79,18 +98,29 @@ public class VcfEntity {
         return alts;
     }
 
-    public String[] getExac_af() {
-        return exac_af;
+    public String getAlts(int i) {
+        return alts[i];
     }
 
-    public double getExac_af(int i)
-    {
-        double exac_af = (exac_af_split[i] != null && !exac_af_split[i].isEmpty() && !exac_af_split[i].equals(".")) ? Double.parseDouble(exac_af_split[i]) : 0;
-        return exac_af;
+    public Double[] getExac_AFs() {
+        return exac_AFs;
     }
 
-    public Impact getImpact(int i, String gene)
-    {
-        return GavinUtils.getImpact(this.a, gene, alt);
+    public double getExac_AFs(int i) {
+        //return exac_AFs[i] == null ? 0 : exac_AFs[i];
+        return exac_AFs[i];
     }
+
+    public Double[] getCaddPhredScores() {
+        return caddPhredScores;
+    }
+
+    public Double getCaddPhredScores(int i) {
+        return caddPhredScores[i];
+    }
+
+    public Set<String> getGenes() {
+        return genes;
+    }
+
 }
