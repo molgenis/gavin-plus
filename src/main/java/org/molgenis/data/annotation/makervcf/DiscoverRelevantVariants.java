@@ -11,9 +11,7 @@ import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by joeri on 6/1/16.
@@ -40,35 +38,50 @@ public class DiscoverRelevantVariants {
 
     public List<RelevantVariant> findRelevantVariants() throws Exception
     {
+        //ClinVar match
+        Iterator<Entity> cvIt = clinvar.iterator();
+        Map<String, VcfEntity> posToClinVar = new HashMap<>();
+        while (cvIt.hasNext())
+        {
+            VcfEntity record = new VcfEntity(cvIt.next());
+            posToClinVar.put(record.getChr()+"_"+record.getPos() + "_", record); //todo map on chr_pos_ref_alt ? use trimming of alleles like for CADD ? do this a bit better..
+        }
+
+        //GAVIN pathogenic detection
         List<RelevantVariant> relevantVariants = new ArrayList<>();
         Iterator<Entity> it = vcf.iterator();
-
         while (it.hasNext())
         {
             VcfEntity record = new VcfEntity(it.next());
 
+            boolean gavinPathoFound = false;
+            String clinvarKey = record.getChr() + "_"+record.getPos() + "_";
+            VcfEntity clinVarHit = posToClinVar.containsKey(clinvarKey) ? posToClinVar.get(clinvarKey) : null;
+
             /**
              * Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
              */
-            for (int i = 0; i < record.getAlts().length; i++)
-            {
+            for (int i = 0; i < record.getAlts().length; i++) {
 
                 Double cadd = hmcs.dealWithCaddScores(record, i);
-                for(String gene : record.getGenes())
-                {
+                for (String gene : record.getGenes()) {
                     Impact impact = record.getImpact(i, gene);
                     Judgment judgment = gavin.classifyVariant(gene, record.getExac_AFs(i), impact, cadd);
-                    if(judgment.getClassification().equals(Judgment.Classification.Pathogn))
-                    {
-                        relevantVariants.add(new RelevantVariant(record, judgment, null));
+                    if (judgment.getClassification().equals(Judgment.Classification.Pathogn)) {
+                        relevantVariants.add(new RelevantVariant(record, judgment, i, clinVarHit));
+                        gavinPathoFound = true;
                     }
                 }
-
-                //TODO: clinvar check
-                //overlap with gavin, but also separate check with only clinvar
-
             }
+
+            //TODO: per allele..
+            if(!gavinPathoFound && clinVarHit != null)
+            {
+                relevantVariants.add(new RelevantVariant(record, null, null, clinVarHit));
+            }
+
         }
+
         return relevantVariants;
     }
 }

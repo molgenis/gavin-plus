@@ -3,8 +3,10 @@ package org.molgenis.data.annotation.makervcf.structs;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner;
+import org.molgenis.data.vcf.VcfRepository;
 
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -15,13 +17,31 @@ public class VcfEntity {
     String pos;
     String ref;
     String ann;
+    String clinvar;
     String[] alts; //alternative alleles, in order
     Double[] exac_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
     Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
     Set<String> genes; //any associated genes, not in any given order
+    Iterable<Entity> samples;
 
     //more? "EXAC_AC_HOM", "EXAC_AC_HET"
 
+
+    public VcfEntity(Entity record) throws Exception
+    {
+        this.samples = record.getEntities(VcfRepository.SAMPLES);
+        this.chr = record.getString("#CHROM");
+        this.pos = record.getString("POS");
+        this.ref = record.getString("REF");
+        this.ref = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
+        this.alts = record.getString("ALT").split(",", -1);
+        this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF", true);
+        this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED", true);
+        this.ann = record.getString("ANN");
+        this.genes = GavinUtils.getGenesFromAnn(ann);
+
+
+    }
 
     public Double[] setAltAlleleOrderedDoubleField(Entity record, String fieldName, boolean zeroForNull) throws Exception {
         Double[] res = new Double[this.alts.length];
@@ -64,22 +84,12 @@ public class VcfEntity {
     }
 
 
-    public VcfEntity(Entity record) throws Exception
-    {
-        this.chr = record.getString("#CHROM");
-        this.pos = record.getString("POS");
-        this.ref = record.getString("REF");
-        this.alts = record.getString("ALT").split(",", -1);
-        this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF", true);
-        this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED", true);
-        this.ann = record.getString("ANN");
-        this.genes = GavinUtils.getGenesFromAnn(ann);
-
-
-    }
-
     public SnpEffRunner.Impact getImpact(int i, String gene) throws Exception {
         return GavinUtils.getImpact(this.ann, gene, this.alts[i]);
+    }
+
+    public Iterable<Entity> getSamples() {
+        return samples;
     }
 
     public String getChr() {
@@ -102,8 +112,20 @@ public class VcfEntity {
         return alts[i];
     }
 
+    public String getAlt() throws Exception {
+        if(alts.length > 1)
+        {
+            throw new Exception("more than 1 alt ! " + this.toString());
+        }
+        return alts[0];
+    }
+
     public Double[] getExac_AFs() {
         return exac_AFs;
+    }
+
+    public String getClinvar() {
+        return clinvar;
     }
 
     public double getExac_AFs(int i) {
@@ -123,4 +145,19 @@ public class VcfEntity {
         return genes;
     }
 
+
+    @Override
+    public String toString() {
+        return "VcfEntity{" +
+                "chr='" + chr + '\'' +
+                ", pos='" + pos + '\'' +
+                ", ref='" + ref + '\'' +
+                ", ann='" + ann + '\'' +
+                ", clinvar='" + clinvar + '\'' +
+                ", alts=" + Arrays.toString(alts) +
+                ", exac_AFs=" + Arrays.toString(exac_AFs) +
+                ", caddPhredScores=" + Arrays.toString(caddPhredScores) +
+                ", genes=" + genes +
+                '}';
+    }
 }

@@ -21,27 +21,31 @@ import java.util.List;
  */
 public class Run {
 
-    public Run(File vcfFile, File gavinFile, File clinvarFile, File caddFile, Mode mode) throws Exception
+    public Run(File vcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode) throws Exception
     {
         List<RelevantVariant> relevantVariants = new DiscoverRelevantVariants(vcfFile, gavinFile, clinvarFile, caddFile, mode).findRelevantVariants();
         System.out.println("found " + relevantVariants.size() + " interesting variants");
-        for(RelevantVariant rv : relevantVariants)
-        {
-            System.out.println(rv.toString());
-        }
+
+        new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
+
+//        for(RelevantVariant rv : relevantVariants)
+//        {
+//            System.out.println(rv.toString());
+//        }
     }
 
     public static void main(String[] args) throws Exception {
-        if(args.length != 5)
+        if(args.length != 6)
         {
-            throw new Exception("please provide: input vcf, gavin calibration, clinvar vcf, cadd supplement file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"]");
+            throw new Exception("please provide: input vcf, gavin calibration, clinvar vcf, CGD file, cadd supplement file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"]");
         }
 
         File vcfFile = new File(args[0]);
         File gavinFile = new File(args[1]);
         File clinvarFile = new File(args[2]);
-        File caddFile = new File(args[3]);
-        Mode mode = Mode.valueOf(args[4]);
+        File cgdFile = new File(args[3]);
+        File caddFile = new File(args[4]);
+        Mode mode = Mode.valueOf(args[5]);
 
         if(!vcfFile.isFile())
         {
@@ -54,6 +58,10 @@ public class Run {
         if(!clinvarFile.isFile())
         {
             throw new Exception("clinvar VCF file "+clinvarFile+" does not exist or is directory");
+        }
+        if(!cgdFile.isFile())
+        {
+            throw new Exception("CGD VCF file "+cgdFile+" does not exist or is directory");
         }
 
         if(!mode.equals(Mode.ANALYSIS) && !mode.equals(Mode.CREATEFILEFORCADD))
@@ -76,7 +84,7 @@ public class Run {
             }
         }
 
-        new Run(vcfFile, gavinFile, clinvarFile, caddFile, mode);
+        new Run(vcfFile, gavinFile, clinvarFile, cgdFile, caddFile, mode);
 
     }
 

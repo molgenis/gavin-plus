@@ -9,9 +9,11 @@ public class RelevantVariant
 {
     VcfEntity variant;
     Judgment gavinJudgment;
+    int alleleIndex;
     VcfEntity clinvarPathoMatch;
+    //TODO list of matching affected samples & carriers ?
 
-    public RelevantVariant(VcfEntity variant, Judgment gavinJudgment, VcfEntity clinvarPathoMatch)
+    public RelevantVariant(VcfEntity variant, Judgment gavinJudgment, Integer alleleIndex, VcfEntity clinvarPathoMatch)
     {
         this.variant = variant;
         this.gavinJudgment = gavinJudgment;
@@ -24,6 +26,10 @@ public class RelevantVariant
 
     public Judgment getGavinJudgment() {
         return gavinJudgment;
+    }
+
+    public int getAlleleIndex() {
+        return alleleIndex;
     }
 
     public VcfEntity getClinvarPathoMatch() {
