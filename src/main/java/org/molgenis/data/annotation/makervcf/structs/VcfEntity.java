@@ -13,16 +13,16 @@ import java.util.Set;
  * Created by joeri on 6/1/16.
  */
 public class VcfEntity {
-    String chr;
-    String pos;
-    String ref;
-    String ann;
-    String clinvar;
-    String[] alts; //alternative alleles, in order
-    Double[] exac_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
-    Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
-    Set<String> genes; //any associated genes, not in any given order
-    Iterable<Entity> samples;
+    private String chr;
+    private String pos;
+    private String ref;
+    private String ann;
+    private String clinvar;
+    private String[] alts; //alternative alleles, in order
+    private Double[] exac_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
+    private Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
+    private Set<String> genes; //any associated genes, not in any given order
+    private Iterable<Entity> samples;
 
     //more? "EXAC_AC_HOM", "EXAC_AC_HET"
 
@@ -33,7 +33,7 @@ public class VcfEntity {
         this.chr = record.getString("#CHROM");
         this.pos = record.getString("POS");
         this.ref = record.getString("REF");
-        this.ref = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
+        this.clinvar = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
         this.alts = record.getString("ALT").split(",", -1);
         this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF", true);
         this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED", true);
@@ -159,5 +159,9 @@ public class VcfEntity {
                 ", caddPhredScores=" + Arrays.toString(caddPhredScores) +
                 ", genes=" + genes +
                 '}';
+    }
+
+    public static int getAltAlleleIndex(VcfEntity record, String alt) {
+        return Arrays.asList(record.getAlts()).indexOf(alt);
     }
 }

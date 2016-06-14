@@ -26,7 +26,9 @@ public class Run {
         List<RelevantVariant> relevantVariants = new DiscoverRelevantVariants(vcfFile, gavinFile, clinvarFile, caddFile, mode).findRelevantVariants();
         System.out.println("found " + relevantVariants.size() + " interesting variants");
 
+        //enhance relevant variants with sample genotype disease inheritance mode matches
         new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
+
 
 //        for(RelevantVariant rv : relevantVariants)
 //        {

@@ -6,6 +6,7 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner.Impact;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores;
+import org.molgenis.data.annotation.makervcf.clinvar.ClinVar;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
@@ -26,27 +27,18 @@ public class DiscoverRelevantVariants {
     private VcfRepository vcf;
     private GavinUtils gavin;
     private HandleMissingCaddScores hmcs;
-    private VcfRepository clinvar;
+    private ClinVar clinvar;
 
     public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, Mode mode) throws Exception
     {
         this.vcf = new VcfRepository(vcfFile, "vcf");
-        this.clinvar = new VcfRepository(clinvarFile, "clinvar");
+        this.clinvar = new ClinVar(clinvarFile);
         this.gavin = new GavinUtils(gavinFile);
         this.hmcs = new HandleMissingCaddScores(mode, caddFile);
     }
 
     public List<RelevantVariant> findRelevantVariants() throws Exception
     {
-        //ClinVar match
-        Iterator<Entity> cvIt = clinvar.iterator();
-        Map<String, VcfEntity> posToClinVar = new HashMap<>();
-        while (cvIt.hasNext())
-        {
-            VcfEntity record = new VcfEntity(cvIt.next());
-            posToClinVar.put(record.getChr()+"_"+record.getPos() + "_", record); //todo map on chr_pos_ref_alt ? use trimming of alleles like for CADD ? do this a bit better..
-        }
-
         //GAVIN pathogenic detection
         List<RelevantVariant> relevantVariants = new ArrayList<>();
         Iterator<Entity> it = vcf.iterator();
@@ -55,31 +47,24 @@ public class DiscoverRelevantVariants {
             VcfEntity record = new VcfEntity(it.next());
 
             boolean gavinPathoFound = false;
-            String clinvarKey = record.getChr() + "_"+record.getPos() + "_";
-            VcfEntity clinVarHit = posToClinVar.containsKey(clinvarKey) ? posToClinVar.get(clinvarKey) : null;
 
             /**
              * Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
              */
-            for (int i = 0; i < record.getAlts().length; i++) {
-
+            for (int i = 0; i < record.getAlts().length; i++)
+            {
                 Double cadd = hmcs.dealWithCaddScores(record, i);
-                for (String gene : record.getGenes()) {
+                for (String gene : record.getGenes())
+                {
                     Impact impact = record.getImpact(i, gene);
-                    Judgment judgment = gavin.classifyVariant(gene, record.getExac_AFs(i), impact, cadd);
-                    if (judgment.getClassification().equals(Judgment.Classification.Pathogn)) {
-                        relevantVariants.add(new RelevantVariant(record, judgment, i, clinVarHit));
-                        gavinPathoFound = true;
+                    Judgment gavinJudgment = gavin.classifyVariant(gene, record.getExac_AFs(i), impact, cadd);
+                    Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene);
+                    if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogn) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogn))
+                    {
+                        relevantVariants.add(new RelevantVariant(record, record.getAlts(i), gavinJudgment, clinvarJudgment));
                     }
                 }
             }
-
-            //TODO: per allele..
-            if(!gavinPathoFound && clinVarHit != null)
-            {
-                relevantVariants.add(new RelevantVariant(record, null, null, clinVarHit));
-            }
-
         }
 
         return relevantVariants;

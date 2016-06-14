@@ -1,6 +1,9 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
+import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
+
+import java.util.List;
 
 /**
  * Created by joeri on 6/13/16.
@@ -9,15 +12,22 @@ public class RelevantVariant
 {
     VcfEntity variant;
     Judgment gavinJudgment;
-    int alleleIndex;
-    VcfEntity clinvarPathoMatch;
+    Judgment clinvarJudgment;
+    String allele;
     //TODO list of matching affected samples & carriers ?
+    List<Entity> affectedSamples;
+    List<Entity> carrierSamples;
 
-    public RelevantVariant(VcfEntity variant, Judgment gavinJudgment, Integer alleleIndex, VcfEntity clinvarPathoMatch)
+    public RelevantVariant(VcfEntity variant, String allele, Judgment gavinJudgment, Judgment clinvarJudgment)
     {
         this.variant = variant;
+        this.allele = allele;
         this.gavinJudgment = gavinJudgment;
-        this.clinvarPathoMatch = clinvarPathoMatch;
+        this.clinvarJudgment = clinvarJudgment;
+    }
+
+    public String getAllele() {
+        return allele;
     }
 
     public VcfEntity getVariant() {
@@ -28,12 +38,8 @@ public class RelevantVariant
         return gavinJudgment;
     }
 
-    public int getAlleleIndex() {
-        return alleleIndex;
-    }
-
-    public VcfEntity getClinvarPathoMatch() {
-        return clinvarPathoMatch;
+    public Judgment getClinvarJudgment() {
+        return clinvarJudgment;
     }
 
     @Override
@@ -41,7 +47,7 @@ public class RelevantVariant
         return "RelevantVariant{" +
                 "variant=" + variant +
                 ", gavinJudgment=" + gavinJudgment +
-                ", clinvarPathoMatch=" + clinvarPathoMatch +
+                ", clinvarPathoMatch=" + clinvarJudgment +
                 '}';
     }
 }
