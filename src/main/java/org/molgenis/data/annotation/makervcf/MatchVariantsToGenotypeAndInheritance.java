@@ -71,8 +71,7 @@ public class MatchVariantsToGenotypeAndInheritance {
         }
     }
 
-    public HashMap<String, Entity> findMatchingSamples(VcfEntity record, String alt, generalizedInheritance inheritance, boolean lookingForAffected)
-    {
+    public HashMap<String, Entity> findMatchingSamples(VcfEntity record, String alt, generalizedInheritance inheritance, boolean lookingForAffected) throws Exception {
         int altIndex = VcfEntity.getAltAlleleIndex(record, alt);
         HashMap<String, Entity> matchingSamples = new HashMap<>();
 
@@ -99,29 +98,49 @@ public class MatchVariantsToGenotypeAndInheritance {
                 continue;
             }
 
-            if ( genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex) )
+            //now that everything is okay, we can match to inheritance mode
+
+            //all dominant types, so no carriers, and only requirement is that genotype contains 1 alt allele somewhere
+            if(inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT) || inheritance.equals(generalizedInheritance.XL_DOMINANT))
             {
-                //homozygous alt, always affected!
-                if(lookingForAffected)
+                if ( genotype.contains(altIndex+"") && lookingForAffected )
                 {
                     matchingSamples.put(sampleName, sample);
                 }
             }
 
-            if (genotype.equals("0/" + altIndex) || genotype.equals(altIndex + "/0")
-                    || genotype.equals("0|" + altIndex) || genotype.equals(altIndex + "|0") )
+            //all recessive types
+            else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.XL_RECESSIVE))
             {
-                if(lookingForAffected && (inheritance.equals(generalizedInheritance.DOM_OR_REC) || inheritance.equals(generalizedInheritance.DOMINANT)))
+                //first homozygous alternative
+                if ( (genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex)) && lookingForAffected )
                 {
-                    //looking for affected
-           //         matchingSamples.put(sampleName, sample);
+                    matchingSamples.put(sampleName, sample);
                 }
-                else if(!lookingForAffected)
+                // not-affected, ie carriers
+                else if ( genotype.contains(altIndex+"") && !lookingForAffected )
                 {
-                    //looking for carriers
-            //        matchingSamples.put(sampleName, sample);
+                    matchingSamples.put(sampleName, sample);
                 }
             }
+
+            //other types (digenic, maternal, YL, bloodgroup etc)
+            //report when 1 alle found
+            else if(inheritance.equals(generalizedInheritance.OTHER))
+            {
+                if ( genotype.contains(altIndex+"") && lookingForAffected )
+                {
+                    matchingSamples.put(sampleName, sample);
+                }
+            }
+
+            else
+            {
+                throw new Exception("inheritance unknown: " + inheritance);
+            }
+
+
+
 
 
         }

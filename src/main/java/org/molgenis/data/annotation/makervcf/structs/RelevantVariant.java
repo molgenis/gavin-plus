@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
+import org.molgenis.cgd.CGDEntry;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 
@@ -17,6 +18,8 @@ public class RelevantVariant
     //TODO list of matching affected samples & carriers ?
     List<Entity> affectedSamples;
     List<Entity> carrierSamples;
+    List<Entity> unknownEffectSamples;
+    CGDEntry cgdInfo;
 
     public RelevantVariant(VcfEntity variant, String allele, Judgment gavinJudgment, Judgment clinvarJudgment)
     {

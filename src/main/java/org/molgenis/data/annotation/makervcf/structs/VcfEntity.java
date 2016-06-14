@@ -162,6 +162,6 @@ public class VcfEntity {
     }
 
     public static int getAltAlleleIndex(VcfEntity record, String alt) {
-        return Arrays.asList(record.getAlts()).indexOf(alt);
+        return Arrays.asList(record.getAlts()).indexOf(alt) + 1;
     }
 }
