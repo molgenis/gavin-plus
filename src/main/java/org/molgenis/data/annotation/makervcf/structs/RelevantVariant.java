@@ -4,6 +4,7 @@ import org.molgenis.cgd.CGDEntry;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -16,9 +17,9 @@ public class RelevantVariant
     Judgment clinvarJudgment;
     String allele;
     //TODO list of matching affected samples & carriers ?
-    List<Entity> affectedSamples;
-    List<Entity> carrierSamples;
-    List<Entity> unknownEffectSamples;
+    HashMap<String, Entity> affectedSamples;
+    HashMap<String, Entity> carrierSamples;
+    HashMap<String, Entity> unknownInheritanceModeSamples;
     CGDEntry cgdInfo;
 
     public RelevantVariant(VcfEntity variant, String allele, Judgment gavinJudgment, Judgment clinvarJudgment)
@@ -52,5 +53,37 @@ public class RelevantVariant
                 ", gavinJudgment=" + gavinJudgment +
                 ", clinvarPathoMatch=" + clinvarJudgment +
                 '}';
+    }
+
+    public CGDEntry getCgdInfo() {
+        return cgdInfo;
+    }
+
+    public void setCgdInfo(CGDEntry cgdInfo) {
+        this.cgdInfo = cgdInfo;
+    }
+
+    public HashMap<String, Entity> getAffectedSamples() {
+        return affectedSamples;
+    }
+
+    public void setAffectedSamples(HashMap<String, Entity> affectedSamples) {
+        this.affectedSamples = affectedSamples;
+    }
+
+    public HashMap<String, Entity> getCarrierSamples() {
+        return carrierSamples;
+    }
+
+    public void setCarrierSamples(HashMap<String, Entity> carrierSamples) {
+        this.carrierSamples = carrierSamples;
+    }
+
+    public HashMap<String, Entity> getUnknownInheritanceModeSamples() {
+        return unknownInheritanceModeSamples;
+    }
+
+    public void setUnknownInheritanceModeSamples(HashMap<String, Entity> unknownInheritanceModeSamples) {
+        this.unknownInheritanceModeSamples = unknownInheritanceModeSamples;
     }
 }

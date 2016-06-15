@@ -55,11 +55,16 @@ public class MatchVariantsToGenotypeAndInheritance {
 
             String gene = gavinGene != null ? gavinGene : clinvarGene;
 
-            if (cgd.containsKey(gene)) {
-                hit = true;
+            // regular inheritance types, recessive and/or dominant or some type
+            if (cgd.containsKey(gene) && !cgd.get(gene).getGeneralizedInheritance().equals(generalizedInheritance.OTHER)) {
+
                 CGDEntry ce = cgd.get(gene);
                 HashMap<String, Entity> affectedSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), ce.getGeneralizedInheritance(), true);
                 HashMap<String, Entity> carrierSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), ce.getGeneralizedInheritance(), false);
+
+                rv.setAffectedSamples(affectedSamples);
+                rv.setCarrierSamples(carrierSamples);
+                rv.setCgdInfo(ce);
 
                 if(affectedSamples.size() > 0)
                 {
@@ -69,13 +74,49 @@ public class MatchVariantsToGenotypeAndInheritance {
 
 
             }
+            //"OTHER" inheritance types
+            else if(cgd.containsKey(gene))
+            {
+                CGDEntry ce = cgd.get(gene);
+                HashMap<String, Entity> unknownInheritanceSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), generalizedInheritance.OTHER, true);
 
-            if (!hit) {
-                System.out.println("no hit.. genes: " + rv.getVariant().getGenes());
+                rv.setUnknownInheritanceModeSamples(unknownInheritanceSamples);
+                rv.setCgdInfo(ce);
+
+                if(unknownInheritanceSamples.size() > 0)
+                {
+                    System.out.println(gene + " in CGD but non-regular inheritance " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + unknownInheritanceSamples.size() + " \"affected\" samples");
+
+                }
+
             }
+            //not in CGD at all
+            else
+            {
+
+                HashMap<String, Entity> unknownInheritanceSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), generalizedInheritance.OTHER, true);
+
+                rv.setUnknownInheritanceModeSamples(unknownInheritanceSamples);
+
+                if(unknownInheritanceSamples.size() > 0)
+                {
+                    System.out.println(gene + " (not in CGD) has " + unknownInheritanceSamples.size() + " \"affected\" samples");
+                }
+            }
+
         }
     }
 
+    /**
+     * TODO: compound heterozygous
+     * TODO: trio filter
+     * @param record
+     * @param alt
+     * @param inheritance
+     * @param lookingForAffected
+     * @return
+     * @throws Exception
+     */
     public HashMap<String, Entity> findMatchingSamples(VcfEntity record, String alt, generalizedInheritance inheritance, boolean lookingForAffected) throws Exception {
         int altIndex = VcfEntity.getAltAlleleIndex(record, alt);
         HashMap<String, Entity> matchingSamples = new HashMap<>();
@@ -131,6 +172,7 @@ public class MatchVariantsToGenotypeAndInheritance {
 
             //other types (digenic, maternal, YL, bloodgroup etc)
             //report when 1 alle found
+            //TODO: same as dominant?
             else if(inheritance.equals(generalizedInheritance.OTHER))
             {
                 if ( genotype.contains(altIndex+"") && lookingForAffected )
