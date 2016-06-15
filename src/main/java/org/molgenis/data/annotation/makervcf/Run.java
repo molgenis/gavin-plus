@@ -24,7 +24,7 @@ public class Run {
     public Run(File vcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode) throws Exception
     {
         List<RelevantVariant> relevantVariants = new DiscoverRelevantVariants(vcfFile, gavinFile, clinvarFile, caddFile, mode).findRelevantVariants();
-        System.out.println("found " + relevantVariants.size() + " interesting variants");
+        System.out.println("###\nFound " + relevantVariants.size() + " interesting variants!");
 
         //enhance relevant variants with sample genotype disease inheritance mode matches
         new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();

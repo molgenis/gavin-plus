@@ -36,7 +36,7 @@ public class VcfEntity {
         this.clinvar = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
         this.alts = record.getString("ALT").split(",", -1);
         this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF", true);
-        this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED", true);
+        this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED", false);
         this.ann = record.getString("ANN");
         this.genes = GavinUtils.getGenesFromAnn(ann);
 
@@ -145,6 +145,9 @@ public class VcfEntity {
         return genes;
     }
 
+    public static int getAltAlleleIndex(VcfEntity record, String alt) {
+        return Arrays.asList(record.getAlts()).indexOf(alt) + 1;
+    }
 
     @Override
     public String toString() {
@@ -158,10 +161,7 @@ public class VcfEntity {
                 ", exac_AFs=" + Arrays.toString(exac_AFs) +
                 ", caddPhredScores=" + Arrays.toString(caddPhredScores) +
                 ", genes=" + genes +
+                ", samples=" + samples +
                 '}';
-    }
-
-    public static int getAltAlleleIndex(VcfEntity record, String alt) {
-        return Arrays.asList(record.getAlts()).indexOf(alt) + 1;
     }
 }

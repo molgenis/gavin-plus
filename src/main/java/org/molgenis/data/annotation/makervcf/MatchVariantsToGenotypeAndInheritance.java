@@ -43,13 +43,14 @@ public class MatchVariantsToGenotypeAndInheritance {
             String gavinGene = rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null;
             String clinvarGene = rv.getClinvarJudgment().getGene() != null ? rv.getClinvarJudgment().getGene() : null;
 
+            //extra checks that things are okay
             if(gavinGene != null && clinvarGene != null && !gavinGene.equals(clinvarGene))
             {
-                System.out.println("WARNING conflicting genes: " + gavinGene + " vs " + clinvarGene);
+                throw new Exception("Conflicting genes passed to MatchVariantsToGenotypeAndInheritance: " + gavinGene + " vs " + clinvarGene);
             }
             if(gavinGene == null && clinvarGene == null)
             {
-                throw new Exception("no genes!!");
+                throw new Exception("No genes passed to MatchVariantsToGenotypeAndInheritance!");
             }
 
             String gene = gavinGene != null ? gavinGene : clinvarGene;
@@ -60,7 +61,11 @@ public class MatchVariantsToGenotypeAndInheritance {
                 HashMap<String, Entity> affectedSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), ce.getGeneralizedInheritance(), true);
                 HashMap<String, Entity> carrierSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), ce.getGeneralizedInheritance(), false);
 
-                System.out.println(gene + " " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + affectedSamples.size() + " affected and " + carrierSamples.size() + " carriers");
+                if(affectedSamples.size() > 0)
+                {
+                    System.out.println(gene + " " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + affectedSamples.size() + " affected and " + carrierSamples.size() + " carriers");
+
+                }
 
 
             }
