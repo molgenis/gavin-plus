@@ -1,9 +1,23 @@
 package org.molgenis.data.annotation.makervcf;
 
+import com.google.common.collect.Lists;
+import org.molgenis.data.AttributeMetaData;
+import org.molgenis.data.Entity;
+import org.molgenis.data.EntityMetaData;
+import org.molgenis.data.MolgenisInvalidFormatException;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.support.DefaultAttributeMetaData;
+import org.molgenis.data.vcf.utils.VcfWriterUtils;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.meta.VcfMeta;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,37 +35,57 @@ import java.util.List;
  */
 public class Run {
 
-    public Run(File vcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode) throws Exception
+    public Run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode, File outputVcfFile) throws Exception
     {
-        List<RelevantVariant> relevantVariants = new DiscoverRelevantVariants(vcfFile, gavinFile, clinvarFile, caddFile, mode).findRelevantVariants();
+        DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode);
+        List<RelevantVariant> relevantVariants = discover.findRelevantVariants();
         System.out.println("###\nFound " + relevantVariants.size() + " interesting variants!");
 
         //enhance relevant variants with sample genotype disease inheritance mode matches
         new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
 
+        AttributeMetaData rlv = new DefaultAttributeMetaData("RLV").setDescription("Allele | Gene | Phenotype | CarrierSamples | CarrierSampleGroups | AffectedSamples | AffectedSampleGroups | CompoundHet | PredictionTool | TrustedSource | Reason");
 
-//        for(RelevantVariant rv : relevantVariants)
-//        {
-//            System.out.println(rv.toString());
-//        }
+        new MakeRVCFforClinicalVariants(relevantVariants, rlv).addRVCFfield();
+
+        writeRVCF(relevantVariants, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv);
+
+    }
+
+    public void writeRVCF(List<RelevantVariant> relevantVariants, File writeTo, File inputVcfFile, EntityMetaData vcfMeta, AttributeMetaData rlv) throws IOException, MolgenisInvalidFormatException {
+
+        List<AttributeMetaData> attributes = Lists.newArrayList(vcfMeta.getAttributes());
+        attributes.add(rlv);
+        FileWriter fw = new FileWriter(writeTo);
+        BufferedWriter outputVCFWriter = new BufferedWriter(fw);
+        VcfWriterUtils.writeVcfHeader(inputVcfFile, outputVCFWriter, attributes);
+
+        for(RelevantVariant rv : relevantVariants)
+        {
+            System.out.println(rv.getVariant().getOrignalEntity().toString());
+            VcfWriterUtils.writeToVcf(rv.getVariant().getOrignalEntity(), outputVCFWriter);
+            outputVCFWriter.newLine();
+        }
+        outputVCFWriter.close();
     }
 
     public static void main(String[] args) throws Exception {
-        if(args.length != 6)
+        if(args.length != 7)
         {
-            throw new Exception("please provide: input vcf, gavin calibration, clinvar vcf, CGD file, cadd supplement file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"]");
+            throw new Exception("please provide: input VCF file, GAVIN calibration file, ClinVar VCF file, CGD file, CADD supplement file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"], output VCF file");
         }
 
-        File vcfFile = new File(args[0]);
+        File inputVcfFile = new File(args[0]);
         File gavinFile = new File(args[1]);
         File clinvarFile = new File(args[2]);
         File cgdFile = new File(args[3]);
         File caddFile = new File(args[4]);
         Mode mode = Mode.valueOf(args[5]);
+        File outputVcfFile = new File(args[6]);
 
-        if(!vcfFile.isFile())
+        if(!inputVcfFile.isFile())
         {
-            throw new Exception("VCF input file "+vcfFile+" does not exist or is directory");
+            throw new Exception("Input VCF file "+inputVcfFile+" does not exist or is directory");
         }
         if(!gavinFile.isFile())
         {
@@ -86,7 +120,12 @@ public class Run {
             }
         }
 
-        new Run(vcfFile, gavinFile, clinvarFile, cgdFile, caddFile, mode);
+        if (outputVcfFile.isFile())
+        {
+            throw new Exception("output VCF file "+outputVcfFile.getAbsolutePath()+" already exists, deleting !");
+        }
+
+        new Run(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, mode, outputVcfFile);
 
     }
 

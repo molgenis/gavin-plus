@@ -13,6 +13,8 @@ import java.util.Set;
  * Created by joeri on 6/1/16.
  */
 public class VcfEntity {
+
+    private Entity orignalEntity;
     private String chr;
     private String pos;
     private String ref;
@@ -29,6 +31,7 @@ public class VcfEntity {
 
     public VcfEntity(Entity record) throws Exception
     {
+        this.orignalEntity = record;
         this.samples = record.getEntities(VcfRepository.SAMPLES);
         this.chr = record.getString("#CHROM");
         this.pos = record.getString("POS");
@@ -41,6 +44,10 @@ public class VcfEntity {
         this.genes = GavinUtils.getGenesFromAnn(ann);
 
 
+    }
+
+    public Entity getOrignalEntity() {
+        return orignalEntity;
     }
 
     public Double[] setAltAlleleOrderedDoubleField(Entity record, String fieldName, boolean zeroForNull) throws Exception {

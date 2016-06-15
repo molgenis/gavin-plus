@@ -16,22 +16,27 @@ public class RelevantVariant
     Judgment gavinJudgment;
     Judgment clinvarJudgment;
     String allele;
-    //TODO list of matching affected samples & carriers ?
+    String gene;
     HashMap<String, Entity> affectedSamples;
     HashMap<String, Entity> carrierSamples;
     HashMap<String, Entity> unknownInheritanceModeSamples;
     CGDEntry cgdInfo;
 
-    public RelevantVariant(VcfEntity variant, String allele, Judgment gavinJudgment, Judgment clinvarJudgment)
+    public RelevantVariant(VcfEntity variant, String allele, String gene, Judgment gavinJudgment, Judgment clinvarJudgment)
     {
         this.variant = variant;
         this.allele = allele;
+        this.gene = gene;
         this.gavinJudgment = gavinJudgment;
         this.clinvarJudgment = clinvarJudgment;
     }
 
     public String getAllele() {
         return allele;
+    }
+
+    public String getGene() {
+        return gene;
     }
 
     public VcfEntity getVariant() {

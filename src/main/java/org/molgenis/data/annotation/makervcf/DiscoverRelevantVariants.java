@@ -1,6 +1,7 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
+import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
@@ -28,6 +29,7 @@ public class DiscoverRelevantVariants {
     private GavinUtils gavin;
     private HandleMissingCaddScores hmcs;
     private ClinVar clinvar;
+    private EntityMetaData vcfMeta;
 
     public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, Mode mode) throws Exception
     {
@@ -35,6 +37,12 @@ public class DiscoverRelevantVariants {
         this.clinvar = new ClinVar(clinvarFile);
         this.gavin = new GavinUtils(gavinFile);
         this.hmcs = new HandleMissingCaddScores(mode, caddFile);
+        this.vcfMeta = vcf.getEntityMetaData();
+    }
+
+
+    public EntityMetaData getVcfMeta() {
+        return vcfMeta;
     }
 
     public List<RelevantVariant> findRelevantVariants() throws Exception
@@ -61,7 +69,7 @@ public class DiscoverRelevantVariants {
                     Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene);
                     if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogn) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogn))
                     {
-                        relevantVariants.add(new RelevantVariant(record, record.getAlts(i), gavinJudgment, clinvarJudgment));
+                        relevantVariants.add(new RelevantVariant(record, record.getAlts(i), gene, gavinJudgment, clinvarJudgment));
                     }
                 }
             }
