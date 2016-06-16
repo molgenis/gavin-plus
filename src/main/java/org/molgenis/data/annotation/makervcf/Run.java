@@ -70,6 +70,10 @@ public class Run {
     }
 
     public static void main(String[] args) throws Exception {
+
+        // FOR DEVELOPMENT
+        new File(args[6]).delete();
+
         if(args.length != 7)
         {
             throw new Exception("please provide: input VCF file, GAVIN calibration file, ClinVar VCF file, CGD file, CADD supplement file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"], output VCF file");
