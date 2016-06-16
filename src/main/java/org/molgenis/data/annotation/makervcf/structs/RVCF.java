@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,12 +24,26 @@ public class RVCF {
 
     @Override
     public String toString() {
-    //    return allele + "|" + gene + "|" + phenoType + "|" + carrierSamples.toString() + "|" + carrierSampleGroups.toString() + "|" + affectedSamples.toString() + "|" + affectedSampleGroups.toString() + "|" + comoundHet + "|" + predictionTool + "|" + trustedSource + "|" + reason;
-        return allele + "|" + gene;
+        return getAllele() + "|" + getGene() + "|" + getPhenoType() + "|" + printSampleList(getCarrierSamples()) + "|" + printSampleList(getCarrierSampleGroups()) + "|" + printSampleList(getAffectedSamples()) + "|" + printSampleList(getAffectedSampleGroups()) + "|" + getComoundHet() + "|" + getPredictionTool() + "|" + getTrustedSource() + "|" + getReason();
+    }
+
+    public String printSampleList(List<String> samples){
+        if(samples.size() == 0)
+        {
+            return "";
+        }
+        StringBuffer sb = new StringBuffer();
+        for(String sample : samples)
+        {
+            sb.append(sample);
+            sb.append("/");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
     }
 
     public String getAllele() {
-        return allele;
+        return allele != null  ? allele : "";
     }
 
     public void setAllele(String allele) {
@@ -36,7 +51,7 @@ public class RVCF {
     }
 
     public String getGene() {
-        return gene;
+        return gene != null ? gene : "";
     }
 
     public void setGene(String gene) {
@@ -44,7 +59,7 @@ public class RVCF {
     }
 
     public String getPhenoType() {
-        return phenoType;
+        return phenoType != null ? phenoType : "";
     }
 
     public void setPhenoType(String phenoType) {
@@ -52,7 +67,7 @@ public class RVCF {
     }
 
     public List<String> getAffectedSamples() {
-        return affectedSamples;
+        return affectedSamples != null ? affectedSamples : new ArrayList<String>();
     }
 
     public void setAffectedSamples(List<String> affectedSamples) {
@@ -60,7 +75,7 @@ public class RVCF {
     }
 
     public List<String> getAffectedSampleGroups() {
-        return affectedSampleGroups;
+        return affectedSampleGroups != null ? affectedSampleGroups : new ArrayList<String>();
     }
 
     public void setAffectedSampleGroups(List<String> affectedSampleGroups) {
@@ -68,7 +83,7 @@ public class RVCF {
     }
 
     public List<String> getCarrierSamples() {
-        return carrierSamples;
+        return carrierSamples != null ? carrierSamples : new ArrayList<String>();
     }
 
     public void setCarrierSamples(List<String> carrierSamples) {
@@ -76,7 +91,7 @@ public class RVCF {
     }
 
     public List<String> getCarrierSampleGroups() {
-        return carrierSampleGroups;
+        return carrierSampleGroups != null ? carrierSampleGroups : new ArrayList<String>();
     }
 
     public void setCarrierSampleGroups(List<String> carrierSampleGroups) {
@@ -84,7 +99,7 @@ public class RVCF {
     }
 
     public String getComoundHet() {
-        return comoundHet;
+        return comoundHet != null ? comoundHet : "";
     }
 
     public void setComoundHet(String comoundHet) {
@@ -92,7 +107,7 @@ public class RVCF {
     }
 
     public String getPredictionTool() {
-        return predictionTool;
+        return predictionTool != null ? predictionTool : "";
     }
 
     public void setPredictionTool(String predictionTool) {
@@ -100,7 +115,7 @@ public class RVCF {
     }
 
     public String getTrustedSource() {
-        return trustedSource;
+        return trustedSource != null ? trustedSource : "";
     }
 
     public void setTrustedSource(String trustedSource) {
@@ -108,7 +123,7 @@ public class RVCF {
     }
 
     public String getReason() {
-        return reason;
+        return reason != null ? reason : "";
     }
 
     public void setReason(String reason) {
