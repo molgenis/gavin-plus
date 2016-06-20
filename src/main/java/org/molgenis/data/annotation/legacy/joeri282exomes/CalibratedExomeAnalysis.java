@@ -16,7 +16,8 @@ import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.cmd.CommandLineAnnotatorConfig;
-import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner.Impact;
+import org.molgenis.data.annotation.entity.impl.gavin.GavinAlgorithm;
+import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
 
 import org.molgenis.data.annotation.legacy.joeri282exomes.struct.CGDgenes;
 import org.molgenis.data.vcf.VcfRepository;
@@ -284,15 +285,15 @@ public class CalibratedExomeAnalysis
 					
 					Judgment judgment = null;
 				
-					judgment = ccgg.classifyVariant(gene, exac_af, impact, cadd);
+					judgment = new GavinAlgorithm().classifyVariant(impact, cadd, exac_af, gene, null, ccgg.getGeneToEntry());
 
-					if (judgment.getClassification().equals(Judgment.Classification.Pathogn) || judgment.getClassification().equals(Judgment.Classification.VOUS))
+					if (judgment.getClassification().equals(Classification.Pathogenic) || judgment.getClassification().equals(Judgment.Classification.VOUS))
 					{
 						HashMap<String, Entity> samples = findInterestingSamples(record, gene, i, exac_het, exac_hom);
 						if(samples.size() > 0)
 						{
 							CandidateVariant cv = new CandidateVariant(record, alt, i, gene, cadd, judgment, samples);
-							if(judgment.getClassification().equals(Judgment.Classification.Pathogn))
+							if(judgment.getClassification().equals(Classification.Pathogenic))
 							{
 								pathoVariants.add(cv);
 								variantRefAltGenePatho++;

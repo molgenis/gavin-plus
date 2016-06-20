@@ -53,9 +53,9 @@ public class MakeRVCFforClinicalVariants {
             if(rv.getCgdInfo() != null) {
                 rvcf.setPhenoType(rv.getCgdInfo().getCondition());
             }
-            rvcf.setPredictionTool(rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogn) ? "GAVIN" : "");
-            rvcf.setPredictionTool(rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogn) ? "ClinVar" : "");
-            rvcf.setReason((rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogn) ? rv.getGavinJudgment().getReason() : "") + (rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogn) ? rv.getClinvarJudgment().getReason() : ""));
+            rvcf.setPredictionTool(rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic) ? "GAVIN" : "");
+            rvcf.setPredictionTool(rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic) ? "ClinVar" : "");
+            rvcf.setReason((rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic) ? rv.getGavinJudgment().getReason() : "") + (rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic) ? rv.getClinvarJudgment().getReason() : ""));
 
             Entity e = rv.getVariant().getOrignalEntity();
             DefaultEntityMetaData emd = (DefaultEntityMetaData) e.getEntityMetaData();

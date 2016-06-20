@@ -60,7 +60,7 @@ public class ClinVar {
                 if (!clinvarGene.equalsIgnoreCase(gene)) {
                     System.out.println("WARNING: genes did not match: " + clinvarGene + " vs " + gene + ". Reporting under '" + gene + "' while preserving ClinVar data '" + clinvarInfo + "'.");
                 }
-                return new Judgment(Judgment.Classification.Pathogn, Judgment.Method.genomewide, gene, clinvarInfo);
+                return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, clinvarInfo);
             } else {
                 throw new Exception("clinvar hit is not pathogenic: " + clinvarInfo);
             }

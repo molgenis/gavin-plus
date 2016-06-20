@@ -2,7 +2,7 @@ package org.molgenis.data.annotation.makervcf.structs;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.Entity;
-import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner;
+import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
 import org.molgenis.data.vcf.VcfRepository;
 
 
@@ -91,7 +91,7 @@ public class VcfEntity {
     }
 
 
-    public SnpEffRunner.Impact getImpact(int i, String gene) throws Exception {
+    public Impact getImpact(int i, String gene) throws Exception {
         return GavinUtils.getImpact(this.ann, gene, this.alts[i]);
     }
 

@@ -15,7 +15,7 @@ import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.cmd.CommandLineAnnotatorConfig;
-import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner.Impact;
+import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
 import org.molgenis.data.annotation.legacy.joeri282exomes.struct.GeneGroupsAlleleCountUtils;
 import org.molgenis.data.vcf.VcfRepository;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -177,21 +177,21 @@ public class FEEWAS
 					}
 					
 					Judgment judgment = null;
-					
-					judgment = ccgg.classifyVariant(gene, exac_af, impact, cadd);
-					
-					if(judgment.getClassification().equals(Judgment.Classification.Pathogn))
-					{
-						
-						countGroupSamples(record, i, geneGroupCountsPathogenic, gene);
-						if(!geneLocs.containsKey(gene)) { geneLocs.put(gene, chr + "\t" + pos); }
-				//		System.out.println("geneGroupCountsPathogenic=" + geneGroupCountsPathogenic.toString());
-					}
-					else if(judgment.getClassification().equals(Judgment.Classification.VOUS))
-					{
-						countGroupSamples(record, i, geneGroupCountsVOUS, gene);
-						if(!geneLocs.containsKey(gene)) { geneLocs.put(gene, chr + "\t" + pos); }
-					}
+//
+//					judgment = ccgg.classifyVariant(gene, exac_af, impact, cadd);
+//
+//					if(judgment.getClassification().equals(Judgment.Classification.Pathogn))
+//					{
+//
+//						countGroupSamples(record, i, geneGroupCountsPathogenic, gene);
+//						if(!geneLocs.containsKey(gene)) { geneLocs.put(gene, chr + "\t" + pos); }
+//				//		System.out.println("geneGroupCountsPathogenic=" + geneGroupCountsPathogenic.toString());
+//					}
+//					else if(judgment.getClassification().equals(Judgment.Classification.VOUS))
+//					{
+//						countGroupSamples(record, i, geneGroupCountsVOUS, gene);
+//						if(!geneLocs.containsKey(gene)) { geneLocs.put(gene, chr + "\t" + pos); }
+//					}
 
 				
 				}

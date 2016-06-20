@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import org.molgenis.data.Entity;
-import org.molgenis.data.annotation.entity.impl.snpEff.SnpEffRunner.Impact;
+import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
 import org.molgenis.data.annotator.tabix.TabixReader;
 import org.molgenis.data.annotator.tabix.TabixVcfRepository;
 import org.molgenis.data.vcf.VcfRepository;
