@@ -6,6 +6,7 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisInvalidFormatException;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
+import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
 import org.molgenis.data.vcf.utils.VcfWriterUtils;
@@ -44,7 +45,7 @@ public class Run {
         //enhance relevant variants with sample genotype disease inheritance mode matches
         new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
 
-        AttributeMetaData rlv = new DefaultAttributeMetaData("RLV").setDescription("Allele | Gene | Phenotype | CarrierSamples | CarrierSampleGroups | AffectedSamples | AffectedSampleGroups | CompoundHet | PredictionTool | TrustedSource | Reason");
+        AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
 
         new MakeRVCFforClinicalVariants(relevantVariants, rlv).addRVCFfield();
 

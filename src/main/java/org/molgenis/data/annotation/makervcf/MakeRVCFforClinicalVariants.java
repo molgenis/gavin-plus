@@ -38,31 +38,40 @@ public class MakeRVCFforClinicalVariants {
         for(RelevantVariant rv : relevantVariants)
         {
 
+            boolean clinVarPatho = rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
+            boolean gavinPatho = rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
+
+
             RVCF rvcf = new RVCF();
 
-            rvcf.setAllele(rv.getAllele());
-            if(rv.getAffectedSamples() != null) {
-                rvcf.setAffectedSamples(new ArrayList<>(rv.getAffectedSamples().keySet()));
-            }
-            if(rv.getCarrierSamples() != null) {
-                rvcf.setCarrierSamples(new ArrayList<>(rv.getCarrierSamples().keySet()));
-            }
-
             rvcf.setGene(rv.getGene());
+            rvcf.setAllele(rv.getAllele());
+            rvcf.setTranscript(null);
 
             if(rv.getCgdInfo() != null) {
-                rvcf.setPhenoType(rv.getCgdInfo().getCondition());
+                rvcf.setPhenotype(rv.getCgdInfo().getCondition());
+                rvcf.setPhenotypeInheritance(rv.getCgdInfo().getGeneralizedInheritance().toString());
+                rvcf.setPhenotypeDetails("onset: " + rv.getCgdInfo().getAge_group());
+                rvcf.setPhenotypeGroup(null);
             }
-            rvcf.setPredictionTool(rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic) ? "GAVIN" : "");
-            rvcf.setPredictionTool(rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic) ? "ClinVar" : "");
-            rvcf.setReason((rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic) ? rv.getGavinJudgment().getReason() : "") + (rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic) ? rv.getClinvarJudgment().getReason() : ""));
+
+            rvcf.setVariantSignificance(clinVarPatho ? "Reported pathogenic" : gavinPatho ? "Predicted pathogenic" : "VUS");
+            rvcf.setVariantSignificanceSource(clinVarPatho ? "ClinVar" : gavinPatho ? "GAVIN" : "");
+            rvcf.setVariantSignificanceJustification(clinVarPatho ? rv.getClinvarJudgment().getReason() : gavinPatho ? rv.getGavinJudgment().getReason() : "");
+            rvcf.setVariantCompoundHet(null);
+            rvcf.setVariantGroup(null);
+
+            rvcf.setSampleStatus(rv.getSampleStatus());
+            rvcf.setSamplePhenotype(null);
+            rvcf.setSampleGroup(null);
+
 
             Entity e = rv.getVariant().getOrignalEntity();
             DefaultEntityMetaData emd = (DefaultEntityMetaData) e.getEntityMetaData();
             DefaultAttributeMetaData infoAttribute = (DefaultAttributeMetaData) emd.getAttribute(VcfRepository.INFO);
             infoAttribute.addAttributePart(rlv);
 
-            e.set("RLV",rvcf.toString());
+            e.set(RVCF.attributeName,rvcf.toString());
 
         }
     }

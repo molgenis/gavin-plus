@@ -56,14 +56,22 @@ public class MatchVariantsToGenotypeAndInheritance {
             String gene = gavinGene != null ? gavinGene : clinvarGene;
 
             // regular inheritance types, recessive and/or dominant or some type
-            if (cgd.containsKey(gene) && !cgd.get(gene).getGeneralizedInheritance().equals(generalizedInheritance.OTHER)) {
+            if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance().toString().contains("DOMINANT") || cgd.get(gene).getGeneralizedInheritance().toString().contains("RECESSIVE"))) {
 
                 CGDEntry ce = cgd.get(gene);
                 HashMap<String, Entity> affectedSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), ce.getGeneralizedInheritance(), true);
                 HashMap<String, Entity> carrierSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), ce.getGeneralizedInheritance(), false);
 
-                rv.setAffectedSamples(affectedSamples);
-                rv.setCarrierSamples(carrierSamples);
+                Map<String, String> sampleStatus = new HashMap<>();
+                for(String key : affectedSamples.keySet())
+                {
+                    sampleStatus.put(key, "AFFECTED");
+                }
+                for(String key : carrierSamples.keySet())
+                {
+                    sampleStatus.put(key, "CARRIER");
+                }
+                rv.setSampleStatus(sampleStatus);
                 rv.setCgdInfo(ce);
 
                 if(affectedSamples.size() > 0)
@@ -75,12 +83,15 @@ public class MatchVariantsToGenotypeAndInheritance {
 
             }
             //"OTHER" inheritance types
-            else if(cgd.containsKey(gene))
+            else if(cgd.containsKey(gene) && cgd.get(gene).getGeneralizedInheritance().equals(generalizedInheritance.OTHER) )
             {
                 CGDEntry ce = cgd.get(gene);
                 HashMap<String, Entity> unknownInheritanceSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), generalizedInheritance.OTHER, true);
 
-                rv.setUnknownInheritanceModeSamples(unknownInheritanceSamples);
+                Map<String, String> sampleStatus = new HashMap<>();
+               //TODO
+                rv.setSampleStatus(sampleStatus);
+
                 rv.setCgdInfo(ce);
 
                 if(unknownInheritanceSamples.size() > 0)
@@ -90,13 +101,20 @@ public class MatchVariantsToGenotypeAndInheritance {
                 }
 
             }
+            else if(cgd.containsKey(gene) && cgd.get(gene).getGeneralizedInheritance().equals(generalizedInheritance.BLOODGROUP) )
+            {
+
+            }
             //not in CGD at all
             else
             {
 
                 HashMap<String, Entity> unknownInheritanceSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), generalizedInheritance.OTHER, true);
 
-                rv.setUnknownInheritanceModeSamples(unknownInheritanceSamples);
+
+                Map<String, String> sampleStatus = new HashMap<>();
+                //TODO
+                rv.setSampleStatus(sampleStatus);
 
                 if(unknownInheritanceSamples.size() > 0)
                 {

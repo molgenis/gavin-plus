@@ -1,79 +1,103 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.base.Splitter;
+
+import java.util.*;
 
 /**
  * Created by joeri on 6/1/16.
  */
 public class RVCF {
 
+    private static int nrOfFields = 15;
+    private static String RVCF_SAMPLESEP = "/";
+    private static String RVCF_FIELDSEP = "|";
+    private static String RVCF_KEYVALSEP = ":";
+    private static String VCF_INFOFIELDSEP= ";";
 
-    // 11 fields
+    public static String attributeName = "RLV";
+    public static String attributeMetaData = "Allele "+RVCF_FIELDSEP+" Gene "+RVCF_FIELDSEP+" Transcript "+RVCF_FIELDSEP +
+            " Phenotype "+RVCF_FIELDSEP+" PhenotypeInheritance "+RVCF_FIELDSEP+" PhenotypeDetails "+RVCF_FIELDSEP+" PhenotypeGroup "+RVCF_FIELDSEP +
+            " SampleStatus "+RVCF_FIELDSEP+" SamplePhenotype "+RVCF_FIELDSEP+" SampleGroup "+RVCF_FIELDSEP +
+            " VariantSignificance "+RVCF_FIELDSEP+" VariantSignificanceSource "+RVCF_FIELDSEP+" VariantSignificanceJustification "+RVCF_FIELDSEP+" VariantCompoundHet "+RVCF_FIELDSEP+" VariantGroup";
+
     String allele;
     String gene;
-    String phenoType;
-    List<String> affectedSamples;
-    List<String> affectedSampleGroups;
-    List<String> carrierSamples;
-    List<String> carrierSampleGroups;
-    String compoundHet;
-    String predictionTool;
-    String trustedSource;
-    String reason;
+    String transcript;
+    String phenotype;
+    String phenotypeInheritance;
+    String phenotypeDetails;
+    String phenotypeGroup;
+    Map<String, String> sampleStatus;
+    Map<String, String> samplePhenotype;
+    Map<String, String> sampleGroup;
+    String variantSignificance;
+    String variantSignificanceSource;
+    String variantSignificanceJustification;
+    String variantCompoundHet;
+    String variantGroup;
 
-    private String SAMPLELISTSEPARATOR = "/";
-
-    @Override
-    public String toString() {
-        return getAllele() + "|" + getGene() + "|" + getPhenoType() + "|" + printSampleList(getCarrierSamples()) + "|" + printSampleList(getCarrierSampleGroups()) + "|" + printSampleList(getAffectedSamples()) + "|" + printSampleList(getAffectedSampleGroups()) + "|" + getCompoundHet() + "|" + getPredictionTool() + "|" + getTrustedSource() + "|" + getReason();
-    }
 
     public RVCF fromString(String rvcfEntry) throws Exception {
         String[] split = rvcfEntry.split("\\|", -1);
         RVCF rvcfInstance = new RVCF();
-        if(split.length != 11)
+        if(split.length != nrOfFields)
         {
-            throw new Exception("Splitting RVCF entry did not yield 11 fields, invalid format?");
+            throw new Exception("Splitting RVCF entry on '|' did not yield "+nrOfFields+" fields, invalid format?");
         }
         rvcfInstance.setAllele(split[0]);
         rvcfInstance.setGene(split[1]);
-        rvcfInstance.setPhenoType(split[2]);
-        rvcfInstance.setAffectedSamples(Arrays.asList(split[3].split(SAMPLELISTSEPARATOR)));
-        rvcfInstance.setAffectedSampleGroups(Arrays.asList(split[4].split(SAMPLELISTSEPARATOR)));
-        rvcfInstance.setCarrierSamples(Arrays.asList(split[5].split(SAMPLELISTSEPARATOR)));
-        rvcfInstance.setCarrierSampleGroups(Arrays.asList(split[6].split(SAMPLELISTSEPARATOR)));
-        rvcfInstance.setCompoundHet(split[7]);
-        rvcfInstance.setPredictionTool(split[8]);
-        rvcfInstance.setTrustedSource(split[9]);
-        rvcfInstance.setReason(split[10]);
+        rvcfInstance.setTranscript(split[2]);
+
+        rvcfInstance.setPhenotype(split[3]);
+        rvcfInstance.setPhenotypeInheritance(split[4]);
+        rvcfInstance.setPhenotypeDetails(split[5]);
+        rvcfInstance.setPhenotypeGroup(split[6]);
+
+        rvcfInstance.setSampleStatus(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[7]));
+        rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[8]));
+        rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[9]));
+
+        rvcfInstance.setVariantSignificance(split[10]);
+        rvcfInstance.setVariantSignificanceSource(split[11]);
+        rvcfInstance.setVariantSignificanceJustification(split[12]);
+        rvcfInstance.setVariantCompoundHet(split[13]);
+        rvcfInstance.setVariantGroup(split[14]);
 
         return rvcfInstance;
     }
 
-    public String printSampleList(List<String> samples){
+    public String escapeToSafeVCF (String in)
+    {
+        return in.replace(VCF_INFOFIELDSEP, "").replace(RVCF_FIELDSEP, "").replace(RVCF.RVCF_SAMPLESEP, "");
+    }
+
+    @Override
+    public String toString() {
+        return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getTranscript()) + RVCF_FIELDSEP +
+                escapeToSafeVCF(getPhenotype()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeInheritance()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeDetails()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeGroup()) + RVCF_FIELDSEP +
+                printSampleList(getSampleStatus()) + RVCF_FIELDSEP + printSampleList(getSamplePhenotype()) + RVCF_FIELDSEP + printSampleList(getSampleGroup()) + RVCF_FIELDSEP +
+                escapeToSafeVCF(getVariantSignificance()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceSource()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceJustification()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantCompoundHet()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantGroup());
+    }
+
+    public String printSampleList(Map<String, String> samples){
         if(samples.size() == 0)
         {
             return "";
         }
         StringBuffer sb = new StringBuffer();
-        for(String sample : samples)
+        for(String sample : samples.keySet())
         {
-            sb.append(sample);
-            sb.append(SAMPLELISTSEPARATOR);
+            sb.append(escapeToSafeVCF(sample) + RVCF_KEYVALSEP + escapeToSafeVCF(samples.get(sample)) + RVCF_SAMPLESEP);
         }
         sb.deleteCharAt(sb.length()-1);
         return sb.toString();
     }
 
-    public String escapeToSafeVCF (String in)
-    {
-        return in.replace(";", ",").replace("|", ",");
-    }
+
 
     public String getAllele() {
-        return allele != null  ? allele : "";
+        return allele != null ? allele : "";
     }
 
     public void setAllele(String allele) {
@@ -88,75 +112,107 @@ public class RVCF {
         this.gene = gene;
     }
 
-    public String getPhenoType() {
-        return phenoType != null ? escapeToSafeVCF(phenoType) : "";
+    public String getTranscript() {
+        return transcript != null ? transcript : "";
     }
 
-    public void setPhenoType(String phenoType) {
-        this.phenoType = phenoType;
+    public void setTranscript(String transcript) {
+        this.transcript = transcript;
     }
 
-    public List<String> getAffectedSamples() {
-        return affectedSamples != null ? affectedSamples : new ArrayList<String>();
+    public String getPhenotype() {
+        return phenotype != null ? phenotype : "";
     }
 
-    public void setAffectedSamples(List<String> affectedSamples) {
-        this.affectedSamples = affectedSamples;
+    public void setPhenotype(String phenotype) {
+        this.phenotype = phenotype;
     }
 
-    public List<String> getAffectedSampleGroups() {
-        return affectedSampleGroups != null ? affectedSampleGroups : new ArrayList<String>();
+    public String getPhenotypeInheritance() {
+        return phenotypeInheritance != null ? phenotypeInheritance : "";
     }
 
-    public void setAffectedSampleGroups(List<String> affectedSampleGroups) {
-        this.affectedSampleGroups = affectedSampleGroups;
+    public void setPhenotypeInheritance(String phenotypeInheritance) {
+        this.phenotypeInheritance = phenotypeInheritance;
     }
 
-    public List<String> getCarrierSamples() {
-        return carrierSamples != null ? carrierSamples : new ArrayList<String>();
+    public String getPhenotypeDetails() {
+        return phenotypeDetails != null ? phenotypeDetails : "";
     }
 
-    public void setCarrierSamples(List<String> carrierSamples) {
-        this.carrierSamples = carrierSamples;
+    public void setPhenotypeDetails(String phenotypeDetails) {
+        this.phenotypeDetails = phenotypeDetails;
     }
 
-    public List<String> getCarrierSampleGroups() {
-        return carrierSampleGroups != null ? carrierSampleGroups : new ArrayList<String>();
+    public String getPhenotypeGroup() {
+        return phenotypeGroup != null ? phenotypeGroup : "";
     }
 
-    public void setCarrierSampleGroups(List<String> carrierSampleGroups) {
-        this.carrierSampleGroups = carrierSampleGroups;
+    public void setPhenotypeGroup(String phenotypeGroup) {
+        this.phenotypeGroup = phenotypeGroup;
     }
 
-    public String getCompoundHet() {
-        return compoundHet != null ? compoundHet : "";
+    public Map<String, String> getSampleStatus() {
+        return sampleStatus != null ? sampleStatus : new HashMap<String, String>();
     }
 
-    public void setCompoundHet(String compoundHet) {
-        this.compoundHet = compoundHet;
+    public void setSampleStatus(Map<String, String> sampleStatus) {
+        this.sampleStatus = sampleStatus;
     }
 
-    public String getPredictionTool() {
-        return predictionTool != null ? predictionTool : "";
+    public Map<String, String> getSamplePhenotype() {
+        return samplePhenotype != null ? samplePhenotype : new HashMap<String, String>();
     }
 
-    public void setPredictionTool(String predictionTool) {
-        this.predictionTool = predictionTool;
+    public void setSamplePhenotype(Map<String, String> samplePhenotype) {
+        this.samplePhenotype = samplePhenotype;
     }
 
-    public String getTrustedSource() {
-        return trustedSource != null ? trustedSource : "";
+    public Map<String, String> getSampleGroup() {
+        return sampleGroup != null ? sampleGroup : new HashMap<String, String>();
     }
 
-    public void setTrustedSource(String trustedSource) {
-        this.trustedSource = trustedSource;
+    public void setSampleGroup(Map<String, String> sampleGroup) {
+        this.sampleGroup = sampleGroup;
     }
 
-    public String getReason() {
-        return reason != null ? reason : "";
+    public String getVariantSignificance() {
+        return variantSignificance != null ? variantSignificance : "";
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setVariantSignificance(String variantSignificance) {
+        this.variantSignificance = variantSignificance;
+    }
+
+    public String getVariantSignificanceSource() {
+        return variantSignificanceSource != null ? variantSignificanceSource : "";
+    }
+
+    public void setVariantSignificanceSource(String variantSignificanceSource) {
+        this.variantSignificanceSource = variantSignificanceSource;
+    }
+
+    public String getVariantSignificanceJustification() {
+        return variantSignificanceJustification != null ? variantSignificanceJustification : "";
+    }
+
+    public void setVariantSignificanceJustification(String variantSignificanceJustification) {
+        this.variantSignificanceJustification = variantSignificanceJustification;
+    }
+
+    public String getVariantCompoundHet() {
+        return variantCompoundHet != null ? variantCompoundHet : "";
+    }
+
+    public void setVariantCompoundHet(String variantCompoundHet) {
+        this.variantCompoundHet = variantCompoundHet;
+    }
+
+    public String getVariantGroup() {
+        return variantGroup != null ? variantGroup : "";
+    }
+
+    public void setVariantGroup(String variantGroup) {
+        this.variantGroup = variantGroup;
     }
 }

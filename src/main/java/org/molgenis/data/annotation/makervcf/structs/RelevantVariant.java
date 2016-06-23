@@ -6,6 +6,7 @@ import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by joeri on 6/13/16.
@@ -17,9 +18,8 @@ public class RelevantVariant
     Judgment clinvarJudgment;
     String allele;
     String gene;
-    HashMap<String, Entity> affectedSamples;
-    HashMap<String, Entity> carrierSamples;
-    HashMap<String, Entity> unknownInheritanceModeSamples;
+    Map<String, String> sampleStatus;
+
     CGDEntry cgdInfo;
 
     public RelevantVariant(VcfEntity variant, String allele, String gene, Judgment gavinJudgment, Judgment clinvarJudgment)
@@ -68,27 +68,11 @@ public class RelevantVariant
         this.cgdInfo = cgdInfo;
     }
 
-    public HashMap<String, Entity> getAffectedSamples() {
-        return affectedSamples;
+    public Map<String, String> getSampleStatus() {
+        return sampleStatus != null ? sampleStatus : new HashMap<String, String>();
     }
 
-    public void setAffectedSamples(HashMap<String, Entity> affectedSamples) {
-        this.affectedSamples = affectedSamples;
-    }
-
-    public HashMap<String, Entity> getCarrierSamples() {
-        return carrierSamples;
-    }
-
-    public void setCarrierSamples(HashMap<String, Entity> carrierSamples) {
-        this.carrierSamples = carrierSamples;
-    }
-
-    public HashMap<String, Entity> getUnknownInheritanceModeSamples() {
-        return unknownInheritanceModeSamples;
-    }
-
-    public void setUnknownInheritanceModeSamples(HashMap<String, Entity> unknownInheritanceModeSamples) {
-        this.unknownInheritanceModeSamples = unknownInheritanceModeSamples;
+    public void setSampleStatus(Map<String, String> sampleStatus) {
+        this.sampleStatus = sampleStatus;
     }
 }
