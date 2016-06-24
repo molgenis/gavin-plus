@@ -20,13 +20,15 @@ public class RelevantVariant
     String gene;
     Map<String, String> sampleStatus;
     double alleleFreq;
+    String transcript;
 
     CGDEntry cgdInfo;
 
-    public RelevantVariant(VcfEntity variant, String allele, double alleleFreq, String gene, Judgment gavinJudgment, Judgment clinvarJudgment)
+    public RelevantVariant(VcfEntity variant, String allele, String transcript, double alleleFreq, String gene, Judgment gavinJudgment, Judgment clinvarJudgment)
     {
         this.variant = variant;
         this.allele = allele;
+        this.transcript = transcript;
         this.alleleFreq = alleleFreq;
         this.gene = gene;
         this.gavinJudgment = gavinJudgment;
@@ -43,6 +45,10 @@ public class RelevantVariant
 
     public double getAlleleFreq() {
         return alleleFreq;
+    }
+
+    public String getTranscript() {
+        return transcript != null ? transcript : "";
     }
 
     public VcfEntity getVariant() {

@@ -47,12 +47,13 @@ public class MakeRVCFforClinicalVariants {
             rvcf.setGene(rv.getGene());
             rvcf.setAllele(rv.getAllele());
             rvcf.setAlleleFreq(rv.getAlleleFreq()+"");
-            rvcf.setTranscript(null);
+            rvcf.setTranscript(rv.getTranscript());
 
             if(rv.getCgdInfo() != null) {
                 rvcf.setPhenotype(rv.getCgdInfo().getCondition());
                 rvcf.setPhenotypeInheritance(rv.getCgdInfo().getGeneralizedInheritance().toString());
-                rvcf.setPhenotypeDetails("onset: " + rv.getCgdInfo().getAge_group());
+                rvcf.setPhenotypeOnset(rv.getCgdInfo().getAge_group());
+                rvcf.setPhenotypeDetails(rv.getCgdInfo().getComments());
                 rvcf.setPhenotypeGroup(null);
             }
 

@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class RVCF {
 
-    private static int nrOfFields = 16;
+    private static int nrOfFields = 17;
     private static String RVCF_SAMPLESEP = "/";
     private static String RVCF_FIELDSEP = "|";
     private static String RVCF_KEYVALSEP = ":";
@@ -17,7 +17,7 @@ public class RVCF {
 
     public static String attributeName = "RLV";
     public static String attributeMetaData = "Allele "+RVCF_FIELDSEP+" AlleleFreq "+RVCF_FIELDSEP+" Gene "+RVCF_FIELDSEP+" Transcript "+RVCF_FIELDSEP +
-            " Phenotype "+RVCF_FIELDSEP+" PhenotypeInheritance "+RVCF_FIELDSEP+" PhenotypeDetails "+RVCF_FIELDSEP+" PhenotypeGroup "+RVCF_FIELDSEP +
+            " Phenotype "+RVCF_FIELDSEP+" PhenotypeInheritance "+RVCF_FIELDSEP+" PhenotypeOnset " +RVCF_FIELDSEP+" PhenotypeDetails "+RVCF_FIELDSEP+" PhenotypeGroup "+RVCF_FIELDSEP +
             " SampleStatus "+RVCF_FIELDSEP+" SamplePhenotype "+RVCF_FIELDSEP+" SampleGroup "+RVCF_FIELDSEP +
             " VariantSignificance "+RVCF_FIELDSEP+" VariantSignificanceSource "+RVCF_FIELDSEP+" VariantSignificanceJustification "+RVCF_FIELDSEP+" VariantCompoundHet "+RVCF_FIELDSEP+" VariantGroup";
 
@@ -27,6 +27,7 @@ public class RVCF {
     String transcript;
     String phenotype;
     String phenotypeInheritance;
+    String phenotypeOnset;
     String phenotypeDetails;
     String phenotypeGroup;
     Map<String, String> sampleStatus;
@@ -53,18 +54,19 @@ public class RVCF {
 
         rvcfInstance.setPhenotype(split[4]);
         rvcfInstance.setPhenotypeInheritance(split[5]);
-        rvcfInstance.setPhenotypeDetails(split[6]);
-        rvcfInstance.setPhenotypeGroup(split[7]);
+        rvcfInstance.setPhenotypeOnset(split[6]);
+        rvcfInstance.setPhenotypeDetails(split[7]);
+        rvcfInstance.setPhenotypeGroup(split[8]);
 
-        rvcfInstance.setSampleStatus(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[8]));
-        rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[9]));
-        rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[10]));
+        rvcfInstance.setSampleStatus(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[9]));
+        rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[10]));
+        rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[11]));
 
-        rvcfInstance.setVariantSignificance(split[11]);
-        rvcfInstance.setVariantSignificanceSource(split[12]);
-        rvcfInstance.setVariantSignificanceJustification(split[13]);
-        rvcfInstance.setVariantCompoundHet(split[14]);
-        rvcfInstance.setVariantGroup(split[15]);
+        rvcfInstance.setVariantSignificance(split[12]);
+        rvcfInstance.setVariantSignificanceSource(split[13]);
+        rvcfInstance.setVariantSignificanceJustification(split[14]);
+        rvcfInstance.setVariantCompoundHet(split[15]);
+        rvcfInstance.setVariantGroup(split[16]);
 
         return rvcfInstance;
     }
@@ -77,7 +79,7 @@ public class RVCF {
     @Override
     public String toString() {
         return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getAlleleFreq()) + RVCF_FIELDSEP + escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getTranscript()) + RVCF_FIELDSEP +
-                escapeToSafeVCF(getPhenotype()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeInheritance()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeDetails()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeGroup()) + RVCF_FIELDSEP +
+                escapeToSafeVCF(getPhenotype()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeInheritance()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeOnset()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeDetails()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeGroup()) + RVCF_FIELDSEP +
                 printSampleList(getSampleStatus()) + RVCF_FIELDSEP + printSampleList(getSamplePhenotype()) + RVCF_FIELDSEP + printSampleList(getSampleGroup()) + RVCF_FIELDSEP +
                 escapeToSafeVCF(getVariantSignificance()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceSource()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceJustification()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantCompoundHet()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantGroup());
     }
@@ -102,6 +104,14 @@ public class RVCF {
 
     public void setAlleleFreq(String alleleFreq) {
         this.alleleFreq = alleleFreq;
+    }
+
+    public String getPhenotypeOnset() {
+        return phenotypeOnset != null ? phenotypeOnset : "";
+    }
+
+    public void setPhenotypeOnset(String phenotypeOnset) {
+        this.phenotypeOnset = phenotypeOnset;
     }
 
     public String getAllele() {

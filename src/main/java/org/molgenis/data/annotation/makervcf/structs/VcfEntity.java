@@ -82,6 +82,10 @@ public class VcfEntity {
         return GavinUtils.getImpact(this.ann, gene, this.alts[i]);
     }
 
+    public String getTranscript(int i, String gene) throws Exception {
+        return GavinUtils.getTranscript(this.ann, gene, this.alts[i]);
+    }
+
     public Iterable<Entity> getSamples() {
         return samples;
     }

@@ -70,11 +70,12 @@ public class DiscoverRelevantVariants {
                 for (String gene : record.getGenes())
                 {
                     Impact impact = record.getImpact(i, gene);
+                    String transcript = record.getTranscript(i, gene);
                     Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, record.getExac_AFs(i), gene, null, gavinData);
                     Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene);
                     if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic))
                     {
-                        relevantVariants.add(new RelevantVariant(record, record.getAlts(i), record.getExac_AFs(i), gene, gavinJudgment, clinvarJudgment));
+                        relevantVariants.add(new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), gene, gavinJudgment, clinvarJudgment));
                         continue vcfIter;
                     }
                 }
