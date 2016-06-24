@@ -9,19 +9,20 @@ import java.util.*;
  */
 public class RVCF {
 
-    private static int nrOfFields = 15;
+    private static int nrOfFields = 16;
     private static String RVCF_SAMPLESEP = "/";
     private static String RVCF_FIELDSEP = "|";
     private static String RVCF_KEYVALSEP = ":";
     private static String VCF_INFOFIELDSEP= ";";
 
     public static String attributeName = "RLV";
-    public static String attributeMetaData = "Allele "+RVCF_FIELDSEP+" Gene "+RVCF_FIELDSEP+" Transcript "+RVCF_FIELDSEP +
+    public static String attributeMetaData = "Allele "+RVCF_FIELDSEP+" AlleleFreq "+RVCF_FIELDSEP+" Gene "+RVCF_FIELDSEP+" Transcript "+RVCF_FIELDSEP +
             " Phenotype "+RVCF_FIELDSEP+" PhenotypeInheritance "+RVCF_FIELDSEP+" PhenotypeDetails "+RVCF_FIELDSEP+" PhenotypeGroup "+RVCF_FIELDSEP +
             " SampleStatus "+RVCF_FIELDSEP+" SamplePhenotype "+RVCF_FIELDSEP+" SampleGroup "+RVCF_FIELDSEP +
             " VariantSignificance "+RVCF_FIELDSEP+" VariantSignificanceSource "+RVCF_FIELDSEP+" VariantSignificanceJustification "+RVCF_FIELDSEP+" VariantCompoundHet "+RVCF_FIELDSEP+" VariantGroup";
 
     String allele;
+    String alleleFreq;
     String gene;
     String transcript;
     String phenotype;
@@ -46,35 +47,36 @@ public class RVCF {
             throw new Exception("Splitting RVCF entry on '|' did not yield "+nrOfFields+" fields, invalid format?");
         }
         rvcfInstance.setAllele(split[0]);
-        rvcfInstance.setGene(split[1]);
-        rvcfInstance.setTranscript(split[2]);
+        rvcfInstance.setAllele(split[1]);
+        rvcfInstance.setGene(split[2]);
+        rvcfInstance.setTranscript(split[3]);
 
-        rvcfInstance.setPhenotype(split[3]);
-        rvcfInstance.setPhenotypeInheritance(split[4]);
-        rvcfInstance.setPhenotypeDetails(split[5]);
-        rvcfInstance.setPhenotypeGroup(split[6]);
+        rvcfInstance.setPhenotype(split[4]);
+        rvcfInstance.setPhenotypeInheritance(split[5]);
+        rvcfInstance.setPhenotypeDetails(split[6]);
+        rvcfInstance.setPhenotypeGroup(split[7]);
 
-        rvcfInstance.setSampleStatus(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[7]));
-        rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[8]));
-        rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[9]));
+        rvcfInstance.setSampleStatus(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[8]));
+        rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[9]));
+        rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[10]));
 
-        rvcfInstance.setVariantSignificance(split[10]);
-        rvcfInstance.setVariantSignificanceSource(split[11]);
-        rvcfInstance.setVariantSignificanceJustification(split[12]);
-        rvcfInstance.setVariantCompoundHet(split[13]);
-        rvcfInstance.setVariantGroup(split[14]);
+        rvcfInstance.setVariantSignificance(split[11]);
+        rvcfInstance.setVariantSignificanceSource(split[12]);
+        rvcfInstance.setVariantSignificanceJustification(split[13]);
+        rvcfInstance.setVariantCompoundHet(split[14]);
+        rvcfInstance.setVariantGroup(split[15]);
 
         return rvcfInstance;
     }
 
     public String escapeToSafeVCF (String in)
     {
-        return in.replace(VCF_INFOFIELDSEP, "").replace(RVCF_FIELDSEP, "").replace(RVCF.RVCF_SAMPLESEP, "");
+        return in.replace(VCF_INFOFIELDSEP, " ").replace(RVCF_FIELDSEP, " ").replace(RVCF.RVCF_SAMPLESEP, " ");
     }
 
     @Override
     public String toString() {
-        return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getTranscript()) + RVCF_FIELDSEP +
+        return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getAlleleFreq()) + RVCF_FIELDSEP + escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getTranscript()) + RVCF_FIELDSEP +
                 escapeToSafeVCF(getPhenotype()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeInheritance()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeDetails()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeGroup()) + RVCF_FIELDSEP +
                 printSampleList(getSampleStatus()) + RVCF_FIELDSEP + printSampleList(getSamplePhenotype()) + RVCF_FIELDSEP + printSampleList(getSampleGroup()) + RVCF_FIELDSEP +
                 escapeToSafeVCF(getVariantSignificance()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceSource()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceJustification()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantCompoundHet()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantGroup());
@@ -94,7 +96,13 @@ public class RVCF {
         return sb.toString();
     }
 
+    public String getAlleleFreq() {
+        return alleleFreq != null ? alleleFreq : "";
+    }
 
+    public void setAlleleFreq(String alleleFreq) {
+        this.alleleFreq = alleleFreq;
+    }
 
     public String getAllele() {
         return allele != null ? allele : "";

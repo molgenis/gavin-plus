@@ -63,7 +63,7 @@ public class Run {
 
         for(RelevantVariant rv : relevantVariants)
         {
-            System.out.println(rv.getVariant().getOrignalEntity().toString());
+           // System.out.println(rv.getVariant().getOrignalEntity().toString());
             VcfWriterUtils.writeToVcf(rv.getVariant().getOrignalEntity(), outputVCFWriter);
             outputVCFWriter.newLine();
         }

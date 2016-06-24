@@ -38,8 +38,8 @@ public class VcfEntity {
         this.ref = record.getString("REF");
         this.clinvar = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
         this.alts = record.getString("ALT").split(",", -1);
-        this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF", true);
-        this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED", false);
+        this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF");
+        this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED");
         this.ann = record.getString("ANN");
         this.genes = GavinUtils.getGenesFromAnn(ann);
 
@@ -50,24 +50,12 @@ public class VcfEntity {
         return orignalEntity;
     }
 
-    public Double[] setAltAlleleOrderedDoubleField(Entity record, String fieldName, boolean zeroForNull) throws Exception {
+    public Double[] setAltAlleleOrderedDoubleField(Entity record, String fieldName) throws Exception {
         Double[] res = new Double[this.alts.length];
         if(record.get(fieldName) == null)
         {
             //the entire field is not present
-            //for '0 for null' attributes, fill array with 0s
-            if(zeroForNull)
-            {
-                for(int i = 0; i < this.alts.length; i++)
-                {
-                    res[i] = 0.0;
-                }
-                return res;
-            }
-            else
-            {
-                return res;
-            }
+            return res;
         }
         String[] split = record.get(fieldName) == null ? null : record.getString(fieldName).split(",", -1);
         if(split != null)
@@ -78,8 +66,7 @@ public class VcfEntity {
             }
             for(int i = 0; i < split.length; i++)
             {
-                //  exac_AFs[i] = (exac_af_split[i] != null && !exac_af_split[i].isEmpty() && !exac_af_split[i].equals(".")) ? Double.parseDouble(exac_af_split[i]) : 0;
-                res[i] = (split[i] != null && !split[i].isEmpty() && !split[i].equals(".")) ? Double.parseDouble(split[i]) : (zeroForNull ? 0 : null);
+                res[i] = (split[i] != null && !split[i].isEmpty() && !split[i].equals(".")) ? Double.parseDouble(split[i]) : null;
             }
         }
         else
@@ -137,7 +124,7 @@ public class VcfEntity {
 
     public double getExac_AFs(int i) {
         //return exac_AFs[i] == null ? 0 : exac_AFs[i];
-        return exac_AFs[i];
+        return exac_AFs[i] != null ? exac_AFs[i] : 0;
     }
 
     public Double[] getCaddPhredScores() {

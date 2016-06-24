@@ -46,6 +46,7 @@ public class MakeRVCFforClinicalVariants {
 
             rvcf.setGene(rv.getGene());
             rvcf.setAllele(rv.getAllele());
+            rvcf.setAlleleFreq(rv.getAlleleFreq()+"");
             rvcf.setTranscript(null);
 
             if(rv.getCgdInfo() != null) {
@@ -64,7 +65,6 @@ public class MakeRVCFforClinicalVariants {
             rvcf.setSampleStatus(rv.getSampleStatus());
             rvcf.setSamplePhenotype(null);
             rvcf.setSampleGroup(null);
-
 
             Entity e = rv.getVariant().getOrignalEntity();
             DefaultEntityMetaData emd = (DefaultEntityMetaData) e.getEntityMetaData();

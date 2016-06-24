@@ -55,72 +55,52 @@ public class MatchVariantsToGenotypeAndInheritance {
 
             String gene = gavinGene != null ? gavinGene : clinvarGene;
 
-            // regular inheritance types, recessive and/or dominant or some type
-            if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance().toString().contains("DOMINANT") || cgd.get(gene).getGeneralizedInheritance().toString().contains("RECESSIVE"))) {
 
-                CGDEntry ce = cgd.get(gene);
-                HashMap<String, Entity> affectedSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), ce.getGeneralizedInheritance(), true);
-                HashMap<String, Entity> carrierSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), ce.getGeneralizedInheritance(), false);
+            CGDEntry ce = cgd.get(gene);
+            generalizedInheritance inh = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;
+            HashMap<String, Entity> affectedSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh, true);
+            HashMap<String, Entity> carrierSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh, false);
 
-                Map<String, String> sampleStatus = new HashMap<>();
-                for(String key : affectedSamples.keySet())
-                {
-                    sampleStatus.put(key, "AFFECTED");
-                }
-                for(String key : carrierSamples.keySet())
-                {
-                    sampleStatus.put(key, "CARRIER");
-                }
-                rv.setSampleStatus(sampleStatus);
-                rv.setCgdInfo(ce);
+            rv.setCgdInfo(ce);
 
-                if(affectedSamples.size() > 0)
-                {
-                    System.out.println(gene + " " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + affectedSamples.size() + " affected and " + carrierSamples.size() + " carriers");
+            String actingTerminology = "HOMOZYGOUS";
+            String nonActingTerminology = "HETEROZYGOUS";
 
-                }
-
-
-            }
-            //"OTHER" inheritance types
-            else if(cgd.containsKey(gene) && cgd.get(gene).getGeneralizedInheritance().equals(generalizedInheritance.OTHER) )
+            // regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
+            // ie. DOMINANT, RECESSIVE, XL_DOMINANT, XL_RECESSIVE, DOMINANT_OR_RECESSIVE
+            if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance().toString().contains("DOMINANT") || cgd.get(gene).getGeneralizedInheritance().toString().contains("RECESSIVE")))
             {
-                CGDEntry ce = cgd.get(gene);
-                HashMap<String, Entity> unknownInheritanceSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), generalizedInheritance.OTHER, true);
-
-                Map<String, String> sampleStatus = new HashMap<>();
-               //TODO
-                rv.setSampleStatus(sampleStatus);
-
-                rv.setCgdInfo(ce);
-
-                if(unknownInheritanceSamples.size() > 0)
-                {
-                    System.out.println(gene + " in CGD but non-regular inheritance " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + unknownInheritanceSamples.size() + " \"affected\" samples");
-
-                }
-
+                actingTerminology = "AFFECTED";
+                nonActingTerminology = "CARRIER";
             }
-            else if(cgd.containsKey(gene) && cgd.get(gene).getGeneralizedInheritance().equals(generalizedInheritance.BLOODGROUP) )
+            else if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance() == generalizedInheritance.BLOODGROUP))
             {
-
+                actingTerminology = "BLOODGROUP";
+                nonActingTerminology = "BLOODGROUP";
             }
-            //not in CGD at all
-            else
+
+            Map<String, String> sampleStatus = new HashMap<>();
+
+            for(String key : affectedSamples.keySet())
             {
-
-                HashMap<String, Entity> unknownInheritanceSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), generalizedInheritance.OTHER, true);
-
-
-                Map<String, String> sampleStatus = new HashMap<>();
-                //TODO
-                rv.setSampleStatus(sampleStatus);
-
-                if(unknownInheritanceSamples.size() > 0)
-                {
-                    System.out.println(gene + " (not in CGD) has " + unknownInheritanceSamples.size() + " \"affected\" samples");
-                }
+                sampleStatus.put(key, actingTerminology);
             }
+            for(String key : carrierSamples.keySet())
+            {
+                sampleStatus.put(key, nonActingTerminology);
+            }
+            rv.setSampleStatus(sampleStatus);
+
+//                if(affectedSamples.size() > 0)
+//                {
+//                    System.out.println(gene + " " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + affectedSamples.size() + " affected and " + carrierSamples.size() + " carriers, variant: " + rv.getVariant().toString());
+//
+//                }
+
+            // System.out.println(gene + " in CGD but non-regular inheritance " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + affectedSamples.size() + " \"affected\" samples");
+            //  System.out.println(gene + " (not in CGD) has " + unknownInheritanceSamples.size() + " \"affected\" samples");
+
+
 
         }
     }
@@ -187,11 +167,19 @@ public class MatchVariantsToGenotypeAndInheritance {
                     matchingSamples.put(sampleName, sample);
                 }
             }
+            //blood group markers
+            //TODO: find out how this works, and don't look for "pathogenic" variants but for "informative" ones
+            else if(inheritance.equals(generalizedInheritance.BLOODGROUP))
+            {
+                if ( genotype.contains(altIndex+"") && lookingForAffected )
+                {
+                    matchingSamples.put(sampleName, sample);
+                }
+            }
 
-            //other types (digenic, maternal, YL, bloodgroup etc)
+            //other types (digenic, maternal, YL, etc)
             //report when 1 alle found
-            //TODO: same as dominant?
-            else if(inheritance.equals(generalizedInheritance.OTHER))
+            else if(inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD))
             {
                 if ( genotype.contains(altIndex+"") && lookingForAffected )
                 {
@@ -203,9 +191,6 @@ public class MatchVariantsToGenotypeAndInheritance {
             {
                 throw new Exception("inheritance unknown: " + inheritance);
             }
-
-
-
 
 
         }

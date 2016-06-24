@@ -74,7 +74,7 @@ public class DiscoverRelevantVariants {
                     Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene);
                     if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic))
                     {
-                        relevantVariants.add(new RelevantVariant(record, record.getAlts(i), gene, gavinJudgment, clinvarJudgment));
+                        relevantVariants.add(new RelevantVariant(record, record.getAlts(i), record.getExac_AFs(i), gene, gavinJudgment, clinvarJudgment));
                         continue vcfIter;
                     }
                 }
