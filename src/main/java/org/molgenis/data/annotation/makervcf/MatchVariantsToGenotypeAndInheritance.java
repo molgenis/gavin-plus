@@ -153,8 +153,10 @@ public class MatchVariantsToGenotypeAndInheritance {
                 }
             }
 
-            //all recessive types
-            else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.XL_RECESSIVE))
+            //all recessive and unknown types
+            //for recessive we know if its acting or not
+            //for other (digenic, maternal, YL, etc) and not-in-CGD we don't know, but we still report homozygous as 'acting' and heterozygous as 'carrier' to make that distinction
+            else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.XL_RECESSIVE) || inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD))
             {
                 //first homozygous alternative
                 if ( (genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex)) && lookingForAffected )
@@ -170,16 +172,6 @@ public class MatchVariantsToGenotypeAndInheritance {
             //blood group markers
             //TODO: find out how this works, and don't look for "pathogenic" variants but for "informative" ones
             else if(inheritance.equals(generalizedInheritance.BLOODGROUP))
-            {
-                if ( genotype.contains(altIndex+"") && lookingForAffected )
-                {
-                    matchingSamples.put(sampleName, sample);
-                }
-            }
-
-            //other types (digenic, maternal, YL, etc)
-            //report when 1 alle found
-            else if(inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD))
             {
                 if ( genotype.contains(altIndex+"") && lookingForAffected )
                 {
