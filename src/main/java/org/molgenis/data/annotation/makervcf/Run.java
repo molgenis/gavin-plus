@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -36,24 +37,26 @@ import java.util.List;
  */
 public class Run {
 
+    private AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
+
     public Run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode, File outputVcfFile) throws Exception
     {
+        //initial discovery of any suspected/likely pathogenic variant
         DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode);
-        List<RelevantVariant> relevantVariants = discover.findRelevantVariants();
-        System.out.println("###\nFound " + relevantVariants.size() + " interesting variants!");
+        Iterator<RelevantVariant> relevantVariants = discover.findRelevantVariants();
 
-        //enhance relevant variants with sample genotype disease inheritance mode matches
-        new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
+        //match sample genotype with disease inheritance mode, trio, denovo, compound, phasing, todo
+        Iterator<RelevantVariant> relevantVariantsGenoMatched = new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
 
-        AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
+        //write convert RVCF records to Entity
+        Iterator<Entity> relevantVariantsGenoMatchedEntities = new MakeRVCFforClinicalVariants(relevantVariantsGenoMatched, rlv).addRVCFfield();
 
-        new MakeRVCFforClinicalVariants(relevantVariants, rlv).addRVCFfield();
-
-        writeRVCF(relevantVariants, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv);
+        //write Entities output VCF file
+        writeRVCF(relevantVariantsGenoMatchedEntities, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv);
 
     }
 
-    public void writeRVCF(List<RelevantVariant> relevantVariants, File writeTo, File inputVcfFile, EntityMetaData vcfMeta, AttributeMetaData rlv) throws IOException, MolgenisInvalidFormatException {
+    public void writeRVCF(Iterator<Entity> relevantVariants, File writeTo, File inputVcfFile, EntityMetaData vcfMeta, AttributeMetaData rlv) throws IOException, MolgenisInvalidFormatException {
 
         List<AttributeMetaData> attributes = Lists.newArrayList(vcfMeta.getAttributes());
         attributes.add(rlv);
@@ -61,10 +64,11 @@ public class Run {
         BufferedWriter outputVCFWriter = new BufferedWriter(fw);
         VcfWriterUtils.writeVcfHeader(inputVcfFile, outputVCFWriter, attributes);
 
-        for(RelevantVariant rv : relevantVariants)
+        while(relevantVariants.hasNext())
         {
+            Entity e = relevantVariants.next();
            // System.out.println(rv.getVariant().getOrignalEntity().toString());
-            VcfWriterUtils.writeToVcf(rv.getVariant().getOrignalEntity(), outputVCFWriter);
+            VcfWriterUtils.writeToVcf(e, outputVCFWriter);
             outputVCFWriter.newLine();
         }
         outputVCFWriter.close();

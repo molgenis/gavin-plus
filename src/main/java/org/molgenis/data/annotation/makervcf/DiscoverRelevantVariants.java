@@ -44,44 +44,59 @@ public class DiscoverRelevantVariants {
         this.vcfMeta = vcf.getEntityMetaData();
     }
 
-
     public EntityMetaData getVcfMeta() {
         return vcfMeta;
     }
 
-    public List<RelevantVariant> findRelevantVariants() throws Exception
+    public Iterator<RelevantVariant> findRelevantVariants() throws Exception
     {
-        //GAVIN pathogenic detection
-        List<RelevantVariant> relevantVariants = new ArrayList<>();
-        Iterator<Entity> it = vcf.iterator();
-        vcfIter:
-        while (it.hasNext())
-        {
-            VcfEntity record = new VcfEntity(it.next());
+        Iterator<Entity> vcfIterator = vcf.iterator();
 
-            boolean gavinPathoFound = false;
+        return new Iterator<RelevantVariant>(){
 
-            /**
-             * Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
-             */
-            for (int i = 0; i < record.getAlts().length; i++)
+            RelevantVariant nextResult;
+
+            @Override
+            public boolean hasNext()
             {
-                Double cadd = hmcs.dealWithCaddScores(record, i);
-                for (String gene : record.getGenes())
+                while(vcfIterator.hasNext())
                 {
-                    Impact impact = record.getImpact(i, gene);
-                    String transcript = record.getTranscript(i, gene);
-                    Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, record.getExac_AFs(i), gene, null, gavinData);
-                    Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene);
-                    if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic))
+                    try
                     {
-                        relevantVariants.add(new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), gene, gavinJudgment, clinvarJudgment));
-                        continue vcfIter;
+                        VcfEntity record = new VcfEntity(vcfIterator.next());
+
+                        /**
+                         * Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
+                         */
+                        for (int i = 0; i < record.getAlts().length; i++)
+                        {
+                            Double cadd = hmcs.dealWithCaddScores(record, i);
+                            for (String gene : record.getGenes())
+                            {
+                                Impact impact = record.getImpact(i, gene);
+                                String transcript = record.getTranscript(i, gene);
+                                Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, record.getExac_AFs(i), gene, null, gavinData);
+                                Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene);
+                                if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic))
+                                {
+                                    nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), gene, gavinJudgment, clinvarJudgment);
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        throw new RuntimeException(e);
                     }
                 }
+                return false;
             }
-        }
 
-        return relevantVariants;
+            @Override
+            public RelevantVariant next() {
+                return nextResult;
+            }
+        };
     }
 }

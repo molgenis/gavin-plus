@@ -9,10 +9,7 @@ import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by joeri on 6/1/16.
@@ -23,11 +20,11 @@ import java.util.Map;
  */
 public class MatchVariantsToGenotypeAndInheritance {
 
-    List<RelevantVariant> relevantVariants;
+    Iterator<RelevantVariant> relevantVariants;
     Map<String, CGDEntry> cgd;
     int minDepth;
 
-    public MatchVariantsToGenotypeAndInheritance(List<RelevantVariant> relevantVariants, File cgdFile) throws IOException
+    public MatchVariantsToGenotypeAndInheritance(Iterator<RelevantVariant> relevantVariants, File cgdFile) throws IOException
     {
         this.relevantVariants = relevantVariants;
         this.cgd = LoadCGD.loadCGD(cgdFile);
@@ -35,74 +32,86 @@ public class MatchVariantsToGenotypeAndInheritance {
     }
 
 
-    public void go() throws Exception {
-        for (RelevantVariant rv : relevantVariants)
-        {
-            boolean hit = false;
+    public Iterator<RelevantVariant > go() throws Exception {
 
-            String gavinGene = rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null;
-            String clinvarGene = rv.getClinvarJudgment().getGene() != null ? rv.getClinvarJudgment().getGene() : null;
+        return new Iterator<RelevantVariant>(){
 
-            //extra checks that things are okay
-            if(gavinGene != null && clinvarGene != null && !gavinGene.equals(clinvarGene))
-            {
-                throw new Exception("Conflicting genes passed to MatchVariantsToGenotypeAndInheritance: " + gavinGene + " vs " + clinvarGene);
-            }
-            if(gavinGene == null && clinvarGene == null)
-            {
-                throw new Exception("No genes passed to MatchVariantsToGenotypeAndInheritance!");
+
+
+            @Override
+            public boolean hasNext() {
+                return relevantVariants.hasNext();
             }
 
-            String gene = gavinGene != null ? gavinGene : clinvarGene;
+            @Override
+            public RelevantVariant next() {
 
 
-            CGDEntry ce = cgd.get(gene);
-            generalizedInheritance inh = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;
-            HashMap<String, Entity> affectedSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh, true);
-            HashMap<String, Entity> carrierSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh, false);
+                try {
+                    RelevantVariant rv = relevantVariants.next();
 
-            rv.setCgdInfo(ce);
+                    boolean hit = false;
 
-            String actingTerminology = "HOMOZYGOUS";
-            String nonActingTerminology = "HETEROZYGOUS";
+                    String gavinGene = rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null;
+                    String clinvarGene = rv.getClinvarJudgment().getGene() != null ? rv.getClinvarJudgment().getGene() : null;
 
-            // regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
-            // ie. DOMINANT, RECESSIVE, XL_DOMINANT, XL_RECESSIVE, DOMINANT_OR_RECESSIVE
-            if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance().toString().contains("DOMINANT") || cgd.get(gene).getGeneralizedInheritance().toString().contains("RECESSIVE")))
-            {
-                actingTerminology = "AFFECTED";
-                nonActingTerminology = "CARRIER";
+                    //extra checks that things are okay
+                    if(gavinGene != null && clinvarGene != null && !gavinGene.equals(clinvarGene))
+                    {
+                        throw new Exception("Conflicting genes passed to MatchVariantsToGenotypeAndInheritance: " + gavinGene + " vs " + clinvarGene);
+                    }
+                    if(gavinGene == null && clinvarGene == null)
+                    {
+                        throw new Exception("No genes passed to MatchVariantsToGenotypeAndInheritance!");
+                    }
+
+                    String gene = gavinGene != null ? gavinGene : clinvarGene;
+
+
+                    CGDEntry ce = cgd.get(gene);
+                    generalizedInheritance inh = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;
+                    HashMap<String, Entity> affectedSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh, true);
+                    HashMap<String, Entity> carrierSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh, false);
+
+                    rv.setCgdInfo(ce);
+
+                    String actingTerminology = "HOMOZYGOUS";
+                    String nonActingTerminology = "HETEROZYGOUS";
+
+                    // regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
+                    // ie. DOMINANT, RECESSIVE, XL_DOMINANT, XL_RECESSIVE, DOMINANT_OR_RECESSIVE
+                    if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance().toString().contains("DOMINANT") || cgd.get(gene).getGeneralizedInheritance().toString().contains("RECESSIVE")))
+                    {
+                        actingTerminology = "AFFECTED";
+                        nonActingTerminology = "CARRIER";
+                    }
+                    else if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance() == generalizedInheritance.BLOODGROUP))
+                    {
+                        actingTerminology = "BLOODGROUP";
+                        nonActingTerminology = "BLOODGROUP";
+                    }
+
+                    Map<String, String> sampleStatus = new HashMap<>();
+
+                    for(String key : affectedSamples.keySet())
+                    {
+                        sampleStatus.put(key, actingTerminology);
+                    }
+                    for(String key : carrierSamples.keySet())
+                    {
+                        sampleStatus.put(key, nonActingTerminology);
+                    }
+                    rv.setSampleStatus(sampleStatus);
+
+                    return rv;
+                }
+                catch(Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+
             }
-            else if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance() == generalizedInheritance.BLOODGROUP))
-            {
-                actingTerminology = "BLOODGROUP";
-                nonActingTerminology = "BLOODGROUP";
-            }
-
-            Map<String, String> sampleStatus = new HashMap<>();
-
-            for(String key : affectedSamples.keySet())
-            {
-                sampleStatus.put(key, actingTerminology);
-            }
-            for(String key : carrierSamples.keySet())
-            {
-                sampleStatus.put(key, nonActingTerminology);
-            }
-            rv.setSampleStatus(sampleStatus);
-
-//                if(affectedSamples.size() > 0)
-//                {
-//                    System.out.println(gene + " " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + affectedSamples.size() + " affected and " + carrierSamples.size() + " carriers, variant: " + rv.getVariant().toString());
-//
-//                }
-
-            // System.out.println(gene + " in CGD but non-regular inheritance " + ce.getInheritance() + " " + ce.getGeneralizedInheritance() + " has " + affectedSamples.size() + " \"affected\" samples");
-            //  System.out.println(gene + " (not in CGD) has " + unknownInheritanceSamples.size() + " \"affected\" samples");
-
-
-
-        }
+        };
     }
 
     /**

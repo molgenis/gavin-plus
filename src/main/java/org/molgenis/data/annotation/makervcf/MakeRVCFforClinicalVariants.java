@@ -13,6 +13,7 @@ import org.molgenis.data.support.MapEntity;
 import org.molgenis.data.vcf.VcfRepository;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -24,56 +25,78 @@ import java.util.List;
  */
 public class MakeRVCFforClinicalVariants {
 
-    List<RelevantVariant> relevantVariants;
+    Iterator<RelevantVariant> relevantVariants;
     AttributeMetaData rlv;
 
-    public MakeRVCFforClinicalVariants(List<RelevantVariant> relevantVariants,  AttributeMetaData rlv)
+    public MakeRVCFforClinicalVariants(Iterator<RelevantVariant> relevantVariants, AttributeMetaData rlv)
     {
         this.relevantVariants = relevantVariants;
         this.rlv = rlv;
     }
 
-    public void addRVCFfield()
+    public Iterator<Entity> addRVCFfield()
     {
-        for(RelevantVariant rv : relevantVariants)
-        {
 
-            boolean clinVarPatho = rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
-            boolean gavinPatho = rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
+        return new Iterator<Entity>() {
 
 
-            RVCF rvcf = new RVCF();
-
-            rvcf.setGene(rv.getGene());
-            rvcf.setAllele(rv.getAllele());
-            rvcf.setAlleleFreq(rv.getAlleleFreq()+"");
-            rvcf.setTranscript(rv.getTranscript());
-
-            if(rv.getCgdInfo() != null) {
-                rvcf.setPhenotype(rv.getCgdInfo().getCondition());
-                rvcf.setPhenotypeInheritance(rv.getCgdInfo().getGeneralizedInheritance().toString());
-                rvcf.setPhenotypeOnset(rv.getCgdInfo().getAge_group());
-                rvcf.setPhenotypeDetails(rv.getCgdInfo().getComments());
-                rvcf.setPhenotypeGroup(null);
+            @Override
+            public boolean hasNext() {
+                return relevantVariants.hasNext();
             }
 
-            rvcf.setVariantSignificance(clinVarPatho ? "Reported pathogenic" : gavinPatho ? "Predicted pathogenic" : "VUS");
-            rvcf.setVariantSignificanceSource(clinVarPatho ? "ClinVar" : gavinPatho ? "GAVIN" : "");
-            rvcf.setVariantSignificanceJustification(clinVarPatho ? rv.getClinvarJudgment().getReason() : gavinPatho ? rv.getGavinJudgment().getReason() : "");
-            rvcf.setVariantCompoundHet(null);
-            rvcf.setVariantGroup(null);
+            @Override
+            public Entity next() {
 
-            rvcf.setSampleStatus(rv.getSampleStatus());
-            rvcf.setSamplePhenotype(null);
-            rvcf.setSampleGroup(null);
 
-            Entity e = rv.getVariant().getOrignalEntity();
-            DefaultEntityMetaData emd = (DefaultEntityMetaData) e.getEntityMetaData();
-            DefaultAttributeMetaData infoAttribute = (DefaultAttributeMetaData) emd.getAttribute(VcfRepository.INFO);
-            infoAttribute.addAttributePart(rlv);
+                try {
+                    RelevantVariant rv = relevantVariants.next();
 
-            e.set(RVCF.attributeName,rvcf.toString());
+                    boolean clinVarPatho = rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
+                    boolean gavinPatho = rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
 
-        }
+
+                    RVCF rvcf = new RVCF();
+
+                    rvcf.setGene(rv.getGene());
+                    rvcf.setAllele(rv.getAllele());
+                    rvcf.setAlleleFreq(rv.getAlleleFreq()+"");
+                    rvcf.setTranscript(rv.getTranscript());
+
+                    if(rv.getCgdInfo() != null) {
+                        rvcf.setPhenotype(rv.getCgdInfo().getCondition());
+                        rvcf.setPhenotypeInheritance(rv.getCgdInfo().getGeneralizedInheritance().toString());
+                        rvcf.setPhenotypeOnset(rv.getCgdInfo().getAge_group());
+                        rvcf.setPhenotypeDetails(rv.getCgdInfo().getComments());
+                        rvcf.setPhenotypeGroup(null);
+                    }
+
+                    rvcf.setVariantSignificance(clinVarPatho ? "Reported pathogenic" : gavinPatho ? "Predicted pathogenic" : "VUS");
+                    rvcf.setVariantSignificanceSource(clinVarPatho ? "ClinVar" : gavinPatho ? "GAVIN" : "");
+                    rvcf.setVariantSignificanceJustification(clinVarPatho ? rv.getClinvarJudgment().getReason() : gavinPatho ? rv.getGavinJudgment().getReason() : "");
+                    rvcf.setVariantCompoundHet(null);
+                    rvcf.setVariantGroup(null);
+
+                    rvcf.setSampleStatus(rv.getSampleStatus());
+                    rvcf.setSamplePhenotype(null);
+                    rvcf.setSampleGroup(null);
+
+                    Entity e = rv.getVariant().getOrignalEntity();
+                    DefaultEntityMetaData emd = (DefaultEntityMetaData) e.getEntityMetaData();
+                    DefaultAttributeMetaData infoAttribute = (DefaultAttributeMetaData) emd.getAttribute(VcfRepository.INFO);
+                    infoAttribute.addAttributePart(rlv);
+
+                    e.set(RVCF.attributeName,rvcf.toString());
+
+                    return e;
+
+                }
+                catch(Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
     }
 }
