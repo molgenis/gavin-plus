@@ -53,13 +53,17 @@ public class Run {
         Iterator<RelevantVariant> relevantVariantsGenoMatched = new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
 
         //convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
-        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHet = new AssignCompoundHeterozygous(relevantVariantsGenoMatched).go();
+        AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(relevantVariantsGenoMatched);
+        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHet = compHet.go();
+
+        //fix order in which variants are written out (re-ordered by compound het check)
+        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetFix = new CorrectPositionalOrderIterator(relevantVariantsGenoMatchedCompHet, compHet.getPositionalOrder()).go();
 
         //use any parental information to filter out variants/status
-        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetTriof = new TrioAwareFilter(relevantVariantsGenoMatchedCompHet).go();
+   //     Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetTriof = new TrioAwareFilter(relevantVariantsGenoMatchedCompHet).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> relevantVariantsGenoMatchedEntities = new MakeRVCFforClinicalVariants(relevantVariantsGenoMatchedCompHetTriof, rlv).addRVCFfield();
+        Iterator<Entity> relevantVariantsGenoMatchedEntities = new MakeRVCFforClinicalVariants(relevantVariantsGenoMatchedCompHetFix, rlv).addRVCFfield();
 
         //write Entities output VCF file
         writeRVCF(relevantVariantsGenoMatchedEntities, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv);
@@ -81,6 +85,7 @@ public class Run {
             VcfWriterUtils.writeToVcf(e, outputVCFWriter);
             outputVCFWriter.newLine();
         }
+        outputVCFWriter.flush();
         outputVCFWriter.close();
     }
 
