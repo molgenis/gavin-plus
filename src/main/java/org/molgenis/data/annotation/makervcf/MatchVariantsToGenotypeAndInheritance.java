@@ -6,7 +6,11 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.cgd.CGDEntry.generalizedInheritance;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.vcf.datastructures.Trio;
+import org.molgenis.data.vcf.utils.VcfUtils;
+import org.molgenis.data.vcf.utils.VcfWriterUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -29,6 +33,11 @@ public class MatchVariantsToGenotypeAndInheritance {
         this.relevantVariants = relevantVariants;
         this.cgd = LoadCGD.loadCGD(cgdFile);
         this.minDepth = 10;
+    }
+
+    public static HashMap<String, Trio> getTrios(File inputVcfFile) throws IOException {
+        BufferedReader bufferedVCFReader = VcfWriterUtils.getBufferedVCFReader(inputVcfFile);
+        return VcfUtils.getPedigree(bufferedVCFReader);
     }
 
 

@@ -9,6 +9,7 @@ import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
+import org.molgenis.data.vcf.datastructures.Trio;
 import org.molgenis.data.vcf.utils.VcfWriterUtils;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.meta.VcfMeta;
@@ -17,10 +18,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by joeri on 6/1/16.
@@ -41,6 +39,12 @@ public class Run {
 
     public Run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode, File outputVcfFile) throws Exception
     {
+        HashMap<String, Trio> trios = MatchVariantsToGenotypeAndInheritance.getTrios(inputVcfFile);
+        for(String s : trios.keySet())
+        {
+            System.out.println(s + " -> " + trios.get(s).toString());
+        }
+
         //initial discovery of any suspected/likely pathogenic variant
         DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode);
         Iterator<RelevantVariant> relevantVariants = discover.findRelevantVariants();
@@ -48,8 +52,14 @@ public class Run {
         //match sample genotype with disease inheritance mode, trio, denovo, compound, phasing, todo
         Iterator<RelevantVariant> relevantVariantsGenoMatched = new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
 
+        //convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
+        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHet = new AssignCompoundHeterozygous(relevantVariantsGenoMatched).go();
+
+        //use any parental information to filter out variants/status
+        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetTriof = new TrioAwareFilter(relevantVariantsGenoMatchedCompHet).go();
+
         //write convert RVCF records to Entity
-        Iterator<Entity> relevantVariantsGenoMatchedEntities = new MakeRVCFforClinicalVariants(relevantVariantsGenoMatched, rlv).addRVCFfield();
+        Iterator<Entity> relevantVariantsGenoMatchedEntities = new MakeRVCFforClinicalVariants(relevantVariantsGenoMatchedCompHetTriof, rlv).addRVCFfield();
 
         //write Entities output VCF file
         writeRVCF(relevantVariantsGenoMatchedEntities, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv);
