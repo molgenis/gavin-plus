@@ -43,13 +43,13 @@ public class AssignCompoundHeterozygous {
 
                 if(resultBatch != null && resultBatch.hasNext())
                 {
-                    System.out.println("dumping result batch - returning next element!");
+ //                   System.out.println("dumping result batch - returning next element!");
                     nextResult = resultBatch.next();
                     return true;
                 }
                 else if(resultBatch != null && genesToDelete != null)
                 {
-                    System.out.println("cleanup after dumping result batch - clearing data for " + genesToDelete.toString() + ", update genes seen from "+genesSeenForPreviousVariant.toString()+" to " + genesSeenForCurrentVariantUpdate);
+ //                   System.out.println("cleanup after dumping result batch - clearing data for " + genesToDelete.toString() + ", update genes seen from "+genesSeenForPreviousVariant.toString()+" to " + genesSeenForCurrentVariantUpdate);
                     //result batch emptied, clear data and continue while
                     for(String geneToDelete : genesToDelete)
                     {
@@ -69,11 +69,11 @@ public class AssignCompoundHeterozygous {
                         positionalOrder.add(Integer.parseInt(rv.getVariant().getPos()));
 
                         // TODO: write out results in the correct order of position
-                        System.out.println("getting variant on pos " + rv.getVariant().getChr() + ":" + pos);
+    //                    System.out.println("getting variant on pos " + rv.getVariant().getChr() + ":" + pos);
 
                         // all genes to which the current variant may belong to
                         Set<String> genesSeenForCurrentVariant = rv.getVariant().getGenes();
-                        System.out.println("genesSeenForCurrentVariant = " + genesSeenForCurrentVariant.toString());
+      //                  System.out.println("genesSeenForCurrentVariant = " + genesSeenForCurrentVariant.toString());
 
                         // put gene and variant in a map, grouping all variants for certain gene
                         for (String gene : genesSeenForCurrentVariant)
@@ -82,7 +82,7 @@ public class AssignCompoundHeterozygous {
                             if(newRvList == null) {
                                 newRvList = new ArrayList<>();
                                 geneToVariantsToCheck.put(gene, newRvList);
-                                System.out.println("added variant to " + gene);
+         //                       System.out.println("added variant to " + gene);
                             }
                             newRvList.add(rv);
                         }
@@ -96,22 +96,22 @@ public class AssignCompoundHeterozygous {
                         List<RelevantVariant> returnThisShit = new ArrayList<>();
                         List<String> genesNotFound = new ArrayList<>();
                         for (String gene : genesSeenForPreviousVariant) {
-                          System.out.println("checking if previously seen " + gene + " is still seen in current variant gene list" + genesSeenForCurrentVariant.toString());
+       //                   System.out.println("checking if previously seen " + gene + " is still seen in current variant gene list" + genesSeenForCurrentVariant.toString());
 
 
                             if (!genesSeenForCurrentVariant.contains(gene)) {
 
-                                System.out.println("no, so going to process " + geneToVariantsToCheck.get(gene).size() + " variants for gene " + gene);
+                 //               System.out.println("no, so going to process " + geneToVariantsToCheck.get(gene).size() + " variants for gene " + gene);
                                 List<RelevantVariant> variantsToCheck = geneToVariantsToCheck.get(gene);
                                 variantsToCheck = prefilterOnGene(variantsToCheck, gene);
                                 returnThisShit.addAll(variantsToCheck);
                                 genesNotFound.add(gene);
 
-                                System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " variants");
+               //                 System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " variants");
                             }
                             else
                             {
-                                System.out.println("yes, so continuing");
+              //                  System.out.println("yes, so continuing");
                             }
                         }
 
@@ -123,7 +123,7 @@ public class AssignCompoundHeterozygous {
 
                             // geneToVariantsToCheck.remove(gene);
                             genesToDelete = genesNotFound;
-                            System.out.println("marking to delete variants for gene: " + genesNotFound);
+                       //     System.out.println("marking to delete variants for gene: " + genesNotFound);
 
 
                             resultBatch = returnThisShit.iterator();
@@ -135,24 +135,24 @@ public class AssignCompoundHeterozygous {
                             // genesSeenForPreviousVariant.addAll(genesSeenForCurrentVariant);
 
                             genesSeenForCurrentVariantUpdate = genesSeenForCurrentVariant;
-                            System.out.println("marking genesSeenForCurrentVariantUpdate: " + genesSeenForCurrentVariantUpdate.toString());
+                      //      System.out.println("marking genesSeenForCurrentVariantUpdate: " + genesSeenForCurrentVariantUpdate.toString());
 
-                            System.out.println("we have a new result batch ready, with " + returnThisShit.size() + " elements");
+               //             System.out.println("we have a new result batch ready, with " + returnThisShit.size() + " elements");
                             // prepare the next result to be handed out by next()
                             if(resultBatch.hasNext()){
-                                System.out.println("returning nextResult...");
+                 //               System.out.println("returning nextResult...");
                                 nextResult = resultBatch.next();
                                 return true;
                             }
 
                         }
 
-                         System.out.println("not returned new batches, so clearning genesSeenForPreviousVariant for next variant and adding " + genesSeenForCurrentVariant.toString());
+                    //     System.out.println("not returned new batches, so clearning genesSeenForPreviousVariant for next variant and adding " + genesSeenForCurrentVariant.toString());
                         //clear the previously seen genes, and add the current ones
                         genesSeenForPreviousVariant.clear();
                         genesSeenForPreviousVariant.addAll(genesSeenForCurrentVariant);
                         if(genesToDelete != null){
-                            System.out.println("no results returned after filter, so also cleaning out genes to be deleted: " + genesToDelete.toString());
+           //                 System.out.println("no results returned after filter, so also cleaning out genes to be deleted: " + genesToDelete.toString());
                             for(String geneToDelete : genesToDelete)
                             {
                                 geneToVariantsToCheck.remove(geneToDelete);
@@ -168,10 +168,10 @@ public class AssignCompoundHeterozygous {
                 }
 
 
-                System.out.println("OUTSIDE THE WHILE LOOP, so processing last remaining bits");
+    //            System.out.println("OUTSIDE THE WHILE LOOP, so processing last remaining bits");
                 if(remainingGenes == null)
                 {
-                    System.out.println("assigning last remainingGenes: " + geneToVariantsToCheck.keySet().toString());
+    //                System.out.println("assigning last remainingGenes: " + geneToVariantsToCheck.keySet().toString());
                     remainingGenes = geneToVariantsToCheck.keySet().iterator();
                     genesToDelete = null;
                 }
@@ -180,31 +180,31 @@ public class AssignCompoundHeterozygous {
                 {
 
                     String remainingGene = remainingGenes.next();
-                    System.out.println("iterating on next remainingGene = " + remainingGene);
+      //              System.out.println("iterating on next remainingGene = " + remainingGene);
                     List<RelevantVariant> variantsToCheck = geneToVariantsToCheck.get(remainingGene);
-                    System.out.println("found = " + variantsToCheck.size() + " variantsToCheck");
+        //            System.out.println("found = " + variantsToCheck.size() + " variantsToCheck");
                     variantsToCheck = prefilterOnGene(variantsToCheck, remainingGene);
-                    System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " remaining variants");
+         //           System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " remaining variants");
 
                     //TODO call a function that checks comp het
 
 
                     resultBatch = variantsToCheck.iterator();
 
-                    System.out.println("we have " + variantsToCheck.size() + " remaining variants in this batch ready");
+         //           System.out.println("we have " + variantsToCheck.size() + " remaining variants in this batch ready");
                     // prepare the next result to be handed out by next()
                     if(resultBatch.hasNext()){
-                        System.out.println("returning nextResult of remaining data...");
+       //                 System.out.println("returning nextResult of remaining data...");
                         nextResult = resultBatch.next();
                         return true;
                     }
                     else{
-                        System.out.println("WARNING nothing in nextResult of remaining data ??");
+       //                 System.out.println("WARNING nothing in nextResult of remaining data ??");
                     }
                 }
 
 
-                System.out.println("all done!!");
+          //      System.out.println("all done!!");
                 return false;
 
 
