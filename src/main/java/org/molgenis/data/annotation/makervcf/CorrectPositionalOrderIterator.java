@@ -5,6 +5,7 @@ import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * Created by joeri on 6/29/16.
@@ -23,47 +24,75 @@ public class CorrectPositionalOrderIterator {
     public Iterator<RelevantVariant> go() {
         return new Iterator<RelevantVariant>() {
 
-            List<RelevantVariant> buffer = new ArrayList<RelevantVariant>();
+            TreeMap<Integer, RelevantVariant> buffer = new TreeMap<Integer, RelevantVariant>();
+            Iterator<RelevantVariant> bufferPrinter;
             RelevantVariant nextResult;
-            int i = 0;
+            int i = -1;
 
             @Override
             public boolean hasNext() {
 
+                if(bufferPrinter != null && bufferPrinter.hasNext())
+                {
+               //     System.out.println("returning next element in the buffer");
+                    nextResult = bufferPrinter.next();
+                    return true;
+                }
 
                 while (relevantVariants.hasNext()) {
                     try {
-                        RelevantVariant rv = relevantVariants.next();
 
-                        System.out.println("rvPos = " + rv.getVariant().getPos() + ", orderPos["+i+"] = " + order.get(i) + ", order.size() " + order.size());
+             //           System.out.println("hasNext called, buffer size = " + buffer.size());
+
+                        i++;
+
+                        RelevantVariant rv = relevantVariants.next();
+                        int pos = Integer.parseInt(rv.getVariant().getPos());
+         //               System.out.println("rvPos = " + pos + ", orderPos["+i+"] = " + order.get(i) + ", order.size() " + order.size());
 
 
                         //position of stream matches real variant position, stable situation
                         //write out any buffered variants in the correct order until this point
-                        if(rv.getVariant().getPos().equals(order.get(i)))
+                        if(pos == order.get(i))
                         {
-                            if(buffer.size() > 0)
+                            if(buffer.size() == 0)
                             {
-                                nextResult = buffer.get(0);
+             //                   System.out.println("buffer empty, returning current element");
+                                nextResult = rv;
+                                return true;
                             }
-                            nextResult = rv;
-                            return true;
+                            else
+                            {
+                                buffer.put(pos, rv);
+                                bufferPrinter = buffer.values().iterator();
+               //                 System.out.println("adding to buffer, buffer has "+buffer.size()+" elements, returning first element");
+                                buffer = new TreeMap<>(); //todo ok??
+                                nextResult = bufferPrinter.next();
+                                return true;
+                            }
+
                         }
                         else
                         {
                             //buffer
-                            buffer.add(rv);
+             //               System.out.println("adding to buffer");
+                            buffer.put(pos, rv);
                         }
 
-                        i++;
 
-                        nextResult = rv;
-                        return true;
 
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
+
+                if(bufferPrinter != null && bufferPrinter.hasNext())
+                {
+     //               System.out.println("returning LAST elements in the buffer");
+                    nextResult = bufferPrinter.next();
+                    return true;
+                }
+
                 return false;
             }
 
