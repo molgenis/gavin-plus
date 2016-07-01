@@ -6,6 +6,11 @@ import java.util.*;
 
 /**
  * Created by joeri on 6/29/16.
+ * Scope: identify variants in the same gene that are HETEROZYGOUS or CARRIER genotype for the same sample
+ *
+ * Here we do not involve any trio knowledge (e.g. filter our AFFECTED+DOMINANT samples that are not de novo)
+ * or use any phasing information (e.g. only 0|1 and 1|0 would be a suitable compound heterozygous) because we
+ * want to handle this as part of trio aware filter, because for non-phased data similar inferences can be made as well.
  */
 public class AssignCompoundHeterozygous {
 
@@ -93,7 +98,7 @@ public class AssignCompoundHeterozygous {
                         // now this is tricky: ANGPTL7 is contained within MTOR. Variants are annoted as [MTOR] or [ANGPTL7, MTOR].
                         // however, variants relevent for only ANGPTL7 should not be evaluated for MTOR. However, we need to keep track of MTOR
                         // because it continues later on, so compound MTOR mutations could be found with ANGPTL7 inbetween.
-                        List<RelevantVariant> returnThisShit = new ArrayList<>();
+                        List<RelevantVariant> returnTheseVariants = new ArrayList<>();
                         List<String> genesNotFound = new ArrayList<>();
                         for (String gene : genesSeenForPreviousVariant) {
        //                   System.out.println("checking if previously seen " + gene + " is still seen in current variant gene list" + genesSeenForCurrentVariant.toString());
@@ -104,7 +109,12 @@ public class AssignCompoundHeterozygous {
                  //               System.out.println("no, so going to process " + geneToVariantsToCheck.get(gene).size() + " variants for gene " + gene);
                                 List<RelevantVariant> variantsToCheck = geneToVariantsToCheck.get(gene);
                                 variantsToCheck = prefilterOnGene(variantsToCheck, gene);
-                                returnThisShit.addAll(variantsToCheck);
+
+
+                                //TODO call a function that checks comp het
+                                compoundHetCheck(variantsToCheck);
+
+                                returnTheseVariants.addAll(variantsToCheck);
                                 genesNotFound.add(gene);
 
                //                 System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " variants");
@@ -117,7 +127,7 @@ public class AssignCompoundHeterozygous {
 
                         if(genesNotFound.size() > 0)
                         {
-                            //TODO call a function that checks comp het
+
 
                             //remove the gene+variants from the map
 
@@ -126,7 +136,7 @@ public class AssignCompoundHeterozygous {
                        //     System.out.println("marking to delete variants for gene: " + genesNotFound);
 
 
-                            resultBatch = returnThisShit.iterator();
+                            resultBatch = returnTheseVariants.iterator();
 
 
                             //clear the previously seen genes, and add the current ones
@@ -137,7 +147,7 @@ public class AssignCompoundHeterozygous {
                             genesSeenForCurrentVariantUpdate = genesSeenForCurrentVariant;
                       //      System.out.println("marking genesSeenForCurrentVariantUpdate: " + genesSeenForCurrentVariantUpdate.toString());
 
-               //             System.out.println("we have a new result batch ready, with " + returnThisShit.size() + " elements");
+               //             System.out.println("we have a new result batch ready, with " + returnTheseVariants.size() + " elements");
                             // prepare the next result to be handed out by next()
                             if(resultBatch.hasNext()){
                  //               System.out.println("returning nextResult...");
@@ -187,7 +197,7 @@ public class AssignCompoundHeterozygous {
          //           System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " remaining variants");
 
                     //TODO call a function that checks comp het
-
+                    compoundHetCheck(variantsToCheck);
 
                     resultBatch = variantsToCheck.iterator();
 
@@ -229,6 +239,47 @@ public class AssignCompoundHeterozygous {
             }
         }
         return res;
+    }
+
+    private void compoundHetCheck(List<RelevantVariant> variantsToCheck)
+    {
+
+        Set<String> samplesSeen = new HashSet<String>();
+        Set<String> markedSamples  = new HashSet<String>();
+        for(RelevantVariant rv: variantsToCheck)
+        {
+            for(String sample: rv.getSampleStatus().keySet())
+            {
+                if(rv.getSampleStatus().get(sample).equals("HETEROZYGOUS") || rv.getSampleStatus().get(sample).equals("CARRIER"))
+                {
+            //        System.out.println("gene : " + rv.getGene() + " , sample: " +sample + ", status: " + rv.getSampleStatus().get(sample));
+                    if(samplesSeen.contains(sample))
+                    {
+        //                System.out.println("comphet!!!!");
+                        markedSamples.add(sample);
+                    }
+                    samplesSeen.add(sample);
+                }
+
+
+            }
+        }
+
+        //iterate again and update marked samples
+        for(RelevantVariant rv: variantsToCheck) {
+
+            for(String sample : markedSamples)
+            {
+     //           System.out.println("marked sample: " + sample);
+                if(rv.getSampleStatus().containsKey(sample) && (rv.getSampleStatus().get(sample).equals("HETEROZYGOUS") || rv.getSampleStatus().get(sample).equals("CARRIER")))
+                {
+                    rv.getSampleStatus().put(sample, "COMPOUNDHET");
+       //             System.out.println("updating " +  rv.getGene() + " for sample + " + sample + " to COMPOUNDHET");
+                }
+            }
+        }
+
+
     }
 
 
