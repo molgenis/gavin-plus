@@ -271,9 +271,17 @@ public class AssignCompoundHeterozygous {
             for(String sample : markedSamples)
             {
      //           System.out.println("marked sample: " + sample);
-                if(rv.getSampleStatus().containsKey(sample) && (rv.getSampleStatus().get(sample).equals("HETEROZYGOUS") || rv.getSampleStatus().get(sample).equals("CARRIER")))
+                if(rv.getSampleStatus().containsKey(sample))
                 {
-                    rv.getSampleStatus().put(sample, "COMPOUNDHET");
+                    if(rv.getSampleStatus().get(sample).equals("HETEROZYGOUS"))
+                    {
+                        rv.getSampleStatus().put(sample, "HOMOZYGOUS_COMPOUNDHET");
+                    }
+                    if(rv.getSampleStatus().get(sample).equals("CARRIER"))
+                    {
+                        rv.getSampleStatus().put(sample, "AFFECTED_COMPOUNDHET");
+                    }
+
        //             System.out.println("updating " +  rv.getGene() + " for sample + " + sample + " to COMPOUNDHET");
                 }
             }

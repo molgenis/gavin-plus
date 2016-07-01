@@ -40,10 +40,10 @@ public class Run {
     public Run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode, File outputVcfFile) throws Exception
     {
         HashMap<String, Trio> trios = MatchVariantsToGenotypeAndInheritance.getTrios(inputVcfFile);
-        for(String s : trios.keySet())
-        {
-            System.out.println(s + " -> " + trios.get(s).toString());
-        }
+//        for(String s : trios.keySet())
+//        {
+//            System.out.println(s + " -> " + trios.get(s).toString());
+//        }
 
         //initial discovery of any suspected/likely pathogenic variant
         DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode);
@@ -56,14 +56,14 @@ public class Run {
         AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(relevantVariantsGenoMatched);
         Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHet = compHet.go();
 
-        //fix order in which variants are written out (re-ordered by compound het check)
-        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetFix = new CorrectPositionalOrderIterator(relevantVariantsGenoMatchedCompHet, compHet.getPositionalOrder()).go();
-
         //use any parental information to filter out variants/status
-   //     Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetTriof = new TrioAwareFilter(relevantVariantsGenoMatchedCompHet).go();
+        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetTrio = new TrioAwareFilter(relevantVariantsGenoMatchedCompHet, trios).go();
+
+        //fix order in which variants are written out (re-ordered by compound het check)
+        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetTrioOrdered = new CorrectPositionalOrderIterator(relevantVariantsGenoMatchedCompHetTrio, compHet.getPositionalOrder()).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> relevantVariantsGenoMatchedEntities = new MakeRVCFforClinicalVariants(relevantVariantsGenoMatchedCompHetFix, rlv).addRVCFfield();
+        Iterator<Entity> relevantVariantsGenoMatchedEntities = new MakeRVCFforClinicalVariants(relevantVariantsGenoMatchedCompHetTrioOrdered, rlv).addRVCFfield();
 
         //write Entities output VCF file
         writeRVCF(relevantVariantsGenoMatchedEntities, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv);
