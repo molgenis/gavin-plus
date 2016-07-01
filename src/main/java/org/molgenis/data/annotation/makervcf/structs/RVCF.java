@@ -65,7 +65,7 @@ public class RVCF {
         rvcfInstance.setVariantSignificance(split[12]);
         rvcfInstance.setVariantSignificanceSource(split[13]);
         rvcfInstance.setVariantSignificanceJustification(split[14]);
-        rvcfInstance.setVariantCompoundHet(split[15]);
+        rvcfInstance.setVariantCompoundHet(split[15]); //todo: is this necessary?
         rvcfInstance.setVariantGroup(split[16]);
 
         return rvcfInstance;
