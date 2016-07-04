@@ -46,6 +46,10 @@ public class VcfEntity {
 
     }
 
+    public void setCaddPhredScore(int i, Double setMe) {
+        this.caddPhredScores[i] = setMe;
+    }
+
     public Entity getOrignalEntity() {
         return orignalEntity;
     }
