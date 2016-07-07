@@ -7,6 +7,7 @@ import org.molgenis.data.vcf.VcfRepository;
 
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -155,6 +156,16 @@ public class VcfEntity {
 
     public Set<String> getGenes() {
         return genes;
+    }
+
+    public void setGenes(String gene) {
+        Set<String> genes = new HashSet<>();
+        genes.add(gene);
+        this.genes = genes;
+    }
+
+    public void setGenes(Set<String> genes) {
+        this.genes = genes;
     }
 
     public static int getAltAlleleIndex(VcfEntity record, String alt) {

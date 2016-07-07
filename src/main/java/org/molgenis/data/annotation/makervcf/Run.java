@@ -11,8 +11,6 @@ import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
 import org.molgenis.data.vcf.datastructures.Trio;
 import org.molgenis.data.vcf.utils.VcfWriterUtils;
-import org.molgenis.vcf.VcfReader;
-import org.molgenis.vcf.meta.VcfMeta;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -52,18 +50,18 @@ public class Run {
         //MAF filter to control false positives / non relevant variants in ClinVar
         Iterator<RelevantVariant> rv2 = new MAFFilter(rv1).go();
 
-        //match sample genotype with known disease inheritance mode
+        //match sample genotype with known disease inheritance mode TODO: deal with hemizygous genotypes vs X-linked
         Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile).go();
 
         //convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
         AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(rv3);
         Iterator<RelevantVariant> rv4 = compHet.go();
 
-        //use any parental information to filter out variants/status TODO - at least phasing info !!
-        Iterator<RelevantVariant> rv5 = new TrioAwareFilter(rv4, trios).go();
+        //use any parental information to filter out variants/status TODO: use phasing and/or trio data
+        Iterator<RelevantVariant> rv5 = new TrioAndPhasingFilter(rv4, trios).go();
 
         //report hits per gene, right before the stream is swapped from 'gene based' to 'position based'
-        Iterator<RelevantVariant> rv6 = new ReportCandidatesPerGene(rv5).go(); //todo
+        Iterator<RelevantVariant> rv6 = new ReportCandidatesPerGene(rv5).go();
 
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
         Iterator<RelevantVariant> rv7 = new CorrectPositionalOrderIterator(rv6, compHet.getPositionalOrder()).go();

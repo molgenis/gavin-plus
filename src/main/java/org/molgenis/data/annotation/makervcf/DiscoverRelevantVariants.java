@@ -71,16 +71,29 @@ public class DiscoverRelevantVariants {
                         for (int i = 0; i < record.getAlts().length; i++)
                         {
                             Double cadd = hmcs.dealWithCaddScores(record, i);
-                            for (String gene : record.getGenes())
+
+                            //if mitochondrial, we have less tools / data
+                            if(record.getChr().equals("MT") || record.getChr().equals("M") || record.getChr().equals("mtDNA"))
                             {
-                                Impact impact = record.getImpact(i, gene);
-                                String transcript = record.getTranscript(i, gene);
-                                Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, record.getExac_AFs(i), gene, null, gavinData);
-                                Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene);
-                                if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic))
+                                Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), "MT", true);
+                                if (clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic))
                                 {
-                                    nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, gavinJudgment, clinvarJudgment);
+                                    record.setGenes(clinvarJudgment.getGene());
+                                    nextResult = new RelevantVariant(record, record.getAlts(i), clinvarJudgment.getGene(), record.getExac_AFs(i), record.getGoNL_AFs(i), clinvarJudgment.getGene(), null, clinvarJudgment);
                                     return true;
+                                }
+                            }
+
+                            else {
+                                for (String gene : record.getGenes()) {
+                                    Impact impact = record.getImpact(i, gene);
+                                    String transcript = record.getTranscript(i, gene);
+                                    Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, record.getExac_AFs(i), gene, null, gavinData);
+                                    Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene, false);
+                                    if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic)) {
+                                        nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, gavinJudgment, clinvarJudgment);
+                                        return true;
+                                    }
                                 }
                             }
                         }

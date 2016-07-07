@@ -53,7 +53,7 @@ public class MakeRVCFforClinicalVariants {
                     RelevantVariant rv = relevantVariants.next();
 
                     boolean clinVarPatho = rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
-                    boolean gavinPatho = rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
+                    boolean gavinPatho = rv.getGavinJudgment() != null ? rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic) : false;
 
 
                     RVCF rvcf = new RVCF();

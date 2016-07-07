@@ -44,7 +44,7 @@ public class ClinVar {
     }
 
 
-    public Judgment classifyVariant(VcfEntity record, String alt, String gene) throws Exception {
+    public Judgment classifyVariant(VcfEntity record, String alt, String gene, boolean overrideGeneWithClinvarGene) throws Exception {
         String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), alt, "_");
         String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
 
@@ -58,7 +58,15 @@ public class ClinVar {
             {
                 String clinvarGene = clinvarInfo.split("\\|", -1)[1];
                 if (!clinvarGene.equalsIgnoreCase(gene)) {
-                    System.out.println("WARNING: genes did not match: " + clinvarGene + " vs " + gene + ". Reporting under '" + gene + "' while preserving ClinVar data '" + clinvarInfo + "'.");
+                    if(overrideGeneWithClinvarGene)
+                    {
+            //            System.out.println("Processing MT data? Reporting variant under under '" + clinvarGene + "'.");
+                        gene = clinvarGene;
+                    }
+                    else {
+         //               System.out.println("WARNING: genes did not match: " + clinvarGene + " vs " + gene + ". Reporting under '" + gene + "' while preserving ClinVar data '" + clinvarInfo + "'.");
+
+                    }
                 }
                 return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, clinvarInfo);
             } else {

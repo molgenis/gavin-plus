@@ -61,7 +61,7 @@ public class MatchVariantsToGenotypeAndInheritance {
 
                     boolean hit = false;
 
-                    String gavinGene = rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null;
+                    String gavinGene = rv.getGavinJudgment() != null ? (rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null) : null;
                     String clinvarGene = rv.getClinvarJudgment().getGene() != null ? rv.getClinvarJudgment().getGene() : null;
 
                     //extra checks that things are okay
@@ -139,6 +139,11 @@ public class MatchVariantsToGenotypeAndInheritance {
 
         for (Entity sample : record.getSamples())
         {
+            if(sample.get("GT") == null)
+            {
+                continue;
+            }
+
             String genotype = sample.get("GT").toString();
             String sampleName = sample.get("ORIGINAL_NAME").toString();
 

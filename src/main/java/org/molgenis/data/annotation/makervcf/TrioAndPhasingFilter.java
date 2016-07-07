@@ -16,12 +16,19 @@ import java.util.Map;
  * re-use phasing data?
  *
  *
+ * For samples that are 'compound' affected, check if this is really so
+ * Get all variants for a gene
+ * Use either trio data or pre-phased data to check if both chromosomal copies are affected
+ * Or if all 'relevant variants' reside on the same copy, in which case it is not compound.
+ *
+ * TODO
+ *
  */
-public class TrioAwareFilter {
+public class TrioAndPhasingFilter {
 
     private Iterator<RelevantVariant> relevantVariants;
     private HashMap<String, Trio> trios;
-    public TrioAwareFilter(Iterator<RelevantVariant> relevantVariants, HashMap<String, Trio> trios)
+    public TrioAndPhasingFilter(Iterator<RelevantVariant> relevantVariants, HashMap<String, Trio> trios)
     {
         this.relevantVariants = relevantVariants;
         this.trios = trios;
@@ -43,6 +50,11 @@ public class TrioAwareFilter {
 
                             for (String sample : rv.getSampleStatus().keySet()) {
                                 String status = rv.getSampleStatus().get(sample);
+
+                                if (status.contains("COMPOUND")) {
+                   //                 System.out.println("compound status for " + sample + ", " + rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " -> " + status);
+                                }
+
 
                                 if (status.equals("HETEROZYGOUS")) {
                                     if (trios.containsKey(sample)) {
