@@ -32,7 +32,7 @@ public class MatchVariantsToGenotypeAndInheritance {
     {
         this.relevantVariants = relevantVariants;
         this.cgd = LoadCGD.loadCGD(cgdFile);
-        this.minDepth = 10;
+        this.minDepth = 1;
     }
 
     public static HashMap<String, Trio> getTrios(File inputVcfFile) throws IOException {
@@ -142,28 +142,25 @@ public class MatchVariantsToGenotypeAndInheritance {
             String genotype = sample.get("GT").toString();
             String sampleName = sample.get("ORIGINAL_NAME").toString();
 
-
-            if (genotype.equals("./."))
+            if (genotype.equals("./.") || genotype.equals(".") || genotype.equals(".|."))
             {
                 continue;
             }
 
-            if(sample.get("DP") == null)
+            // quality filter: we want depth X or more, if available
+            if(sample.get("DP") != null)
             {
-                continue;
-            }
-
-            // quality filter: we want depth X or more
-            int depthOfCoverage = Integer.parseInt(sample.get("DP").toString());
-            if (depthOfCoverage < minDepth)
-            {
-                continue;
+                int depthOfCoverage = Integer.parseInt(sample.get("DP").toString());
+                if (depthOfCoverage < minDepth)
+                {
+                    continue;
+                }
             }
 
             //now that everything is okay, we can match to inheritance mode
 
             //all dominant types, so no carriers, and only requirement is that genotype contains 1 alt allele somewhere
-            if(inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT) || inheritance.equals(generalizedInheritance.XL_DOMINANT))
+            if(inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT) || inheritance.equals(generalizedInheritance.XL_LINKED))
             {
                 if ( genotype.contains(altIndex+"") && lookingForAffected )
                 {
@@ -174,7 +171,7 @@ public class MatchVariantsToGenotypeAndInheritance {
             //all recessive and unknown types
             //for recessive we know if its acting or not
             //for other (digenic, maternal, YL, etc) and not-in-CGD we don't know, but we still report homozygous as 'acting' and heterozygous as 'carrier' to make that distinction
-            else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.XL_RECESSIVE) || inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD))
+            else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD))
             {
                 //first homozygous alternative
                 if ( (genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex)) && lookingForAffected )
