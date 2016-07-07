@@ -79,7 +79,7 @@ public class DiscoverRelevantVariants {
                                 Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene);
                                 if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic))
                                 {
-                                    nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), gene, gavinJudgment, clinvarJudgment);
+                                    nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, gavinJudgment, clinvarJudgment);
                                     return true;
                                 }
                             }

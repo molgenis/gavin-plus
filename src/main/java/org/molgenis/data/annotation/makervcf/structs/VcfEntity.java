@@ -21,7 +21,8 @@ public class VcfEntity {
     private String ann;
     private String clinvar;
     private String[] alts; //alternative alleles, in order
-    private Double[] exac_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
+    private Double[] exac_AFs; //ExAC allele frequencies in order of alt alleles, null if no match
+    private Double[] gonl_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
     private Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
     private Set<String> genes; //any associated genes, not in any given order
     private Iterable<Entity> samples;
@@ -39,6 +40,7 @@ public class VcfEntity {
         this.clinvar = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
         this.alts = record.getString("ALT").split(",", -1);
         this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF");
+        this.gonl_AFs = setAltAlleleOrderedDoubleField(record, "GoNL_AF");
         this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED");
         this.ann = record.getString("ANN");
         this.genes = GavinUtils.getGenesFromAnn(ann);
@@ -122,17 +124,25 @@ public class VcfEntity {
         return alts[0];
     }
 
-    public Double[] getExac_AFs() {
-        return exac_AFs;
-    }
-
     public String getClinvar() {
         return clinvar;
+    }
+
+    public Double[] getExac_AFs() {
+        return exac_AFs;
     }
 
     public double getExac_AFs(int i) {
         //return exac_AFs[i] == null ? 0 : exac_AFs[i];
         return exac_AFs[i] != null ? exac_AFs[i] : 0;
+    }
+
+    public Double[] getGoNL_AFs() {
+        return gonl_AFs;
+    }
+
+    public double getGoNL_AFs(int i) {
+        return gonl_AFs[i] != null ? gonl_AFs[i] : 0;
     }
 
     public Double[] getCaddPhredScores() {
