@@ -47,30 +47,36 @@ public class Run {
 
         //initial discovery of any suspected/likely pathogenic variant
         DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode);
-        Iterator<RelevantVariant> relevantVariants = discover.findRelevantVariants();
+        Iterator<RelevantVariant> rv1 = discover.findRelevantVariants();
 
-        //match sample genotype with disease inheritance mode, trio, denovo, compound, phasing, todo
-        Iterator<RelevantVariant> relevantVariantsGenoMatched = new MatchVariantsToGenotypeAndInheritance(relevantVariants, cgdFile).go();
+        //MAF filter to control false positives / non relevant variants in ClinVar
+        Iterator<RelevantVariant> rv2 = new MAFFilter(rv1).go();
+
+        //match sample genotype with known disease inheritance mode
+        Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile).go();
 
         //convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
-        AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(relevantVariantsGenoMatched);
-        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHet = compHet.go();
+        AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(rv3);
+        Iterator<RelevantVariant> rv4 = compHet.go();
 
-        //use any parental information to filter out variants/status
-        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetTrio = new TrioAwareFilter(relevantVariantsGenoMatchedCompHet, trios).go();
+        //use any parental information to filter out variants/status TODO - at least phasing info !!
+        Iterator<RelevantVariant> rv5 = new TrioAwareFilter(rv4, trios).go();
 
-        //fix order in which variants are written out (re-ordered by compound het check)
-        Iterator<RelevantVariant> relevantVariantsGenoMatchedCompHetTrioOrdered = new CorrectPositionalOrderIterator(relevantVariantsGenoMatchedCompHetTrio, compHet.getPositionalOrder()).go();
+        //report hits per gene, right before the stream is swapped from 'gene based' to 'position based'
+        Iterator<RelevantVariant> rv6 = new ReportCandidatesPerGene(rv5).go(); //todo
+
+        //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
+        Iterator<RelevantVariant> rv7 = new CorrectPositionalOrderIterator(rv6, compHet.getPositionalOrder()).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> relevantVariantsGenoMatchedEntities = new MakeRVCFforClinicalVariants(relevantVariantsGenoMatchedCompHetTrioOrdered, rlv).addRVCFfield();
+        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv7, rlv).addRVCFfield();
 
         //write Entities output VCF file
-        writeRVCF(relevantVariantsGenoMatchedEntities, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv);
+        writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, false);
 
     }
 
-    public void writeRVCF(Iterator<Entity> relevantVariants, File writeTo, File inputVcfFile, EntityMetaData vcfMeta, AttributeMetaData rlv) throws IOException, MolgenisInvalidFormatException {
+    public void writeRVCF(Iterator<Entity> relevantVariants, File writeTo, File inputVcfFile, EntityMetaData vcfMeta, AttributeMetaData rlv, boolean writeToDisk) throws IOException, MolgenisInvalidFormatException {
 
         List<AttributeMetaData> attributes = Lists.newArrayList(vcfMeta.getAttributes());
         attributes.add(rlv);
@@ -81,9 +87,12 @@ public class Run {
         while(relevantVariants.hasNext())
         {
             Entity e = relevantVariants.next();
-           // System.out.println(rv.getVariant().getOrignalEntity().toString());
-            VcfWriterUtils.writeToVcf(e, outputVCFWriter);
-            outputVCFWriter.newLine();
+
+            if(writeToDisk)
+            {
+                VcfWriterUtils.writeToVcf(e, outputVCFWriter);
+                outputVCFWriter.newLine();
+            }
         }
         outputVCFWriter.flush();
         outputVCFWriter.close();
@@ -91,8 +100,9 @@ public class Run {
 
     public static void main(String[] args) throws Exception {
 
-        // FOR DEVELOPMENT
+        // FOR DEVELOPMENT, delete output file and 'file for cadd'
         new File(args[6]).delete();
+        if(Mode.valueOf(args[5]).equals(Mode.CREATEFILEFORCADD))  {new File(args[4]).delete();}
 
         if(args.length != 7)
         {
