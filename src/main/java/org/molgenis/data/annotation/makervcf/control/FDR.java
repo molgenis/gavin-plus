@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.control;
 
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
@@ -9,18 +9,16 @@ import java.util.Set;
 /**
  * Created by joeri on 6/29/16.
  *
- * mark denovo?
- * remove variants that are no longer relevant?
- * remove compound het on same allele?
- * re-use phasing data?
+ * False Discovery Rate
  *
+ * TODO: the last gene!!
  *
  */
-public class ReportCandidatesPerGene {
+public class FDR {
 
     private Iterator<RelevantVariant> relevantVariants;
 
-    public ReportCandidatesPerGene(Iterator<RelevantVariant> relevantVariants)
+    public FDR(Iterator<RelevantVariant> relevantVariants)
     {
         this.relevantVariants = relevantVariants;
     }
