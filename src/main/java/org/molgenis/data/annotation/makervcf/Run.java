@@ -6,6 +6,8 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisInvalidFormatException;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
+import org.molgenis.data.annotation.makervcf.control.FDR;
+import org.molgenis.data.annotation.makervcf.control.FOR;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
@@ -60,8 +62,10 @@ public class Run {
         //use any parental information to filter out variants/status TODO: use phasing and/or trio data
         Iterator<RelevantVariant> rv5 = new TrioAndPhasingFilter(rv4, trios).go();
 
-        //report hits per gene, right before the stream is swapped from 'gene based' to 'position based'
-        Iterator<RelevantVariant> rv6 = new ReportCandidatesPerGene(rv5).go();
+        //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
+        //FOR: report missed hits per gene, same as above with pathogenic gold standard set
+        //Iterator<RelevantVariant> rv6 = new FDR(rv5).go();
+        Iterator<RelevantVariant> rv6 = new FOR(rv5, inputVcfFile).go();
 
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
         Iterator<RelevantVariant> rv7 = new CorrectPositionalOrderIterator(rv6, compHet.getPositionalOrder()).go();
