@@ -18,6 +18,7 @@ public class VcfEntity {
     private Entity orignalEntity;
     private String chr;
     private String pos;
+    private String id;
     private String ref;
     private String ann;
     private String clinvar;
@@ -37,6 +38,7 @@ public class VcfEntity {
         this.samples = record.getEntities(VcfRepository.SAMPLES);
         this.chr = record.getString("#CHROM");
         this.pos = record.getString("POS");
+        this.id = record.getString("ID");
         this.ref = record.getString("REF");
         this.clinvar = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
         this.alts = record.getString("ALT").split(",", -1);
@@ -47,6 +49,10 @@ public class VcfEntity {
         this.genes = GavinUtils.getGenesFromAnn(ann);
 
 
+    }
+
+    public String getId() {
+        return id != null ? id : "";
     }
 
     public void setCaddPhredScore(int i, Double setMe) {
