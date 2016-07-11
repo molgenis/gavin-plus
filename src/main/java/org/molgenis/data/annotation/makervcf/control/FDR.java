@@ -2,6 +2,9 @@ package org.molgenis.data.annotation.makervcf.control;
 
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -17,14 +20,19 @@ import java.util.Set;
 public class FDR {
 
     private Iterator<RelevantVariant> relevantVariants;
+    private File writeTo;
+    private PrintWriter pw;
 
-    public FDR(Iterator<RelevantVariant> relevantVariants)
-    {
+    public FDR(Iterator<RelevantVariant> relevantVariants, File writeTo) throws FileNotFoundException {
         this.relevantVariants = relevantVariants;
+        this.writeTo = writeTo;
+        this.pw = new PrintWriter(writeTo);
     }
 
     public Iterator<RelevantVariant> go()
     {
+        this.pw.println("Gene\tFDR");
+
         return new Iterator<RelevantVariant>(){
 
             RelevantVariant nextResult;
@@ -39,14 +47,13 @@ public class FDR {
                     while (relevantVariants.hasNext()) {
                         RelevantVariant rv = relevantVariants.next();
 
-                      //  System.out.println(rv.getGene());
-
                         currentGene = rv.getGene();
 
 
                         if(!currentGene.equals(previousGene))
                         {
-                            System.out.println(previousGene + "\t" + (uniquelyAffectedSamplesForThisGene.size() / 2504.0) * 100);
+                            pw.println(previousGene + "\t" + (uniquelyAffectedSamplesForThisGene.size()));
+                            pw.flush();
                             uniquelyAffectedSamplesForThisGene.clear();
                         }
 
@@ -68,6 +75,15 @@ public class FDR {
                         return true;
                     }
 
+
+                    //last gene
+                    pw.println(previousGene + "\t" + (uniquelyAffectedSamplesForThisGene.size()));
+                    pw.flush();
+                    uniquelyAffectedSamplesForThisGene.clear();
+
+
+                    pw.flush();
+                    pw.close();
                     return false;
                 }
                 catch(Exception e)
