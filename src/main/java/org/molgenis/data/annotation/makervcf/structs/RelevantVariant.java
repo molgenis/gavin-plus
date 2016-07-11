@@ -74,7 +74,14 @@ public class RelevantVariant
         return "RelevantVariant{" +
                 "variant=" + variant +
                 ", gavinJudgment=" + gavinJudgment +
-                ", clinvarPathoMatch=" + clinvarJudgment +
+                ", clinvarJudgment=" + clinvarJudgment +
+                ", allele='" + allele + '\'' +
+                ", gene='" + gene + '\'' +
+                ", sampleStatus=" + sampleStatus +
+                ", alleleFreq=" + alleleFreq +
+                ", gonlAlleleFreq=" + gonlAlleleFreq +
+                ", transcript='" + transcript + '\'' +
+                ", cgdInfo=" + cgdInfo +
                 '}';
     }
 
