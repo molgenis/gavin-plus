@@ -75,7 +75,7 @@ public class VcfEntity {
         {
             if(split.length != this.alts.length)
             {
-                throw new Exception(fieldName + " split length not equal to alt allele split length");
+                throw new Exception(fieldName + " split length not equal to alt allele split length for record " + record.toString());
             }
             for(int i = 0; i < split.length; i++)
             {
