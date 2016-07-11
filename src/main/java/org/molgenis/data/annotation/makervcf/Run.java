@@ -64,8 +64,8 @@ public class Run {
 
         //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
         //FOR: report missed hits per gene, same as above with pathogenic gold standard set
-        //Iterator<RelevantVariant> rv6 = new FDR(rv5).go();
-        Iterator<RelevantVariant> rv6 = new FOR(rv5, inputVcfFile).go();
+        Iterator<RelevantVariant> rv6 = new FDR(rv5, new File("/Users/joeri/Desktop/1000G_diag_FDR/sampleGeneCountsRaw.tsv")).go();
+        //Iterator<RelevantVariant> rv6 = new FOR(rv5, inputVcfFile).go();
 
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
         Iterator<RelevantVariant> rv7 = new CorrectPositionalOrderIterator(rv6, compHet.getPositionalOrder()).go();
