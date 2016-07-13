@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.genestream;
 
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
@@ -13,13 +13,13 @@ import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritan
  * or use any phasing information (e.g. only 0|1 and 1|0 would be a suitable compound heterozygous) because we
  * want to handle this as part of trio aware filter, because for non-phased data similar inferences can be made as well.
  */
-public class AssignCompoundHeterozygous {
+public class ConvertToGeneStream {
 
     private Iterator<RelevantVariant> relevantVariants;
     private ArrayList<Integer> positionalOrder;
     private boolean verbose;
 
-    public AssignCompoundHeterozygous(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public ConvertToGeneStream(Iterator<RelevantVariant> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.positionalOrder = new ArrayList<>(); //TODO any way to reset this without nullpointering?

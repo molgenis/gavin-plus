@@ -1,6 +1,6 @@
-package org.molgenis.data.annotation.makervcf.control;
+package org.molgenis.data.annotation.makervcf.genestream;
 
-import org.molgenis.data.annotation.makervcf.GeneStream;
+import org.molgenis.data.annotation.makervcf.genestream.GeneStream;
 import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
@@ -17,11 +17,11 @@ import java.util.Set;
  *
  * False Discovery Rate
  */
-public class FDR_genestream extends GeneStream{
+public class FDR extends GeneStream{
 
     private PrintWriter pw;
 
-    public FDR_genestream(Iterator<RelevantVariant> relevantVariants, File writeTo, boolean verbose) throws FileNotFoundException {
+    public FDR(Iterator<RelevantVariant> relevantVariants, File writeTo, boolean verbose) throws FileNotFoundException {
         super(relevantVariants, verbose);
         this.pw = new PrintWriter(writeTo);
         this.pw.println("Gene\tFDR");
@@ -33,7 +33,7 @@ public class FDR_genestream extends GeneStream{
         Set<String> uniquelyAffectedSamplesForThisGene = new HashSet<String>();
         for(RelevantVariant rv : variantsPerGene)
         {
-            //extra check, may be removed
+            //extra check, may be removed FIXME
             if(!rv.getGene().equals(gene))
             {
                 throw new Exception("ERROR Gene mismatch: " + rv.getGene() + " vs " + gene);

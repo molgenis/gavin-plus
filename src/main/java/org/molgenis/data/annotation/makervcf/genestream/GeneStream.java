@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.genestream;
 
 import com.sun.tools.javac.jvm.Gen;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
