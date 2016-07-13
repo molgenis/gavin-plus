@@ -6,8 +6,9 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisInvalidFormatException;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
-import org.molgenis.data.annotation.makervcf.control.FDR;
-import org.molgenis.data.annotation.makervcf.control.FDR_genestream;
+import org.molgenis.data.annotation.makervcf.genestream.AssignCompoundHet;
+import org.molgenis.data.annotation.makervcf.genestream.FDR;
+import org.molgenis.data.annotation.makervcf.genestream.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
@@ -50,12 +51,15 @@ public class Run {
         //match sample genotype with known disease inheritance mode TODO: deal with hemizygous genotypes vs X-linked?
         Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile, verbose).go();
 
+        //swap over stream from strict position-based to gene-based so we can do a number of things
+        ConvertToGeneStream gs = new ConvertToGeneStream(rv3, verbose);
+        Iterator<RelevantVariant> gsi = gs.go();
+
         //convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
-        AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(rv3, verbose);
-        Iterator<RelevantVariant> rv4 = compHet.go();
+        Iterator<RelevantVariant> rv4 = new AssignCompoundHet(gsi, verbose).go();
 
         //if available: use any parental information to filter out variants/status TODO
-        HashMap<String, Trio> trios = MatchVariantsToGenotypeAndInheritance.getTrios(inputVcfFile, verbose);
+        HashMap<String, Trio> trios = TrioFilter.getTrios(inputVcfFile, verbose);
         Iterator<RelevantVariant> rv5 = new TrioFilter(rv4, trios, verbose).go();
 
         //if available: use any phasing information to filter out compounds TODO
@@ -66,14 +70,15 @@ public class Run {
 
         //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
         //FOR: report missed hits per gene, same as above with pathogenic gold standard set
-        Iterator<RelevantVariant> rv8 = new FDR_genestream(rv7, new File("/Users/joeri/Desktop/1000G_diag_FDR/exome/sampleGeneCountsRaw_GS.tsv"), verbose).go();
+        //Iterator<RelevantVariant> rv8 = new FDR(rv7, new File("/Users/joeri/Desktop/1000G_diag_FDR/exome/sampleGeneCountsRaw.tsv"), verbose).go();
         //Iterator<RelevantVariant> rv8 = new FOR(rv7, inputVcfFile).go();
+        Iterator<RelevantVariant> rv8 = rv7;
 
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
-        Iterator<RelevantVariant> rv9 = new CorrectPositionalOrderIterator(rv8, compHet.getPositionalOrder(), verbose).go();
+        Iterator<RelevantVariant> rv9 = new CorrectPositionalOrderIterator(rv8, gs.getPositionalOrder(), verbose).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv8, rlv).addRVCFfield();
+        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv9, rlv).addRVCFfield();
 
         //write Entities output VCF file
         writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, true);

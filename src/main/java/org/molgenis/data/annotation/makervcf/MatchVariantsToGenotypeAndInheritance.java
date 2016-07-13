@@ -49,10 +49,7 @@ public class MatchVariantsToGenotypeAndInheritance {
         this.verbose = verbose;
     }
 
-    public static HashMap<String, Trio> getTrios(File inputVcfFile, boolean verbose) throws IOException {
-        BufferedReader bufferedVCFReader = VcfWriterUtils.getBufferedVCFReader(inputVcfFile);
-        return VcfUtils.getPedigree(bufferedVCFReader);
-    }
+
 
 
     public Iterator<RelevantVariant > go() throws Exception {

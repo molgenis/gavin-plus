@@ -3,10 +3,15 @@ package org.molgenis.data.annotation.makervcf;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.vcf.datastructures.Trio;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.vcf.utils.VcfUtils;
+import org.molgenis.data.vcf.utils.VcfWriterUtils;
 
 /**
  * Created by joeri on 6/29/16.
@@ -28,6 +33,11 @@ public class TrioFilter {
         this.relevantVariants = relevantVariants;
         this.trios = trios;
         this.verbose = verbose;
+    }
+
+    public static HashMap<String, Trio> getTrios(File inputVcfFile, boolean verbose) throws IOException {
+        BufferedReader bufferedVCFReader = VcfWriterUtils.getBufferedVCFReader(inputVcfFile);
+        return VcfUtils.getPedigree(bufferedVCFReader);
     }
 
     public Iterator<RelevantVariant> go()
