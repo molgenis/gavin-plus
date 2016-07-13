@@ -26,8 +26,8 @@ import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritan
  */
 public class MakeRVCFforClinicalVariants {
 
-    Iterator<RelevantVariant> relevantVariants;
-    AttributeMetaData rlv;
+    private Iterator<RelevantVariant> relevantVariants;
+    private AttributeMetaData rlv;
 
     public MakeRVCFforClinicalVariants(Iterator<RelevantVariant> relevantVariants, AttributeMetaData rlv)
     {

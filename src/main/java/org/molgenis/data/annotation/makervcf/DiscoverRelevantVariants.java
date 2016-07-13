@@ -33,7 +33,7 @@ public class DiscoverRelevantVariants {
     private HandleMissingCaddScores hmcs;
     private ClinVar clinvar;
     private EntityMetaData vcfMeta;
-    boolean verbose;
+    private boolean verbose;
 
     public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, Mode mode, boolean verbose) throws Exception
     {

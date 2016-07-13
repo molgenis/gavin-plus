@@ -6,6 +6,8 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisInvalidFormatException;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
+import org.molgenis.data.annotation.makervcf.control.FDR;
+import org.molgenis.data.annotation.makervcf.control.FDR_genestream;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
@@ -52,20 +54,23 @@ public class Run {
         AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(rv3, verbose);
         Iterator<RelevantVariant> rv4 = compHet.go();
 
-        //use any parental information to filter out variants/status TODO
+        //if available: use any parental information to filter out variants/status TODO
         HashMap<String, Trio> trios = MatchVariantsToGenotypeAndInheritance.getTrios(inputVcfFile, verbose);
         Iterator<RelevantVariant> rv5 = new TrioFilter(rv4, trios, verbose).go();
 
-        //use any phasing information to filter out compounds TODO
-        Iterator<RelevantVariant> rv6 = new PhasingCompoundCheck(rv4, verbose).go();
+        //if available: use any phasing information to filter out compounds TODO
+        Iterator<RelevantVariant> rv6 = new PhasingCompoundCheck(rv5, verbose).go();
+
+        //if available: use any SV data to give weight to carrier/heterozygous variants that may be complemented by a deleterious structural event TODO
+        Iterator<RelevantVariant> rv7 = new CombineWithSVcalls(rv6, verbose).go();
 
         //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
         //FOR: report missed hits per gene, same as above with pathogenic gold standard set
-        //Iterator<RelevantVariant> rv7 = new FDR(rv6, new File("/Users/joeri/Desktop/1000G_diag_FDR/sampleGeneCountsRaw.tsv")).go();
-        //Iterator<RelevantVariant> rv7 = new FOR(rv6, inputVcfFile).go();
+        Iterator<RelevantVariant> rv8 = new FDR_genestream(rv7, new File("/Users/joeri/Desktop/1000G_diag_FDR/exome/sampleGeneCountsRaw_GS.tsv"), verbose).go();
+        //Iterator<RelevantVariant> rv8 = new FOR(rv7, inputVcfFile).go();
 
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
-        Iterator<RelevantVariant> rv8 = new CorrectPositionalOrderIterator(rv6, compHet.getPositionalOrder(), verbose).go();
+        Iterator<RelevantVariant> rv9 = new CorrectPositionalOrderIterator(rv8, compHet.getPositionalOrder(), verbose).go();
 
         //write convert RVCF records to Entity
         Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv8, rlv).addRVCFfield();
