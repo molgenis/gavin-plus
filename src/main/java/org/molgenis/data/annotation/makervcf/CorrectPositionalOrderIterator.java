@@ -9,16 +9,19 @@ import java.util.TreeMap;
 
 /**
  * Created by joeri on 6/29/16.
+ * FIXME: any way to clean up 'order' during streaming of results? ie. for any positions that have been written out?
  */
 public class CorrectPositionalOrderIterator {
 
     private Iterator<RelevantVariant> relevantVariants;
-    ArrayList<Integer> order;
+    private ArrayList<Integer> order;
+    private boolean verbose;
 
-    public CorrectPositionalOrderIterator(Iterator<RelevantVariant> relevantVariants, ArrayList<Integer> order)
+    public CorrectPositionalOrderIterator(Iterator<RelevantVariant> relevantVariants, ArrayList<Integer> order, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.order = order;
+        this.verbose = verbose;
     }
 
     public Iterator<RelevantVariant> go() {

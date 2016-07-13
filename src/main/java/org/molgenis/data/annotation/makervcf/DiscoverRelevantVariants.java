@@ -33,8 +33,9 @@ public class DiscoverRelevantVariants {
     private HandleMissingCaddScores hmcs;
     private ClinVar clinvar;
     private EntityMetaData vcfMeta;
+    boolean verbose;
 
-    public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, Mode mode) throws Exception
+    public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, Mode mode, boolean verbose) throws Exception
     {
         this.vcf = new VcfRepository(vcfFile, "vcf");
         this.clinvar = new ClinVar(clinvarFile);
@@ -42,6 +43,7 @@ public class DiscoverRelevantVariants {
         this.gavinData = new GavinUtils(gavinFile).getGeneToEntry();
         this.hmcs = new HandleMissingCaddScores(mode, caddFile);
         this.vcfMeta = vcf.getEntityMetaData();
+        this.verbose = verbose;
     }
 
     public EntityMetaData getVcfMeta() {
@@ -92,6 +94,7 @@ public class DiscoverRelevantVariants {
                                     Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene, false);
                                     if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic)) {
                                         nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, gavinJudgment, clinvarJudgment);
+                                        if(verbose){ System.out.println("found relevant variant: " + nextResult.toStringShort()); }
                                         return true;
                                     }
                                 }

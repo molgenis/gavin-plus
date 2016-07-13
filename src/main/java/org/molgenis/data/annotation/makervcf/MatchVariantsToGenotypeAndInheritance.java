@@ -27,15 +27,29 @@ public class MatchVariantsToGenotypeAndInheritance {
     Iterator<RelevantVariant> relevantVariants;
     Map<String, CGDEntry> cgd;
     int minDepth;
+    boolean verbose;
 
-    public MatchVariantsToGenotypeAndInheritance(Iterator<RelevantVariant> relevantVariants, File cgdFile) throws IOException
+    public enum status{
+        HETEROZYGOUS, HOMOZYGOUS, AFFECTED, CARRIER, BLOODGROUP, HOMOZYGOUS_COMPOUNDHET, AFFECTED_COMPOUNDHET;
+        public static boolean isCompound(status status)
+        {
+            return (status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED_COMPOUNDHET) ? true : false;
+        }
+        public static boolean isCarrier(status status)
+        {
+            return (status == CARRIER);
+        }
+    }
+
+    public MatchVariantsToGenotypeAndInheritance(Iterator<RelevantVariant> relevantVariants, File cgdFile, boolean verbose) throws IOException
     {
         this.relevantVariants = relevantVariants;
         this.cgd = LoadCGD.loadCGD(cgdFile);
         this.minDepth = 1;
+        this.verbose = verbose;
     }
 
-    public static HashMap<String, Trio> getTrios(File inputVcfFile) throws IOException {
+    public static HashMap<String, Trio> getTrios(File inputVcfFile, boolean verbose) throws IOException {
         BufferedReader bufferedVCFReader = VcfWriterUtils.getBufferedVCFReader(inputVcfFile);
         return VcfUtils.getPedigree(bufferedVCFReader);
     }
@@ -84,23 +98,24 @@ public class MatchVariantsToGenotypeAndInheritance {
 
                     rv.setCgdInfo(ce);
 
-                    String actingTerminology = "HOMOZYGOUS";
-                    String nonActingTerminology = "HETEROZYGOUS";
+                    status actingTerminology = status.HOMOZYGOUS;
+                    status nonActingTerminology = status.HETEROZYGOUS;
 
                     // regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
-                    // ie. DOMINANT, RECESSIVE, XL_DOMINANT, XL_RECESSIVE, DOMINANT_OR_RECESSIVE
-                    if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance().toString().contains("DOMINANT") || cgd.get(gene).getGeneralizedInheritance().toString().contains("RECESSIVE")))
+                    //TODO: does this include X-linked... ? its complex but still predictable affected/carrier wise?
+                    //females can be X-linked carriers, but since X is inactivated, they might also be affected... we dont know..
+                    if (cgd.containsKey(gene) && (generalizedInheritance.isDominant(cgd.get(gene).getGeneralizedInheritance()) || generalizedInheritance.isRecessive(cgd.get(gene).getGeneralizedInheritance())))
                     {
-                        actingTerminology = "AFFECTED";
-                        nonActingTerminology = "CARRIER";
+                        actingTerminology = status.AFFECTED;
+                        nonActingTerminology = status.CARRIER;
                     }
                     else if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance() == generalizedInheritance.BLOODGROUP))
                     {
-                        actingTerminology = "BLOODGROUP";
-                        nonActingTerminology = "BLOODGROUP";
+                        actingTerminology = status.BLOODGROUP;
+                        nonActingTerminology = status.BLOODGROUP;
                     }
 
-                    Map<String, String> sampleStatus = new HashMap<>();
+                    Map<String, status> sampleStatus = new HashMap<>();
 
                     for(String key : affectedSamples.keySet())
                     {
@@ -111,6 +126,9 @@ public class MatchVariantsToGenotypeAndInheritance {
                         sampleStatus.put(key, nonActingTerminology);
                     }
                     rv.setSampleStatus(sampleStatus);
+
+                    if(verbose) {
+                        System.out.println("assigned sample status: " + sampleStatus.toString());}
 
                     return rv;
                 }

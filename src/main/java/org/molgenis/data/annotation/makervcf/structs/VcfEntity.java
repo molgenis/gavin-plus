@@ -119,6 +119,16 @@ public class VcfEntity {
         return alts;
     }
 
+    public String getAltString() {
+        StringBuffer sb = new StringBuffer();
+        for(String alt : alts)
+        {
+            sb.append(alt + ",");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
+    }
+
     public String getAlts(int i) {
         return alts[i];
     }

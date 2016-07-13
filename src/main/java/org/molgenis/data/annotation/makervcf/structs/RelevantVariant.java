@@ -3,6 +3,9 @@ package org.molgenis.data.annotation.makervcf.structs;
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
+import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +21,7 @@ public class RelevantVariant
     Judgment clinvarJudgment;
     String allele;
     String gene;
-    Map<String, String> sampleStatus;
+    Map<String, status> sampleStatus;
     double alleleFreq;
     double gonlAlleleFreq;
     String transcript;
@@ -69,6 +72,10 @@ public class RelevantVariant
         return clinvarJudgment;
     }
 
+    public String toStringShort(){
+        return "RelevantVariant{"+variant.getChr()+" " +variant.getPos()+ " " + variant.getRef()+ " " + variant.getAltString() + " in gene " + gene + ", gavin:" + gavinJudgment + ", clinvar: " + clinvarJudgment + '}';
+    }
+
     @Override
     public String toString() {
         return "RelevantVariant{" +
@@ -93,11 +100,11 @@ public class RelevantVariant
         this.cgdInfo = cgdInfo;
     }
 
-    public Map<String, String> getSampleStatus() {
-        return sampleStatus != null ? sampleStatus : new HashMap<String, String>();
+    public Map<String, status> getSampleStatus() {
+        return sampleStatus != null ? sampleStatus : new HashMap<String, status>();
     }
 
-    public void setSampleStatus(Map<String, String> sampleStatus) {
+    public void setSampleStatus(Map<String, status> sampleStatus) {
         this.sampleStatus = sampleStatus;
     }
 }

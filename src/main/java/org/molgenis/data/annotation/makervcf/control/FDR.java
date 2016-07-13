@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
+import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
 /**
  * Created by joeri on 6/29/16.
  *
@@ -61,7 +61,7 @@ public class FDR {
                         for(String sample : rv.getSampleStatus().keySet())
                         {
                             //todo create ENUM for status stuff..
-                            if(!rv.getSampleStatus().get(sample).contains("CARRIER"))
+                            if(!status.isCarrier(rv.getSampleStatus().get(sample)))
                             {
                                 uniquelyAffectedSamplesForThisGene.add(sample);
                             }

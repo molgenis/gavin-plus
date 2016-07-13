@@ -6,8 +6,6 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisInvalidFormatException;
 import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
-import org.molgenis.data.annotation.makervcf.control.FDR;
-import org.molgenis.data.annotation.makervcf.control.FOR;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
@@ -37,44 +35,43 @@ public class Run {
 
     private AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
 
-    public Run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode, File outputVcfFile) throws Exception
+    public Run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, Mode mode, File outputVcfFile, boolean verbose) throws Exception
     {
-        HashMap<String, Trio> trios = MatchVariantsToGenotypeAndInheritance.getTrios(inputVcfFile);
-//        for(String s : trios.keySet())
-//        {
-//            System.out.println(s + " -> " + trios.get(s).toString());
-//        }
 
         //initial discovery of any suspected/likely pathogenic variant
-        DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode);
+        DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode, verbose);
         Iterator<RelevantVariant> rv1 = discover.findRelevantVariants();
 
         //MAF filter to control false positives / non relevant variants in ClinVar
-        Iterator<RelevantVariant> rv2 = new MAFFilter(rv1).go();
+        Iterator<RelevantVariant> rv2 = new MAFFilter(rv1, verbose).go();
 
-        //match sample genotype with known disease inheritance mode TODO: deal with hemizygous genotypes vs X-linked
-        Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile).go();
+        //match sample genotype with known disease inheritance mode TODO: deal with hemizygous genotypes vs X-linked?
+        Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile, verbose).go();
 
         //convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
-        AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(rv3);
+        AssignCompoundHeterozygous compHet = new AssignCompoundHeterozygous(rv3, verbose);
         Iterator<RelevantVariant> rv4 = compHet.go();
 
-        //use any parental information to filter out variants/status TODO: use phasing and/or trio data
-        Iterator<RelevantVariant> rv5 = new TrioAndPhasingFilter(rv4, trios).go();
+        //use any parental information to filter out variants/status TODO
+        HashMap<String, Trio> trios = MatchVariantsToGenotypeAndInheritance.getTrios(inputVcfFile, verbose);
+        Iterator<RelevantVariant> rv5 = new TrioFilter(rv4, trios, verbose).go();
+
+        //use any phasing information to filter out compounds TODO
+        Iterator<RelevantVariant> rv6 = new PhasingCompoundCheck(rv4, verbose).go();
 
         //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
         //FOR: report missed hits per gene, same as above with pathogenic gold standard set
-        Iterator<RelevantVariant> rv6 = new FDR(rv5, new File("/Users/joeri/Desktop/1000G_diag_FDR/sampleGeneCountsRaw.tsv")).go();
-        //Iterator<RelevantVariant> rv6 = new FOR(rv5, inputVcfFile).go();
+        //Iterator<RelevantVariant> rv7 = new FDR(rv6, new File("/Users/joeri/Desktop/1000G_diag_FDR/sampleGeneCountsRaw.tsv")).go();
+        //Iterator<RelevantVariant> rv7 = new FOR(rv6, inputVcfFile).go();
 
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
-        Iterator<RelevantVariant> rv7 = new CorrectPositionalOrderIterator(rv6, compHet.getPositionalOrder()).go();
+        Iterator<RelevantVariant> rv8 = new CorrectPositionalOrderIterator(rv6, compHet.getPositionalOrder(), verbose).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv7, rlv).addRVCFfield();
+        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv8, rlv).addRVCFfield();
 
         //write Entities output VCF file
-        writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, false);
+        writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, true);
 
     }
 
@@ -106,9 +103,9 @@ public class Run {
         new File(args[6]).delete();
         if(Mode.valueOf(args[5]).equals(Mode.CREATEFILEFORCADD))  {new File(args[4]).delete();}
 
-        if(args.length != 7)
+        if(args.length != 8)
         {
-            throw new Exception("please provide: input VCF file, GAVIN calibration file, ClinVar VCF file, CGD file, CADD supplement file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"], output VCF file");
+            throw new Exception("please provide: input VCF file, GAVIN calibration file, ClinVar VCF file, CGD file, CADD supplement file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"], output VCF file, verbose TRUE/FALSE");
         }
 
         File inputVcfFile = new File(args[0]);
@@ -118,6 +115,7 @@ public class Run {
         File caddFile = new File(args[4]);
         Mode mode = Mode.valueOf(args[5]);
         File outputVcfFile = new File(args[6]);
+        boolean verbose = Boolean.parseBoolean(args[7]);
 
         if(!inputVcfFile.isFile())
         {
@@ -161,7 +159,7 @@ public class Run {
             throw new Exception("output VCF file "+outputVcfFile.getAbsolutePath()+" already exists, deleting !");
         }
 
-        new Run(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, mode, outputVcfFile);
+        new Run(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, mode, outputVcfFile, verbose);
 
     }
 

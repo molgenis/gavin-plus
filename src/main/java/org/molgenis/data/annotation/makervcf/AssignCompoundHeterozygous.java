@@ -3,6 +3,7 @@ package org.molgenis.data.annotation.makervcf;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.*;
+import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
 
 /**
  * Created by joeri on 6/29/16.
@@ -16,11 +17,13 @@ public class AssignCompoundHeterozygous {
 
     private Iterator<RelevantVariant> relevantVariants;
     private ArrayList<Integer> positionalOrder;
+    private boolean verbose;
 
-    public AssignCompoundHeterozygous(Iterator<RelevantVariant> relevantVariants)
+    public AssignCompoundHeterozygous(Iterator<RelevantVariant> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.positionalOrder = new ArrayList<>(); //TODO any way to reset this without nullpointering?
+        this.verbose = verbose;
     }
 
     public ArrayList<Integer> getPositionalOrder() {
@@ -73,7 +76,6 @@ public class AssignCompoundHeterozygous {
                         int pos = Integer.parseInt(rv.getVariant().getPos());
                         positionalOrder.add(Integer.parseInt(rv.getVariant().getPos()));
 
-                        // TODO: write out results in the correct order of position
     //                    System.out.println("getting variant on pos " + rv.getVariant().getChr() + ":" + pos);
 
                         // all genes to which the current variant may belong to
@@ -110,8 +112,6 @@ public class AssignCompoundHeterozygous {
                                 List<RelevantVariant> variantsToCheck = geneToVariantsToCheck.get(gene);
                                 variantsToCheck = prefilterOnGene(variantsToCheck, gene);
 
-
-                                //TODO call a function that checks comp het
                                 compoundHetCheck(variantsToCheck);
 
                                 returnTheseVariants.addAll(variantsToCheck);
@@ -196,7 +196,6 @@ public class AssignCompoundHeterozygous {
                     variantsToCheck = prefilterOnGene(variantsToCheck, remainingGene);
          //           System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " remaining variants");
 
-                    //TODO call a function that checks comp het
                     compoundHetCheck(variantsToCheck);
 
                     resultBatch = variantsToCheck.iterator();
@@ -250,7 +249,7 @@ public class AssignCompoundHeterozygous {
         {
             for(String sample: rv.getSampleStatus().keySet())
             {
-                if(rv.getSampleStatus().get(sample).equals("HETEROZYGOUS") || rv.getSampleStatus().get(sample).equals("CARRIER"))
+                if(rv.getSampleStatus().get(sample) == status.HETEROZYGOUS || rv.getSampleStatus().get(sample) == status.CARRIER)
                 {
             //        System.out.println("gene : " + rv.getGene() + " , sample: " +sample + ", status: " + rv.getSampleStatus().get(sample));
                     if(samplesSeen.contains(sample))
@@ -273,13 +272,16 @@ public class AssignCompoundHeterozygous {
      //           System.out.println("marked sample: " + sample);
                 if(rv.getSampleStatus().containsKey(sample))
                 {
-                    if(rv.getSampleStatus().get(sample).equals("HETEROZYGOUS"))
+                    if(rv.getSampleStatus().get(sample).equals(status.HETEROZYGOUS))
                     {
-                        rv.getSampleStatus().put(sample, "HOMOZYGOUS_COMPOUNDHET");
+                        if(verbose){System.out.println("reassigning " + sample + " from " +status.HETEROZYGOUS + " to " + status.HOMOZYGOUS_COMPOUNDHET);}
+                        rv.getSampleStatus().put(sample, status.HOMOZYGOUS_COMPOUNDHET);
                     }
-                    if(rv.getSampleStatus().get(sample).equals("CARRIER"))
+                    if(rv.getSampleStatus().get(sample).equals(status.CARRIER))
                     {
-                        rv.getSampleStatus().put(sample, "AFFECTED_COMPOUNDHET");
+                        if(verbose){System.out.println("reassigning " + sample + " from " + status.CARRIER + " to " + status.HOMOZYGOUS_COMPOUNDHET);}
+
+                        rv.getSampleStatus().put(sample, status.AFFECTED_COMPOUNDHET);
                     }
 
        //             System.out.println("updating " +  rv.getGene() + " for sample + " + sample + " to COMPOUNDHET");

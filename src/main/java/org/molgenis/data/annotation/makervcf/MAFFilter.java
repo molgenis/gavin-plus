@@ -13,10 +13,13 @@ import java.util.Iterator;
 public class MAFFilter {
 
     private Iterator<RelevantVariant> relevantVariants;
+    double threshold = 0.05;
+    boolean verbose;
 
-    public MAFFilter(Iterator<RelevantVariant> relevantVariants)
+    public MAFFilter(Iterator<RelevantVariant> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
+        this.verbose = verbose;
     }
 
     public Iterator<RelevantVariant> go()
@@ -32,14 +35,14 @@ public class MAFFilter {
                         RelevantVariant rv = relevantVariants.next();
 
                         //use GoNL/ExAC MAF to control for false positives (or non-relevant stuff) in ClinVar
-                        if(rv.getGonlAlleleFreq() < 0.05 && rv.getAlleleFreq() < 0.05)
+                        if(rv.getGonlAlleleFreq() < threshold && rv.getAlleleFreq() < threshold)
                         {
                             nextResult = rv;
                             return true;
                         }
-                        else
+                        else if(verbose)
                         {
-                            //System.out.println("removing variant at " +rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " has AF >5% ; ExAC: "+rv.getAlleleFreq()+", GoNL: "+rv.getGonlAlleleFreq()+"");
+                            System.out.println("removing variant at " +rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " because it has AF >"+threshold+". ExAC: "+rv.getAlleleFreq()+", GoNL: "+rv.getGonlAlleleFreq()+"");
                         }
                     }
 

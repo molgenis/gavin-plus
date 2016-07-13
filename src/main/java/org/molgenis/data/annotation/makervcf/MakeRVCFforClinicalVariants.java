@@ -15,6 +15,7 @@ import org.molgenis.data.vcf.VcfRepository;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
 
 /**
  * Created by joeri on 6/1/16.
