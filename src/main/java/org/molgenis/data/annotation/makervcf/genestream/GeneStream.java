@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class GeneStream {
 
     private Iterator<RelevantVariant> relevantVariants;
-    private boolean verbose;
+    protected boolean verbose;
 
     public GeneStream(Iterator<RelevantVariant> relevantVariants, boolean verbose)
     {

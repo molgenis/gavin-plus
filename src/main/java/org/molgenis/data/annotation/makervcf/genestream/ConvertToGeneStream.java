@@ -57,7 +57,7 @@ public class ConvertToGeneStream {
                 }
                 else if(resultBatch != null && genesToDelete != null)
                 {
- //                   System.out.println("cleanup after dumping result batch - clearing data for " + genesToDelete.toString() + ", update genes seen from "+genesSeenForPreviousVariant.toString()+" to " + genesSeenForCurrentVariantUpdate);
+                    if(verbose){System.out.println("cleanup after dumping result batch - clearing data for " + genesToDelete.toString() + ", update genes seen from "+genesSeenForPreviousVariant.toString()+" to " + genesSeenForCurrentVariantUpdate);}
                     //result batch emptied, clear data and continue while
                     for(String geneToDelete : genesToDelete)
                     {
@@ -112,7 +112,7 @@ public class ConvertToGeneStream {
                                 List<RelevantVariant> variantsToCheck = geneToVariantsToCheck.get(gene);
                                 variantsToCheck = prefilterOnGene(variantsToCheck, gene);
 
-                                compoundHetCheck(variantsToCheck);
+                            //    compoundHetCheck(variantsToCheck); not anymore here!
 
                                 returnTheseVariants.addAll(variantsToCheck);
                                 genesNotFound.add(gene);
@@ -196,7 +196,7 @@ public class ConvertToGeneStream {
                     variantsToCheck = prefilterOnGene(variantsToCheck, remainingGene);
          //           System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " remaining variants");
 
-                    compoundHetCheck(variantsToCheck);
+             //       compoundHetCheck(variantsToCheck); not anymore here!
 
                     resultBatch = variantsToCheck.iterator();
 
@@ -240,57 +240,6 @@ public class ConvertToGeneStream {
         return res;
     }
 
-    private void compoundHetCheck(List<RelevantVariant> variantsToCheck)
-    {
-
-        Set<String> samplesSeen = new HashSet<String>();
-        Set<String> markedSamples  = new HashSet<String>();
-        for(RelevantVariant rv: variantsToCheck)
-        {
-            for(String sample: rv.getSampleStatus().keySet())
-            {
-                if(rv.getSampleStatus().get(sample) == status.HETEROZYGOUS || rv.getSampleStatus().get(sample) == status.CARRIER)
-                {
-            //        System.out.println("gene : " + rv.getGene() + " , sample: " +sample + ", status: " + rv.getSampleStatus().get(sample));
-                    if(samplesSeen.contains(sample))
-                    {
-        //                System.out.println("comphet!!!!");
-                        markedSamples.add(sample);
-                    }
-                    samplesSeen.add(sample);
-                }
-
-
-            }
-        }
-
-        //iterate again and update marked samples
-        for(RelevantVariant rv: variantsToCheck) {
-
-            for(String sample : markedSamples)
-            {
-     //           System.out.println("marked sample: " + sample);
-                if(rv.getSampleStatus().containsKey(sample))
-                {
-                    if(rv.getSampleStatus().get(sample).equals(status.HETEROZYGOUS))
-                    {
-                        if(verbose){System.out.println("reassigning " + sample + " from " +status.HETEROZYGOUS + " to " + status.HOMOZYGOUS_COMPOUNDHET);}
-                        rv.getSampleStatus().put(sample, status.HOMOZYGOUS_COMPOUNDHET);
-                    }
-                    if(rv.getSampleStatus().get(sample).equals(status.CARRIER))
-                    {
-                        if(verbose){System.out.println("reassigning " + sample + " from " + status.CARRIER + " to " + status.HOMOZYGOUS_COMPOUNDHET);}
-
-                        rv.getSampleStatus().put(sample, status.AFFECTED_COMPOUNDHET);
-                    }
-
-       //             System.out.println("updating " +  rv.getGene() + " for sample + " + sample + " to COMPOUNDHET");
-                }
-            }
-        }
-
-
-    }
 
 
 }
