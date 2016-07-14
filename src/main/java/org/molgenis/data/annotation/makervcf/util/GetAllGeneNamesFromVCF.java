@@ -28,7 +28,11 @@ public class GetAllGeneNamesFromVCF
         while(vcfIterator.hasNext()) {
             VcfEntity record = new VcfEntity(vcfIterator.next());
             i++;
-            genes.addAll(record.getGenes());
+            Set<String> genesForVariant = record.getGenes();
+            if(genesForVariant != null)
+            {
+                genes.addAll(record.getGenes());
+            }
 
             if(i % 10000 == 0)
             {
