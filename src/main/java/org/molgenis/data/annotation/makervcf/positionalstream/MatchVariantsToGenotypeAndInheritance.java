@@ -7,11 +7,7 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.cgd.CGDEntry.generalizedInheritance;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.datastructures.Trio;
-import org.molgenis.data.vcf.utils.VcfUtils;
-import org.molgenis.data.vcf.utils.VcfWriterUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -32,14 +28,16 @@ public class MatchVariantsToGenotypeAndInheritance {
 
     public enum status{
         HETEROZYGOUS, HOMOZYGOUS, AFFECTED, CARRIER, BLOODGROUP, HOMOZYGOUS_COMPOUNDHET, AFFECTED_COMPOUNDHET, HETEROZYGOUS_MULTIHIT;
-        public static boolean isCompound(status status)
-        {
-            return (status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED_COMPOUNDHET) ? true : false;
-        }
-        public static boolean isCarrier(status status)
-        {
-            return (status == CARRIER);
-        }
+
+        public static boolean isCompound(status status){
+            return (status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED_COMPOUNDHET) ? true : false;}
+
+        public static boolean isPresumedCarrier(status status){
+            return (status == HETEROZYGOUS || status == HETEROZYGOUS_MULTIHIT || status == CARRIER) ? true : false;}
+
+        public static boolean isPresumedAffected(status status){
+            return (status == HOMOZYGOUS || status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED || status == AFFECTED_COMPOUNDHET) ? true : false;}
+
     }
 
     public MatchVariantsToGenotypeAndInheritance(Iterator<RelevantVariant> relevantVariants, File cgdFile, boolean verbose) throws IOException
@@ -51,12 +49,9 @@ public class MatchVariantsToGenotypeAndInheritance {
     }
 
 
-
-
     public Iterator<RelevantVariant > go() throws Exception {
 
         return new Iterator<RelevantVariant>(){
-
 
 
             @Override
@@ -98,18 +93,18 @@ public class MatchVariantsToGenotypeAndInheritance {
                     status nonActingTerminology = status.HETEROZYGOUS;
 
                     // regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
-                    //TODO: does this include X-linked... ? its complex but still predictable affected/carrier wise?
-                    //females can be X-linked carriers, but since X is inactivated, they might also be affected... we dont know..
-                    if (cgd.containsKey(gene) && (generalizedInheritance.isDominant(cgd.get(gene).getGeneralizedInheritance()) || generalizedInheritance.isRecessive(cgd.get(gene).getGeneralizedInheritance())))
+                    // females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
+                    if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(cgd.get(gene).getGeneralizedInheritance())))
                     {
                         actingTerminology = status.AFFECTED;
                         nonActingTerminology = status.CARRIER;
                     }
-                    else if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance() == generalizedInheritance.BLOODGROUP))
-                    {
-                        actingTerminology = status.BLOODGROUP;
-                        nonActingTerminology = status.BLOODGROUP;
-                    }
+                    //TODO: handle blood group marker information? not pathogenic but still valuable?
+//                    else if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance() == generalizedInheritance.BLOODGROUP))
+//                    {
+//                        actingTerminology = status.BLOODGROUP;
+//                        nonActingTerminology = status.BLOODGROUP;
+//                    }
 
                     Map<String, status> sampleStatus = new HashMap<>();
                     Map<String, String> sampleGenotypes = new HashMap<>();
@@ -183,7 +178,7 @@ public class MatchVariantsToGenotypeAndInheritance {
             //now that everything is okay, we can match to inheritance mode
 
             //all dominant types, so no carriers, and only requirement is that genotype contains 1 alt allele somewhere
-            if(inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT) || inheritance.equals(generalizedInheritance.XL_LINKED))
+            if(inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT))
             {
                 // 1 or more, so works for hemizygous too
                 if ( genotype.contains(altIndex+"") && lookingForAffected )
@@ -192,51 +187,38 @@ public class MatchVariantsToGenotypeAndInheritance {
                 }
             }
 
-            //all recessive and unknown types
-            //for recessive we know if its acting or not
+            //all other types, unknown, complex or recessive
+            //for recessive we know if its acting or not, but this is handled in the terminology of a homozygous hit being labeled as 'AFFECTED'
             //for other (digenic, maternal, YL, etc) and not-in-CGD we don't know, but we still report homozygous as 'acting' and heterozygous as 'carrier' to make that distinction
-            else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD))
+            else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.XL_LINKED)
+                    || inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD)
+                    || inheritance.equals(generalizedInheritance.BLOODGROUP))
             {
-                //first homozygous alternative
-
                 boolean homozygous = genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex);
                 boolean hemizygous = genotype.equals(altIndex+"");
                 boolean heterozygous = genotype.length() == 3 && StringUtils.countMatches(genotype, altIndex+"") == 1;
 
-                if ( lookingForAffected && homozygous)
+                // regular homozygous
+                if ( lookingForAffected && homozygous )
                 {
                     matchingSamples.put(sampleName, sample);
                 }
                 //for hemizygous, 1 allele is enough of course
-                else if(lookingForAffected && hemizygous)
+                else if( lookingForAffected && hemizygous )
                 {
                     matchingSamples.put(sampleName, sample);
                 }
-                // not-affected, ie carriers
-                //fixme: note that there are non-CGD genes on chromosome X, so we must be wary of hemizygote genotypes
-                //fixme: 3 or bigger? at least not 1, ie. hemizygous, because it cannot be carrier/heterozygous
+                // heterozygous, ie. carriers when disease is recessive
                 else if ( !lookingForAffected && heterozygous )
                 {
                     matchingSamples.put(sampleName, sample);
                 }
 
-
             }
-            //blood group markers
-            //TODO: find out how this works, and don't look for "pathogenic" variants but for "informative" ones
-            else if(inheritance.equals(generalizedInheritance.BLOODGROUP))
-            {
-                if ( genotype.contains(altIndex+"") && lookingForAffected )
-                {
-                    matchingSamples.put(sampleName, sample);
-                }
-            }
-
             else
             {
                 throw new Exception("inheritance unknown: " + inheritance);
             }
-
 
         }
         return matchingSamples;

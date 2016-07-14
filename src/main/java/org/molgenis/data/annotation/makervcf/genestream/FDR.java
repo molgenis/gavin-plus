@@ -24,15 +24,18 @@ public class FDR extends GeneStream{
     public FDR(Iterator<RelevantVariant> relevantVariants, File writeTo, boolean verbose) throws FileNotFoundException {
         super(relevantVariants, verbose);
         this.pw = new PrintWriter(writeTo);
-        this.pw.println("Chr\tPos\tGene\tFDR");
+        this.pw.println("Chr" + "\t" + "Pos" + "\t" + "Gene" + "\t" + "Total" + "\t" + "Affected" + "\t" + "Carrier");
     }
 
     @Override
     public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
 
-        Set<String> uniquelyAffectedSamplesForThisGene = new HashSet<String>();
+        Set<String> uniqueTotalSamplesForThisGene = new HashSet<String>();
+        Set<String> uniqueAffectedSamplesForThisGene = new HashSet<String>();
+        Set<String> uniqueCarrierSamplesForThisGene = new HashSet<String>();
         String chrom = null;
         String pos= null;
+
         for(RelevantVariant rv : variantsPerGene)
         {
             if(chrom == null) {
@@ -42,17 +45,27 @@ public class FDR extends GeneStream{
             //extra check, may be removed FIXME
             if(!rv.getGene().equals(gene))
             {
-                throw new Exception("ERROR Gene mismatch: " + rv.getGene() + " vs " + gene);
+                throw new Exception("ERROR: Gene mismatch: " + rv.getGene() + " vs " + gene);
             }
             for(String sample : rv.getSampleStatus().keySet())
             {
-                if(!status.isCarrier(rv.getSampleStatus().get(sample))){
-                    uniquelyAffectedSamplesForThisGene.add(sample);
+                uniqueTotalSamplesForThisGene.add(sample);
+
+                if(status.isPresumedAffected(rv.getSampleStatus().get(sample)))
+                {
+                    uniqueAffectedSamplesForThisGene.add(sample);
+                }
+                else if(status.isPresumedCarrier(rv.getSampleStatus().get(sample)))
+                {
+                    uniqueCarrierSamplesForThisGene.add(sample);
+                }
+                else{
+                    throw new Exception("ERROR: Unknown sample status: " +rv.getSampleStatus().get(sample));
                 }
             }
         }
 
-        pw.println(chrom + "\t" + pos + "\t" + gene + "\t" + (uniquelyAffectedSamplesForThisGene.size()));
+        pw.println(chrom + "\t" + pos + "\t" + gene + "\t" + (uniqueTotalSamplesForThisGene.size()) + "\t" + (uniqueAffectedSamplesForThisGene.size()) + "\t" + (uniqueCarrierSamplesForThisGene.size()));
         pw.flush();
     }
 

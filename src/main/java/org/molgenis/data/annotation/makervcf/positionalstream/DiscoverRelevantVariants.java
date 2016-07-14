@@ -74,8 +74,8 @@ public class DiscoverRelevantVariants {
                         {
                             Double cadd = hmcs.dealWithCaddScores(record, i);
 
-                            //if mitochondrial, we have less tools / data
-                            if(record.getChr().equals("MT") || record.getChr().equals("M") || record.getChr().equals("mtDNA"))
+                            //if mitochondrial, we have less tools / data, can't do much, just match to clinvar
+                            if(record.getChr().equals("MT")|| record.getChr().equals("M") || record.getChr().equals("mtDNA"))
                             {
                                 Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), "MT", true);
                                 if (clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic))
@@ -94,7 +94,7 @@ public class DiscoverRelevantVariants {
                                     Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene, false);
                                     if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic)) {
                                         nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, gavinJudgment, clinvarJudgment);
-                                        if(verbose){ System.out.println("found relevant variant: " + nextResult.toStringShort()); }
+                                        if(verbose){ System.out.println("Found relevant variant: " + nextResult.toStringShort()); }
                                         return true;
                                     }
                                 }

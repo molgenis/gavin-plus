@@ -133,7 +133,7 @@ public class PhasingCompoundCheck extends GeneStream{
             {
                 if(union.contains(sample) && status.isCompound(rv.getSampleStatus().get(sample)))
                 {
-                    if(verbose){System.out.println("[PhasingCompoundCheck] Going to fix sample "+sample+" from "+rv.getSampleStatus().get(sample)+" to " + status.HETEROZYGOUS_MULTIHIT);}
+                    if(verbose){System.out.println("[PhasingCompoundCheck] Going to update sample "+sample+" from "+rv.getSampleStatus().get(sample)+" to " + status.HETEROZYGOUS_MULTIHIT);}
                     rv.getSampleStatus().put(sample, status.HETEROZYGOUS_MULTIHIT);
                 }
             }
