@@ -1,6 +1,7 @@
 package org.molgenis.data.annotation.makervcf.genestream;
 
 import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
@@ -28,12 +29,12 @@ public class AssignCompoundHet extends GeneStream {
         {
             for(String sample: rv.getSampleStatus().keySet())
             {
-                if(rv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.status.HETEROZYGOUS || rv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.status.CARRIER)
+                if(rv.getSampleStatus().get(sample) == status.HETEROZYGOUS || rv.getSampleStatus().get(sample) == status.CARRIER)
                 {
                     if(verbose){System.out.println("gene : " + rv.getGene() + " , sample: " +sample + ", status: " + rv.getSampleStatus().get(sample));}
                     if(samplesSeen.contains(sample))
                     {
-                        if(verbose){System.out.println("comphet!!!!");}
+                        if(verbose){System.out.println("comphet");}
                         markedSamples.add(sample);
                     }
                     samplesSeen.add(sample);
@@ -58,7 +59,7 @@ public class AssignCompoundHet extends GeneStream {
                     }
                     if(rv.getSampleStatus().get(sample).equals(MatchVariantsToGenotypeAndInheritance.status.CARRIER))
                     {
-                        if(verbose){System.out.println("reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.CARRIER + " to " + MatchVariantsToGenotypeAndInheritance.status.HOMOZYGOUS_COMPOUNDHET);}
+                        if(verbose){System.out.println("reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.CARRIER + " to " + MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);}
 
                         rv.getSampleStatus().put(sample, MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);
                     }

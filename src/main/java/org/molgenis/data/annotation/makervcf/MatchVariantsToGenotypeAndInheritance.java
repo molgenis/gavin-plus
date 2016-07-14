@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf;
 
+import org.apache.commons.lang.StringUtils;
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.cgd.LoadCGD;
 import org.molgenis.data.Entity;
@@ -30,7 +31,7 @@ public class MatchVariantsToGenotypeAndInheritance {
     boolean verbose;
 
     public enum status{
-        HETEROZYGOUS, HOMOZYGOUS, AFFECTED, CARRIER, BLOODGROUP, HOMOZYGOUS_COMPOUNDHET, AFFECTED_COMPOUNDHET;
+        HETEROZYGOUS, HOMOZYGOUS, AFFECTED, CARRIER, BLOODGROUP, HOMOZYGOUS_COMPOUNDHET, AFFECTED_COMPOUNDHET, HETEROZYGOUS_MULTIHIT;
         public static boolean isCompound(status status)
         {
             return (status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED_COMPOUNDHET) ? true : false;
@@ -184,6 +185,7 @@ public class MatchVariantsToGenotypeAndInheritance {
             //all dominant types, so no carriers, and only requirement is that genotype contains 1 alt allele somewhere
             if(inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT) || inheritance.equals(generalizedInheritance.XL_LINKED))
             {
+                // 1 or more, so works for hemizygous too
                 if ( genotype.contains(altIndex+"") && lookingForAffected )
                 {
                     matchingSamples.put(sampleName, sample);
@@ -196,15 +198,29 @@ public class MatchVariantsToGenotypeAndInheritance {
             else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD))
             {
                 //first homozygous alternative
-                if ( (genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex)) && lookingForAffected )
+
+                boolean homozygous = genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex);
+                boolean hemizygous = genotype.equals(altIndex+"");
+                boolean heterozygous = genotype.length() == 3 && StringUtils.countMatches(genotype, altIndex+"") == 1;
+
+                if ( lookingForAffected && homozygous)
+                {
+                    matchingSamples.put(sampleName, sample);
+                }
+                //for hemizygous, 1 allele is enough of course
+                else if(lookingForAffected && hemizygous)
                 {
                     matchingSamples.put(sampleName, sample);
                 }
                 // not-affected, ie carriers
-                else if ( genotype.contains(altIndex+"") && !lookingForAffected )
+                //fixme: note that there are non-CGD genes on chromosome X, so we must be wary of hemizygote genotypes
+                //fixme: 3 or bigger? at least not 1, ie. hemizygous, because it cannot be carrier/heterozygous
+                else if ( !lookingForAffected && heterozygous )
                 {
                     matchingSamples.put(sampleName, sample);
                 }
+
+
             }
             //blood group markers
             //TODO: find out how this works, and don't look for "pathogenic" variants but for "informative" ones
