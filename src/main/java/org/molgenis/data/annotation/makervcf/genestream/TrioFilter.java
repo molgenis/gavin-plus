@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf.genestream;
 
+import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.vcf.datastructures.Trio;
 
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.molgenis.data.vcf.utils.VcfUtils;
 import org.molgenis.data.vcf.utils.VcfWriterUtils;
@@ -22,16 +24,15 @@ import org.molgenis.data.vcf.utils.VcfWriterUtils;
  * TODO
  *
  */
-public class TrioFilter {
+public class TrioFilter extends GeneStream{
 
-    private Iterator<RelevantVariant> relevantVariants;
+
     private HashMap<String, Trio> trios;
-    private boolean verbose;
+
     public TrioFilter(Iterator<RelevantVariant> relevantVariants, HashMap<String, Trio> trios, boolean verbose)
     {
-        this.relevantVariants = relevantVariants;
+        super(relevantVariants, verbose);
         this.trios = trios;
-        this.verbose = verbose;
     }
 
     public static HashMap<String, Trio> getTrios(File inputVcfFile, boolean verbose) throws IOException {
@@ -39,54 +40,8 @@ public class TrioFilter {
         return VcfUtils.getPedigree(bufferedVCFReader);
     }
 
-    public Iterator<RelevantVariant> go()
-    {
-        return new Iterator<RelevantVariant>(){
+    @Override
+    public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
 
-            RelevantVariant nextResult;
-
-            @Override
-            public boolean hasNext() {
-                try {
-                    while (relevantVariants.hasNext()) {
-                        RelevantVariant rv = relevantVariants.next();
-
-//                        if (rv.getSampleStatus() != null) {
-//
-//                            for (String sample : rv.getSampleStatus().keySet()) {
-//                                status status = rv.getSampleStatus().get(sample);
-//
-//                                if (status.isCompound(status)) {
-//                                   // System.out.println("compound status for " + sample + ", " + rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " -> " + status);
-//                                }
-//
-//
-//                                if (status == status.HETEROZYGOUS) {
-//                                    if (trios.containsKey(sample)) {
-//                                        Trio t = trios.get(sample);
-//                                        //get parental genotype.... or just check if affected too ??
-//                                    }
-//                                }
-//                            }
-//                        }
-
-                        nextResult = rv;
-                        return true;
-                    }
-
-                    return false;
-                }
-                catch(Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-
-            }
-
-            @Override
-            public RelevantVariant next() {
-                return nextResult;
-            }
-        };
     }
 }
