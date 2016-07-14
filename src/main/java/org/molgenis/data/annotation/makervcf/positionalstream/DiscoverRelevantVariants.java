@@ -1,15 +1,15 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinAlgorithm;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry;
-import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
+import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
-import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores;
-import org.molgenis.data.annotation.makervcf.clinvar.ClinVar;
+import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
+import org.molgenis.data.annotation.makervcf.util.ClinVar;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;

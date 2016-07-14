@@ -3,7 +3,6 @@ package org.molgenis.data.annotation.makervcf.genestream.core;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.*;
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
 
 /**
  * Created by joeri on 6/29/16.

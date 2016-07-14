@@ -1,12 +1,4 @@
-package org.molgenis.data.annotation;
-
-import com.google.common.collect.Lists;
-import org.molgenis.data.AttributeMetaData;
-import org.molgenis.data.Entity;
-import org.molgenis.data.MolgenisInvalidFormatException;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.VcfRepository;
-import org.molgenis.data.vcf.utils.VcfWriterUtils;
+package org.molgenis.data.annotation.makervcf.util;
 
 import java.io.*;
 import java.util.*;

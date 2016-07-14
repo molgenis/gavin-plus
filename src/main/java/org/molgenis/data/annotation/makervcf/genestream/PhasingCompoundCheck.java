@@ -1,6 +1,6 @@
 package org.molgenis.data.annotation.makervcf.genestream;
 
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
@@ -8,8 +8,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
+
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 
 /**
  * Created by joeri on 6/29/16.

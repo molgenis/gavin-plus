@@ -1,21 +1,22 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.vcf.datastructures.Trio;
 
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
  * Created by joeri on 6/29/16.
- *  take on MANTA / DELLY output
- *  annotate, elevate carrier status to affected when SV on same location
  *
  */
-public class CombineWithSVcalls {
+public class MAFFilter {
 
     private Iterator<RelevantVariant> relevantVariants;
-    private boolean verbose;
+    double threshold = 0.05;
+    boolean verbose;
 
-    public CombineWithSVcalls(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public MAFFilter(Iterator<RelevantVariant> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.verbose = verbose;
@@ -33,10 +34,16 @@ public class CombineWithSVcalls {
                     while (relevantVariants.hasNext()) {
                         RelevantVariant rv = relevantVariants.next();
 
-
-
-                        nextResult = rv;
-                        return true;
+                        //use GoNL/ExAC MAF to control for false positives (or non-relevant stuff) in ClinVar
+                        if(rv.getGonlAlleleFreq() < threshold && rv.getAlleleFreq() < threshold)
+                        {
+                            nextResult = rv;
+                            return true;
+                        }
+                        else if(verbose)
+                        {
+                            System.out.println("removing variant at " +rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " because it has AF >"+threshold+". ExAC: "+rv.getAlleleFreq()+", GoNL: "+rv.getGonlAlleleFreq()+"");
+                        }
                     }
 
                     return false;

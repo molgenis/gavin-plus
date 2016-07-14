@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.genestream.core;
 
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
@@ -11,13 +11,13 @@ import java.util.TreeMap;
  * Created by joeri on 6/29/16.
  * FIXME: any way to clean up 'order' during streaming of results? ie. for any positions that have been written out?
  */
-public class CorrectPositionalOrderIterator {
+public class ConvertBackToPositionalStream {
 
     private Iterator<RelevantVariant> relevantVariants;
     private ArrayList<Integer> order;
     private boolean verbose;
 
-    public CorrectPositionalOrderIterator(Iterator<RelevantVariant> relevantVariants, ArrayList<Integer> order, boolean verbose)
+    public ConvertBackToPositionalStream(Iterator<RelevantVariant> relevantVariants, ArrayList<Integer> order, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.order = order;

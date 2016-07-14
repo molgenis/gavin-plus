@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.cgd.CGDEntry;

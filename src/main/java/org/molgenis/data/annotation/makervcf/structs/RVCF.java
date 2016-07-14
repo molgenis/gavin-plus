@@ -3,7 +3,7 @@ package org.molgenis.data.annotation.makervcf.structs;
 import com.google.common.base.Splitter;
 
 import java.util.*;
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 
 /**
  * Created by joeri on 6/1/16.

@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
@@ -6,6 +6,8 @@ import java.util.Iterator;
 
 /**
  * Created by joeri on 6/29/16.
+ *
+ * TODO
  *
  */
 public class ApplyFDRThreshold {

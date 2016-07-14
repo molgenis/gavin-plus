@@ -1,21 +1,15 @@
-package org.molgenis.data.annotation.makervcf;
+package org.molgenis.data.annotation.makervcf.positionalstream;
 
-import org.molgenis.calibratecadd.support.JudgedVariant;
 import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
-import org.molgenis.data.support.DefaultEntity;
 import org.molgenis.data.support.DefaultEntityMetaData;
-import org.molgenis.data.support.MapEntity;
 import org.molgenis.data.vcf.VcfRepository;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
 
 /**
  * Created by joeri on 6/1/16.
@@ -79,6 +73,7 @@ public class MakeRVCFforClinicalVariants {
                     rvcf.setVariantGroup(null);
 
                     rvcf.setSampleStatus(rv.getSampleStatus());
+                    rvcf.setSampleGenotype(rv.getSampleGenotypes());
                     rvcf.setSamplePhenotype(null);
                     rvcf.setSampleGroup(null);
 

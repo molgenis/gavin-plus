@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.genestream;
 
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 

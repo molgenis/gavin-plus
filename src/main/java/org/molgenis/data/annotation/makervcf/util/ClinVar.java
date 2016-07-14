@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf.clinvar;
+package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;

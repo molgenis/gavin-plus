@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf.control;
+package org.molgenis.data.annotation.makervcf.genestream;
 
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.data.Entity;
@@ -17,7 +17,7 @@ import java.util.*;
  *
  * False Omission Rate
  *
- * TODO: last gene!
+ * TODO: make gene stream
  *
  */
 public class FOR {

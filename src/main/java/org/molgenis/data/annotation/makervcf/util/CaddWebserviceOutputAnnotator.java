@@ -1,21 +1,15 @@
-package org.molgenis.data.annotation.makervcf.cadd;
+package org.molgenis.data.annotation.makervcf.util;
 
 import com.google.common.collect.Lists;
 import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
-import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
 import org.molgenis.data.vcf.utils.VcfWriterUtils;
-import org.molgenis.vcf.VcfRecord;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
-
-import static org.molgenis.data.vcf.utils.FixVcfAlleleNotation.trimRefAlt;
 
 /** 
  * Annotator that adds the output of the CADD webservice to a VCF file.

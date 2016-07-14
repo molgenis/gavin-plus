@@ -5,10 +5,17 @@ import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisInvalidFormatException;
-import org.molgenis.data.annotation.makervcf.cadd.HandleMissingCaddScores.Mode;
+import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.annotation.makervcf.genestream.AssignCompoundHet;
+import org.molgenis.data.annotation.makervcf.genestream.CombineWithSVcalls;
+import org.molgenis.data.annotation.makervcf.genestream.TrioFilter;
+import org.molgenis.data.annotation.makervcf.genestream.core.ConvertBackToPositionalStream;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.genestream.PhasingCompoundCheck;
+import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
+import org.molgenis.data.annotation.makervcf.positionalstream.MAFFilter;
+import org.molgenis.data.annotation.makervcf.positionalstream.MakeRVCFforClinicalVariants;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.support.DefaultAttributeMetaData;
@@ -48,7 +55,7 @@ public class Run {
         //MAF filter to control false positives / non relevant variants in ClinVar
         Iterator<RelevantVariant> rv2 = new MAFFilter(rv1, verbose).go();
 
-        //match sample genotype with known disease inheritance mode TODO: deal with hemizygous genotypes vs X-linked?
+        //match sample genotype with known disease inheritance mode
         Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile, verbose).go();
 
         //swap over stream from strict position-based to gene-based so we can do a number of things
@@ -58,14 +65,16 @@ public class Run {
         //convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
         Iterator<RelevantVariant> rv4 = new AssignCompoundHet(gsi, verbose).go();
 
-        //if available: use any parental information to filter out variants/status TODO
+        // TODO
+        //if available: use any parental information to filter out variants/status
         HashMap<String, Trio> trios = TrioFilter.getTrios(inputVcfFile, verbose);
         Iterator<RelevantVariant> rv5 = new TrioFilter(rv4, trios, verbose).go();
 
-        //if available: use any phasing information to filter out compounds TODO
+        //if available: use any phasing information to filter out compounds
         Iterator<RelevantVariant> rv6 = new PhasingCompoundCheck(rv5, verbose).go();
 
-        //if available: use any SV data to give weight to carrier/heterozygous variants that may be complemented by a deleterious structural event TODO
+        // TODO
+        //if available: use any SV data to give weight to carrier/heterozygous variants that may be complemented by a deleterious structural event
         Iterator<RelevantVariant> rv7 = new CombineWithSVcalls(rv6, verbose).go();
 
         //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
@@ -75,7 +84,7 @@ public class Run {
         Iterator<RelevantVariant> rv8 = rv7;
 
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
-        Iterator<RelevantVariant> rv9 = new CorrectPositionalOrderIterator(rv8, gs.getPositionalOrder(), verbose).go();
+        Iterator<RelevantVariant> rv9 = new ConvertBackToPositionalStream(rv8, gs.getPositionalOrder(), verbose).go();
 
         //write convert RVCF records to Entity
         Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv9, rlv).addRVCFfield();

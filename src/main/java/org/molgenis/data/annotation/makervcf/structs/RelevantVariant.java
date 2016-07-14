@@ -1,14 +1,11 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
 import org.molgenis.cgd.CGDEntry;
-import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

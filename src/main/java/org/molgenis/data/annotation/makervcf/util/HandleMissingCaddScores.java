@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf.cadd;
+package org.molgenis.data.annotation.makervcf.util;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.molgenis.calibratecadd.Step9_Validation;
