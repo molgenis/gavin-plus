@@ -70,8 +70,6 @@ public class MatchVariantsToGenotypeAndInheritance {
                 try {
                     RelevantVariant rv = relevantVariants.next();
 
-                    boolean hit = false;
-
                     String gavinGene = rv.getGavinJudgment() != null ? (rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null) : null;
                     String clinvarGene = rv.getClinvarJudgment().getGene() != null ? rv.getClinvarJudgment().getGene() : null;
 
@@ -113,16 +111,20 @@ public class MatchVariantsToGenotypeAndInheritance {
                     }
 
                     Map<String, status> sampleStatus = new HashMap<>();
+                    Map<String, String> sampleGenotypes = new HashMap<>();
 
                     for(String key : affectedSamples.keySet())
                     {
                         sampleStatus.put(key, actingTerminology);
+                        sampleGenotypes.put(key, affectedSamples.get(key).get("GT").toString());
                     }
                     for(String key : carrierSamples.keySet())
                     {
                         sampleStatus.put(key, nonActingTerminology);
+                        sampleGenotypes.put(key, carrierSamples.get(key).get("GT").toString());
                     }
                     rv.setSampleStatus(sampleStatus);
+                    rv.setSampleGenotypes(sampleGenotypes);
 
                     if(verbose) {
                         System.out.println("assigned sample status: " + sampleStatus.toString());}

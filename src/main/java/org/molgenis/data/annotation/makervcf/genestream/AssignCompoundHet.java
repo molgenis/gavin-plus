@@ -1,6 +1,7 @@
 package org.molgenis.data.annotation.makervcf.genestream;
 
 import org.molgenis.data.annotation.makervcf.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf.genestream;
+package org.molgenis.data.annotation.makervcf.genestream.core;
 
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 

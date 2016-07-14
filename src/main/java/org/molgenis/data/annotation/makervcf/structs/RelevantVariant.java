@@ -22,6 +22,7 @@ public class RelevantVariant
     String allele;
     String gene;
     Map<String, status> sampleStatus;
+    Map<String, String> sampleGenotypes;
     double alleleFreq;
     double gonlAlleleFreq;
     String transcript;
@@ -107,4 +108,11 @@ public class RelevantVariant
     public void setSampleStatus(Map<String, status> sampleStatus) {
         this.sampleStatus = sampleStatus;
     }
+    public void setSampleGenotypes(Map<String, String> sampleGenotypes) {
+        this.sampleGenotypes = sampleGenotypes;
+    }
+    public Map<String, String> getSampleGenotypes() {
+        return sampleGenotypes != null ? sampleGenotypes : new HashMap<String, String>();
+    }
+
 }

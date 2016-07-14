@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
+import net.didion.jwnl.data.Exc;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
@@ -113,6 +114,16 @@ public class VcfEntity {
 
     public String getRef() {
         return ref;
+    }
+
+    public int getAltIndex(String alt) throws Exception {
+        for(int i = 0; i < alts.length; i++)
+        {
+            if(alt.equals(alts[i])){
+                return i+1;
+            }
+        }
+        throw new Exception("alt not found");
     }
 
     public String[] getAlts() {
