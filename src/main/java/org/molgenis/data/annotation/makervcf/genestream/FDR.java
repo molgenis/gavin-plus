@@ -24,15 +24,21 @@ public class FDR extends GeneStream{
     public FDR(Iterator<RelevantVariant> relevantVariants, File writeTo, boolean verbose) throws FileNotFoundException {
         super(relevantVariants, verbose);
         this.pw = new PrintWriter(writeTo);
-        this.pw.println("Gene\tFDR");
+        this.pw.println("Chr\tPos\tGene\tFDR");
     }
 
     @Override
     public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
 
         Set<String> uniquelyAffectedSamplesForThisGene = new HashSet<String>();
+        String chrom = null;
+        String pos= null;
         for(RelevantVariant rv : variantsPerGene)
         {
+            if(chrom == null) {
+                chrom = rv.getVariant().getChr();
+                pos = rv.getVariant().getPos();
+            }
             //extra check, may be removed FIXME
             if(!rv.getGene().equals(gene))
             {
@@ -46,7 +52,7 @@ public class FDR extends GeneStream{
             }
         }
 
-        pw.println(gene + "\t" + (uniquelyAffectedSamplesForThisGene.size()));
+        pw.println(chrom + "\t" + pos + "\t" + gene + "\t" + (uniquelyAffectedSamplesForThisGene.size()));
         pw.flush();
     }
 
