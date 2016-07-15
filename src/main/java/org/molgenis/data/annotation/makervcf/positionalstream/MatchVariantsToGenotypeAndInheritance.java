@@ -160,7 +160,8 @@ public class MatchVariantsToGenotypeAndInheritance {
             String genotype = sample.get("GT").toString();
             String sampleName = sample.get("ORIGINAL_NAME").toString();
 
-            if (genotype.equals("./.") || genotype.equals(".") || genotype.equals(".|."))
+            // skip empty or reference genotypes
+            if ( genotype.equals("./.") || genotype.equals(".|.") || genotype.equals(".") || genotype.equals("0/0") || genotype.equals("0|0")  || genotype.equals("0") )
             {
                 continue;
             }
