@@ -1,4 +1,4 @@
-package org.molgenis.data.annotation.makervcf.genestream;
+package org.molgenis.data.annotation.makervcf.genestream.impl;
 
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
