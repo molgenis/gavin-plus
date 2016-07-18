@@ -83,7 +83,7 @@ public class RVCF {
     public String toString() {
         return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getAlleleFreq()) + RVCF_FIELDSEP + escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getTranscript()) + RVCF_FIELDSEP +
                 escapeToSafeVCF(getPhenotype()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeInheritance()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeOnset()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeDetails()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeGroup()) + RVCF_FIELDSEP +
-                printSampleStatus(getSampleStatus()) + RVCF_FIELDSEP + printSampleList(getSamplePhenotype()) + RVCF_FIELDSEP + printSampleList(getSampleGenotype()) + RVCF_FIELDSEP + printSampleList(getSampleGroup()) + RVCF_FIELDSEP +
+                printSampleStatus(getSampleStatus()) + RVCF_FIELDSEP + printSampleList(getSamplePhenotype()) + RVCF_FIELDSEP + printSampleList(getSampleGenotype(), true) + RVCF_FIELDSEP + printSampleList(getSampleGroup()) + RVCF_FIELDSEP +
                 escapeToSafeVCF(getVariantSignificance()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceSource()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceJustification()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantCompoundHet()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantGroup());
     }
 
@@ -96,7 +96,15 @@ public class RVCF {
         return printSampleList(samplesString);
     }
 
+    private String escapeGenotype(String s) {
+        return s.replace("/", "s").replace("|", "p");
+    }
+
     public String printSampleList(Map<String, String> samples){
+        return printSampleList(samples, false);
+
+    }
+    public String printSampleList(Map<String, String> samples, boolean genotypes){
         if(samples.size() == 0)
         {
             return "";
@@ -104,7 +112,7 @@ public class RVCF {
         StringBuffer sb = new StringBuffer();
         for(String sample : samples.keySet())
         {
-            sb.append(escapeToSafeVCF(sample) + RVCF_KEYVALSEP + escapeToSafeVCF(samples.get(sample)) + RVCF_SAMPLESEP);
+            sb.append(escapeToSafeVCF(sample) + RVCF_KEYVALSEP + (genotypes ? escapeGenotype(samples.get(sample)) : escapeToSafeVCF(samples.get(sample))) + RVCF_SAMPLESEP);
         }
         sb.deleteCharAt(sb.length()-1);
         return sb.toString();
