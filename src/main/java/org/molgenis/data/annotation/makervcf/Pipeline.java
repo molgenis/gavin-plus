@@ -51,8 +51,7 @@ public class Pipeline {
 
         // TODO
         //if available: use any parental information to filter out variants/status
-        HashMap<String, Trio> trios = TrioFilter.getTrios(inputVcfFile, verbose);
-        Iterator<RelevantVariant> rv5 = new TrioFilter(rv4, trios, verbose).go();
+        Iterator<RelevantVariant> rv5 = new TrioFilter(rv4, inputVcfFile, verbose).go();
 
         //if available: use any phasing information to filter out compounds
         Iterator<RelevantVariant> rv6 = new PhasingCompoundCheck(rv5, verbose).go();
