@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.cgd.LoadCGD;
 import org.molgenis.data.Entity;
+import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.cgd.CGDEntry.generalizedInheritance;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
@@ -84,8 +85,7 @@ public class MatchVariantsToGenotypeAndInheritance {
 
                     CGDEntry ce = cgd.get(gene);
                     generalizedInheritance inh = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;
-                    HashMap<String, Entity> affectedSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh, true);
-                    HashMap<String, Entity> carrierSamples = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh, false);
+                    GenoMatchSamples genoMatch = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh);
 
                     rv.setCgdInfo(ce);
 
@@ -109,21 +109,27 @@ public class MatchVariantsToGenotypeAndInheritance {
                     Map<String, status> sampleStatus = new HashMap<>();
                     Map<String, String> sampleGenotypes = new HashMap<>();
 
-                    for(String key : affectedSamples.keySet())
+                    for(String key : genoMatch.affected.keySet())
                     {
                         sampleStatus.put(key, actingTerminology);
-                        sampleGenotypes.put(key, affectedSamples.get(key).get("GT").toString());
+                        sampleGenotypes.put(key, genoMatch.affected.get(key).get("GT").toString());
                     }
-                    for(String key : carrierSamples.keySet())
+                    for(String key :  genoMatch.carriers.keySet())
                     {
                         sampleStatus.put(key, nonActingTerminology);
-                        sampleGenotypes.put(key, carrierSamples.get(key).get("GT").toString());
+                        sampleGenotypes.put(key, genoMatch.carriers.get(key).get("GT").toString());
                     }
-                    rv.setSampleStatus(sampleStatus);
-                    rv.setSampleGenotypes(sampleGenotypes);
 
-                    if(verbose) {
-                        System.out.println("assigned sample status: " + sampleStatus.toString());}
+
+                    if(!sampleStatus.isEmpty())
+                    {
+                        rv.setSampleStatus(sampleStatus);
+                        rv.setSampleGenotypes(sampleGenotypes);
+                        if(verbose) {  System.out.println("assigned sample status: " + sampleStatus.toString() + " and genotypes: " + sampleGenotypes);}
+
+                    }
+
+
 
                     return rv;
                 }
@@ -142,16 +148,19 @@ public class MatchVariantsToGenotypeAndInheritance {
      * @param record
      * @param alt
      * @param inheritance
-     * @param lookingForAffected
      * @return
      * @throws Exception
      */
-    public HashMap<String, Entity> findMatchingSamples(VcfEntity record, String alt, generalizedInheritance inheritance, boolean lookingForAffected) throws Exception {
+    public GenoMatchSamples findMatchingSamples(VcfEntity record, String alt, generalizedInheritance inheritance) throws Exception {
         int altIndex = VcfEntity.getAltAlleleIndex(record, alt);
-        HashMap<String, Entity> matchingSamples = new HashMap<>();
 
-        for (Entity sample : record.getSamples())
+        HashMap<String, Entity> carriers = new HashMap<String, Entity>();
+        HashMap<String, Entity> affected = new HashMap<String, Entity>();
+        Iterator<Entity> samples = record.getSamples();
+
+        while(samples.hasNext())
         {
+            Entity sample = samples.next();
             if(sample.get("GT") == null)
             {
                 continue;
@@ -182,9 +191,9 @@ public class MatchVariantsToGenotypeAndInheritance {
             if(inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT))
             {
                 // 1 or more, so works for hemizygous too
-                if ( genotype.contains(altIndex+"") && lookingForAffected )
+                if ( genotype.contains(altIndex+"") )
                 {
-                    matchingSamples.put(sampleName, sample);
+                    affected.put(sampleName, sample);
                 }
             }
 
@@ -200,19 +209,19 @@ public class MatchVariantsToGenotypeAndInheritance {
                 boolean heterozygous = genotype.length() == 3 && StringUtils.countMatches(genotype, altIndex+"") == 1;
 
                 // regular homozygous
-                if ( lookingForAffected && homozygous )
+                if (homozygous )
                 {
-                    matchingSamples.put(sampleName, sample);
+                    affected.put(sampleName, sample);
                 }
                 //for hemizygous, 1 allele is enough of course
-                else if( lookingForAffected && hemizygous )
+                else if( hemizygous )
                 {
-                    matchingSamples.put(sampleName, sample);
+                    affected.put(sampleName, sample);
                 }
                 // heterozygous, ie. carriers when disease is recessive
-                else if ( !lookingForAffected && heterozygous )
+                else if ( heterozygous )
                 {
-                    matchingSamples.put(sampleName, sample);
+                    carriers.put(sampleName, sample);
                 }
 
             }
@@ -222,6 +231,6 @@ public class MatchVariantsToGenotypeAndInheritance {
             }
 
         }
-        return matchingSamples;
+        return new GenoMatchSamples(carriers, affected);
     }
 }
