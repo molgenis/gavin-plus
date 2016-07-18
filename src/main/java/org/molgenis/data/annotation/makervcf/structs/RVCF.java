@@ -42,7 +42,7 @@ public class RVCF {
     String variantGroup;
 
 
-    public RVCF fromString(String rvcfEntry) throws Exception {
+    public static RVCF fromString(String rvcfEntry) throws Exception {
         String[] split = rvcfEntry.split("\\|", -1);
         RVCF rvcfInstance = new RVCF();
         if(split.length != nrOfFields)
@@ -98,6 +98,9 @@ public class RVCF {
 
     private String escapeGenotype(String s) {
         return s.replace("/", "s").replace("|", "p");
+    }
+    private String unEscapeGenotype(String s) {
+        return s.replace("s", "/").replace("p", "|");
     }
 
     public String printSampleList(Map<String, String> samples){
@@ -195,6 +198,10 @@ public class RVCF {
     }
 
     public void setSampleGenotype(Map<String, String> sampleGenotype) {
+        for(String key : sampleGenotype.keySet())
+        {
+            sampleGenotype.put(key, unEscapeGenotype(sampleGenotype.get(key)));
+        }
         this.sampleGenotype = sampleGenotype;
     }
 
