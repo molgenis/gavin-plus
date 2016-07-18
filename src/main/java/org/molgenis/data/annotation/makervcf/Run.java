@@ -74,17 +74,11 @@ public class Run {
         //if available: use any SV data to give weight to carrier/heterozygous variants that may be complemented by a deleterious structural event
         Iterator<RelevantVariant> rv7 = new CombineWithSVcalls(rv6, verbose).go();
 
-        //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
-        //FOR: report missed hits per gene, same as above with pathogenic gold standard set
-        //Iterator<RelevantVariant> rv8 = new FDR(rv7, new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/FDR.tsv"), verbose).go();
-        //Iterator<RelevantVariant> rv8 = new FOR(rv7, inputVcfFile).go();
-        Iterator<RelevantVariant> rv8 = rv7;
-
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
-        Iterator<RelevantVariant> rv9 = new ConvertBackToPositionalStream(rv8, gs.getPositionalOrder(), verbose).go();
+        Iterator<RelevantVariant> rv8 = new ConvertBackToPositionalStream(rv7, gs.getPositionalOrder(), verbose).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv9, rlv).addRVCFfield();
+        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv8, rlv).addRVCFfield();
 
         //write Entities output VCF file
         writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, true);
