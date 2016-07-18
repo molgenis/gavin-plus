@@ -30,6 +30,7 @@ public class VcfEntity {
     private Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
     private Set<String> genes; //any associated genes, not in any given order
     private Iterable<Entity> samples;
+    private RVCF rvcf;
 
     //more? "EXAC_AC_HOM", "EXAC_AC_HET"
 
@@ -49,7 +50,7 @@ public class VcfEntity {
         this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED");
         this.ann = record.getString("ANN");
         this.genes = GavinUtils.getGenesFromAnn(ann);
-
+        this.rvcf = record.getString(RVCF.attributeName) != null ? RVCF.fromString(record.getString(RVCF.attributeName)) : null;
 
     }
 
@@ -129,6 +130,10 @@ public class VcfEntity {
 
     public String[] getAlts() {
         return alts;
+    }
+
+    public RVCF getRvcf() {
+        return rvcf != null ? rvcf : null;
     }
 
     public String getAltString() {
