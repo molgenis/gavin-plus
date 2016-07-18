@@ -9,6 +9,7 @@ import org.molgenis.data.vcf.VcfRepository;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -36,7 +37,7 @@ public class VcfEntity {
     public VcfEntity(Entity record) throws Exception
     {
         this.orignalEntity = record;
-        this.samples = record.getEntities(VcfRepository.SAMPLES);
+        //this.samples = record.getEntities(VcfRepository.SAMPLES);
         this.chr = record.getString("#CHROM");
         this.pos = record.getString("POS");
         this.id = record.getString("ID");
@@ -100,8 +101,8 @@ public class VcfEntity {
         return GavinUtils.getTranscript(this.ann, gene, this.alts[i]);
     }
 
-    public Iterable<Entity> getSamples() {
-        return samples;
+    public Iterator<Entity> getSamples() {
+        return (Iterator)this.orignalEntity.get(VcfRepository.SAMPLES);
     }
 
     public String getChr() {
