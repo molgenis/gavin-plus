@@ -4,10 +4,7 @@ import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertBackToPositionalStream;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
-import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
-import org.molgenis.data.annotation.makervcf.genestream.impl.CombineWithSVcalls;
-import org.molgenis.data.annotation.makervcf.genestream.impl.PhasingCompoundCheck;
-import org.molgenis.data.annotation.makervcf.genestream.impl.TrioFilter;
+import org.molgenis.data.annotation.makervcf.genestream.impl.*;
 import org.molgenis.data.annotation.makervcf.positionalstream.*;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
@@ -62,14 +59,17 @@ public class Pipeline {
         //if available: use any SV data to give weight to carrier/heterozygous variants that may be complemented by a deleterious structural event
         Iterator<RelevantVariant> rv7 = new CombineWithSVcalls(rv6, verbose).go();
 
+        //add gene-specific FDR based on 1000G and this pipeline
+        Iterator<RelevantVariant> rv8 = new AddGeneFDR(rv7, verbose).go();
+
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
-        Iterator<RelevantVariant> rv8 = new ConvertBackToPositionalStream(rv7, gs.getPositionalOrder(), verbose).go();
+        Iterator<RelevantVariant> rv9 = new ConvertBackToPositionalStream(rv8, gs.getPositionalOrder(), verbose).go();
 
         //cleanup stream by ditching variants without samples due to filtering
-        Iterator<RelevantVariant> rv9 = new CleanupVariantsWithoutSamples(rv8, verbose).go();
+        Iterator<RelevantVariant> rv10 = new CleanupVariantsWithoutSamples(rv9, verbose).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv9, rlv).addRVCFfield();
+        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv10, rlv).addRVCFfield();
 
         //write Entities output VCF file
         new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, true);
