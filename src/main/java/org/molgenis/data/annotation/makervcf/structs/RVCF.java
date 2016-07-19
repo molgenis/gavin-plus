@@ -61,9 +61,9 @@ public class RVCF {
         rvcfInstance.setPhenotypeGroup(split[8]);
 
         rvcfInstance.setSampleStatusString(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[9]));
-        rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[10]));
+      //  rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[10])); todo
         rvcfInstance.setSampleGenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[11]));
-        rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[12]));
+ //       rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[12])); todo
 
         rvcfInstance.setVariantSignificance(split[13]);
         rvcfInstance.setVariantSignificanceSource(split[14]);
@@ -198,11 +198,12 @@ public class RVCF {
     }
 
     public void setSampleGenotype(Map<String, String> sampleGenotype) {
+        Map<String, String> sampleGenotypeUnEsc = new HashMap<>();
         for(String key : sampleGenotype.keySet())
         {
-            sampleGenotype.put(key, unEscapeGenotype(sampleGenotype.get(key)));
+            sampleGenotypeUnEsc.put(key, unEscapeGenotype(sampleGenotype.get(key)));
         }
-        this.sampleGenotype = sampleGenotype;
+        this.sampleGenotype = sampleGenotypeUnEsc;
     }
 
     public Map<String, status> getSampleStatus() {
