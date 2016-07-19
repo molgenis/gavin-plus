@@ -46,12 +46,12 @@ public class Run {
     public static void main(String[] args) throws Exception {
 
         // FOR DEVELOPMENT, delete output file and 'file for cadd'
-        new File(args[6]).delete();
-        if(Mode.valueOf(args[5]).equals(Mode.CREATEFILEFORCADD))  {new File(args[4]).delete();}
+        new File(args[7]).delete();
+        if(Mode.valueOf(args[6]).equals(Mode.CREATEFILEFORCADD))  {new File(args[4]).delete();}
 
-        if(args.length != 8)
+        if(args.length != 9)
         {
-            throw new Exception("please provide: input VCF file, GAVIN calibration file, ClinVar VCF file, CGD file, CADD supplement file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"], output VCF file, verbose TRUE/FALSE");
+            throw new Exception("please provide: input VCF file, GAVIN calibration file, ClinVar VCF file, CGD file, CADD supplement file, FDR gene file, mode ["+Mode.ANALYSIS+" or "+Mode.CREATEFILEFORCADD +"], output VCF file, verbose TRUE/FALSE");
         }
 
         File inputVcfFile = new File(args[0]);
@@ -59,9 +59,10 @@ public class Run {
         File clinvarFile = new File(args[2]);
         File cgdFile = new File(args[3]);
         File caddFile = new File(args[4]);
-        Mode mode = Mode.valueOf(args[5]);
-        File outputVcfFile = new File(args[6]);
-        boolean verbose = Boolean.parseBoolean(args[7]);
+        File FDRfile = new File(args[5]);
+        Mode mode = Mode.valueOf(args[6]);
+        File outputVcfFile = new File(args[7]);
+        boolean verbose = Boolean.parseBoolean(args[8]);
 
         if(!inputVcfFile.isFile())
         {
@@ -78,6 +79,11 @@ public class Run {
         if(!cgdFile.isFile())
         {
             throw new Exception("CGD VCF file "+cgdFile+" does not exist or is directory");
+        }
+
+        if(!FDRfile.isFile())
+        {
+            throw new Exception("FDR gene file "+FDRfile+" does not exist or is directory");
         }
 
         if(!mode.equals(Mode.ANALYSIS) && !mode.equals(Mode.CREATEFILEFORCADD))
@@ -105,7 +111,7 @@ public class Run {
             throw new Exception("output VCF file "+outputVcfFile.getAbsolutePath()+" already exists, deleting !");
         }
 
-        new Pipeline().run(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, mode, outputVcfFile, verbose);
+        new Pipeline().run(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVcfFile, verbose);
 
     }
 

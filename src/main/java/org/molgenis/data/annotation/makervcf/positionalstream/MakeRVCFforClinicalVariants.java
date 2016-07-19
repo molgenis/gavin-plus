@@ -54,6 +54,7 @@ public class MakeRVCFforClinicalVariants {
                     RVCF rvcf = new RVCF();
 
                     rvcf.setGene(rv.getGene());
+                    rvcf.setFDR(rv.getFDR());
                     rvcf.setAllele(rv.getAllele());
                     rvcf.setAlleleFreq(rv.getAlleleFreq()+"");
                     rvcf.setTranscript(rv.getTranscript());

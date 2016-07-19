@@ -19,6 +19,7 @@ public class RelevantVariant
     Judgment clinvarJudgment;
     String allele;
     String gene;
+    String FDR;
     Map<String, status> sampleStatus;
     Map<String, String> sampleGenotypes;
     Set<String> parentsWithReferenceCalls;
@@ -38,6 +39,14 @@ public class RelevantVariant
         this.gene = gene;
         this.gavinJudgment = gavinJudgment;
         this.clinvarJudgment = clinvarJudgment;
+    }
+
+    public String getFDR() {
+        return FDR != null ? FDR : "";
+    }
+
+    public void setFDR(String FDR) {
+        this.FDR = FDR;
     }
 
     public Set<String> getParentsWithReferenceCalls() {

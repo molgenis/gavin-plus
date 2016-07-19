@@ -24,7 +24,7 @@ public class Pipeline {
 
     private AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
 
-    public void run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, HandleMissingCaddScores.Mode mode, File outputVcfFile, boolean verbose) throws Exception
+    public void run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile, HandleMissingCaddScores.Mode mode, File outputVcfFile, boolean verbose) throws Exception
     {
         //get trios and parents if applicable
         HashMap<String, Trio> trios = TrioFilter.getTrios(inputVcfFile);
@@ -60,7 +60,7 @@ public class Pipeline {
         Iterator<RelevantVariant> rv7 = new CombineWithSVcalls(rv6, verbose).go();
 
         //add gene-specific FDR based on 1000G and this pipeline
-        Iterator<RelevantVariant> rv8 = new AddGeneFDR(rv7, verbose).go();
+        Iterator<RelevantVariant> rv8 = new AddGeneFDR(rv7, FDRfile, verbose).go();
 
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
         Iterator<RelevantVariant> rv9 = new ConvertBackToPositionalStream(rv8, gs.getPositionalOrder(), verbose).go();
