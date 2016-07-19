@@ -8,10 +8,7 @@ import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
 import org.molgenis.data.annotation.makervcf.genestream.impl.CombineWithSVcalls;
 import org.molgenis.data.annotation.makervcf.genestream.impl.PhasingCompoundCheck;
 import org.molgenis.data.annotation.makervcf.genestream.impl.TrioFilter;
-import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MAFFilter;
-import org.molgenis.data.annotation.makervcf.positionalstream.MakeRVCFforClinicalVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.positionalstream.*;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
@@ -21,6 +18,7 @@ import org.molgenis.data.vcf.datastructures.Trio;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created by joeri on 7/18/16.
@@ -31,6 +29,9 @@ public class Pipeline {
 
     public void run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, HandleMissingCaddScores.Mode mode, File outputVcfFile, boolean verbose) throws Exception
     {
+        //get trios and parents if applicable
+        HashMap<String, Trio> trios = TrioFilter.getTrios(inputVcfFile);
+        Set<String> parents = TrioFilter.getParents(trios);
 
         //initial discovery of any suspected/likely pathogenic variant
         DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode, verbose);
@@ -40,7 +41,7 @@ public class Pipeline {
         Iterator<RelevantVariant> rv2 = new MAFFilter(rv1, verbose).go();
 
         //match sample genotype with known disease inheritance mode
-        Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile, verbose).go();
+        Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile, parents, verbose).go();
 
         //swap over stream from strict position-based to gene-based so we can do a number of things
         ConvertToGeneStream gs = new ConvertToGeneStream(rv3, verbose);
@@ -51,7 +52,8 @@ public class Pipeline {
 
         // TODO
         //if available: use any parental information to filter out variants/status
-        Iterator<RelevantVariant> rv5 = new TrioFilter(rv4, inputVcfFile, verbose).go();
+        TrioFilter tf = new TrioFilter(rv4, inputVcfFile, trios, parents, verbose);
+        Iterator<RelevantVariant> rv5 = tf.go();
 
         //if available: use any phasing information to filter out compounds
         Iterator<RelevantVariant> rv6 = new PhasingCompoundCheck(rv5, verbose).go();
@@ -63,8 +65,11 @@ public class Pipeline {
         //fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
         Iterator<RelevantVariant> rv8 = new ConvertBackToPositionalStream(rv7, gs.getPositionalOrder(), verbose).go();
 
+        //cleanup stream by ditching variants without samples due to filtering
+        Iterator<RelevantVariant> rv9 = new CleanupVariantsWithoutSamples(rv8, verbose).go();
+
         //write convert RVCF records to Entity
-        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv8, rlv).addRVCFfield();
+        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv9, rlv).addRVCFfield();
 
         //write Entities output VCF file
         new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, true);
