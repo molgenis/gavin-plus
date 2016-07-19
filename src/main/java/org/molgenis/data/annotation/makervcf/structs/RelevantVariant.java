@@ -7,6 +7,7 @@ import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGen
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by joeri on 6/13/16.
@@ -20,6 +21,7 @@ public class RelevantVariant
     String gene;
     Map<String, status> sampleStatus;
     Map<String, String> sampleGenotypes;
+    Set<String> parentsWithReferenceCalls;
     double alleleFreq;
     double gonlAlleleFreq;
     String transcript;
@@ -36,6 +38,14 @@ public class RelevantVariant
         this.gene = gene;
         this.gavinJudgment = gavinJudgment;
         this.clinvarJudgment = clinvarJudgment;
+    }
+
+    public Set<String> getParentsWithReferenceCalls() {
+        return parentsWithReferenceCalls;
+    }
+
+    public void setParentsWithReferenceCalls(Set<String> parentsWithReferenceCalls) {
+        this.parentsWithReferenceCalls = parentsWithReferenceCalls;
     }
 
     public String getAllele() {
