@@ -26,6 +26,7 @@ public class MatchVariantsToGenotypeAndInheritance {
     Map<String, CGDEntry> cgd;
     int minDepth;
     boolean verbose;
+    private Set<String> parents;
 
     public enum status{
         HETEROZYGOUS, HOMOZYGOUS, AFFECTED, CARRIER, BLOODGROUP, HOMOZYGOUS_COMPOUNDHET, AFFECTED_COMPOUNDHET, HETEROZYGOUS_MULTIHIT;
@@ -41,12 +42,13 @@ public class MatchVariantsToGenotypeAndInheritance {
 
     }
 
-    public MatchVariantsToGenotypeAndInheritance(Iterator<RelevantVariant> relevantVariants, File cgdFile, boolean verbose) throws IOException
+    public MatchVariantsToGenotypeAndInheritance(Iterator<RelevantVariant> relevantVariants, File cgdFile, Set<String> parents, boolean verbose) throws IOException
     {
         this.relevantVariants = relevantVariants;
         this.cgd = LoadCGD.loadCGD(cgdFile);
         this.minDepth = 1;
         this.verbose = verbose;
+        this.parents = parents;
     }
 
 
@@ -125,11 +127,9 @@ public class MatchVariantsToGenotypeAndInheritance {
                     {
                         rv.setSampleStatus(sampleStatus);
                         rv.setSampleGenotypes(sampleGenotypes);
+                        rv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
                         if(verbose) {  System.out.println("assigned sample status: " + sampleStatus.toString() + " and genotypes: " + sampleGenotypes);}
-
                     }
-
-
 
                     return rv;
                 }
@@ -156,6 +156,8 @@ public class MatchVariantsToGenotypeAndInheritance {
 
         HashMap<String, Entity> carriers = new HashMap<String, Entity>();
         HashMap<String, Entity> affected = new HashMap<String, Entity>();
+        Set<String> parentsWithReferenceCalls = new HashSet<String>();
+
         Iterator<Entity> samples = record.getSamples();
 
         while(samples.hasNext())
@@ -169,11 +171,7 @@ public class MatchVariantsToGenotypeAndInheritance {
             String genotype = sample.get("GT").toString();
             String sampleName = sample.get("ORIGINAL_NAME").toString();
 
-            // skip empty or reference genotypes
-            if ( genotype.equals("./.") || genotype.equals(".|.") || genotype.equals(".") || genotype.equals("0/0") || genotype.equals("0|0")  || genotype.equals("0") )
-            {
-                continue;
-            }
+
 
             // quality filter: we want depth X or more, if available
             if(sample.get("DP") != null)
@@ -183,6 +181,22 @@ public class MatchVariantsToGenotypeAndInheritance {
                 {
                     continue;
                 }
+            }
+
+            // skip reference genotypes unless parents of a child for de novo detection
+            if ( genotype.equals("0/0") || genotype.equals("0|0")  || genotype.equals("0") )
+            {
+                if(parents.contains(sampleName))
+                {
+                    parentsWithReferenceCalls.add(sampleName);
+                }
+                continue;
+            }
+
+            // skip empty genotypes
+            if ( genotype.equals("./.") || genotype.equals(".|.") || genotype.equals(".") )
+            {
+                continue;
             }
 
             //now that everything is okay, we can match to inheritance mode
@@ -231,6 +245,6 @@ public class MatchVariantsToGenotypeAndInheritance {
             }
 
         }
-        return new GenoMatchSamples(carriers, affected);
+        return new GenoMatchSamples(carriers, affected, parentsWithReferenceCalls);
     }
 }
