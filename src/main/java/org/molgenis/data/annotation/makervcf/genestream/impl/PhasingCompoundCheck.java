@@ -55,7 +55,7 @@ public class PhasingCompoundCheck extends GeneStream{
     public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
 
 
-        if(verbose){System.out.println("[PhasingCompoundCheck] gene: " + gene);}
+        if(verbose){System.out.println("[PhasingCompoundCheck] Encountered gene: " + gene);}
 
         // e.g. the 0 in 0|1
         Set<String> leftHaploSamples = new HashSet<String>();
@@ -108,8 +108,8 @@ public class PhasingCompoundCheck extends GeneStream{
 
 
 
-        if(verbose){System.out.println("[PhasingCompoundCheck] leftHaploSamples: " + leftHaploSamples.toString());
-        System.out.println("[PhasingCompoundCheck] rightHaploSamples: " + rightHaploSamples.toString());}
+        if(verbose){System.out.println("[PhasingCompoundCheck] 'Left-hand' haplotype samples: " + leftHaploSamples.toString());
+        System.out.println("[PhasingCompoundCheck] 'Right-hand' haplotype samples: " + rightHaploSamples.toString());}
        // leftHaploSamples.retainAll(rightHaploSamples);
       //  System.out.println("true compounds: " + leftHaploSamples.toString());
 
@@ -124,7 +124,7 @@ public class PhasingCompoundCheck extends GeneStream{
                 union.remove(inA);
             }
         }
-        if(verbose){System.out.println("[PhasingCompoundCheck] false compounds: " + union.toString());}
+        if(verbose){System.out.println("[PhasingCompoundCheck] False compounds with only left-hand or right-hand haplotypes: " + union.toString());}
 
 
         for(RelevantVariant rv : variantsPerGene)

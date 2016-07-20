@@ -57,7 +57,11 @@ public class AddGeneFDR extends GeneStream{
             {
                 throw new Exception("batch gene "+gene+"does not match variant gene " + rv.getGene());
             }
-            rv.setFDR(affectedFracForGene+","+carrierFracForGene);
+            String fdrInfo = affectedFracForGene+","+carrierFracForGene;
+            rv.setFDR(fdrInfo);
+            if(verbose){
+                System.out.println("[AddGeneFDR] Added FDR info '"+fdrInfo+"' to a variant for gene " + gene);
+            }
         }
     }
 

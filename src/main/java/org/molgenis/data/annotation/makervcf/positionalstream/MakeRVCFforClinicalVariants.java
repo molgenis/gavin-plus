@@ -22,11 +22,13 @@ public class MakeRVCFforClinicalVariants {
 
     private Iterator<RelevantVariant> relevantVariants;
     private AttributeMetaData rlv;
+    private boolean verbose;
 
-    public MakeRVCFforClinicalVariants(Iterator<RelevantVariant> relevantVariants, AttributeMetaData rlv)
+    public MakeRVCFforClinicalVariants(Iterator<RelevantVariant> relevantVariants, AttributeMetaData rlv, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.rlv = rlv;
+        this.verbose = verbose;
     }
 
     public Iterator<Entity> addRVCFfield()
@@ -84,6 +86,10 @@ public class MakeRVCFforClinicalVariants {
                     infoAttribute.addAttributePart(rlv);
 
                     e.set(RVCF.attributeName,rvcf.toString());
+
+                    if(verbose) {
+                        System.out.println("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: " + rvcf.toString());
+                    }
 
                     return e;
 

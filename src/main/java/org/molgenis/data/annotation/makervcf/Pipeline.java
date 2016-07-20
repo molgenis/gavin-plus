@@ -47,7 +47,6 @@ public class Pipeline {
         //convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
         Iterator<RelevantVariant> rv4 = new AssignCompoundHet(gsi, verbose).go();
 
-        // TODO
         //if available: use any parental information to filter out variants/status
         TrioFilter tf = new TrioFilter(rv4, inputVcfFile, trios, parents, verbose);
         Iterator<RelevantVariant> rv5 = tf.go();
@@ -69,10 +68,10 @@ public class Pipeline {
         Iterator<RelevantVariant> rv10 = new CleanupVariantsWithoutSamples(rv9, verbose).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv10, rlv).addRVCFfield();
+        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv10, rlv, verbose).addRVCFfield();
 
         //write Entities output VCF file
-        new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, true);
+        new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, true, verbose);
 
     }
 }

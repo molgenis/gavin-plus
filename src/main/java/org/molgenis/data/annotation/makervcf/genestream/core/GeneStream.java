@@ -39,29 +39,29 @@ public abstract class GeneStream {
                 try {
                     if(resultBatch != null && resultBatch.hasNext())
                     {
-                        if(verbose){System.out.println("returning subsequent result of gene stream batch");}
+                        if(verbose){System.out.println("[GeneStream] Returning subsequent result of gene stream batch");}
                         nextResult = resultBatch.next();
                         return true;
                     }
                     else if(cleanup)
                     {
-                        if(verbose){System.out.println("CLEANUP TIME");}
+                        if(verbose){System.out.println("[GeneStream] Cleanup of variants and genes");}
                         //this last element is the first element of the next gene
                         variantsForGene = new ArrayList<>();
                         variantsForGene.add(variantSkippedOver);
-                        if(verbose){System.out.println("variantsForGene is now " + variantsForGene.toString());}
+                        if(verbose){System.out.println("[GeneStream] Liftover of variant from previous iteration: " + variantsForGene.toString());}
                         cleanup = false;
                     }
                     while (relevantVariants.hasNext()) {
 
                         RelevantVariant rv = relevantVariants.next();
                         currentGene = rv.getGene();
-                        if(verbose){System.out.println("entering WHILE, looking at a variant in gene " + currentGene);}
+                        if(verbose){System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGene);}
 
 
                         if(!currentGene.equals(previousGene) && previousGene != null)
                         {
-                            if(verbose){System.out.println("executing perGene on " + previousGene);}
+                            if(verbose){System.out.println("[GeneStream] Executing the abstract perGene() function on " + previousGene);}
 
                             perGene(previousGene, variantsForGene);
 
@@ -74,7 +74,7 @@ public abstract class GeneStream {
 
                             if(resultBatch.hasNext())
                             {
-                                if(verbose){System.out.println("returning first result of gene stream batch");}
+                                if(verbose){System.out.println("[GeneStream] Returning first result of gene stream batch");}
                                 nextResult = resultBatch.next();
                                 return true;
                             }

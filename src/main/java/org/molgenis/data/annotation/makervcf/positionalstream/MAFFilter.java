@@ -42,7 +42,7 @@ public class MAFFilter {
                         }
                         else if(verbose)
                         {
-                            System.out.println("removing variant at " +rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " because it has AF >"+threshold+". ExAC: "+rv.getAlleleFreq()+", GoNL: "+rv.getGonlAlleleFreq()+"");
+                            if(verbose){ System.out.println("[MAFFilter] Removing variant at " +rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " because it has AF >"+threshold+". ExAC: "+rv.getAlleleFreq()+", GoNL: "+rv.getGonlAlleleFreq()+""); }
                         }
                     }
 

@@ -45,7 +45,9 @@ public class TrioFilter extends GeneStream{
         this.inputVcfFile = inputVcfFile;
         this.trios = trios;
         this.parents = parents;
-       // System.out.println("[TrioFilter] Trios: " + trios);
+        if(verbose){ System.out.println("[TrioFilter] Trios: " + trios.toString()); }
+        if(verbose){ System.out.println("[TrioFilter] Parents: " + parents.toString()); }
+
     }
 
     public static Set<String> getParents(HashMap<String, Trio> trios)
@@ -69,24 +71,24 @@ public class TrioFilter extends GeneStream{
     @Override
     public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
 
-        if(verbose) { System.out.println("[TrioFilter] NEW GENE: " + gene); }
+        if(verbose) { System.out.println("[TrioFilter] Encountered gene: " + gene); }
 
         for(RelevantVariant rv : variantsPerGene) {
 
-            if(verbose) { System.out.println("[TrioFilter] NEW VARIANT: " + rv.toString()); }
+            if(verbose) { System.out.println("[TrioFilter] Encountered variant: " + rv.toString()); }
 
             Set<String> samplesToRemove = new HashSet<>();
             char affectedIndex = Character.forDigit(rv.getVariant().getAltIndex(rv.getAllele()), 10);
 
             for (String sample : rv.getSampleStatus().keySet()) {
 
-                if(verbose) { System.out.println("[TrioFilter] NEW SAMPLE: " + sample); }
+                if(verbose) { System.out.println("[TrioFilter] Encountered sample: " + sample); }
 
                 boolean isParent = parents.contains(sample);
 
                 if(isParent)
                 {
-                    if(verbose) { System.out.println("[TrioFilter] sample is parent! dropping"); }
+                    if(verbose) { System.out.println("[TrioFilter] Sample is parent! dropping"); }
 
                     samplesToRemove.add(sample);
                     continue;

@@ -56,7 +56,7 @@ public class ConvertToGeneStream {
                 }
                 else if(resultBatch != null && genesToDelete != null)
                 {
-                    if(verbose){System.out.println("cleanup after dumping result batch - clearing data for " + genesToDelete.toString() + ", update genes seen from "+genesSeenForPreviousVariant.toString()+" to " + genesSeenForCurrentVariantUpdate);}
+                    if(verbose){System.out.println("[ConvertToGeneStream] Cleanup after streaming result batch, clearing data for " + genesToDelete.toString() + ", update genes seen from "+genesSeenForPreviousVariant.toString()+" to " + genesSeenForCurrentVariantUpdate);}
                     //result batch emptied, clear data and continue while
                     for(String geneToDelete : genesToDelete)
                     {
@@ -107,7 +107,7 @@ public class ConvertToGeneStream {
 
                             if (!genesSeenForCurrentVariant.contains(gene)) {
 
-                 //               System.out.println("no, so going to process " + geneToVariantsToCheck.get(gene).size() + " variants for gene " + gene);
+                                if(verbose) { System.out.println("[ConvertToGeneStream] Found " + geneToVariantsToCheck.get(gene).size() + " variants for gene " + gene + ", streaming them to next iterator"); }
                                 List<RelevantVariant> variantsToCheck = geneToVariantsToCheck.get(gene);
                                 variantsToCheck = prefilterOnGene(variantsToCheck, gene);
 
@@ -196,6 +196,7 @@ public class ConvertToGeneStream {
          //           System.out.println("after prefilterOnGene: " + variantsToCheck.size() + " remaining variants");
 
              //       compoundHetCheck(variantsToCheck); not anymore here!
+                    if(verbose) { System.out.println("[ConvertToGeneStream] Found " + variantsToCheck.size() + " variants for trailing gene " + remainingGene + ", streaming them to next iterator"); }
 
                     resultBatch = variantsToCheck.iterator();
 

@@ -128,7 +128,7 @@ public class MatchVariantsToGenotypeAndInheritance {
                         rv.setSampleStatus(sampleStatus);
                         rv.setSampleGenotypes(sampleGenotypes);
                         rv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
-                        if(verbose) {  System.out.println("assigned sample status: " + sampleStatus.toString() + " and genotypes: " + sampleGenotypes);}
+                        if(verbose) {  System.out.println("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: " + sampleStatus.toString() + ", having genotypes: " + sampleGenotypes +", plus trio parents with reference alleles: " + genoMatch.parentsWithReferenceCalls.toString());}
                     }
 
                     return rv;
@@ -170,8 +170,6 @@ public class MatchVariantsToGenotypeAndInheritance {
 
             String genotype = sample.get("GT").toString();
             String sampleName = sample.get("ORIGINAL_NAME").toString();
-
-
 
             // quality filter: we want depth X or more, if available
             if(sample.get("DP") != null)

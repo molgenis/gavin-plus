@@ -82,6 +82,7 @@ public class DiscoverRelevantVariants {
                                 {
                                     record.setGenes(clinvarJudgment.getGene());
                                     nextResult = new RelevantVariant(record, record.getAlts(i), clinvarJudgment.getGene(), record.getExac_AFs(i), record.getGoNL_AFs(i), clinvarJudgment.getGene(), null, clinvarJudgment);
+                                    if(verbose){ System.out.println("[DiscoverRelevantVariants] Found relevant variant in mitochondrial DNA: " + nextResult.toStringShort()); }
                                     return true;
                                 }
                             }
@@ -94,7 +95,7 @@ public class DiscoverRelevantVariants {
                                     Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene, false);
                                     if (gavinJudgment.getClassification().equals(Judgment.Classification.Pathogenic) || clinvarJudgment.getClassification().equals(Judgment.Classification.Pathogenic)) {
                                         nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, gavinJudgment, clinvarJudgment);
-                                        if(verbose){ System.out.println("Found relevant variant: " + nextResult.toStringShort()); }
+                                        if(verbose){ System.out.println("[DiscoverRelevantVariants] Found relevant variant: " + nextResult.toStringShort()); }
                                         return true;
                                     }
                                 }

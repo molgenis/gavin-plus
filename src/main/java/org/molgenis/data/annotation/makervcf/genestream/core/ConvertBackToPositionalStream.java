@@ -68,7 +68,7 @@ public class ConvertBackToPositionalStream {
                             {
                                 buffer.put(pos, rv);
                                 bufferPrinter = buffer.values().iterator();
-               //                 System.out.println("adding to buffer, buffer has "+buffer.size()+" elements, returning first element");
+                                if(verbose){ System.out.println("[ConvertBackToPositionalStream] Positions aligned again at "+pos+", clearning buffer with "+buffer.size()+" elements");}
                                 buffer = new TreeMap<>(); //todo ok??
                                 nextResult = bufferPrinter.next();
                                 return true;
@@ -91,7 +91,7 @@ public class ConvertBackToPositionalStream {
 
                 if(bufferPrinter != null && bufferPrinter.hasNext())
                 {
-     //               System.out.println("returning LAST elements in the buffer");
+                    if(verbose){ System.out.println("[ConvertBackToPositionalStream] Clearing last elements from buffer");}
                     nextResult = bufferPrinter.next();
                     return true;
                 }

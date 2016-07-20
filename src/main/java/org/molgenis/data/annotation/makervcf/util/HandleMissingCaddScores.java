@@ -67,7 +67,7 @@ public class HandleMissingCaddScores {
                     }
                     else
                     {
-                        System.out.println("WARNING: CADD score missing for " + record.getChr() + " " + record.getPos() + " " + record.getRef() + " " + record.getAlts(altIndex) + " ! (even when using trimmed key '"+key+"')");
+                        System.out.println("[HandleMissingCaddScores] WARNING: CADD score missing for " + record.getChr() + " " + record.getPos() + " " + record.getRef() + " " + record.getAlts(altIndex) + " ! (even when using trimmed key '"+key+"')");
                         return null;
                     }
                 }
