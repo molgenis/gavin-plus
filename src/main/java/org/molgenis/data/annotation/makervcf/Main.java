@@ -51,13 +51,15 @@ public class Main {
 
     public void run(OptionSet options, OptionParser parser) throws Exception
     {
-        String title = "* MOLGENIS Diagnostic Interpretation Pipeline (MOLDIP), release 0.0.1-testing *";
+        String title = "* MOLGENIS GAVIN-APP for diagnostics, release 0.0.1-testing         *";
+        String titl2 = "* Gene-Aware Variant INterpretation - Automated Processing Pipeline *";
 
         //fixme: there has to a better way..
         if (!options.has("input") || !options.has("output") || !options.has("gavin") || !options.has("clinvar") || !options.has("cgd") || !options.has("fdr") || !options.has("cadd") || !options.has("mode") || options.has("help"))
         {
             System.out.println("\n" + StringUtils.repeat('*', title.length()) + "\n"
                     + title + "\n"
+                    + titl2 + "\n"
                     + StringUtils.repeat('*', title.length()) + "\n"
                     + "\n"
                     + "Finds potentially relevant clinical variants and matching samples within your input VCF.\n"
@@ -67,9 +69,9 @@ public class Main {
                     + "-- PLEASE BE ADVISED --\n"
                     + "This is a rough, unpolished, unvalidated testing version. Crashed and bugs may happen. Do not use for production.\n"
                     + "\n"
-                    + "Typical usage: java -jar MOLDIP-0.0.1-testing.jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
+                    + "Typical usage: java -jar GAVIN-APP-0.0.1-testing.jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
                     + "Example usage:\n"
-                    + "java -Xmx4g -jar MOLDIP-0.0.1-testing.jar \\\n"
+                    + "java -Xmx4g -jar GAVIN-APP-0.0.1-testing.jar \\\n"
                     + "-i patient76.snpeff.exac.caddsnv.vcf \\\n"
                     + "-o patient76_RVCF.vcf \\\n"
                     + "-g GAVIN_calibrations_r0.1.tsv \\\n"
@@ -239,6 +241,7 @@ public class Main {
          */
         System.out.println(StringUtils.repeat('*', title.length()));
         System.out.println(title);
+        System.out.println(titl2);
         System.out.println(StringUtils.repeat('*', title.length()));
         System.out.println("Starting..");
         new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile, verbose);
