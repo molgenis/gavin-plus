@@ -237,7 +237,9 @@ public class Main {
         /**
          * Everything OK, start pipeline
          */
+        System.out.println(StringUtils.repeat('*', title.length()));
         System.out.println(title);
+        System.out.println(StringUtils.repeat('*', title.length()));
         System.out.println("Starting..");
         new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile, verbose);
         System.out.println("..done!");
