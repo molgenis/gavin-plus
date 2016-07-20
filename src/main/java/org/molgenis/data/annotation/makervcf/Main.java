@@ -3,6 +3,7 @@ package org.molgenis.data.annotation.makervcf;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import java.io.File;
 import static java.util.Arrays.asList;
@@ -41,7 +42,7 @@ public class Main {
         parser.acceptsAll(asList("f", "fdr"), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
         parser.acceptsAll(asList("a", "cadd"), "Input/output CADD missing annotations").withRequiredArg().ofType(File.class);
         parser.acceptsAll(asList("m", "mode"), "Create or use CADD file for missing annotations, either " + Mode.ANALYSIS.toString() + " or " + Mode.CREATEFILEFORCADD.toString()).withRequiredArg().ofType(String.class).defaultsTo(Mode.CREATEFILEFORCADD.toString());
-        parser.acceptsAll(asList("v", "verbose"), "Verbally express what is happening underneath the programmatic hood."); //.withOptionalArg().ofType(Boolean.class).defaultsTo(Boolean.FALSE)
+        parser.acceptsAll(asList("v", "verbose"), "Verbally express what is happening underneath the programmatic hood.");
         parser.acceptsAll(asList("r", "replace"), "Enables output RVCF and CADD intermediate file override, replacing a file with the same name as the argument for the -o option");
         parser.acceptsAll(asList("h", "help"), "Prints this help text");
 
@@ -52,28 +53,36 @@ public class Main {
     {
         if (!options.has("input") || options.has("help"))
         {
-            System.out.println("\n" + "********************************************************************************\n"
-                    + "* MOLGENIS RVCF Automated Diagnostics pipeline (MOLRAD), release 0.0.1-testing *\n"
-                    + "********************************************************************************\n"
+            String title = "* MOLGENIS Diagnostic Interpretation Pipeline (MOLDIP), release 0.0.1-testing *";
+
+            System.out.println("\n" + StringUtils.repeat('*', title.length()) + "\n"
+                    + title + "\n"
+                    + StringUtils.repeat('*', title.length()) + "\n"
                     + "\n"
                     + "Finds potentially relevant clinical variants and matching samples within your input VCF.\n"
+                    + "Your input VCF must be fully annotated with SnpEff, ExAC frequencies and CADD scores, and preferably also frequencies from GoNL and 1000G.\n"
+                    + "This can be done with MOLGENIS CmdlineAnnotator, available at https://github.com/molgenis/molgenis/releases/download/v1.21.1/CmdLineAnnotator-1.21.1.jar\n"
                     + "\n"
-                    + "Global usage: java -jar MOLRAD-0.0.1-testing.jar [input] [output] [helperfiles] [mode/flags]\n"
+                    + "-- PLEASE BE ADVISED --\n"
+                    + "This is a rough, unpolished, unvalidated testing version. Crashed and bugs may happen. Do not use for production.\n"
                     + "\n"
-                    + "Example: java -Xmx4g -jar MOLRAD-0.0.1-testing.jar -i patient76.snpeff.exac.caddsnv.vcf -o patient76_RVCF.vcf -g GAVIN_calibrations_r0.1.tsv -c clinvar.patho.fix.5.5.16.vcf.gz -g CGD_1jun2016.txt.gz -f exomePlus/FDR_allGenes.tsv -d fromCadd.tsv -m ANALYSIS\n"
+                    + "Typical usage: java -jar MOLDIP-0.0.1-testing.jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
+                    + "Example usage: java -Xmx4g -jar MOLDIP-0.0.1-testing.jar -i patient76.snpeff.exac.caddsnv.vcf -o patient76_RVCF.vcf -g GAVIN_calibrations_r0.1.tsv -c clinvar.patho.fix.5.5.16.vcf.gz -d CGD_1jun2016.txt.gz -f exomePlus/FDR_allGenes.tsv -a fromCadd.tsv -m ANALYSIS\n"
                     + "\n"
-                    + "PLEASE BE ADVISED:\n"
-                    + "Typically, you want to first generate a file with any missing CADD annotations using '-d toCadd.tsv -m CREATEFILEFORCADD'\n"
+                    + "Dealing with CADD intermediate files:\n"
+                    + "You probably first want to generate a intermediate file with any missing CADD annotations using '-d toCadd.tsv -m CREATEFILEFORCADD'\n"
                     + "After which, you want to score the variants in toCadd.tsv with the web service at http://cadd.gs.washington.edu/score\n"
-                    + "The resulting file should be unpacked and then used for analysis with '-d fromCadd.tsv -m ANALYSIS'\n"
+                    + "The resulting scored file should be unpacked and then used for analysis with '-d fromCadd.tsv -m ANALYSIS'\n"
                     + "\n"
-                    + "ALSO:\n"
-                    + "The required helper files can be downloaded from: http://molgenis.org/downloads/gavin/bundle_r0.1/"
-                    + "\n" + "----------------------------------------------------\n\n" + "Available options:\n");
+                    + "Dealing with helper files:\n"
+                    + "The required helper files all can be downloaded from: http://molgenis.org/downloads/gavin/bundle_r0.1/\n"
+                    + StringUtils.repeat('-', title.length()) + "\n"
+                    + "\n"
+                    + "Available options:\n");
 
             parser.printHelpOn(System.out);
 
-            System.out.println("\n" + "----------------------------------------------------\n");
+            System.out.println("\n" + StringUtils.repeat('-', title.length()) + "\n");
 
             return;
         }
@@ -118,48 +127,48 @@ public class Main {
         File gavinFile = (File) options.valueOf("gavin");
         if (!gavinFile.exists())
         {
-            System.out.println("GAVIN calibration file not found at " + inputVcfFile);
+            System.out.println("GAVIN calibration file not found at " + gavinFile);
             return;
         }
         else if (gavinFile.isDirectory())
         {
-            System.out.println("GAVIN calibration file is a directory, not a file!");
+            System.out.println("GAVIN calibration file location is a directory, not a file!");
             return;
         }
 
         File clinvarFile = (File) options.valueOf("clinvar");
         if (!clinvarFile.exists())
         {
-            System.out.println("ClinVar pathogenic VCF file not found at " + inputVcfFile);
+            System.out.println("ClinVar pathogenic VCF file not found at " + clinvarFile);
             return;
         }
         else if (clinvarFile.isDirectory())
         {
-            System.out.println("ClinVar pathogenic VCF file is a directory, not a file!");
+            System.out.println("ClinVar pathogenic VCF file location is a directory, not a file!");
             return;
         }
 
         File cgdFile = (File) options.valueOf("cgd");
         if (!cgdFile.exists())
         {
-            System.out.println("CGD file not found at " + inputVcfFile);
+            System.out.println("CGD file not found at " + cgdFile);
             return;
         }
         else if (cgdFile.isDirectory())
         {
-            System.out.println("CGD file is a directory, not a file!");
+            System.out.println("CGD file location is a directory, not a file!");
             return;
         }
 
         File FDRfile = (File) options.valueOf("fdr");
         if (!FDRfile.exists())
         {
-            System.out.println("FDR file not found at " + inputVcfFile);
+            System.out.println("FDR file not found at " + FDRfile);
             return;
         }
         else if (FDRfile.isDirectory())
         {
-            System.out.println("FDR file is a directory, not a file!");
+            System.out.println("FDR file location is a directory, not a file!");
             return;
         }
 
@@ -179,12 +188,12 @@ public class Main {
         {
             if (!caddFile.exists())
             {
-                System.out.println("CADD file not found at" + caddFile.getAbsolutePath());
+                System.out.println("CADD intermediate file not found at" + caddFile.getAbsolutePath());
                 return;
             }
-            else if (FDRfile.isDirectory())
+            else if (caddFile.isDirectory())
             {
-                System.out.println("CADD file is a directory, not a file!");
+                System.out.println("CADD intermediate file location is a directory, not a file!");
                 return;
             }
         }
