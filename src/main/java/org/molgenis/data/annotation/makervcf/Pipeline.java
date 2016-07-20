@@ -24,7 +24,7 @@ public class Pipeline {
 
     private AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
 
-    public void run(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile, HandleMissingCaddScores.Mode mode, File outputVcfFile, boolean verbose) throws Exception
+    public void start(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile, HandleMissingCaddScores.Mode mode, File outputVcfFile, boolean verbose) throws Exception
     {
         //get trios and parents if applicable
         HashMap<String, Trio> trios = TrioFilter.getTrios(inputVcfFile);
