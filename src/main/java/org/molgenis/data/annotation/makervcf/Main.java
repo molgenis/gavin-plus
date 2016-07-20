@@ -41,7 +41,7 @@ public class Main {
         parser.acceptsAll(asList("d", "cgd"), "CGD file").withRequiredArg().ofType(File.class);
         parser.acceptsAll(asList("f", "fdr"), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
         parser.acceptsAll(asList("a", "cadd"), "Input/output CADD missing annotations").withRequiredArg().ofType(File.class);
-        parser.acceptsAll(asList("m", "mode"), "Create or use CADD file for missing annotations, either " + Mode.ANALYSIS.toString() + " or " + Mode.CREATEFILEFORCADD.toString()).withRequiredArg().ofType(String.class).defaultsTo(Mode.CREATEFILEFORCADD.toString());
+        parser.acceptsAll(asList("m", "mode"), "Create or use CADD file for missing annotations, either " + Mode.ANALYSIS.toString() + " or " + Mode.CREATEFILEFORCADD.toString()).withRequiredArg().ofType(String.class);
         parser.acceptsAll(asList("v", "verbose"), "Verbally express what is happening underneath the programmatic hood.");
         parser.acceptsAll(asList("r", "replace"), "Enables output RVCF and CADD intermediate file override, replacing a file with the same name as the argument for the -o option");
         parser.acceptsAll(asList("h", "help"), "Prints this help text");
@@ -51,10 +51,11 @@ public class Main {
 
     public void run(OptionSet options, OptionParser parser) throws Exception
     {
-        if (!options.has("input") || options.has("help"))
-        {
-            String title = "* MOLGENIS Diagnostic Interpretation Pipeline (MOLDIP), release 0.0.1-testing *";
+        String title = "* MOLGENIS Diagnostic Interpretation Pipeline (MOLDIP), release 0.0.1-testing *";
 
+        //fixme: there has to a better way..
+        if (!options.has("input") || !options.has("output") || !options.has("gavin") || !options.has("clinvar") || !options.has("cgd") || !options.has("fdr") || !options.has("cadd") || !options.has("mode") || options.has("help"))
+        {
             System.out.println("\n" + StringUtils.repeat('*', title.length()) + "\n"
                     + title + "\n"
                     + StringUtils.repeat('*', title.length()) + "\n"
@@ -67,7 +68,16 @@ public class Main {
                     + "This is a rough, unpolished, unvalidated testing version. Crashed and bugs may happen. Do not use for production.\n"
                     + "\n"
                     + "Typical usage: java -jar MOLDIP-0.0.1-testing.jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
-                    + "Example usage: java -Xmx4g -jar MOLDIP-0.0.1-testing.jar -i patient76.snpeff.exac.caddsnv.vcf -o patient76_RVCF.vcf -g GAVIN_calibrations_r0.1.tsv -c clinvar.patho.fix.5.5.16.vcf.gz -d CGD_1jun2016.txt.gz -f exomePlus/FDR_allGenes.tsv -a fromCadd.tsv -m ANALYSIS\n"
+                    + "Example usage:\n"
+                    + "java -Xmx4g -jar MOLDIP-0.0.1-testing.jar \\\n"
+                    + "-i patient76.snpeff.exac.caddsnv.vcf \\\n"
+                    + "-o patient76_RVCF.vcf \\\n"
+                    + "-g GAVIN_calibrations_r0.1.tsv \\\n"
+                    + "-c clinvar.patho.fix.5.5.16.vcf.gz \\\n"
+                    + "-d CGD_1jun2016.txt.gz \\\n"
+                    + "-f FDR_allGenes.tsv \\\n"
+                    + "-a fromCadd.tsv \\\n"
+                    + "-m ANALYSIS \n"
                     + "\n"
                     + "Dealing with CADD intermediate files:\n"
                     + "You probably first want to generate a intermediate file with any missing CADD annotations using '-d toCadd.tsv -m CREATEFILEFORCADD'\n"
@@ -227,7 +237,10 @@ public class Main {
         /**
          * Everything OK, start pipeline
          */
+        System.out.println(title);
+        System.out.println("Starting..");
         new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile, verbose);
+        System.out.println("..done!");
 
     }
 
