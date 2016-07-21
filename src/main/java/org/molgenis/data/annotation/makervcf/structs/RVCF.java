@@ -51,7 +51,7 @@ public class RVCF {
             throw new Exception("Splitting RVCF entry on '|' did not yield "+nrOfFields+" fields, invalid format?");
         }
         rvcfInstance.setAllele(split[0]);
-        rvcfInstance.setAllele(split[1]);
+        rvcfInstance.setAlleleFreq(split[1]);
         rvcfInstance.setGene(split[2]);
         rvcfInstance.setFDR(split[3]);
         rvcfInstance.setTranscript(split[4]);
