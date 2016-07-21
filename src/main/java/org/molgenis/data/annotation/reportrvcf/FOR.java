@@ -10,177 +10,124 @@ import org.molgenis.data.vcf.datastructures.Trio;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 /**
  * Created by joeri on 6/29/16.
- *
+ * <p>
  * False Omission Rate
- *
+ * <p>
  * TODO: make gene stream
- *
  */
 public class FOR {
 
-    private Iterator<RelevantVariant> relevantVariants;
-    private VcfRepository vcf;
+    private File originalVcfFile;
+    private File rvcfFile;
+    private File genesFORoutput;
 
-    public FOR(Iterator<RelevantVariant> relevantVariants, File vcfFile) throws IOException {
-        this.relevantVariants = relevantVariants;
-        this.vcf = new VcfRepository(vcfFile, "vcf");
+    public static void main(String[] args) throws Exception {
+        FOR falseOM = new FOR(new File("/Users/joeri/Desktop/1000G_diag_FDR/FOR/GAVIN_FOR_benchmark.vcf"),
+                new File("/Users/joeri/Desktop/1000G_diag_FDR/FOR/GAVIN_FOR_benchmark_RVCF.vcf"),
+                new File("/Users/joeri/Desktop/1000G_diag_FDR/FOR/FOR.tsv"));
+        falseOM.go();
     }
 
-    public Iterator<RelevantVariant> go() throws Exception {
+    public FOR(File originalVcfFile, File rvcfFile, File genesFORoutput) throws Exception {
+        this.originalVcfFile = originalVcfFile;
+        this.rvcfFile = rvcfFile;
+        this.genesFORoutput = genesFORoutput;
 
+    }
+
+    public void go() throws Exception {
         //first, since we don't know the original, read the input VCF file that was processed before
         //and count how many pathogenic variants per gene should have been found
         //assumes that all variants in this list are (likely) pathogenic
-        Iterator<Entity> vcfIterator = vcf.iterator();
+        VcfRepository vcf = new VcfRepository(originalVcfFile, "vcf");
+        Iterator<Entity> originalVcfIterator = vcf.iterator();
 
         HashMap<String, String> variantToGene = new HashMap<String, String>(); //e.g. 10_126092389_G_A -> OAT, 10_126097170_C_T -> OAT
-        while(vcfIterator.hasNext())
-        {
-            VcfEntity record = new VcfEntity(vcfIterator.next());
+        while (originalVcfIterator.hasNext()) {
+            VcfEntity record = new VcfEntity(originalVcfIterator.next());
 
             String gene;
-            if(record.getId() != null && record.getId().split(":", -1).length == 2)
-            {
+            if (record.getId() != null && record.getId().split(":", -1).length == 2) {
                 gene = record.getId().split(":", -1)[0];
-            }
-            else {
-                if(record.getGenes().size() > 1)
-                {
-                   throw  new Exception("more than 1 gene ("+record.getGenes().toString()+") for "+ record.toString());
+            } else {
+                if (record.getGenes().size() > 1) {
+                    throw new Exception("more than 1 gene (" + record.getGenes().toString() + ") for " + record.toString());
                 }
                 gene = record.getGenes().toArray()[0].toString();
             }
 
-            variantToGene.put(record.getChr()+"_"+record.getPos()+"_"+record.getRef()+"_"+record.getAlt(), gene);
+            variantToGene.put(record.getChr() + "_" + record.getPos() + "_" + record.getRef() + "_" + record.getAlt(), gene);
 
 
         }
 
+        System.out.println("pathogenic variants, size BEFORE removing detected variants: " + variantToGene.size());
+
+
 
         HashMap<String, Integer> countPerGeneExpected = new HashMap<String, Integer>();
-        for(String variant : variantToGene.keySet())
-        {
+        for (String variant : variantToGene.keySet()) {
             String gene = variantToGene.get(variant);
-            if(countPerGeneExpected.containsKey(gene))
-            {
+            if (countPerGeneExpected.containsKey(gene)) {
                 countPerGeneExpected.put(gene, countPerGeneExpected.get(gene) + 1);
-            }
-            else{
+            } else {
                 countPerGeneExpected.put(gene, 1);
             }
         }
 
+
         System.out.println("gold standard patho variant counts per gene: " + countPerGeneExpected.toString());
 
-        //now we iterate over the actual results and see how many we have missed per gene
-        return new Iterator<RelevantVariant>(){
 
-            RelevantVariant nextResult;
-            int relevantVariantsFound = 0;
+        VcfRepository rvcf = new VcfRepository(rvcfFile, "vcf");
 
-            String previousGene = "n/a";
-            String currentGene;
+        Iterator<Entity> rvcfIterator = rvcf.iterator();
 
-            CGDEntry previousEntry;
-            CGDEntry currentEntry;
-
-            @Override
-            public boolean hasNext() {
-                try {
-                    while (relevantVariants.hasNext()) {
-                        RelevantVariant rv = relevantVariants.next();
-
-                        String key = rv.getVariant().getChr() + "_" + rv.getVariant().getPos() + "_" + rv.getVariant().getRef() + "_" + rv.getVariant().getAlt();
-
-                        variantToGene.remove(key);
-//
-//                        currentGene = rv.getGene();
-//                        currentEntry = rv.getCgdInfo();
-//
-//                        if(!currentGene.equals(previousGene))
-//                        {
-//                            if(previousGene.equals("n/a"))
-//                            {
-//                                System.out.println("Gene\tFOR\tDisorder");
-//                            }else{
-//                                if(countPerGene.containsKey(previousGene))
-//                                {
-//                                    System.out.println(previousGene + "\t" + (((1.0 - (double)relevantVariantsFound / (double)countPerGene.get(previousGene)) * 100.0)) + "\t" + (previousEntry != null ? previousEntry.getCondition() : "n/a"));
-//                                }
-//                                else
-//                                {
-//                                    System.out.println(previousGene + "\t" + "?????");
-//                                }
-//                                relevantVariantsFound = 0;
-//                            }
-//
-//
-//                        }
-//
-//                        relevantVariantsFound++;
-//
-//                        previousGene = currentGene;
-//                        previousEntry = currentEntry;
-
-                        nextResult = rv;
-                        return true;
-                    }
+        //remove variants seen in in RVCF
+        while (rvcfIterator.hasNext()) {
+            VcfEntity record = new VcfEntity(rvcfIterator.next());
+            String key = record.getChr() + "_" + record.getPos() + "_" + record.getRef() + "_" + record.getAlt();
+            variantToGene.remove(key);
+        }
 
 
-                    System.out.println("size after: " + variantToGene.size());
-                    HashMap<String, Integer> countPerGeneLeftover = new HashMap<String, Integer>();
+        System.out.println("pathogenic variants, size AFTER removing detected variants: " + variantToGene.size());
 
-                    for(String variant : variantToGene.keySet())
-                    {
-                        String gene = variantToGene.get(variant);
+        HashMap<String, Integer> countPerGeneLeftover = new HashMap<String, Integer>();
 
-                        if(countPerGeneLeftover.containsKey(gene))
-                        {
-                            countPerGeneLeftover.put(gene, countPerGeneLeftover.get(gene) + 1);
-                        }
-                        else{
-                            countPerGeneLeftover.put(gene, 1);
-                        }
-                    }
+        for (String variant : variantToGene.keySet()) {
+            String gene = variantToGene.get(variant);
 
-                    System.out.println("left over counts per gene: " + countPerGeneLeftover.toString());
-
-
-                    for(String gene : countPerGeneExpected.keySet())
-                    {
-                        //if no leftovers, subtract 0
-                        int subtract = 0;
-                        if(countPerGeneLeftover.containsKey(gene))
-                        {
-                          //  System.out.println("countPerGeneLeftover.containsKey(gene) " + gene);
-                            subtract = countPerGeneLeftover.get(gene);
-                        }
-                        double exp = countPerGeneExpected.get(gene);
-                        double obs = (countPerGeneExpected.get(gene)-subtract);
-                        System.out.println(gene + "\t" + ((1.0-(obs/exp))*100.0));
-                    }
-
-
-
-
-
-                    return false;
-                }
-                catch(Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-
+            if (countPerGeneLeftover.containsKey(gene)) {
+                countPerGeneLeftover.put(gene, countPerGeneLeftover.get(gene) + 1);
+            } else {
+                countPerGeneLeftover.put(gene, 1);
             }
+        }
 
-            @Override
-            public RelevantVariant next() {
-                return nextResult;
+        System.out.println("left over variant counts per gene: " + countPerGeneLeftover.toString());
+
+
+        PrintWriter pw = new PrintWriter(genesFORoutput);
+        pw.println("Gene" + "\t" + "Expected" + "\t" + "Observed" + "\t" + "MissedFrac");
+        for (String gene : countPerGeneExpected.keySet()) {
+            //if no leftovers, subtract 0
+            int subtract = 0;
+            if (countPerGeneLeftover.containsKey(gene)) {
+                //  System.out.println("countPerGeneLeftover.containsKey(gene) " + gene);
+                subtract = countPerGeneLeftover.get(gene);
             }
-        };
+            int exp = countPerGeneExpected.get(gene);
+            int obs = (countPerGeneExpected.get(gene) - subtract);
+            pw.println(gene + "\t" + exp + "\t" + obs + "\t" + ((1.0 - ((double) obs / (double) exp))));
+        }
+        pw.flush();
+        pw.close();
+
     }
 }
