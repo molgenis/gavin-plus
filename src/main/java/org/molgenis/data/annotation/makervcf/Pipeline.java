@@ -24,14 +24,14 @@ public class Pipeline {
 
     private AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
 
-    public void start(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile, HandleMissingCaddScores.Mode mode, File outputVcfFile, boolean verbose) throws Exception
+    public void start(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile, HandleMissingCaddScores.Mode mode, File outputVcfFile, File labVariants, boolean verbose) throws Exception
     {
         //get trios and parents if applicable
         HashMap<String, Trio> trios = TrioFilter.getTrios(inputVcfFile);
         Set<String> parents = TrioFilter.getParents(trios);
 
         //initial discovery of any suspected/likely pathogenic variant
-        DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, mode, verbose);
+        DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, labVariants, mode, verbose);
         Iterator<RelevantVariant> rv1 = discover.findRelevantVariants();
 
         //MAF filter to control false positives / non relevant variants in ClinVar

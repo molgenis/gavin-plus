@@ -15,8 +15,7 @@ import java.util.Set;
 public class RelevantVariant
 {
     VcfEntity variant;
-    Judgment gavinJudgment;
-    Judgment clinvarJudgment;
+    Judgment judgment;
     String allele;
     String gene;
     String FDR;
@@ -29,7 +28,7 @@ public class RelevantVariant
 
     CGDEntry cgdInfo;
 
-    public RelevantVariant(VcfEntity variant, String allele, String transcript, double alleleFreq, double gonlAlleleFreq, String gene, Judgment gavinJudgment, Judgment clinvarJudgment)
+    public RelevantVariant(VcfEntity variant, String allele, String transcript, double alleleFreq, double gonlAlleleFreq, String gene, Judgment judgment)
     {
         this.variant = variant;
         this.allele = allele;
@@ -37,8 +36,7 @@ public class RelevantVariant
         this.alleleFreq = alleleFreq;
         this.gonlAlleleFreq = gonlAlleleFreq;
         this.gene = gene;
-        this.gavinJudgment = gavinJudgment;
-        this.clinvarJudgment = clinvarJudgment;
+        this.judgment = judgment;
     }
 
     public String getFDR() {
@@ -81,24 +79,19 @@ public class RelevantVariant
         return variant;
     }
 
-    public Judgment getGavinJudgment() {
-        return gavinJudgment;
-    }
-
-    public Judgment getClinvarJudgment() {
-        return clinvarJudgment;
+    public Judgment getJudgment() {
+        return judgment;
     }
 
     public String toStringShort(){
-        return "RelevantVariant{"+variant.getChr()+" " +variant.getPos()+ " " + variant.getRef()+ " " + variant.getAltString() + " in gene " + gene + ", gavin:" + gavinJudgment + ", clinvar: " + clinvarJudgment + '}';
+        return "RelevantVariant{"+variant.getChr()+" " +variant.getPos()+ " " + variant.getRef()+ " " + variant.getAltString() + " in gene " + gene + ", judgment:" + judgment + '}';
     }
 
     @Override
     public String toString() {
         return "RelevantVariant{" +
                 "variant=" + variant +
-                ", gavinJudgment=" + gavinJudgment +
-                ", clinvarJudgment=" + clinvarJudgment +
+                ", judgment=" + judgment +
                 ", allele='" + allele + '\'' +
                 ", gene='" + gene + '\'' +
                 ", sampleStatus=" + sampleStatus +

@@ -49,10 +49,6 @@ public class MakeRVCFforClinicalVariants {
                 try {
                     RelevantVariant rv = relevantVariants.next();
 
-                    boolean clinVarPatho = rv.getClinvarJudgment().getClassification().equals(Judgment.Classification.Pathogenic);
-                    boolean gavinPatho = rv.getGavinJudgment() != null ? rv.getGavinJudgment().getClassification().equals(Judgment.Classification.Pathogenic) : false;
-
-
                     RVCF rvcf = new RVCF();
 
                     rvcf.setGene(rv.getGene());
@@ -69,9 +65,9 @@ public class MakeRVCFforClinicalVariants {
                         rvcf.setPhenotypeGroup(null);
                     }
 
-                    rvcf.setVariantSignificance(clinVarPatho ? "Reported pathogenic" : gavinPatho ? "Predicted pathogenic" : "VUS");
-                    rvcf.setVariantSignificanceSource(clinVarPatho ? "ClinVar" : gavinPatho ? "GAVIN" : "");
-                    rvcf.setVariantSignificanceJustification(clinVarPatho ? rv.getClinvarJudgment().getReason() : gavinPatho ? rv.getGavinJudgment().getReason() : "");
+                    rvcf.setVariantSignificance(rv.getJudgment().getType());
+                    rvcf.setVariantSignificanceSource(rv.getJudgment().getSource());
+                    rvcf.setVariantSignificanceJustification(rv.getJudgment().getReason());
                     rvcf.setVariantCompoundHet(null);
                     rvcf.setVariantGroup(null);
 

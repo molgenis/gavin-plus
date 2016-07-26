@@ -41,6 +41,8 @@ public class Main {
         parser.acceptsAll(asList("d", "cgd"), "CGD file").withRequiredArg().ofType(File.class);
         parser.acceptsAll(asList("f", "fdr"), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
         parser.acceptsAll(asList("a", "cadd"), "Input/output CADD missing annotations").withRequiredArg().ofType(File.class);
+        parser.acceptsAll(asList("l", "lab"), "VCF file with lab specific variant classifications").withOptionalArg().ofType(File.class);
+        parser.acceptsAll(asList("s", "sv"), "Structural variation VCF file outputted by Delly, Manta or compatible").withOptionalArg().ofType(File.class);
         parser.acceptsAll(asList("m", "mode"), "Create or use CADD file for missing annotations, either " + Mode.ANALYSIS.toString() + " or " + Mode.CREATEFILEFORCADD.toString()).withRequiredArg().ofType(String.class);
         parser.acceptsAll(asList("v", "verbose"), "Verbally express what is happening underneath the programmatic hood.");
         parser.acceptsAll(asList("r", "replace"), "Enables output RVCF and CADD intermediate file override, replacing a file with the same name as the argument for the -o option");
@@ -51,7 +53,8 @@ public class Main {
 
     public void run(OptionSet options, OptionParser parser) throws Exception
     {
-        String title = "* MOLGENIS GAVIN-APP for diagnostics, release 0.0.1-testing         *";
+        String version = "0.0.2";
+        String title = "* MOLGENIS GAVIN-APP for diagnostics, release "+version+"-testing         *";
         String titl2 = "* Gene-Aware Variant INterpretation - Automated Processing Pipeline *";
 
         //fixme: there has to a better way..
@@ -69,9 +72,9 @@ public class Main {
                     + "-- PLEASE BE ADVISED --\n"
                     + "This is a rough, unpolished, unvalidated testing version. Crashed and bugs may happen. Do not use for production.\n"
                     + "\n"
-                    + "Typical usage: java -jar GAVIN-APP-0.0.1-testing.jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
+                    + "Typical usage: java -jar GAVIN-APP-"+version+"-testing.jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
                     + "Example usage:\n"
-                    + "java -Xmx4g -jar GAVIN-APP-0.0.1-testing.jar \\\n"
+                    + "java -Xmx4g -jar GAVIN-APP-"+version+"-testing.jar \\\n"
                     + "-i patient76.snpeff.exac.caddsnv.vcf \\\n"
                     + "-o patient76_RVCF.vcf \\\n"
                     + "-g GAVIN_calibrations_r0.1.tsv \\\n"
@@ -87,7 +90,7 @@ public class Main {
                     + "The resulting scored file should be unpacked and then used for analysis with '-d fromCadd.tsv -m ANALYSIS'\n"
                     + "\n"
                     + "Dealing with helper files:\n"
-                    + "The required helper files all can be downloaded from: http://molgenis.org/downloads/gavin/bundle_r0.1/\n"
+                    + "The required helper files all can be downloaded from: http://molgenis.org/downloads/gavin at 'required_data_bundle'.\n"
                     + StringUtils.repeat('-', title.length()) + "\n"
                     + "\n"
                     + "Available options:\n");
@@ -185,6 +188,45 @@ public class Main {
         }
 
         /**
+         * Optional
+         */
+        File labVariants = null;
+        if(options.has("lab"))
+        {
+            labVariants = (File) options.valueOf("lab");
+            if (!labVariants.exists())
+            {
+                System.out.println("VCF file with lab specific variant classifications not found at " + labVariants);
+                return;
+            }
+            else if (labVariants.isDirectory())
+            {
+                System.out.println("VCF file location with lab specific variant classifications is a directory, not a file!");
+                return;
+            }
+        }
+
+        if(options.has("sv"))
+        {
+            System.out.println("Structural variation not yet supported!");
+            return;
+//            File structVar = (File) options.valueOf("sv");
+//            if (!structVar.exists())
+//            {
+//                System.out.println("Structural variation VCF file not found at " + structVar);
+//                return;
+//            }
+//            else if (structVar.isDirectory())
+//            {
+//                System.out.println("Structural variation VCF file location is a directory, not a file!");
+//                return;
+//            }
+        }
+
+
+
+
+        /**
          * Check mode in combination with CADD file and replace
          */
         String modeString = (String) options.valueOf("mode");
@@ -244,7 +286,7 @@ public class Main {
         System.out.println(titl2);
         System.out.println(StringUtils.repeat('*', title.length()));
         System.out.println("Starting..");
-        new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile, verbose);
+        new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile, labVariants, verbose);
         System.out.println("..done!");
 
     }

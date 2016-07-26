@@ -69,20 +69,20 @@ public class MatchVariantsToGenotypeAndInheritance {
                 try {
                     RelevantVariant rv = relevantVariants.next();
 
-                    String gavinGene = rv.getGavinJudgment() != null ? (rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null) : null;
-                    String clinvarGene = rv.getClinvarJudgment().getGene() != null ? rv.getClinvarJudgment().getGene() : null;
+//                    String gavinGene = rv.getGavinJudgment() != null ? (rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null) : null;
+//                    String clinvarGene = rv.getClinvarJudgment().getGene() != null ? rv.getClinvarJudgment().getGene() : null;
+//
+//                    //extra checks that things are okay
+//                    if(gavinGene != null && clinvarGene != null && !gavinGene.equals(clinvarGene))
+//                    {
+//                        throw new Exception("Conflicting genes passed to MatchVariantsToGenotypeAndInheritance: " + gavinGene + " vs " + clinvarGene);
+//                    }
+//                    if(gavinGene == null && clinvarGene == null)
+//                    {
+//                        throw new Exception("No genes passed to MatchVariantsToGenotypeAndInheritance!");
+//                    }
 
-                    //extra checks that things are okay
-                    if(gavinGene != null && clinvarGene != null && !gavinGene.equals(clinvarGene))
-                    {
-                        throw new Exception("Conflicting genes passed to MatchVariantsToGenotypeAndInheritance: " + gavinGene + " vs " + clinvarGene);
-                    }
-                    if(gavinGene == null && clinvarGene == null)
-                    {
-                        throw new Exception("No genes passed to MatchVariantsToGenotypeAndInheritance!");
-                    }
-
-                    String gene = gavinGene != null ? gavinGene : clinvarGene;
+                    String gene = rv.getJudgment().getGene();
 
 
                     CGDEntry ce = cgd.get(gene);

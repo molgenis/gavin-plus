@@ -24,6 +24,7 @@ public class VcfEntity {
     private String ref;
     private String ann;
     private String clinvar;
+    private String clsf;
     private String[] alts; //alternative alleles, in order
     private Double[] exac_AFs; //ExAC allele frequencies in order of alt alleles, null if no match
     private Double[] gonl_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
@@ -44,6 +45,7 @@ public class VcfEntity {
         this.id = record.getString("ID");
         this.ref = record.getString("REF");
         this.clinvar = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
+        this.clsf = record.getString("CLSF"); //e.g. CLSF=P;
         this.alts = record.getString("ALT").split(",", -1);
         this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF");
         this.gonl_AFs = setAltAlleleOrderedDoubleField(record, "GoNL_AF");
@@ -52,6 +54,10 @@ public class VcfEntity {
         this.genes = GavinUtils.getGenesFromAnn(ann);
         this.rvcf = record.getString(RVCF.attributeName) != null ? RVCF.fromString(record.getString(RVCF.attributeName)) : null;
 
+    }
+
+    public String getClsf() {
+        return clsf != null ? clsf : "";
     }
 
     public String getId() {

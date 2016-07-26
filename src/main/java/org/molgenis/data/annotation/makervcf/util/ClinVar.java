@@ -68,13 +68,14 @@ public class ClinVar {
 
                     }
                 }
-                return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, clinvarInfo);
+                return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, clinvarInfo).setSource("ClinVar").setType("Reported pathogenic");
             } else {
                 throw new Exception("clinvar hit is not pathogenic: " + clinvarInfo);
             }
 
         }
 
-        return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide, gene, "not in clinvar pathogenic list");
+        return null;
+        //return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide, gene, "not in clinvar pathogenic list");
     }
 }
