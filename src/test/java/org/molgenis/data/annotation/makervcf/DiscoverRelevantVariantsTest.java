@@ -1,14 +1,9 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.molgenis.MolgenisFieldTypes;
-import org.molgenis.data.AttributeMetaData;
-import org.molgenis.data.Entity;
-import org.molgenis.data.RepositoryCollection;
-import org.molgenis.data.vcf.VcfRepository;
-import org.molgenis.data.vcf.VcfRepositoryCollection;
-import org.molgenis.fieldtypes.FieldType;
+import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
+import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -20,135 +15,45 @@ import static org.testng.Assert.*;
 
 public class DiscoverRelevantVariantsTest
 {
-	private static File testdata;
-	private static File testnodata;
+	private File inputVcfFile;
+	private File gavinFile;
+	private File clinvarFile;
+	private File caddFile;
+
 
 	@BeforeClass
-	public static void beforeClass() throws FileNotFoundException, IOException
+	public void beforeClass() throws FileNotFoundException, IOException
 	{
-//		InputStream in_data = VcfRepositoryTest.class.getResourceAsStream("/testdata.vcf");
-//		testdata = new File(FileUtils.getTempDirectory(), "testdata.vcf");
-//		FileCopyUtils.copy(in_data, new FileOutputStream(testdata));
-//
-//		InputStream in_no_data = VcfRepositoryTest.class.getResourceAsStream("/testnodata.vcf");
-//		testnodata = new File(FileUtils.getTempDirectory(), "testnodata.vcf");
-//		FileCopyUtils.copy(in_no_data, new FileOutputStream(testnodata));
+		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/DiscoverRelevantVariantsTestFile.vcf");
+		inputVcfFile = new File(FileUtils.getTempDirectory(), "DiscoverRelevantVariantsTestFile.vcf");
+		FileCopyUtils.copy(inputVcf, new FileOutputStream(inputVcfFile));
+
+		InputStream gavin = DiscoverRelevantVariantsTest.class.getResourceAsStream("/bundle_r0.1/GAVIN_calibrations_r0.1.tsv");
+		gavinFile = new File(FileUtils.getTempDirectory(), "GAVIN_calibrations_r0.1.tsv");
+		FileCopyUtils.copy(gavin, new FileOutputStream(gavinFile));
+
+		InputStream clinvar = DiscoverRelevantVariantsTest.class.getResourceAsStream("/bundle_r0.1/clinvar.patho.fix.5.5.16.vcf.gz");
+		clinvarFile = new File(FileUtils.getTempDirectory(), "clinvar.patho.fix.5.5.16.vcf.gz");
+		FileCopyUtils.copy(clinvar, new FileOutputStream(clinvarFile));
+
+		InputStream cadd = DiscoverRelevantVariantsTest.class.getResourceAsStream("/fromCaddDummy.tsv");
+		caddFile = new File(FileUtils.getTempDirectory(), "fromCaddDummy.tsv");
+		FileCopyUtils.copy(cadd, new FileOutputStream(caddFile));
 	}
 
 	@Test
-	public void metaData() throws IOException
+	public void testPredictedPathogenic() throws Exception
 	{
-		VcfRepository vcfRepository = null;
-		try
-		{
-			RepositoryCollection collection = new VcfRepositoryCollection(testdata);
-			vcfRepository = (VcfRepository) collection.getRepository("testdata");
 
-			assertEquals(vcfRepository.getName(), "testdata");
-			Iterator<AttributeMetaData> it = vcfRepository.getEntityMetaData().getAttributes().iterator();
-			assertTrue(it.hasNext());
-			testAttribute(it.next(), VcfRepository.CHROM, MolgenisFieldTypes.STRING);
-			assertTrue(it.hasNext());
-			// TEXT to handle large insertions/deletions
-			testAttribute(it.next(), VcfRepository.ALT, MolgenisFieldTypes.TEXT);
-			assertTrue(it.hasNext());
-			testAttribute(it.next(), VcfRepository.POS, MolgenisFieldTypes.LONG);
-			assertTrue(it.hasNext());
-			// TEXT to handle large insertions/deletions
-			testAttribute(it.next(), VcfRepository.REF, MolgenisFieldTypes.TEXT);
-			assertTrue(it.hasNext());
-			testAttribute(it.next(), VcfRepository.FILTER, MolgenisFieldTypes.STRING);
-			assertTrue(it.hasNext());
-			testAttribute(it.next(), VcfRepository.QUAL, MolgenisFieldTypes.STRING);
-			assertTrue(it.hasNext());
-			testAttribute(it.next(), VcfRepository.ID, MolgenisFieldTypes.STRING);
-			assertTrue(it.hasNext());
-			testAttribute(it.next(), VcfRepository.INTERNAL_ID, MolgenisFieldTypes.STRING);
-			assertTrue(it.hasNext());
-			testAttribute(it.next(), VcfRepository.INFO, MolgenisFieldTypes.COMPOUND);
-			assertTrue(it.hasNext());
-		}
-		finally
-		{
-			IOUtils.closeQuietly(vcfRepository);
-		}
-	}
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+		Iterator<RelevantVariant> it = discover.findRelevantVariants();
 
-	void testAttribute(AttributeMetaData metadata, String name, FieldType type)
-	{
-		assertEquals(metadata.getName(), name);
-		assertEquals(metadata.getDataType(), type);
-	}
+		assertTrue(it.hasNext());
+		assertTrue(it.next().getJudgment().toString().contains("reason=NM_004562.2(PARK2):c.823C>T (p.Arg275Trp)|PARK2|Pathogenic, classification=Pathogenic"));
+		assertTrue(it.hasNext());
+		assertTrue(it.next().getJudgment().toString().contains("Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene., classification=Pathogenic"));
+		assertFalse(it.hasNext());
 
-	@Test
-	public void iterator() throws IOException
-	{
-		VcfRepository vcfRepository = null;
-		try
-		{
-			RepositoryCollection collection = new VcfRepositoryCollection(testdata);
-			vcfRepository = (VcfRepository) collection.getRepository("testdata");
-			Iterator<Entity> it = vcfRepository.iterator();
-
-			assertTrue(it.hasNext());
-			Entity entity = it.next();
-			assertEquals(entity.get(VcfRepository.CHROM), "1");
-			assertEquals(entity.get(VcfRepository.POS), 565286);
-
-			assertTrue(it.hasNext());
-			entity = it.next();
-			assertEquals(entity.get(VcfRepository.CHROM), "1");
-			assertEquals(entity.get(VcfRepository.POS), 2243618);
-			assertTrue(it.hasNext());
-
-			assertTrue(it.hasNext());
-			entity = it.next();
-			assertEquals(entity.get(VcfRepository.CHROM), "1");
-			assertEquals(entity.get(VcfRepository.POS), 3171929);
-			assertTrue(it.hasNext());
-
-			assertTrue(it.hasNext());
-			entity = it.next();
-			assertEquals(entity.get(VcfRepository.CHROM), "1");
-			assertEquals(entity.get(VcfRepository.POS), 3172062);
-
-			assertTrue(it.hasNext());
-			entity = it.next();
-			assertEquals(entity.get(VcfRepository.CHROM), "1");
-			assertEquals(entity.get(VcfRepository.POS), 3172273);
-
-			assertTrue(it.hasNext());
-			entity = it.next();
-			assertEquals(entity.get(VcfRepository.CHROM), "1");
-			assertEquals(entity.get(VcfRepository.POS), 6097450);
-
-			assertTrue(it.hasNext());
-			entity = it.next();
-			assertEquals(entity.get(VcfRepository.CHROM), "1");
-			assertEquals(entity.get(VcfRepository.POS), 7569187);
-
-			assertFalse(it.hasNext());
-		}
-		finally
-		{
-			IOUtils.closeQuietly(vcfRepository);
-		}
-	}
-
-	@Test
-	public void iterator_noValues() throws IOException
-	{
-		RepositoryCollection collection = new VcfRepositoryCollection(testnodata);
-		VcfRepository vcfRepository = (VcfRepository) collection.getRepository("testnodata");
-		try
-		{
-			Iterator<Entity> it = vcfRepository.iterator();
-			assertFalse(it.hasNext());
-		}
-		finally
-		{
-			vcfRepository.close();
-		}
 	}
 
 }
