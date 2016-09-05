@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf;
 
+import com.google.common.collect.Lists;
 import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertBackToPositionalStream;
@@ -15,6 +16,7 @@ import org.molgenis.data.vcf.datastructures.Trio;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -71,7 +73,9 @@ public class Pipeline {
         Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv10, rlv, verbose).addRVCFfield();
 
         //write Entities output VCF file
-        new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, discover.getVcfMeta(), rlv, true, verbose);
+        List<AttributeMetaData> attributes = Lists.newArrayList(discover.getVcfMeta().getAttributes());
+        attributes.add(rlv);
+        new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, attributes, true, verbose);
 
     }
 }

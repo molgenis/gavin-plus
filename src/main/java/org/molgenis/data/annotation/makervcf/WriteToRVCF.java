@@ -20,10 +20,7 @@ import java.util.List;
  */
 public class WriteToRVCF {
 
-    public void writeRVCF(Iterator<Entity> relevantVariants, File writeTo, File inputVcfFile, EntityMetaData vcfMeta, AttributeMetaData rlv, boolean writeToDisk, boolean verbose) throws IOException, MolgenisInvalidFormatException {
-
-        List<AttributeMetaData> attributes = Lists.newArrayList(vcfMeta.getAttributes());
-        attributes.add(rlv);
+    public void writeRVCF(Iterator<Entity> relevantVariants, File writeTo, File inputVcfFile, List<AttributeMetaData> attributes, boolean writeToDisk, boolean verbose) throws IOException, MolgenisInvalidFormatException {
         FileWriter fw = new FileWriter(writeTo);
         BufferedWriter outputVCFWriter = new BufferedWriter(fw);
         if(verbose) { System.out.println("[WriteToRVCF] Writing header"); }
