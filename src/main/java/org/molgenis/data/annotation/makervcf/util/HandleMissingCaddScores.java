@@ -1,12 +1,9 @@
 package org.molgenis.data.annotation.makervcf.util;
 
-import org.apache.commons.lang3.EnumUtils;
-import org.molgenis.calibratecadd.Step9_Validation;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
