@@ -38,11 +38,9 @@ public class TrioFilter extends GeneStream{
 
     private HashMap<String, Trio> trios;
     private Set<String> parents;
-    File inputVcfFile;
 
-    public TrioFilter(Iterator<RelevantVariant> relevantVariants, File inputVcfFile, HashMap<String, Trio> trios, Set<String> parents, boolean verbose) throws IOException {
+    public TrioFilter(Iterator<RelevantVariant> relevantVariants, HashMap<String, Trio> trios, Set<String> parents, boolean verbose) throws IOException {
         super(relevantVariants, verbose);
-        this.inputVcfFile = inputVcfFile;
         this.trios = trios;
         this.parents = parents;
         if(verbose){ System.out.println("[TrioFilter] Trios: " + trios.toString()); }

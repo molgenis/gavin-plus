@@ -50,7 +50,7 @@ public class Pipeline {
         Iterator<RelevantVariant> rv4 = new AssignCompoundHet(gsi, verbose).go();
 
         //if available: use any parental information to filter out variants/status
-        TrioFilter tf = new TrioFilter(rv4, inputVcfFile, trios, parents, verbose);
+        TrioFilter tf = new TrioFilter(rv4, trios, parents, verbose);
         Iterator<RelevantVariant> rv5 = tf.go();
 
         //if available: use any phasing information to filter out compounds
