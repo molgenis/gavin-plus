@@ -29,7 +29,7 @@ public class ConvertToGeneStreamTest extends Setup
 	}
 
 	@Test
-	public void testPredictedPathogenic() throws Exception
+	public void test() throws Exception
 	{
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);

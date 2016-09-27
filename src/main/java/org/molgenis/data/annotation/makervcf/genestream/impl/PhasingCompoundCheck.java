@@ -100,11 +100,11 @@ public class PhasingCompoundCheck extends GeneStream{
                     }
                     else
                     {
-                        throw new Exception("No match to either unphased or phased genotype, whats going on? sample "+sample+" has a "+rv.getSampleStatus().get(sample)+" genotype " + geno);}
+                        throw new Exception("No match to either unphased or phased genotype, whats going on? sample "+sample+" has a "+rv.getSampleStatus().get(sample)+" genotype " + geno);
                     }
-
                 }
             }
+        }
 
 
 
