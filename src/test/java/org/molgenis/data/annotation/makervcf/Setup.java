@@ -19,6 +19,8 @@ public class Setup {
     public void prepResources() throws FileNotFoundException, IOException
     {
 
+        System.out.println("Java tmp dir: " + FileUtils.getTempDirectory().getAbsolutePath());
+
         InputStream gavin = DiscoverRelevantVariantsTest.class.getResourceAsStream("/bundle_r0.1/GAVIN_calibrations_r0.1.tsv");
         gavinFile = new File(FileUtils.getTempDirectory(), "GAVIN_calibrations_r0.1.tsv");
         FileCopyUtils.copy(gavin, new FileOutputStream(gavinFile));
