@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public class Pipeline {
 
-    private AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
+    public static AttributeMetaData RLV = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
 
     public void start(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile, HandleMissingCaddScores.Mode mode, File outputVcfFile, File labVariants, boolean verbose) throws Exception
     {
@@ -70,11 +70,11 @@ public class Pipeline {
         Iterator<RelevantVariant> rv10 = new CleanupVariantsWithoutSamples(rv9, verbose).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv10, rlv, verbose).addRVCFfield();
+        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv10, RLV, verbose).addRVCFfield();
 
         //write Entities output VCF file
         List<AttributeMetaData> attributes = Lists.newArrayList(discover.getVcfMeta().getAttributes());
-        attributes.add(rlv);
+        attributes.add(RLV);
         new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, attributes, true, verbose);
 
     }
