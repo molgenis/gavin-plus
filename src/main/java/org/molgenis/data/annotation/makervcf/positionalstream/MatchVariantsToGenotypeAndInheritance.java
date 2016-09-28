@@ -5,6 +5,7 @@ import org.molgenis.cgd.CGDEntry;
 import org.molgenis.cgd.LoadCGD;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
+import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.cgd.CGDEntry.generalizedInheritance;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
@@ -82,55 +83,55 @@ public class MatchVariantsToGenotypeAndInheritance {
 //                        throw new Exception("No genes passed to MatchVariantsToGenotypeAndInheritance!");
 //                    }
 
-                    String gene = rv.getJudgment().getGene();
+                    for(Relevance rlv : rv.getRelevance()) {
+
+                        String gene = rlv.getJudgment().getGene();
 
 
-                    CGDEntry ce = cgd.get(gene);
-                    generalizedInheritance inh = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;
-                    GenoMatchSamples genoMatch = findMatchingSamples(rv.getVariant(), rv.getAllele(), inh);
+                        CGDEntry ce = cgd.get(gene);
+                        generalizedInheritance inh = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;
+                        GenoMatchSamples genoMatch = findMatchingSamples(rv.getVariant(), rlv.getAllele(), inh);
 
-                    rv.setCgdInfo(ce);
+                        rlv.setCgdInfo(ce);
 
-                    status actingTerminology = status.HOMOZYGOUS;
-                    status nonActingTerminology = status.HETEROZYGOUS;
+                        status actingTerminology = status.HOMOZYGOUS;
+                        status nonActingTerminology = status.HETEROZYGOUS;
 
-                    // regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
-                    // females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
-                    if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(cgd.get(gene).getGeneralizedInheritance())))
-                    {
-                        actingTerminology = status.AFFECTED;
-                        nonActingTerminology = status.CARRIER;
-                    }
-                    //TODO: handle blood group marker information? not pathogenic but still valuable?
+                        // regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
+                        // females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
+                        if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(cgd.get(gene).getGeneralizedInheritance()))) {
+                            actingTerminology = status.AFFECTED;
+                            nonActingTerminology = status.CARRIER;
+                        }
+                        //TODO: handle blood group marker information? not pathogenic but still valuable?
 //                    else if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance() == generalizedInheritance.BLOODGROUP))
 //                    {
 //                        actingTerminology = status.BLOODGROUP;
 //                        nonActingTerminology = status.BLOODGROUP;
 //                    }
 
-                    Map<String, status> sampleStatus = new HashMap<>();
-                    Map<String, String> sampleGenotypes = new HashMap<>();
+                        Map<String, status> sampleStatus = new HashMap<>();
+                        Map<String, String> sampleGenotypes = new HashMap<>();
 
-                    for(String key : genoMatch.affected.keySet())
-                    {
-                        sampleStatus.put(key, actingTerminology);
-                        sampleGenotypes.put(key, genoMatch.affected.get(key).get("GT").toString());
+                        for (String key : genoMatch.affected.keySet()) {
+                            sampleStatus.put(key, actingTerminology);
+                            sampleGenotypes.put(key, genoMatch.affected.get(key).get("GT").toString());
+                        }
+                        for (String key : genoMatch.carriers.keySet()) {
+                            sampleStatus.put(key, nonActingTerminology);
+                            sampleGenotypes.put(key, genoMatch.carriers.get(key).get("GT").toString());
+                        }
+
+
+                        if (!sampleStatus.isEmpty()) {
+                            rlv.setSampleStatus(sampleStatus);
+                            rlv.setSampleGenotypes(sampleGenotypes);
+                            rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
+                            if (verbose) {
+                                System.out.println("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: " + sampleStatus.toString() + ", having genotypes: " + sampleGenotypes + ", plus trio parents with reference alleles: " + genoMatch.parentsWithReferenceCalls.toString());
+                            }
+                        }
                     }
-                    for(String key :  genoMatch.carriers.keySet())
-                    {
-                        sampleStatus.put(key, nonActingTerminology);
-                        sampleGenotypes.put(key, genoMatch.carriers.get(key).get("GT").toString());
-                    }
-
-
-                    if(!sampleStatus.isEmpty())
-                    {
-                        rv.setSampleStatus(sampleStatus);
-                        rv.setSampleGenotypes(sampleGenotypes);
-                        rv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
-                        if(verbose) {  System.out.println("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: " + sampleStatus.toString() + ", having genotypes: " + sampleGenotypes +", plus trio parents with reference alleles: " + genoMatch.parentsWithReferenceCalls.toString());}
-                    }
-
                     return rv;
                 }
                 catch(Exception e)

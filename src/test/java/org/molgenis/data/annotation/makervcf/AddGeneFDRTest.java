@@ -66,19 +66,19 @@ public class AddGeneFDRTest extends Setup
 		 */
 
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getFDR(), "0.007987220447284345,0.0");
+		assertEquals(it.next().getRelevance().get(0).getFDR(), "0.007987220447284345,0.0");
 
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getFDR(), "3.9936102236421724E-4,0.037539936102236424");
+		assertEquals(it.next().getRelevance().get(0).getFDR(), "3.9936102236421724E-4,0.037539936102236424");
 
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getFDR(), "0.001597444089456869,0.003993610223642172");
+		assertEquals(it.next().getRelevance().get(0).getFDR(), "0.001597444089456869,0.003993610223642172");
 
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getFDR(), "0.004792332268370607,0.0");
+		assertEquals(it.next().getRelevance().get(0).getFDR(), "0.004792332268370607,0.0");
 
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getFDR(), "0.012779552715654952,0.0");
+		assertEquals(it.next().getRelevance().get(0).getFDR(), "0.012779552715654952,0.0");
 
 		assertFalse(it.hasNext());
 

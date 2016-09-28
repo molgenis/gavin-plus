@@ -50,81 +50,81 @@ public class PhasingCompoundCheckTest extends Setup
 
 		// AIMP1
 		assertTrue(it.hasNext());
-		assertTrue(!it.next().getSampleStatus().toString().contains("p01"));
-		assertTrue(!it.next().getSampleStatus().toString().contains("p02"));
+		assertTrue(!it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01"));
+		assertTrue(!it.next().getRelevance().get(0).getSampleStatus().toString().contains("p02"));
 		assertTrue(it.hasNext());
-		assertTrue(!it.next().getSampleStatus().toString().contains("p01"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p02=CARRIER"));
+		assertTrue(!it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p02=CARRIER"));
 
 		// ADCY6
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=AFFECTED_COMPOUNDHET"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=AFFECTED_COMPOUNDHET"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=AFFECTED_COMPOUNDHET"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=AFFECTED_COMPOUNDHET"));
 
 		// AK1
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
 
 		// AK2
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HETEROZYGOUS_MULTIHIT"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HETEROZYGOUS_MULTIHIT"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HETEROZYGOUS_MULTIHIT"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HETEROZYGOUS_MULTIHIT"));
 
 		// ALAD
 		//part phased, part uncertain, here we are greedy
 		assertTrue(it.hasNext());
 		System.out.println(it.next().toString());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
 
 		// ALG1
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=CARRIER"));
-		assertTrue(!it.next().getSampleStatus().toString().contains("p02"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=CARRIER"));
+		assertTrue(!it.next().getRelevance().get(0).getSampleStatus().toString().contains("p02"));
 		assertTrue(it.hasNext());
-		assertTrue(!it.next().getSampleStatus().toString().contains("p01"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p02=CARRIER"));
+		assertTrue(!it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p02=CARRIER"));
 
 		// ALG6
 		//no phasing, greedy match
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
 
 		// ALG8
 		//double homozygous in AR gene so affected
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED, p02=AFFECTED"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED, p02=AFFECTED"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED, p02=AFFECTED"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED, p02=AFFECTED"));
 
 		// ALG9
 		//single homozygous in AR gene so affected
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=CARRIER"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p02=AFFECTED"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=CARRIER"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p02=AFFECTED"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p02=CARRIER"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p02=CARRIER"));
 
 		// unknown1
 		//unknown gene, p01 homozygous by compound, p02 heterozygous
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET"));
-		assertTrue(!it.next().getSampleStatus().toString().contains("p02"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(!it.next().getRelevance().get(0).getSampleStatus().toString().contains("p02"));
 
 		// unknown2
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HOMOZYGOUS, p02=HOMOZYGOUS"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS, p02=HOMOZYGOUS"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS, p02=HOMOZYGOUS"));
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS, p02=HOMOZYGOUS"));
 
 		assertTrue(!it.hasNext());
 

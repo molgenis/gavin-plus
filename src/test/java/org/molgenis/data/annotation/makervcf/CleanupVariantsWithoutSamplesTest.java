@@ -58,7 +58,7 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 		int count = 0;
 		while(it.hasNext())
 		{
-			assertEquals(it.next().getSampleStatus().toString(), "{p01=AFFECTED}");
+			assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{p01=AFFECTED}");
 			count++;
 		}
 		assertEquals(count, 5);

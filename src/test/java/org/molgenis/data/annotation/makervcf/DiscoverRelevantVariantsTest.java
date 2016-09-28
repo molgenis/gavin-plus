@@ -34,9 +34,9 @@ public class DiscoverRelevantVariantsTest extends Setup
 		Iterator<RelevantVariant> it = discover.findRelevantVariants();
 
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getJudgment().toString().contains("reason=NM_004562.2(PARK2):c.823C>T (p.Arg275Trp)|PARK2|Pathogenic, classification=Pathogenic"));
+		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("reason=NM_004562.2(PARK2):c.823C>T (p.Arg275Trp)|PARK2|Pathogenic, classification=Pathogenic"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getJudgment().toString().contains("Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene., classification=Pathogenic"));
+		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene., classification=Pathogenic"));
 		assertFalse(it.hasNext());
 
 	}

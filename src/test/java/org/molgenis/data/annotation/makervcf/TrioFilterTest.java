@@ -55,56 +55,56 @@ public class TrioFilterTest extends Setup
 
 		// heterozygous child, 1 heterozygous parent
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{}");
 
 		// homozygous child, homref parents
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{p01=AFFECTED}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{p01=AFFECTED}");
 
 		// homozygous child, 1 heterozygous parent
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{p01=AFFECTED}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{p01=AFFECTED}");
 
 		// homozygous child, 2 heterozygous parents
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{p01=AFFECTED}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{p01=AFFECTED}");
 
 		// homozygous child, 1 homozygous parent (mother)
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{}");
 
 		// homozygous child, 1 homozygous parent (father)
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{}");
 
 		// homozygous child, 2 homozygous parents
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{}");
 
 		// homref child, 1 heterozygous parent
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{}");
 
 		// heterozygous child, homref parents
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{p01=AFFECTED}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{p01=AFFECTED}");
 
 		// heterozygous child, 1 heterozygous parent
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{}");
 
 		// heterozygous child, 2 heterozygous parents
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{}");
 
 		// homozygous child, 1 homozygous parent
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{}");
 
 		// homozygous child, 2 heterozygous parents
 		// note: unlikely for dominant disease, but based on inheritance we don't filter it out
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getSampleStatus().toString(), "{p01=AFFECTED}");
+		assertEquals(it.next().getRelevance().get(0).getSampleStatus().toString(), "{p01=AFFECTED}");
 
 	}
 

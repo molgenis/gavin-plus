@@ -3,6 +3,7 @@ package org.molgenis.data.annotation.makervcf.genestream.impl;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.HashSet;
@@ -27,40 +28,45 @@ public class AssignCompoundHet extends GeneStream {
         Set<String> markedSamples  = new HashSet<String>();
         for(RelevantVariant rv: variantsPerGene)
         {
-            for(String sample: rv.getSampleStatus().keySet())
+            for(Relevance rlv : rv.getRelevance())
             {
-                if(rv.getSampleStatus().get(sample) == status.HETEROZYGOUS || rv.getSampleStatus().get(sample) == status.CARRIER)
+                for(String sample: rlv.getSampleStatus().keySet())
                 {
-                    if(verbose){System.out.println("[AssignCompoundHet] Gene " + rv.getGene() + " , sample: " +sample + ", status: " + rv.getSampleStatus().get(sample));}
-                    if(samplesSeen.contains(sample))
+                    if(rlv.getSampleStatus().get(sample) == status.HETEROZYGOUS || rlv.getSampleStatus().get(sample) == status.CARRIER)
                     {
-                        if(verbose){System.out.println("[AssignCompoundHet] Marking as potential compound heterozygous: " + sample);}
-                        markedSamples.add(sample);
+                        if(verbose){System.out.println("[AssignCompoundHet] Gene " + rlv.getGene() + " , sample: " +sample + ", status: " + rlv.getSampleStatus().get(sample));}
+                        if(samplesSeen.contains(sample))
+                        {
+                            if(verbose){System.out.println("[AssignCompoundHet] Marking as potential compound heterozygous: " + sample);}
+                            markedSamples.add(sample);
+                        }
+                        samplesSeen.add(sample);
                     }
-                    samplesSeen.add(sample);
+
+
                 }
-
-
             }
+
         }
 
         //iterate again and update marked samples
-        for(RelevantVariant rv: variantsPerGene) {
+        for(RelevantVariant rv: variantsPerGene)
+        {
+            for(Relevance rlv : rv.getRelevance()) {
+                for (String sample : markedSamples) {
+                    if (rlv.getSampleStatus().containsKey(sample)) {
+                        if (rlv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.status.HETEROZYGOUS) {
+                            if (verbose) {
+                                System.out.println("[AssignCompoundHet] Reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.HETEROZYGOUS + " to " + MatchVariantsToGenotypeAndInheritance.status.HOMOZYGOUS_COMPOUNDHET);
+                            }
+                            rlv.getSampleStatus().put(sample, MatchVariantsToGenotypeAndInheritance.status.HOMOZYGOUS_COMPOUNDHET);
+                        } else if (rlv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.status.CARRIER) {
+                            if (verbose) {
+                                System.out.println("[AssignCompoundHet] Reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.CARRIER + " to " + MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);
+                            }
 
-            for(String sample : markedSamples)
-            {
-                if(rv.getSampleStatus().containsKey(sample))
-                {
-                    if(rv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.status.HETEROZYGOUS)
-                    {
-                        if(verbose){System.out.println("[AssignCompoundHet] Reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.HETEROZYGOUS + " to " + MatchVariantsToGenotypeAndInheritance.status.HOMOZYGOUS_COMPOUNDHET);}
-                        rv.getSampleStatus().put(sample, MatchVariantsToGenotypeAndInheritance.status.HOMOZYGOUS_COMPOUNDHET);
-                    }
-                    else if(rv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.status.CARRIER)
-                    {
-                        if(verbose){System.out.println("[AssignCompoundHet] Reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.CARRIER + " to " + MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);}
-
-                        rv.getSampleStatus().put(sample, MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);
+                            rlv.getSampleStatus().put(sample, MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);
+                        }
                     }
                 }
             }

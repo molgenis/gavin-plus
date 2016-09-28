@@ -4,6 +4,7 @@ import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinAlgorithm;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry;
+import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
@@ -72,6 +73,8 @@ public class DiscoverRelevantVariants {
                     {
                         VcfEntity record = new VcfEntity(vcfIterator.next());
 
+                        List<Relevance> relevance = new ArrayList<>();
+
                         /**
                          * Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
                          */
@@ -98,9 +101,7 @@ public class DiscoverRelevantVariants {
                                 if (judgment != null && judgment.getClassification().equals(Judgment.Classification.Pathogenic))
                                 {
                                     record.setGenes(judgment.getGene());
-                                    nextResult = new RelevantVariant(record, record.getAlts(i), clinvarJudgment.getGene(), record.getExac_AFs(i), record.getGoNL_AFs(i), clinvarJudgment.getGene(), clinvarJudgment);
-                                    if(verbose){ System.out.println("[DiscoverRelevantVariants] Found relevant variant in mitochondrial DNA: " + nextResult.toStringShort()); }
-                                    return true;
+                                    relevance.add(new Relevance(record.getAlts(i), clinvarJudgment.getGene(), record.getExac_AFs(i), record.getGoNL_AFs(i), clinvarJudgment.getGene(), clinvarJudgment));
                                 }
                             }
 
@@ -133,12 +134,17 @@ public class DiscoverRelevantVariants {
                                     }
 
                                     if (judgment != null && judgment.getClassification() == Judgment.Classification.Pathogenic) {
-                                        nextResult = new RelevantVariant(record, record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, judgment);
-                                        if(verbose){ System.out.println("[DiscoverRelevantVariants] Found relevant variant: " + nextResult.toStringShort()); }
-                                        return true;
+                                        relevance.add(new Relevance(record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, judgment));
                                     }
                                 }
                             }
+                        }
+
+                        if(relevance.size() > 0)
+                        {
+                            nextResult = new RelevantVariant(record, relevance);
+                            if(verbose){ System.out.println("[DiscoverRelevantVariants] Found relevant variant: " + nextResult.toStringShort()); }
+                            return true;
                         }
                     }
                     catch(Exception e)

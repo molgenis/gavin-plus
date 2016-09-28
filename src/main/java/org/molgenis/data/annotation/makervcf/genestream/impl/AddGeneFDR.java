@@ -1,6 +1,7 @@
 package org.molgenis.data.annotation.makervcf.genestream.impl;
 
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.io.File;
@@ -52,16 +53,20 @@ public class AddGeneFDR extends GeneStream{
 
         for(RelevantVariant rv : variantsPerGene)
         {
-            //just making sure
-            if(!rv.getGene().equals(gene))
+            for(Relevance rlv : rv.getRelevance())
             {
-                throw new Exception("batch gene "+gene+"does not match variant gene " + rv.getGene());
+                //just making sure
+                if(!rlv.getGene().equals(gene))
+                {
+                    throw new Exception("batch gene "+gene+"does not match variant gene " + rlv.getGene());
+                }
+                String fdrInfo = affectedFracForGene+","+carrierFracForGene;
+                rlv.setFDR(fdrInfo);
+                if(verbose){
+                    System.out.println("[AddGeneFDR] Added FDR info '"+fdrInfo+"' to a variant for gene " + gene);
+                }
             }
-            String fdrInfo = affectedFracForGene+","+carrierFracForGene;
-            rv.setFDR(fdrInfo);
-            if(verbose){
-                System.out.println("[AddGeneFDR] Added FDR info '"+fdrInfo+"' to a variant for gene " + gene);
-            }
+
         }
     }
 

@@ -1,6 +1,7 @@
 package org.molgenis.data.annotation.makervcf.genestream.core;
 
 import com.sun.tools.javac.jvm.Gen;
+import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.ArrayList;
@@ -55,39 +56,46 @@ public abstract class GeneStream {
                     while (relevantVariants.hasNext()) {
 
                         RelevantVariant rv = relevantVariants.next();
-                        currentGene = rv.getGene();
-                        if(verbose){System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGene);}
 
-
-                        if(!currentGene.equals(previousGene) && previousGene != null)
+                        for(Relevance rlv : rv.getRelevance())
                         {
-                            if(verbose){System.out.println("[GeneStream] Executing the abstract perGene() function on " + previousGene);}
 
-                            perGene(previousGene, variantsForGene);
+                            currentGene = rlv.getGene();
+                            if(verbose){System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGene);}
 
-                            resultBatch = variantsForGene.iterator();
 
+                            if(!currentGene.equals(previousGene) && previousGene != null)
+                            {
+                                if(verbose){System.out.println("[GeneStream] Executing the abstract perGene() function on " + previousGene);}
+
+                                perGene(previousGene, variantsForGene);
+
+                                resultBatch = variantsForGene.iterator();
+
+                                previousGene = currentGene;
+                                cleanup = true;
+
+                                variantSkippedOver = rv;
+
+                                if(resultBatch.hasNext())
+                                {
+                                    if(verbose){System.out.println("[GeneStream] Returning first result of gene stream batch");}
+                                    nextResult = resultBatch.next();
+                                    return true;
+                                }
+                                else
+                                {
+                                    //nothing to return for this gene after perGene(previousGene, variantsForGene)
+                                    //so we go straight to cleanup in the next iteration
+                                }
+
+                            }
+                            //TODO how to handle hits in multiple genes
+                            variantsForGene.add(rv);
                             previousGene = currentGene;
-                            cleanup = true;
-
-                            variantSkippedOver = rv;
-
-                            if(resultBatch.hasNext())
-                            {
-                                if(verbose){System.out.println("[GeneStream] Returning first result of gene stream batch");}
-                                nextResult = resultBatch.next();
-                                return true;
-                            }
-                            else
-                            {
-                                //nothing to return for this gene after perGene(previousGene, variantsForGene)
-                                //so we go straight to cleanup in the next iteration
-                            }
-
                         }
 
-                        variantsForGene.add(rv);
-                        previousGene = currentGene;
+
 
                     }
 

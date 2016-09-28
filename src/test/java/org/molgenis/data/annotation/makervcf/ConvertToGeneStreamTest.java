@@ -34,13 +34,13 @@ public class ConvertToGeneStreamTest extends Setup
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 
-		Iterator<RelevantVariant> it = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		Iterator<RelevantVariant> it = new ConvertToGeneStream(discover.findRelevantVariants(), true).go();
 
 
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
-			System.out.println(it.next().getVariant().getGenes() + " -> " + it.next().getGene() + " at " + it.next().getVariant().getPos());
+			System.out.println(it.next().getVariant().getGenes() + " -> " + it.next().getVariant() + " at " + it.next().getVariant().getPos());
 			positions.append(it.next().getVariant().getPos() + "_");
 		}
 

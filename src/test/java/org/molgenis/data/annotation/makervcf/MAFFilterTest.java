@@ -37,11 +37,11 @@ public class MAFFilterTest extends Setup
 
 		Iterator<RelevantVariant> it = new MAFFilter(discover.findRelevantVariants(), false).go();
 		assertTrue(it.hasNext());
-		assertEquals(0.02, it.next().getGonlAlleleFreq());
+		assertEquals(0.02, it.next().getRelevance().get(0).getGonlAlleleFreq());
 		assertTrue(it.hasNext());
-		assertEquals(0.03, it.next().getGonlAlleleFreq());
+		assertEquals(0.03, it.next().getRelevance().get(0).getGonlAlleleFreq());
 		assertTrue(it.hasNext());
-		assertEquals(0.01, it.next().getGonlAlleleFreq());
+		assertEquals(0.01, it.next().getRelevance().get(0).getGonlAlleleFreq());
 		assertFalse(it.hasNext());
 
 	}

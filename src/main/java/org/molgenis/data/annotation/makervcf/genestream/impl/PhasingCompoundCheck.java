@@ -2,6 +2,7 @@ package org.molgenis.data.annotation.makervcf.genestream.impl;
 
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.HashSet;
@@ -68,39 +69,42 @@ public class PhasingCompoundCheck extends GeneStream{
 
         for(RelevantVariant rv : variantsPerGene)
         {
-            char affectedIndex = Character.forDigit(rv.getVariant().getAltIndex(rv.getAllele()), 10);
-            for(String sample : rv.getSampleStatus().keySet())
+            for(Relevance rlv : rv.getRelevance())
             {
-                if(samplesWithUnphasedVariants.contains(sample))
+                char affectedIndex = Character.forDigit(rv.getVariant().getAltIndex(rlv.getAllele()), 10);
+                for(String sample : rlv.getSampleStatus().keySet())
                 {
-                    continue;
-                }
-                if(MatchVariantsToGenotypeAndInheritance.status.isCompound(rv.getSampleStatus().get(sample)))
-                {
-                    String geno = rv.getSampleGenotypes().get(sample);
-                    if(verbose){System.out.println("[PhasingCompoundCheck] Sample "+sample+" has a "+rv.getSampleStatus().get(sample)+" genotype " + geno);}
-                    if(geno.length() != 3)
+                    if(samplesWithUnphasedVariants.contains(sample))
                     {
-                        throw new Exception("genotype length != 3");
+                        continue;
                     }
-                    // if there is a non-phased genotype, e.g. 0/1 or perhaps 1/2 where affected = 1, we have to stop
-                    // since there are 2 (or more) variants to form a compound, having 1 (or more) unphased variants means that it can always be a real compound
-                    if(geno.charAt(1) == '/')
+                    if(MatchVariantsToGenotypeAndInheritance.status.isCompound(rlv.getSampleStatus().get(sample)))
                     {
-                        samplesWithUnphasedVariants.add(sample);
-                        if(verbose){System.out.println("[PhasingCompoundCheck] Sample unphased, excluded");}
-                    }
-                    else if(geno.charAt(0) == affectedIndex && geno.charAt(1) == '|' && geno.charAt(2) != affectedIndex)
-                    {
-                        leftHaploSamples.add(sample);
-                    }
-                    else if(geno.charAt(0) != affectedIndex && geno.charAt(1) == '|' && geno.charAt(2) == affectedIndex)
-                    {
-                        rightHaploSamples.add(sample);
-                    }
-                    else
-                    {
-                        throw new Exception("No match to either unphased or phased genotype, whats going on? sample "+sample+" has a "+rv.getSampleStatus().get(sample)+" genotype " + geno);
+                        String geno = rlv.getSampleGenotypes().get(sample);
+                        if(verbose){System.out.println("[PhasingCompoundCheck] Sample "+sample+" has a "+rlv.getSampleStatus().get(sample)+" genotype " + geno);}
+                        if(geno.length() != 3)
+                        {
+                            throw new Exception("genotype length != 3");
+                        }
+                        // if there is a non-phased genotype, e.g. 0/1 or perhaps 1/2 where affected = 1, we have to stop
+                        // since there are 2 (or more) variants to form a compound, having 1 (or more) unphased variants means that it can always be a real compound
+                        if(geno.charAt(1) == '/')
+                        {
+                            samplesWithUnphasedVariants.add(sample);
+                            if(verbose){System.out.println("[PhasingCompoundCheck] Sample unphased, excluded");}
+                        }
+                        else if(geno.charAt(0) == affectedIndex && geno.charAt(1) == '|' && geno.charAt(2) != affectedIndex)
+                        {
+                            leftHaploSamples.add(sample);
+                        }
+                        else if(geno.charAt(0) != affectedIndex && geno.charAt(1) == '|' && geno.charAt(2) == affectedIndex)
+                        {
+                            rightHaploSamples.add(sample);
+                        }
+                        else
+                        {
+                            throw new Exception("No match to either unphased or phased genotype, whats going on? sample "+sample+" has a "+rlv.getSampleStatus().get(sample)+" genotype " + geno);
+                        }
                     }
                 }
             }
@@ -129,12 +133,15 @@ public class PhasingCompoundCheck extends GeneStream{
 
         for(RelevantVariant rv : variantsPerGene)
         {
-            for(String sample : rv.getSampleStatus().keySet())
+            for(Relevance rlv : rv.getRelevance())
             {
-                if(union.contains(sample) && status.isCompound(rv.getSampleStatus().get(sample)))
+                for(String sample : rlv.getSampleStatus().keySet())
                 {
-                    if(verbose){System.out.println("[PhasingCompoundCheck] Going to update sample "+sample+" from "+rv.getSampleStatus().get(sample)+" to " + status.HETEROZYGOUS_MULTIHIT);}
-                    rv.getSampleStatus().put(sample, status.HETEROZYGOUS_MULTIHIT);
+                    if(union.contains(sample) && status.isCompound(rlv.getSampleStatus().get(sample)))
+                    {
+                        if(verbose){System.out.println("[PhasingCompoundCheck] Going to update sample "+sample+" from "+rlv.getSampleStatus().get(sample)+" to " + status.HETEROZYGOUS_MULTIHIT);}
+                        rlv.getSampleStatus().put(sample, status.HETEROZYGOUS_MULTIHIT);
+                    }
                 }
             }
         }

@@ -52,35 +52,35 @@ public class MatchVariantsToGenotypeAndInheritanceTest extends Setup
 
 		// dominant gene
 		assertTrue(it.hasNext());
-		String sampleStatus = it.next().getSampleStatus().toString();
+		String sampleStatus = it.next().getRelevance().get(0).getSampleStatus().toString();
 		assertTrue(!sampleStatus.contains("p01"));
 		assertTrue(sampleStatus.contains("p02=AFFECTED"));
 		assertTrue(sampleStatus.contains("p03=AFFECTED"));
 
 		// recessive gene
 		assertTrue(it.hasNext());
-		sampleStatus = it.next().getSampleStatus().toString();
+		sampleStatus = it.next().getRelevance().get(0).getSampleStatus().toString();
 		assertTrue(!sampleStatus.contains("p01"));
 		assertTrue(sampleStatus.contains("p02=CARRIER"));
 		assertTrue(sampleStatus.contains("p03=AFFECTED"));
 
 		// X-linked
 		assertTrue(it.hasNext());
-		sampleStatus = it.next().getSampleStatus().toString();
+		sampleStatus = it.next().getRelevance().get(0).getSampleStatus().toString();
 		assertTrue(!sampleStatus.contains("p01"));
 		assertTrue(sampleStatus.contains("p02=CARRIER"));
 		assertTrue(sampleStatus.contains("p03=AFFECTED"));
 
 		// dominant or recessive
 		assertTrue(it.hasNext());
-		sampleStatus = it.next().getSampleStatus().toString();
+		sampleStatus = it.next().getRelevance().get(0).getSampleStatus().toString();
 		assertTrue(!sampleStatus.contains("p01"));
 		assertTrue(sampleStatus.contains("p02=AFFECTED"));
 		assertTrue(sampleStatus.contains("p03=AFFECTED"));
 
 		// Y-linked
 		assertTrue(it.hasNext());
-		sampleStatus = it.next().getSampleStatus().toString();
+		sampleStatus = it.next().getRelevance().get(0).getSampleStatus().toString();
 		assertTrue(!sampleStatus.contains("p01"));
 		assertTrue(!sampleStatus.contains("p02"));
 		assertTrue(sampleStatus.contains("p03=HOMOZYGOUS"));
