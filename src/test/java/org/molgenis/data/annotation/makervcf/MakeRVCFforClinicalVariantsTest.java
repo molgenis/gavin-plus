@@ -1,10 +1,12 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.apache.commons.io.FileUtils;
+import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
 import org.molgenis.data.annotation.makervcf.genestream.impl.PhasingCompoundCheck;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
+import org.molgenis.data.annotation.makervcf.positionalstream.MakeRVCFforClinicalVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
@@ -16,7 +18,9 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertFalse;
 
 public class MakeRVCFforClinicalVariantsTest extends Setup
 {
@@ -27,8 +31,8 @@ public class MakeRVCFforClinicalVariantsTest extends Setup
 
 	@BeforeClass
 	public void beforeClass() throws FileNotFoundException, IOException {
-		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/AssignCompoundHetTestFile.vcf");
-		inputVcfFile = new File(FileUtils.getTempDirectory(), "AssignCompoundHetTestFile.vcf");
+		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/DiscoverRelevantVariantsTestFile.vcf");
+		inputVcfFile = new File(FileUtils.getTempDirectory(), "DiscoverRelevantVariantsTestFile.vcf");
 		FileCopyUtils.copy(inputVcf, new FileOutputStream(inputVcfFile));
 		InputStream cgd = DiscoverRelevantVariantsTest.class.getResourceAsStream("/bundle_r0.1/CGD_1jun2016.txt.gz");
 		cgdFile = new File(FileUtils.getTempDirectory(), "CGD_1jun2016.txt.gz");
@@ -41,93 +45,18 @@ public class MakeRVCFforClinicalVariantsTest extends Setup
 	{
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
-		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
-		Iterator<RelevantVariant> gsi = gs.go();
-		Iterator<RelevantVariant> assignCompHet = new AssignCompoundHet(gsi, false).go();
+		Iterator<RelevantVariant> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
+		Iterator<Entity> it = new MakeRVCFforClinicalVariants(match, Pipeline.RLV, false).addRVCFfield();
 
-		Iterator<RelevantVariant> it = new PhasingCompoundCheck(assignCompHet, true).go();
+		assertTrue(it.hasNext());
+		String rlv1 = it.next().getString("RLV");
+		assertEquals(rlv1, "A|0.002026|PARK2||NM_004562.2:4BM9_A:275_322|Parkinson disease 2, autosomal recessive juvenile|RECESSIVE|N A|Individuals have been reported as responding to therapies such as levodopa||p03:CARRIER||p03:0s1||Reported pathogenic|ClinVar|NM_004562.2(PARK2):c.823C>T (p.Arg275Trp) PARK2 Pathogenic||");
 
-		// AIMP1
 		assertTrue(it.hasNext());
-		assertTrue(!it.next().getSampleStatus().toString().contains("p01"));
-		assertTrue(!it.next().getSampleStatus().toString().contains("p02"));
-		assertTrue(it.hasNext());
-		assertTrue(!it.next().getSampleStatus().toString().contains("p01"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p02=CARRIER"));
+		String rlv2 = it.next().getString("RLV");
+		assertEquals(rlv2, "T|0.012|ALDH5A1||NM_170740.1|Succinic semialdehyde dehydrogenase deficiency|RECESSIVE|N A|||p45:CARRIER/p66:CARRIER/p21:CARRIER/p64:CARRIER||p45:0s1/p66:0s1/p21:0s1/p64:0s1||Predicted pathogenic|GAVIN|Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene.||");
 
-		// ADCY6
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=AFFECTED_COMPOUNDHET"));
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=AFFECTED_COMPOUNDHET"));
-
-		// AK1
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
-
-		// AK2
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HETEROZYGOUS_MULTIHIT"));
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HETEROZYGOUS_MULTIHIT"));
-
-		// ALAD
-		//part phased, part uncertain, here we are greedy
-		assertTrue(it.hasNext());
-		System.out.println(it.next().toString());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
-
-		// ALG1
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=CARRIER"));
-		assertTrue(!it.next().getSampleStatus().toString().contains("p02"));
-		assertTrue(it.hasNext());
-		assertTrue(!it.next().getSampleStatus().toString().contains("p01"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p02=CARRIER"));
-
-		// ALG6
-		//no phasing, greedy match
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
-
-		// ALG8
-		//double homozygous in AR gene so affected
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED, p02=AFFECTED"));
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED, p02=AFFECTED"));
-
-		// ALG9
-		//single homozygous in AR gene so affected
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=CARRIER"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p02=AFFECTED"));
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=AFFECTED"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p02=CARRIER"));
-
-		// unknown1
-		//unknown gene, p01 homozygous by compound, p02 heterozygous
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS"));
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET"));
-		assertTrue(!it.next().getSampleStatus().toString().contains("p02"));
-
-		// unknown2
-		assertTrue(it.hasNext());
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HOMOZYGOUS, p02=HOMOZYGOUS"));
-		assertTrue(it.next().getSampleStatus().toString().contains("p01=HETEROZYGOUS, p02=HOMOZYGOUS"));
-
-		assertTrue(!it.hasNext());
-
+		assertFalse(it.hasNext());
 	}
 
 }
