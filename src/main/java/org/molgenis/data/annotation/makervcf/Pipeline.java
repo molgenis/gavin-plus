@@ -9,6 +9,7 @@ import org.molgenis.data.annotation.makervcf.genestream.impl.*;
 import org.molgenis.data.annotation.makervcf.positionalstream.*;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.support.DefaultAttributeMetaData;
 import org.molgenis.data.vcf.datastructures.Trio;
@@ -29,8 +30,7 @@ public class Pipeline {
     public void start(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile, HandleMissingCaddScores.Mode mode, File outputVcfFile, File labVariants, boolean verbose) throws Exception
     {
         //get trios and parents if applicable
-        HashMap<String, Trio> trios = TrioFilter.getTrios(inputVcfFile);
-        Set<String> parents = TrioFilter.getParents(trios);
+        TrioData td = TrioFilter.getTrioData(inputVcfFile);
 
         //initial discovery of any suspected/likely pathogenic variant
         DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, labVariants, mode, verbose);
@@ -40,7 +40,7 @@ public class Pipeline {
         Iterator<RelevantVariant> rv2 = new MAFFilter(rv1, verbose).go();
 
         //match sample genotype with known disease inheritance mode
-        Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile, parents, verbose).go();
+        Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(rv2, cgdFile, td.getParents(), verbose).go();
 
         //swap over stream from strict position-based to gene-based so we can do a number of things
         ConvertToGeneStream gs = new ConvertToGeneStream(rv3, verbose);
@@ -50,7 +50,7 @@ public class Pipeline {
         Iterator<RelevantVariant> rv4 = new AssignCompoundHet(gsi, verbose).go();
 
         //if available: use any parental information to filter out variants/status
-        TrioFilter tf = new TrioFilter(rv4, trios, parents, verbose);
+        TrioFilter tf = new TrioFilter(rv4, td, verbose);
         Iterator<RelevantVariant> rv5 = tf.go();
 
         //if available: use any phasing information to filter out compounds

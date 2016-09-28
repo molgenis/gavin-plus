@@ -5,6 +5,7 @@ import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.vcf.datastructures.Trio;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 
@@ -39,17 +40,20 @@ public class TrioFilter extends GeneStream{
     private HashMap<String, Trio> trios;
     private Set<String> parents;
 
-    public TrioFilter(Iterator<RelevantVariant> relevantVariants, HashMap<String, Trio> trios, Set<String> parents, boolean verbose) throws IOException {
+    public TrioFilter(Iterator<RelevantVariant> relevantVariants, TrioData td, boolean verbose) throws Exception {
         super(relevantVariants, verbose);
-        this.trios = trios;
-        this.parents = parents;
+        this.trios = td.getTrios();
+        this.parents = td.getParents();
         if(verbose){ System.out.println("[TrioFilter] Trios: " + trios.toString()); }
         if(verbose){ System.out.println("[TrioFilter] Parents: " + parents.toString()); }
 
     }
 
-    public static Set<String> getParents(HashMap<String, Trio> trios)
-    {
+
+    public static TrioData getTrioData(File inputVcfFile) throws Exception {
+        BufferedReader bufferedVCFReader = VcfWriterUtils.getBufferedVCFReader(inputVcfFile);
+        HashMap<String, Trio> trios = VcfUtils.getPedigree(bufferedVCFReader);
+
         Set<String> parents = new HashSet<>();
         for(String child : trios.keySet())
         {
@@ -58,12 +62,15 @@ public class TrioFilter extends GeneStream{
             if(momId != null){ parents.add(momId); }
             if(dadId != null){ parents.add(dadId); }
         }
-        return parents;
-    }
+        for(String child : trios.keySet())
+        {
+            if(parents.contains(child))
+            {
+                throw new Exception("Trio child '" + child + "' is also a parent. Complex pedigrees currently not supported.");
+            }
+        }
 
-    public static HashMap<String, Trio> getTrios(File inputVcfFile) throws IOException {
-        BufferedReader bufferedVCFReader = VcfWriterUtils.getBufferedVCFReader(inputVcfFile);
-        return VcfUtils.getPedigree(bufferedVCFReader);
+        return new TrioData(trios, parents);
     }
 
     @Override

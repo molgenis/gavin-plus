@@ -7,6 +7,7 @@ import org.molgenis.data.annotation.makervcf.positionalstream.CleanupVariantsWit
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.vcf.datastructures.Trio;
 import org.springframework.util.FileCopyUtils;
@@ -27,11 +28,10 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 
 	protected File inputVcfFile;
 	protected File cgdFile;
-	protected HashMap<String, Trio> trios;
-	protected Set<String> parents;
 
 	@BeforeClass
-	public void beforeClass() throws FileNotFoundException, IOException {
+	public void beforeClass() throws FileNotFoundException, IOException
+	{
 		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/TrioFilterTestFile.vcf");
 		inputVcfFile = new File(FileUtils.getTempDirectory(), "TrioFilterTestFile.vcf");
 		FileCopyUtils.copy(inputVcf, new FileOutputStream(inputVcfFile));
@@ -39,10 +39,6 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 		InputStream cgd = DiscoverRelevantVariantsTest.class.getResourceAsStream("/bundle_r0.1/CGD_1jun2016.txt.gz");
 		cgdFile = new File(FileUtils.getTempDirectory(), "CGD_1jun2016.txt.gz");
 		FileCopyUtils.copy(cgd, new FileOutputStream(cgdFile));
-
-		this.trios = TrioFilter.getTrios(inputVcfFile);
-		this.parents = TrioFilter.getParents(trios);
-
 	}
 
 	@Test
@@ -53,7 +49,8 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 		Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
 		Iterator<RelevantVariant> gsi = gs.go();
-		TrioFilter tf = new TrioFilter(gsi, trios, parents, false);
+		TrioData td = TrioFilter.getTrioData(inputVcfFile);
+		TrioFilter tf = new TrioFilter(gsi, td, false);
 		CleanupVariantsWithoutSamples cleanup = new CleanupVariantsWithoutSamples(tf.go(), false);
 		Iterator<RelevantVariant> it = cleanup.go();
 
