@@ -15,14 +15,24 @@ import static java.util.Arrays.asList;
 /**
  * Created by joeri on 6/1/16.
  *
- * Does input/output checks, and runs MakeRVCFforClinicalVariants.
- * In addition, we require the input VCF to be annotated with SnpEff, CADD (as much as possible), ExAC
- * [optionally GoNL and 1000G ?]
- * Check the headers and throw errors if incomplete.
+ * High-performance automated variant interpretation
  *
- * Info @
- * https://docs.google.com/presentation/d/1tT15JVKsModpxohIAhRSLW60zmexCg8wJZB2s5pc8vo/edit#slide=id.g1347b3c92c_0_0
+ * Apply GAVIN, knowledge from ClinVar, CGD, variants from your own lab, structural variation,
+ * rules of inheritance, and so on to find interesting variants and samples within a VCF file.
  *
+ * Output is written to a VCF with all relevant variants where information is contained in the RLV field.
+ * We require the input VCF to be annotated with SnpEff, CADD (as much as possible), ExAC, GoNL and 1000G.
+ *
+ * Implementation TODO list:
+ * - 'Restore genotypes' function where we combine RVCF with original VCF, to get genotypes back + original variants
+ * - Usage of SV call data to prioritize more variants to as 'stand alone' source of relevant variation
+ * - Support multiple relevant alleles per site - right now only the first one is considered
+ * - Parse sample data from VCF (phenotype/sex, dynamic attributes?) and use in RLV output (sample groups?)
+ * - Use 1000G information, including sub-populations?
+ *
+ * Tests TODO list:
+ * - Different ways to discover variants (clinvar, lab list, gavin)
+ * - CombineWithSVcalls when it's implemented
  *
  */
 public class Main {
