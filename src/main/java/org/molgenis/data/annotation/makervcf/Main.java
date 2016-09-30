@@ -29,6 +29,8 @@ import static java.util.Arrays.asList;
  * - Support multiple relevant alleles per site - right now only the first one is considered
  * - Parse sample data from VCF (phenotype/sex, dynamic attributes?) and use in RLV output (sample groups?)
  * - Use 1000G information, including sub-populations?
+ * - Helper tool to get tabular output ('excel compatible')
+ * - Report which variants were de novo
  *
  * Tests TODO list:
  * - Different ways to discover variants (clinvar, lab list, gavin)
