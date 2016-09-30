@@ -135,6 +135,7 @@ public class ConvertToGeneStream {
                         underlyingGenesForPreviousVariant.clear();
                         underlyingGenesForPreviousVariant.addAll(underlyingGenesForCurrentVariant);
 
+                        // if batch succesfully prepared, start streaming it out
                         if(!resultBatches.isEmpty()) {
                             nextResult = getNextFromResultBatches(resultBatches, positionCheck);
                             if(verbose){System.out.println("[ConvertToGeneStream] Flushing first variant of result batch: " + nextResult.toStringShort());}
@@ -142,6 +143,7 @@ public class ConvertToGeneStream {
                         }
                         else
                         {
+                            // if not, reset to null and continue the while loop
                             resultBatches = null;
                         }
                     }
