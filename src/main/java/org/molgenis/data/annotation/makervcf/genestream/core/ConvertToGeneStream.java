@@ -1,6 +1,5 @@
 package org.molgenis.data.annotation.makervcf.genestream.core;
 
-import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.*;
@@ -20,7 +19,7 @@ public class ConvertToGeneStream {
     public ConvertToGeneStream(Iterator<RelevantVariant> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
-        this.positionalOrder = new ArrayList<>(); //TODO any way to reset this without nullpointering?
+        this.positionalOrder = new ArrayList<>();
         this.verbose = verbose;
     }
 
@@ -33,222 +32,145 @@ public class ConvertToGeneStream {
 
         return new Iterator<RelevantVariant>(){
 
-            HashMap<String, List<RelevantVariant>> geneToVariantsToCheck = new HashMap<String, List<RelevantVariant>>();
-            Set<String> genesSeenForPreviousVariant = new HashSet<String>();
-
+            // the next result as prepared by hasNext() and outputted by next()
             RelevantVariant nextResult;
-            Iterator<RelevantVariant> resultBatch;
 
-            Iterator<String> remainingGenes;
-            List<String> genesToDelete;
-            Set<String> genesSeenForCurrentVariantUpdate;
+            // result iterators that become active once one or more genes end and output nextResult
+            LinkedHashMap<String, Iterator<RelevantVariant>> resultBatches;
+
+            // variantBuffer with genes and variants that lags behind the input and gets turned into result batches
+            HashMap<String, HashMap<Integer, RelevantVariant>> variantBuffer = new HashMap<>();
+
+            // set of genes seen for variant in previous iteration
+            Set<String> underlyingGenesForPreviousVariant = new HashSet<>();
+
+            // within returning a batch, there may be duplicates (e.g. variants relevant for multiple genes)
+            // we keep track of the positions and make sure they are only outputted once
+            List<Integer> positionCheck = new ArrayList<>();
 
 
             @Override
             public boolean hasNext() {
 
-                if(resultBatch != null && resultBatch.hasNext())
+                RelevantVariant nextFromResultBatches = getNextFromResultBatches(resultBatches, positionCheck);
+                if(nextFromResultBatches != null)
                 {
-                    if(verbose) { System.out.println("[ConvertToGeneStream] dumping result batch - returning next element!"); }
-                    nextResult = resultBatch.next();
+                    if(verbose){System.out.println("[GeneStream] Flushing next variant: " + nextFromResultBatches.toStringShort()); }
+                    nextResult = nextFromResultBatches;
                     return true;
                 }
-                else if(resultBatch != null && genesToDelete != null)
+                else
                 {
-                    if(verbose){System.out.println("[ConvertToGeneStream] Cleanup after streaming result batch, clearing data for " + genesToDelete.toString() + ", update genes seen from "+genesSeenForPreviousVariant.toString()+" to " + genesSeenForCurrentVariantUpdate);}
-                    //result batch emptied, clear data and continue while
-                    for(String geneToDelete : genesToDelete)
-                    {
-                        geneToVariantsToCheck.remove(geneToDelete);
-                    }
-                    genesToDelete = null;
-                    genesSeenForPreviousVariant.clear();
-                    genesSeenForPreviousVariant.addAll(genesSeenForCurrentVariantUpdate);
-                    genesSeenForCurrentVariantUpdate = null;
-                }
+                    while(relevantVariants.hasNext()) {
 
-                //nothing buffered in the resultBatch, build new batch
-                while(relevantVariants.hasNext()) {
-                    try {
+                        if(resultBatches != null)
+                        {
+                            if(verbose){System.out.println("[GeneStream] Flush complete, cleanup of genes: " + resultBatches.keySet()); }
+
+                            // we remove variants from the variantBuffer (by position) that were already written out for another gene before
+                            // of course we also delete the variants for the genes that were written out
+                            for(String gene : resultBatches.keySet())
+                            {
+                                ArrayList<Integer> removeVariantsByPosition = new ArrayList<Integer>(variantBuffer.get(gene).size());
+                                for(Integer pos : variantBuffer.get(gene).keySet())
+                                {
+                                    removeVariantsByPosition.add(pos);
+                                }
+                                for(String geneInBuffer : variantBuffer.keySet())
+                                {
+                                    variantBuffer.get(geneInBuffer).keySet().removeAll(removeVariantsByPosition);
+                                }
+                                variantBuffer.remove(gene);
+                            }
+                            positionCheck.clear();
+                            resultBatches = null;
+                        }
+
+                        // get variant, store position, and get underlying genes
                         RelevantVariant rv = relevantVariants.next();
-                        int pos = Integer.parseInt(rv.getVariant().getPos());
-                        positionalOrder.add(Integer.parseInt(rv.getVariant().getPos()));
+                        int pos = rv.getVariant().getPos();
+                        positionalOrder.add(pos);
+                        Set<String> underlyingGenesForCurrentVariant = rv.getVariant().getGenes();
 
-                        if(verbose) { System.out.println("[ConvertToGeneStream] getting variant on pos " + rv.getVariant().getChr() + ":" + pos); }
+                        if(verbose){System.out.println("[GeneStream] Assessing next variant: " +rv.toStringShort() );}
 
-                        // all genes to which the current variant may belong to
-                        Set<String> genesSeenForCurrentVariant = rv.getVariant().getGenes();
-                            if(verbose) { System.out.println("[ConvertToGeneStream] genesSeenForCurrentVariant = " + genesSeenForCurrentVariant.toString()); }
-
-                        // put gene and variant in a map, grouping all variants for certain gene
-                        for (String gene : genesSeenForCurrentVariant)
+                        // put genes and variants in a map, grouping all variants per gene
+                        for (String gene : underlyingGenesForCurrentVariant)
                         {
-                            List<RelevantVariant> newRvList = geneToVariantsToCheck.get(gene);
-                            if(newRvList == null) {
-                                newRvList = new ArrayList<>();
-                                geneToVariantsToCheck.put(gene, newRvList);
-                                if(verbose) { System.out.println("[ConvertToGeneStream] added variant to " + gene); }
+                            HashMap<Integer, RelevantVariant> newList = variantBuffer.get(gene);
+                            if(newList == null) {
+                                newList = new HashMap<>();
+                                variantBuffer.put(gene, newList);
                             }
-                            newRvList.add(rv);
+                            newList.put(pos, rv);
                         }
 
-
-
-                        // the moment we 'stop seeing' a gene being annoted to a variant, we process all variants for this gene
-                        // now this is tricky: ANGPTL7 is contained within MTOR. Variants are annoted as [MTOR] or [ANGPTL7, MTOR].
-                        // however, variants relevent for only ANGPTL7 should not be evaluated for MTOR. However, we need to keep track of MTOR
-                        // because it continues later on, so compound MTOR mutations could be found with ANGPTL7 inbetween.
-                        List<RelevantVariant> returnTheseVariants = new ArrayList<>();
-                        List<String> genesNotFound = new ArrayList<>();
-                        for (String gene : genesSeenForPreviousVariant) {
-                            if(verbose) { System.out.println("[ConvertToGeneStream] checking if previously seen " + gene + " is still seen in current variant gene list" + genesSeenForCurrentVariant.toString()); }
-
-
-                            if (!genesSeenForCurrentVariant.contains(gene)) {
-
-                                if(verbose) { System.out.println("[ConvertToGeneStream] Found " + geneToVariantsToCheck.get(gene).size() + " variants for gene " + gene + ", streaming them to next iterator"); }
-                                List<RelevantVariant> variantsToCheck = geneToVariantsToCheck.get(gene);
-                                variantsToCheck = prefilterOnGene(variantsToCheck, gene);
-
-                            //    compoundHetCheck(variantsToCheck); not anymore here!
-
-                                returnTheseVariants.addAll(variantsToCheck);
-                                genesNotFound.add(gene);
-
-                                if(verbose) { System.out.println("[ConvertToGeneStream] after prefilterOnGene: " + variantsToCheck.size() + " variants"); }
-                            }
-                            else
-                            {
-                                if(verbose) { System.out.println("[ConvertToGeneStream] yes, so continuing"); }
-                            }
-                        }
-
-                        if(genesNotFound.size() > 0)
+                        // when we stop seeing an underlying gene, we process all variants for that gene
+                        //when multiple genes end at once, we have to start multiple batches
+                        resultBatches = new LinkedHashMap<>();
+                        for (String gene : underlyingGenesForPreviousVariant)
                         {
-
-
-                            //remove the gene+variants from the map
-
-                            // geneToVariantsToCheck.remove(gene);
-                            genesToDelete = genesNotFound;
-                            if(verbose) { System.out.println("[ConvertToGeneStream] marking to delete variants for gene: " + genesNotFound); }
-
-
-                            resultBatch = returnTheseVariants.iterator();
-
-
-                            //clear the previously seen genes, and add the current ones
-
-                            //genesSeenForPreviousVariant.clear();
-                            // genesSeenForPreviousVariant.addAll(genesSeenForCurrentVariant);
-
-                            genesSeenForCurrentVariantUpdate = genesSeenForCurrentVariant;
-                            if(verbose) { System.out.println("[ConvertToGeneStream] marking genesSeenForCurrentVariantUpdate: " + genesSeenForCurrentVariantUpdate.toString()); }
-
-                            if(verbose) { System.out.println("[ConvertToGeneStream] we have a new result batch ready, with " + returnTheseVariants.size() + " elements"); }
-                            // prepare the next result to be handed out by next()
-                            if(resultBatch.hasNext()){
-                                if(verbose) { System.out.println("[ConvertToGeneStream] returning nextResult..."); }
-                                nextResult = resultBatch.next();
-                                return true;
-                            }
-
-                        }
-
-                        if(verbose) { System.out.println("[ConvertToGeneStream] not returned new batches, so clearning genesSeenForPreviousVariant for next variant and adding " + genesSeenForCurrentVariant.toString()); }
-                        //clear the previously seen genes, and add the current ones
-                        genesSeenForPreviousVariant.clear();
-                        genesSeenForPreviousVariant.addAll(genesSeenForCurrentVariant);
-                        if(genesToDelete != null){
-                            if(verbose) { System.out.println("[ConvertToGeneStream] no results returned after filter, so also cleaning out genes to be deleted: " + genesToDelete.toString()); }
-                            for(String geneToDelete : genesToDelete)
+                            if (!underlyingGenesForCurrentVariant.contains(gene))
                             {
-                                geneToVariantsToCheck.remove(geneToDelete);
+                                if(verbose){System.out.println("[GeneStream] Gene " + gene + " ended, creating result batch");}
+                                HashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
+                                resultBatches.put(gene, variants.values().iterator());
                             }
-                            genesToDelete = null;
                         }
 
-                    }
-                    catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                        // cycle genes seen
+                        underlyingGenesForPreviousVariant.clear();
+                        underlyingGenesForPreviousVariant.addAll(underlyingGenesForCurrentVariant);
 
-                }
-
-
-                if(verbose) { System.out.println("[ConvertToGeneStream] OUTSIDE THE WHILE LOOP, so processing last remaining bits");}
-                if(remainingGenes == null)
-                {
-                    if(verbose) { System.out.println("[ConvertToGeneStream] assigning last remainingGenes: " + geneToVariantsToCheck.keySet().toString());}
-                    remainingGenes = geneToVariantsToCheck.keySet().iterator();
-                    genesToDelete = null;
-                }
-
-                if(remainingGenes.hasNext())
-                {
-
-                    String remainingGene = remainingGenes.next();
-                    if(verbose) { System.out.println("[ConvertToGeneStream] iterating on next remainingGene = " + remainingGene);}
-                    List<RelevantVariant> variantsToCheck = geneToVariantsToCheck.get(remainingGene);
-                    if(verbose) { System.out.println("[ConvertToGeneStream] found = " + variantsToCheck.size() + " variantsToCheck");}
-                    variantsToCheck = prefilterOnGene(variantsToCheck, remainingGene);
-                    if(verbose) { System.out.println("[ConvertToGeneStream] after prefilterOnGene: " + variantsToCheck.size() + " remaining variants");}
-
-             //       compoundHetCheck(variantsToCheck); not anymore here!
-                    if(verbose) { System.out.println("[ConvertToGeneStream] Found " + variantsToCheck.size() + " variants for trailing gene " + remainingGene + ", streaming them to next iterator"); }
-
-                    resultBatch = variantsToCheck.iterator();
-
-                    if(verbose) { System.out.println("[ConvertToGeneStream] we have " + variantsToCheck.size() + " remaining variants in this batch ready");}
-                    // prepare the next result to be handed out by next()
-                    if(resultBatch.hasNext()){
-                        if(verbose) { System.out.println("[ConvertToGeneStream] returning nextResult of remaining data...");}
-                        nextResult = resultBatch.next();
-                        return true;
-                    }
-                    else{
-                        if(verbose) { System.out.println("[ConvertToGeneStream] WARNING nothing in nextResult of remaining data ??");}
+                        if(!resultBatches.isEmpty()) {
+                            nextResult = getNextFromResultBatches(resultBatches, positionCheck);
+                            if(verbose){System.out.println("[GeneStream] Flushing first variant of result batch: " + nextResult.toStringShort());}
+                            return true;
+                        }
+                        else
+                        {
+                            resultBatches = null;
+                        }
                     }
                 }
-
-
-                if(verbose) { System.out.println("[ConvertToGeneStream] all done!!");}
                 return false;
-
-
 
             }
 
             @Override
             public RelevantVariant next() {
-                //            System.out.println("returning nextResult");
                 return nextResult;
             }
         };
     }
 
-    private List<RelevantVariant> prefilterOnGene(List<RelevantVariant> variantsToCheck, String gene) {
-        if(verbose) { System.out.println("[ConvertToGeneStream] inside prefilterOnGene, filtering on: " + gene); }
 
-        List<RelevantVariant> res = new ArrayList<RelevantVariant>();
-        for(RelevantVariant rv : variantsToCheck)
+    /**
+     * Get next result item from a collection of potentially multiple iterators
+     * We return every unique variant position only once, and reset these positions after all result batches are done
+     * @param resultBatches
+     * @return
+     */
+    private RelevantVariant getNextFromResultBatches(LinkedHashMap<String, Iterator<RelevantVariant>> resultBatches, List<Integer> positionsAlreadyReturned)
+    {
+        if(resultBatches == null)
         {
-            for(Relevance rlv : rv.getRelevance())
+            return null;
+        }
+        for(String gene : resultBatches.keySet())
+        {
+            while(resultBatches.get(gene).hasNext())
             {
-                if(rlv.getGene().equals(gene))
+                RelevantVariant next = resultBatches.get(gene).next();
+                if(!positionsAlreadyReturned.contains(next.getVariant().getPos()))
                 {
-                    if(verbose) { System.out.println("[ConvertToGeneStream] inside prefilterOnGene, adding: " + rv.toStringShort()); }
-                    res.add(rv);
-                }
-                else{
-                    if(verbose) { System.out.println("[ConvertToGeneStream] inside prefilterOnGene, not adding: " + rv.toStringShort()); }
+                    if(verbose){System.out.println("[GeneStream] Positions seen " + positionsAlreadyReturned + " does not contain " + next.getVariant().getPos() + ", so we output it");}
+                    positionsAlreadyReturned.add(next.getVariant().getPos());
+                    return next;
                 }
             }
-
         }
-        return res;
+        return null;
     }
-
-
 
 }
