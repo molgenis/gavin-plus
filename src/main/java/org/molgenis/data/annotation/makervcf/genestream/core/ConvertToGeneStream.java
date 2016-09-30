@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf.genestream.core;
 
+import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.*;
@@ -55,17 +56,18 @@ public class ConvertToGeneStream {
                 RelevantVariant nextFromResultBatches = getNextFromResultBatches(resultBatches, positionCheck);
                 if(nextFromResultBatches != null)
                 {
-                    if(verbose){System.out.println("[GeneStream] Flushing next variant: " + nextFromResultBatches.toStringShort()); }
+                    if(verbose){System.out.println("[ConvertToGeneStream] Flushing next variant: " + nextFromResultBatches.toStringShort()); }
                     nextResult = nextFromResultBatches;
                     return true;
                 }
                 else
                 {
-                    while(relevantVariants.hasNext()) {
+                    while(relevantVariants.hasNext())
+                    {
 
                         if(resultBatches != null)
                         {
-                            if(verbose){System.out.println("[GeneStream] Flush complete, cleanup of genes: " + resultBatches.keySet()); }
+                            if(verbose){System.out.println("[ConvertToGeneStream] Flush complete, cleanup of genes: " + resultBatches.keySet()); }
 
                             // we remove variants from the variantBuffer (by position) that were already written out for another gene before
                             // of course we also delete the variants for the genes that were written out
@@ -92,17 +94,27 @@ public class ConvertToGeneStream {
                         positionalOrder.add(pos);
                         Set<String> underlyingGenesForCurrentVariant = rv.getVariant().getGenes();
 
-                        if(verbose){System.out.println("[GeneStream] Assessing next variant: " +rv.toStringShort() );}
+                        if(verbose){System.out.println("[ConvertToGeneStream] Assessing next variant: " +rv.toStringShort() );}
 
                         // put genes and variants in a map, grouping all variants per gene
                         for (String gene : underlyingGenesForCurrentVariant)
                         {
-                            HashMap<Integer, RelevantVariant> newList = variantBuffer.get(gene);
-                            if(newList == null) {
-                                newList = new HashMap<>();
-                                variantBuffer.put(gene, newList);
+                            //variants are only outputted for a certain gene if they are also thought to be relevant for that gene
+                            for(Relevance rlv : rv.getRelevance())
+                            {
+                                if(rlv.getGene().equals(gene))
+                                {
+                                    HashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
+                                    if(variants == null) {
+                                        variants = new HashMap<>();
+                                    }
+                                    variantBuffer.put(gene, variants);
+                                    variants.put(pos, rv);
+                                    if(verbose){System.out.println("[ConvertToGeneStream] Adding variant for matching relevant gene " + gene);}
+                                    break;
+                                }
                             }
-                            newList.put(pos, rv);
+
                         }
 
                         // when we stop seeing an underlying gene, we process all variants for that gene
@@ -110,9 +122,10 @@ public class ConvertToGeneStream {
                         resultBatches = new LinkedHashMap<>();
                         for (String gene : underlyingGenesForPreviousVariant)
                         {
-                            if (!underlyingGenesForCurrentVariant.contains(gene))
+                            // include null check, for variants that are annotated to a gene but were not ever relevant for that gene
+                            if (!underlyingGenesForCurrentVariant.contains(gene) && variantBuffer.get(gene) != null)
                             {
-                                if(verbose){System.out.println("[GeneStream] Gene " + gene + " ended, creating result batch");}
+                                if(verbose){System.out.println("[ConvertToGeneStream] Gene " + gene + " ended, creating result batch");}
                                 HashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
                                 resultBatches.put(gene, variants.values().iterator());
                             }
@@ -124,7 +137,7 @@ public class ConvertToGeneStream {
 
                         if(!resultBatches.isEmpty()) {
                             nextResult = getNextFromResultBatches(resultBatches, positionCheck);
-                            if(verbose){System.out.println("[GeneStream] Flushing first variant of result batch: " + nextResult.toStringShort());}
+                            if(verbose){System.out.println("[ConvertToGeneStream] Flushing first variant of result batch: " + nextResult.toStringShort());}
                             return true;
                         }
                         else
@@ -132,9 +145,23 @@ public class ConvertToGeneStream {
                             resultBatches = null;
                         }
                     }
+
+                    // remaining variants that are leftover, i.e. not terminated yet by a gene ending
+                    resultBatches = new LinkedHashMap<>();
+                    for(String gene : variantBuffer.keySet())
+                    {
+                        HashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
+                        resultBatches.put(gene, variants.values().iterator());
+                    }
+                    nextResult = getNextFromResultBatches(resultBatches, positionCheck);
+                    if(nextResult != null)
+                    {
+                        if(verbose){System.out.println("[ConvertToGeneStream] Flushing first of remaining variants: " + nextResult.toStringShort());}
+                        return true;
+                    }
+
                 }
                 return false;
-
             }
 
             @Override
@@ -157,6 +184,7 @@ public class ConvertToGeneStream {
         {
             return null;
         }
+
         for(String gene : resultBatches.keySet())
         {
             while(resultBatches.get(gene).hasNext())
@@ -164,7 +192,7 @@ public class ConvertToGeneStream {
                 RelevantVariant next = resultBatches.get(gene).next();
                 if(!positionsAlreadyReturned.contains(next.getVariant().getPos()))
                 {
-                    if(verbose){System.out.println("[GeneStream] Positions seen " + positionsAlreadyReturned + " does not contain " + next.getVariant().getPos() + ", so we output it");}
+                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionsAlreadyReturned + " does not contain " + next.getVariant().getPos() + ", so we output it");}
                     positionsAlreadyReturned.add(next.getVariant().getPos());
                     return next;
                 }
