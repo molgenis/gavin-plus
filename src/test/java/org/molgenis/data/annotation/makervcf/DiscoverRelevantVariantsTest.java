@@ -37,8 +37,17 @@ public class DiscoverRelevantVariantsTest extends Setup
 		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("reason=NM_004562.2(PARK2):c.823C>T (p.Arg275Trp)|PARK2|Pathogenic, classification=Pathogenic"));
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene., classification=Pathogenic"));
-		assertFalse(it.hasNext());
+		assertTrue(it.hasNext());
 
+		// multigene, multiallele
+		assertEquals(it.next().getRelevance().get(0).getAllele(), "T");
+		assertEquals(it.next().getRelevance().get(1).getAllele(), "A");
+		assertEquals(it.next().getRelevance().get(0).getGene(), "ALDH5A1");
+		assertEquals(it.next().getRelevance().get(1).getGene(), "OTHERGENE");
+		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene"));
+		assertTrue(it.next().getRelevance().get(1).getJudgment().toString().contains("Variant MAF of 0.0 is rare enough to be potentially pathogenic and its CADD score of 99.0 is greater than a global threshold of 15"));
+
+		assertFalse(it.hasNext());
 	}
 
 }
