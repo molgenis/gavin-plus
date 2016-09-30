@@ -50,7 +50,7 @@ public class ConvertBackToPositionalStream {
                         i++;
 
                         RelevantVariant rv = relevantVariants.next();
-                        int pos = Integer.parseInt(rv.getVariant().getPos());
+                        int pos = rv.getVariant().getPos();
          //               System.out.println("rvPos = " + pos + ", orderPos["+i+"] = " + order.get(i) + ", order.size() " + order.size());
 
 

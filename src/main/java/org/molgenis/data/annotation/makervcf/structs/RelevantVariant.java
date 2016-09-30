@@ -33,7 +33,7 @@ public class RelevantVariant
     }
 
     public String toStringShort(){
-        return "RelevantVariant{"+variant.getChr()+" " +variant.getPos()+ " " + variant.getRef()+ " " + variant.getAltString() + '}';
+        return variant.getChr()+ " " +variant.getPos()+ " " + variant.getRef()+ " " + variant.getAltString();
     }
 
     @Override

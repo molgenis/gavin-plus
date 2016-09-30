@@ -19,7 +19,7 @@ public class VcfEntity {
 
     private Entity orignalEntity;
     private String chr;
-    private String pos;
+    private Integer pos;
     private String id;
     private String ref;
     private String ann;
@@ -41,7 +41,7 @@ public class VcfEntity {
         this.orignalEntity = record;
         //this.samples = record.getEntities(VcfRepository.SAMPLES);
         this.chr = record.getString("#CHROM");
-        this.pos = record.getString("POS");
+        this.pos = Integer.parseInt(record.getString("POS"));
         this.id = record.getString("ID");
         this.ref = record.getString("REF");
         this.clinvar = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
@@ -119,7 +119,7 @@ public class VcfEntity {
         return chr;
     }
 
-    public String getPos() {
+    public Integer getPos() {
         return pos;
     }
 
