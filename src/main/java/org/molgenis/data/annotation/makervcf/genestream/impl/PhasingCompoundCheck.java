@@ -137,7 +137,7 @@ public class PhasingCompoundCheck extends GeneStream{
             {
                 for(String sample : rlv.getSampleStatus().keySet())
                 {
-                    if(union.contains(sample) && status.isCompound(rlv.getSampleStatus().get(sample)))
+                    if(union.contains(sample) && !samplesWithUnphasedVariants.contains(sample) && status.isCompound(rlv.getSampleStatus().get(sample)))
                     {
                         if(verbose){System.out.println("[PhasingCompoundCheck] Going to update sample "+sample+" from "+rlv.getSampleStatus().get(sample)+" to " + status.HETEROZYGOUS_MULTIHIT);}
                         rlv.getSampleStatus().put(sample, status.HETEROZYGOUS_MULTIHIT);

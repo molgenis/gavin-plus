@@ -43,11 +43,12 @@ public class AssignCompoundHetTest extends Setup
 	{
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
-		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
+		Iterator<RelevantVariant> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
+		ConvertToGeneStream gs = new ConvertToGeneStream(match, true);
 		Iterator<RelevantVariant> gsi = gs.go();
 
-		Iterator<RelevantVariant> it = new AssignCompoundHet(gsi, false).go();
+		Iterator<RelevantVariant> it = new AssignCompoundHet(gsi, true).go();
+
 
 		// AIMP1
 		assertTrue(it.hasNext());
@@ -99,6 +100,21 @@ public class AssignCompoundHetTest extends Setup
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
+
+		// OverlapA and OverlapB check to find out if overlapping genes correctly have compounds detected
+		assertTrue(it.hasNext());
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(it.hasNext());
+
+		System.out.println(it.next().getRelevantGenes());
+		System.out.println(it.next().getRelevance().toString());
+		System.out.println(it.next().getRelevanceForGene("OverlapA").toString());
+		System.out.println(it.next().getRelevanceForGene("OverlapB").toString());
+
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(it.next().getRelevance().get(1).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(it.hasNext());
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
 
 		// ALG8
 		//double homozygous in AR gene so affected

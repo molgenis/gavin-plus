@@ -85,8 +85,7 @@ public class MatchVariantsToGenotypeAndInheritance {
 
                     for(Relevance rlv : rv.getRelevance()) {
 
-                        String gene = rlv.getJudgment().getGene();
-
+                        String gene = rlv.getGene();
 
                         CGDEntry ce = cgd.get(gene);
                         generalizedInheritance inh = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;

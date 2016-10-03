@@ -40,7 +40,7 @@ public class ConvertToGeneStream {
             LinkedHashMap<String, Iterator<RelevantVariant>> resultBatches;
 
             // variantBuffer with genes and variants that lags behind the input and gets turned into result batches
-            HashMap<String, HashMap<Integer, RelevantVariant>> variantBuffer = new HashMap<>();
+            HashMap<String, LinkedHashMap<Integer, RelevantVariant>> variantBuffer = new HashMap<>();
 
             // set of genes seen for variant in previous iteration
             Set<String> underlyingGenesForPreviousVariant = new HashSet<>();
@@ -104,9 +104,9 @@ public class ConvertToGeneStream {
                             {
                                 if(rlv.getGene().equals(gene))
                                 {
-                                    HashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
+                                    LinkedHashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
                                     if(variants == null) {
-                                        variants = new HashMap<>();
+                                        variants = new LinkedHashMap<>();
                                     }
                                     variantBuffer.put(gene, variants);
                                     variants.put(pos, rv);

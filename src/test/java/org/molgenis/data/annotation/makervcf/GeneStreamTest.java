@@ -23,12 +23,19 @@ public class GeneStreamTest extends Setup
 	protected File inputVcfFile;
 	protected HashMap<String, Integer> expectedVariantsPerGene;
 
+	protected File inputVcfFile2;
+
+
 	@BeforeClass
 	public void beforeClass() throws FileNotFoundException, IOException {
 		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/ConvertToGeneStreamTestFile.vcf");
 		inputVcfFile = new File(FileUtils.getTempDirectory(), "ConvertToGeneStreamTestFile.vcf");
 		FileCopyUtils.copy(inputVcf, new FileOutputStream(inputVcfFile));
 		setExpectedVariantsPerGene();
+
+		InputStream inputVcf2 = DiscoverRelevantVariantsTest.class.getResourceAsStream("/AssignCompoundHetTestFile.vcf");
+		inputVcfFile2 = new File(FileUtils.getTempDirectory(), "AssignCompoundHetTestFile.vcf");
+		FileCopyUtils.copy(inputVcf2, new FileOutputStream(inputVcfFile2));
 	}
 
 	@Test
@@ -39,7 +46,7 @@ public class GeneStreamTest extends Setup
 
 		HashMap<String, Integer> observedVariantsPerGene = new HashMap<>();
 
-		GeneStream gsTest = new GeneStream(reorder, true) {
+		GeneStream gsTest = new GeneStream(reorder, false) {
 			@Override
 			public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
 				observedVariantsPerGene.put(gene, variantsPerGene.size());
@@ -49,14 +56,20 @@ public class GeneStreamTest extends Setup
 		Iterator<RelevantVariant> it = gsTest.go();
 
 		int nrOfVariants = 0;
+		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
-			it.next();
 			nrOfVariants++;
+			positions.append(it.next().getVariant().getPos() + "_");
+
 		}
 
-		assertEquals(nrOfVariants, 41);
+		//there are 45 in the file, but 1 does not contain any relevant hits, so we are left with 44
+		assertEquals(nrOfVariants, 44);
 		assertEquals(expectedVariantsPerGene, observedVariantsPerGene);
+
+		// double check that order is OK
+		assertEquals(positions.toString(), ConvertToGeneStreamTest.expected1);
 
 
 	}
@@ -89,7 +102,35 @@ public class GeneStreamTest extends Setup
 		expectedVariantsPerGene.put("geneW", 2);
 		expectedVariantsPerGene.put("geneX", 1);
 		expectedVariantsPerGene.put("geneZ", 2);
+		expectedVariantsPerGene.put("OverlapA", 2);
+		expectedVariantsPerGene.put("OverlapB", 2);
 		expectedVariantsPerGene.put("geneLast", 1);
+	}
+
+
+	@Test
+	public void test2() throws Exception
+	{
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile2, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+		Iterator<RelevantVariant> reorder = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+
+		GeneStream gsTest = new GeneStream(reorder, false) {
+			@Override
+			public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {}
+		};
+
+		Iterator<RelevantVariant> it = gsTest.go();
+		StringBuffer positions = new StringBuffer();
+
+		while(it.hasNext())
+		{
+			positions.append(it.next().getVariant().getPos() + "_");
+
+		}
+		// originally a bug found in ConvertToGeneStreamTest
+		// double check here that GeneStream did not alter the order
+		assertEquals(positions.toString(), ConvertToGeneStreamTest.expected2);
+
 	}
 
 }

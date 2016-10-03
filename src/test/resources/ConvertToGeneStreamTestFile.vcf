@@ -47,4 +47,7 @@
 1	39	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||MODIFIER|geneY||||||||||||,A||MODIFIER|geneZ||||||||||||	GT	1/1
 1	40	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneZ||||||||||||,A||MODIFIER|geneY||||||||||||	GT	1/1
 1	41	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||MODIFIER|geneY||||||||||||,A||HIGH|geneZ||||||||||||	GT	1/1
-1	42	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneLast||||||||||||	GT	1/1
+1	42	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|OverlapA||||||||||||	GT	1|0
+1	43	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|OverlapA||||||||||||,A||HIGH|OverlapB||||||||||||	GT	0|1
+1	44	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|OverlapB||||||||||||	GT	1|0
+1	45	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneLast||||||||||||	GT	1/1

@@ -43,6 +43,17 @@ public class RelevantVariant
         return relevance;
     }
 
+    public Relevance getRelevanceForGene(String gene) {
+        for(Relevance rlv : relevance)
+        {
+            if(rlv.getGene().equals(gene))
+            {
+                return rlv;
+            }
+        }
+        return null;
+    }
+
     public String toStringShort(){
         return variant.getChr()+ " " +variant.getPos()+ " " + variant.getRef()+ " " + variant.getAltString();
     }

@@ -77,7 +77,6 @@ public class PhasingCompoundCheckTest extends Setup
 		// ALAD
 		//part phased, part uncertain, here we are greedy
 		assertTrue(it.hasNext());
-		System.out.println(it.next().toString());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
@@ -96,6 +95,17 @@ public class PhasingCompoundCheckTest extends Setup
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=AFFECTED_COMPOUNDHET, p02=AFFECTED_COMPOUNDHET"));
+
+		// OverlapA and OverlapB check to find out if overlapping genes correctly have compounds detected
+		assertTrue(it.hasNext());
+		System.out.println(it.next().getRelevance().get(0).getSampleStatus().toString());
+
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
+		assertTrue(it.hasNext());
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
+		assertTrue(it.next().getRelevance().get(1).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(it.hasNext());
+		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HOMOZYGOUS_COMPOUNDHET"));
 
 		// ALG8
 		//double homozygous in AR gene so affected
