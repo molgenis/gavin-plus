@@ -4,9 +4,7 @@ import com.sun.tools.javac.jvm.Gen;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by joeri on 6/29/16.
@@ -28,79 +26,104 @@ public abstract class GeneStream {
         return new Iterator<RelevantVariant>(){
 
             RelevantVariant nextResult;
-            String previousGene;
-            String currentGene;
-            List<RelevantVariant> variantsForGene = new ArrayList<>();
+            Set<String> previousGenes;
+            Set<String> currentGenes;
+
+            HashMap<String, List<RelevantVariant>> variantBufferPerGene = new HashMap<>();
+            List<RelevantVariant> variantBuffer = new ArrayList<>();
             Iterator<RelevantVariant> resultBatch;
-            boolean cleanup = false;
-            RelevantVariant variantSkippedOver;
 
             @Override
             public boolean hasNext() {
                 try {
+
                     if(resultBatch != null && resultBatch.hasNext())
                     {
                         if(verbose){System.out.println("[GeneStream] Returning subsequent result of gene stream batch");}
                         nextResult = resultBatch.next();
                         return true;
                     }
-                    else if(cleanup)
-                    {
-                        if(verbose){System.out.println("[GeneStream] Cleanup of variants and genes");}
-                        //this last element is the first element of the next gene
-                        variantsForGene = new ArrayList<>();
-                        variantsForGene.add(variantSkippedOver);
-                        if(verbose){System.out.println("[GeneStream] Liftover of variant from previous iteration: " + variantsForGene.toString());}
-                        cleanup = false;
-                    }
-                    while (relevantVariants.hasNext()) {
+                    else {
 
-                        RelevantVariant rv = relevantVariants.next();
-
-                        for(Relevance rlv : rv.getRelevance())
+                        while (relevantVariants.hasNext())
                         {
+                            // cleanup of result batch after previously flushed results
+                            if (resultBatch != null) {
+                                if (verbose) { System.out.println("[GeneStream] Cleanup by setting result batch to null"); }
+                                resultBatch = null;
+                            }
 
-                            currentGene = rlv.getGene();
-                            if(verbose){System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGene);}
+                            RelevantVariant rv = relevantVariants.next();
+                            currentGenes = rv.getRelevantGenes();
+                            if (verbose) { System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGenes); }
 
 
-                            if(!currentGene.equals(previousGene) && previousGene != null)
-                            {
-                                if(verbose){System.out.println("[GeneStream] Executing the abstract perGene() function on " + previousGene);}
+                            // if the previously seen genes are fully disjoint from the current genes, start processing per gene and flush buffer
+                            if (previousGenes != null && Collections.disjoint(previousGenes, currentGenes)) {
+                                if (verbose) { System.out.println("[GeneStream] Executing the abstract perGene() function on " + previousGenes); }
 
-                                perGene(previousGene, variantsForGene);
-
-                                resultBatch = variantsForGene.iterator();
-
-                                previousGene = currentGene;
-                                cleanup = true;
-
-                                variantSkippedOver = rv;
-
-                                if(resultBatch.hasNext())
-                                {
-                                    if(verbose){System.out.println("[GeneStream] Returning first result of gene stream batch");}
-                                    nextResult = resultBatch.next();
-                                    return true;
+                                // process per gene in abstract function
+                                for (String gene : variantBufferPerGene.keySet()) {
+                                    if (verbose) { System.out.println("[GeneStream] Processing gene "+gene+" having " + variantBufferPerGene.get(gene).size() + " variants"); }
+                                    perGene(gene, variantBufferPerGene.get(gene));
                                 }
-                                else
-                                {
-                                    //nothing to return for this gene after perGene(previousGene, variantsForGene)
-                                    //so we go straight to cleanup in the next iteration
-                                }
+                                // create shallow copy, so that we can add another variant to buffer after we instantiate the iterator
+                                resultBatch = new ArrayList<>(variantBuffer).iterator();
+
+                                //reset buffers
+                                variantBuffer = new ArrayList<>();
+                                variantBufferPerGene = new HashMap<>();
 
                             }
-                            //TODO how to handle hits in multiple genes
-                            variantsForGene.add(rv);
-                            previousGene = currentGene;
+
+                            // add current variant to gene-specific buffer
+                            for (Relevance rlv : rv.getRelevance()) {
+                                String gene = rlv.getGene();
+                                if (variantBufferPerGene.containsKey(gene)) {
+                                    variantBufferPerGene.get(gene).add(rv);
+                                } else {
+                                    List<RelevantVariant> variants = new ArrayList<>();
+                                    variants.add(rv);
+                                    variantBufferPerGene.put(gene, variants);
+                                }
+                            }
+                            // add variant to global buffer
+                            variantBuffer.add(rv);
+
+                            // cycle previous and current genes
+                            previousGenes = currentGenes;
+
+                            // if result batch ready, start streaming it out
+                            if (resultBatch != null && resultBatch.hasNext()) {
+                                if (verbose) { System.out.println("[GeneStream] Returning first result of gene stream batch"); }
+                                nextResult = resultBatch.next();
+                                return true;
+                            } else {
+                                //nothing to return for this gene after perGene(previousGene, variantsForGene)
+                                //so we go straight to cleanup in the next iteration
+                            }
                         }
-
-
-
                     }
 
+
                     //process the last remaining data before ending
-                    perGene(previousGene, variantsForGene);
+                    if(variantBuffer.size() > 0)
+                    {
+                        if (verbose) { System.out.println("[GeneStream] Buffer has " + variantBuffer.size() + " variants left in " + variantBufferPerGene.keySet().toString()); }
+                        for(String gene : variantBufferPerGene.keySet())
+                        {
+                            perGene(gene, variantBufferPerGene.get(gene));
+                        }
+                        resultBatch = new ArrayList<>(variantBuffer).iterator();
+                        variantBuffer = new ArrayList<>();
+                        variantBufferPerGene = new HashMap<>();
+                        if(resultBatch.hasNext())
+                        {
+                            if(verbose){System.out.println("[GeneStream] Returning first of remaining variants");}
+                            nextResult = resultBatch.next();
+                            return true;
+                        }
+                    }
 
                     return false;
                 }

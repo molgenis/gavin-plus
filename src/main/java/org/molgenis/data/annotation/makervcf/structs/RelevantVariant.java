@@ -5,10 +5,7 @@ import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by joeri on 6/13/16.
@@ -22,6 +19,20 @@ public class RelevantVariant
     {
         this.variant = variant;
         this.relevance = relevance;
+    }
+
+    /**
+     * Helper function to group all genes of relevance
+     * @return
+     */
+    public Set<String> getRelevantGenes()
+    {
+        HashSet res = new HashSet<>();
+        for(Relevance rlv : this.relevance)
+        {
+            res.add(rlv.getGene());
+        }
+        return res;
     }
 
     public VcfEntity getVariant() {
