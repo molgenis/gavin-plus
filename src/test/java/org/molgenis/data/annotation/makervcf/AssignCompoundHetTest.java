@@ -106,13 +106,8 @@ public class AssignCompoundHetTest extends Setup
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 
-		System.out.println(it.next().getRelevantGenes());
-		System.out.println(it.next().getRelevance().toString());
-		System.out.println(it.next().getRelevanceForGene("OverlapA").toString());
-		System.out.println(it.next().getRelevanceForGene("OverlapB").toString());
-
-		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
-		assertTrue(it.next().getRelevance().get(1).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(it.next().getRelevanceForGene("OverlapA").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(it.next().getRelevanceForGene("OverlapB").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
 
@@ -143,6 +138,7 @@ public class AssignCompoundHetTest extends Setup
 		// unknown2
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS, p02=HOMOZYGOUS"));
+		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS, p02=HOMOZYGOUS"));
 
 		assertTrue(!it.hasNext());
