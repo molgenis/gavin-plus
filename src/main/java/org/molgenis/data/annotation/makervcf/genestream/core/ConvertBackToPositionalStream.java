@@ -37,22 +37,18 @@ public class ConvertBackToPositionalStream {
 
                 if(bufferPrinter != null && bufferPrinter.hasNext())
                 {
-               //     System.out.println("returning next element in the buffer");
+                    if(verbose){ System.out.println("[ConvertBackToPositionalStream] Returning next element in the buffer"); }
                     nextResult = bufferPrinter.next();
                     return true;
                 }
 
+                while_:
                 while (relevantVariants.hasNext()) {
                     try {
-
-             //           System.out.println("hasNext called, buffer size = " + buffer.size());
-
                         i++;
 
                         RelevantVariant rv = relevantVariants.next();
                         int pos = rv.getVariant().getPos();
-         //               System.out.println("rvPos = " + pos + ", orderPos["+i+"] = " + order.get(i) + ", order.size() " + order.size());
-
 
                         //position of stream matches real variant position, stable situation
                         //write out any buffered variants in the correct order until this point
@@ -60,16 +56,29 @@ public class ConvertBackToPositionalStream {
                         {
                             if(buffer.size() == 0)
                             {
-             //                   System.out.println("buffer empty, returning current element");
+                                if(verbose){ System.out.println("[ConvertBackToPositionalStream] Buffer empty, returning current element " + pos); }
                                 nextResult = rv;
                                 return true;
                             }
                             else
                             {
                                 buffer.put(pos, rv);
+                                if(verbose){ System.out.println("[ConvertBackToPositionalStream] Buffer size > 0, adding to buffer " + pos); }
+
+                                // check if all positions are present up to the current one
+                                // to prevent problem: we see 20, 23, 22, 21 where alignment at 20 and 22, and we output wrongly 20, 23, 22, 21 because we haven't seen 21 yet
+                                // easiest check: all numbers in buffer are lower than current position
+                                for(Integer checkPos : buffer.keySet())
+                                {
+                                    if(checkPos > pos)
+                                    {
+                                        continue while_;
+                                    }
+                                }
+
                                 bufferPrinter = buffer.values().iterator();
-                                if(verbose){ System.out.println("[ConvertBackToPositionalStream] Positions aligned again at "+pos+", clearning buffer with "+buffer.size()+" elements");}
-                                buffer = new TreeMap<>(); //todo ok??
+                                if(verbose){ System.out.println("[ConvertBackToPositionalStream] Positions aligned again at "+pos+", all values smaller than current pos, so clearning buffer with "+buffer.size()+" elements");}
+                                buffer = new TreeMap<>();
                                 nextResult = bufferPrinter.next();
                                 return true;
                             }
@@ -78,12 +87,10 @@ public class ConvertBackToPositionalStream {
                         else
                         {
                             //buffer
-             //               System.out.println("adding to buffer");
+                            if(verbose){ System.out.println("[ConvertBackToPositionalStream] Adding to buffer " + pos); }
                             buffer.put(pos, rv);
                         }
-
-
-
+                        
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
