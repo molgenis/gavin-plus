@@ -56,6 +56,11 @@ public class MakeRVCFforClinicalVariantsTest extends Setup
 		String rlv2 = it.next().getString("RLV");
 		assertEquals(rlv2, "T|0.012|ALDH5A1||NM_170740.1|Succinic semialdehyde dehydrogenase deficiency|RECESSIVE|N A|||p45:CARRIER/p66:CARRIER/p21:CARRIER/p64:CARRIER||p45:0s1/p66:0s1/p21:0s1/p64:0s1||Predicted pathogenic|GAVIN|Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene.||");
 
+		// here, we fine allele T pathogenic for ALDH5A1 and allele A pathogenic for TERC, albeit without genotype matches (not filtered out in this test)
+		assertTrue(it.hasNext());
+		String rlv3 = it.next().getString("RLV");
+		assertEquals(rlv3, "T|0.012|ALDH5A1|||Succinic semialdehyde dehydrogenase deficiency|RECESSIVE|N A|||p45:CARRIER/p66:CARRIER/p21:CARRIER/p64:CARRIER||p45:0s1/p66:0s1/p21:0s1/p64:0s1||Predicted pathogenic|GAVIN|Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene.||,A|0.0|TERC|||Dyskeratosis congenita, autosomal dominant  Aplastic anemia  Pulmonary fibrosis and or bone marrow failure, telomere-related 2|DOMINANT|Pediatric|The presence of mutations has also been reported as increasing risk of malignancy, including melanoma||||||Predicted pathogenic|GAVIN|Variant is of high moderate low impact, while there are no known high moderate low impact variants in the population. Also, the variant MAF of 0.0 is less than a MAF of 0.004622819999999994.||");
+
 		assertFalse(it.hasNext());
 	}
 
