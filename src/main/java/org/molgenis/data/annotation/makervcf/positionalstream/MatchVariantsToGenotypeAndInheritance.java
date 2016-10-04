@@ -145,6 +145,7 @@ public class MatchVariantsToGenotypeAndInheritance {
 
         MultiKeyMap res = new MultiKeyMap();
 
+        Set<String> parentsWithReferenceCalls = new HashSet<String>();
 
         Iterator<Entity> samples = record.getSamples();
 
@@ -169,8 +170,11 @@ public class MatchVariantsToGenotypeAndInheritance {
                 }
             }
 
-            Set<String> parentsWithReferenceCalls = new HashSet<String>();
-
+            // skip empty genotypes
+            if ( genotype.equals("./.") || genotype.equals(".|.") || genotype.equals(".") )
+            {
+                continue;
+            }
 
             // skip reference genotypes unless parents of a child for de novo detection
             if ( genotype.equals("0/0") || genotype.equals("0|0")  || genotype.equals("0") )
@@ -179,12 +183,6 @@ public class MatchVariantsToGenotypeAndInheritance {
                 {
                     parentsWithReferenceCalls.add(sampleName);
                 }
-                continue;
-            }
-
-            // skip empty genotypes
-            if ( genotype.equals("./.") || genotype.equals(".|.") || genotype.equals(".") )
-            {
                 continue;
             }
 
@@ -237,6 +235,7 @@ public class MatchVariantsToGenotypeAndInheritance {
                         throw new Exception("inheritance unknown: " + inheritance);
                     }
 
+                    //FIXME: set directly above with put instead of via putAll afterwards?
                     if(res.containsKey(gene, alt))
                     {
                         GenoMatchSamples match = (GenoMatchSamples)res.get(gene, alt);
@@ -245,13 +244,25 @@ public class MatchVariantsToGenotypeAndInheritance {
                     }
                     else
                     {
-                        GenoMatchSamples match = new GenoMatchSamples(carriers, affected, parentsWithReferenceCalls);
+                        GenoMatchSamples match = new GenoMatchSamples(carriers, affected);
                         res.put(gene, alt, match);
                     }
                 }
             }
         }
 
+        //for relevant combinations, set parents with reference calls (--> this is not related to alternative alleles or gene combinations)
+        // FIXME: also this can be set directly, earlier?
+        for(String alt : alts) {
+            for (String gene : genes) {
+                if(res.get(gene, alt) != null)
+                {
+                    ((GenoMatchSamples)res.get(gene, alt)).setParentsWithReferenceCalls(parentsWithReferenceCalls);
+                }
+            }
+        }
+
         return res;
     }
+
 }

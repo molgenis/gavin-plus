@@ -14,10 +14,14 @@ public class GenoMatchSamples {
     public Set<String> parentsWithReferenceCalls;
 
 
-    public GenoMatchSamples(HashMap<String, Entity> carriers, HashMap<String, Entity> affected, Set<String> parentsWithReferenceCalls)
+    public GenoMatchSamples(HashMap<String, Entity> carriers, HashMap<String, Entity> affected)
     {
         this.carriers = carriers;
         this.affected = affected;
+    }
+
+    public void setParentsWithReferenceCalls(Set<String> parentsWithReferenceCalls)
+    {
         this.parentsWithReferenceCalls = parentsWithReferenceCalls;
     }
 
