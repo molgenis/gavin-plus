@@ -21,4 +21,12 @@ public class GenoMatchSamples {
         this.parentsWithReferenceCalls = parentsWithReferenceCalls;
     }
 
+    @Override
+    public String toString() {
+        return "GenoMatchSamples{" +
+                "carriers=" + carriers +
+                ", affected=" + affected +
+                ", parentsWithReferenceCalls=" + parentsWithReferenceCalls +
+                '}';
+    }
 }
