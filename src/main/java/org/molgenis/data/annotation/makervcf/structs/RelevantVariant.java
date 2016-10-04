@@ -72,7 +72,7 @@ public class RelevantVariant
     public String toString() {
         return "RelevantVariant{" +
                 "variant=" + variant +
+                ", relevance=" + relevance +
                 '}';
     }
-
 }
