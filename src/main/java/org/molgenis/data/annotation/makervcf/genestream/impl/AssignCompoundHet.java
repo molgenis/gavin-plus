@@ -32,6 +32,10 @@ public class AssignCompoundHet extends GeneStream {
         {
             for(Relevance rlv : rv.getRelevance())
             {
+                if(!rlv.getGene().equals(gene))
+                {
+                    continue;
+                }
                 for(String sample: rlv.getSampleStatus().keySet())
                 {
                     if(rlv.getSampleStatus().get(sample) == status.HETEROZYGOUS || rlv.getSampleStatus().get(sample) == status.CARRIER)
