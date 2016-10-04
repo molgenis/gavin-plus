@@ -44,12 +44,12 @@ public class TrioFilterTest extends Setup
 	@Test
 	public void test() throws Exception
 	{
-
+		TrioData td = TrioFilter.getTrioData(inputVcfFile);
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
+		Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, td.getParents(), false).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
 		Iterator<RelevantVariant> gsi = gs.go();
-		TrioData td = TrioFilter.getTrioData(inputVcfFile);
+
 		TrioFilter tf = new TrioFilter(gsi, td, false);
 		Iterator<RelevantVariant> it = tf.go();
 
