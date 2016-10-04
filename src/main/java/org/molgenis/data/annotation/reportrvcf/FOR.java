@@ -27,9 +27,8 @@ public class FOR {
     private File genesFORoutput;
 
     public static void main(String[] args) throws Exception {
-        FOR falseOM = new FOR(new File("/Users/joeri/Desktop/1000G_diag_FDR/FOR/GAVIN_FOR_benchmark.vcf"),
-                new File("/Users/joeri/Desktop/1000G_diag_FDR/FOR/GAVIN_FOR_benchmark_RVCF.vcf"),
-                new File("/Users/joeri/Desktop/1000G_diag_FDR/FOR/FOR.tsv"));
+        String dir = "/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/FOR/";
+        FOR falseOM = new FOR(new File(dir+"GAVIN_FOR_benchmark_goldstandard_nodup.vcf"), new File(dir+"GAVIN_FOR_benchmark_RVCF.vcf"), new File(dir+"FOR.tsv"));
         falseOM.go();
     }
 

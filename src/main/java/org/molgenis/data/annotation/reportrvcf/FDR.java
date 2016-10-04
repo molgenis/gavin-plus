@@ -57,10 +57,13 @@ public class FDR {
         Set<String> sampleGeneCombo = new HashSet<>();
 
         Iterator<Entity> vcfIterator = vcf.iterator();
-        while(vcfIterator.hasNext()) {
+        while(vcfIterator.hasNext())
+        {
 
             VcfEntity record = new VcfEntity(vcfIterator.next());
-            RVCF rvcf = record.getRvcf();
+
+            //TODO: check implications of this being a loop now instead of 1 rvcf
+            for(RVCF rvcf : record.getRvcf()){
 
             String gene = rvcf.getGene();
 
@@ -70,29 +73,30 @@ public class FDR {
                 geneToCarrier.put(gene, 0);
             }
 
-            for(String sample : rvcf.getSampleStatus().keySet())
-            {
-                if(status.isPresumedAffected(rvcf.getSampleStatus().get(sample)))
+                for(String sample : rvcf.getSampleStatus().keySet())
                 {
-                    if(!sampleGeneCombo.contains(gene + "_" + sample))
+                    if(status.isPresumedAffected(rvcf.getSampleStatus().get(sample)))
                     {
-                        int count = geneToAffected.get(gene);
-                        geneToAffected.put(gene, count + 1);
-                        sampleGeneCombo.add(gene + "_" + sample);
-                    }
+                        if(!sampleGeneCombo.contains(gene + "_" + sample))
+                        {
+                            int count = geneToAffected.get(gene);
+                            geneToAffected.put(gene, count + 1);
+                            sampleGeneCombo.add(gene + "_" + sample);
+                        }
 
-                }
-                else if(status.isPresumedCarrier(rvcf.getSampleStatus().get(sample)))
-                {
-                    if(!sampleGeneCombo.contains(gene + "_" + sample))
-                    {
-                        int count = geneToCarrier.get(gene);
-                        geneToCarrier.put(gene, count + 1);
-                        sampleGeneCombo.add(gene + "_" + sample);
                     }
-                }
-                else{
-                    throw new Exception("ERROR: Unknown sample status: " +rvcf.getSampleStatus().get(sample));
+                    else if(status.isPresumedCarrier(rvcf.getSampleStatus().get(sample)))
+                    {
+                        if(!sampleGeneCombo.contains(gene + "_" + sample))
+                        {
+                            int count = geneToCarrier.get(gene);
+                            geneToCarrier.put(gene, count + 1);
+                            sampleGeneCombo.add(gene + "_" + sample);
+                        }
+                    }
+                    else{
+                        throw new Exception("ERROR: Unknown sample status: " +rvcf.getSampleStatus().get(sample));
+                    }
                 }
             }
 

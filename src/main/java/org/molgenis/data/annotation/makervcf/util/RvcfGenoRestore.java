@@ -29,8 +29,8 @@ public class RvcfGenoRestore {
         Iterator<Entity> it = rvcfInput.iterator();
         while (it.hasNext()) {
             VcfEntity record = new VcfEntity(it.next());
-            Map<String, String> sampleGenotypes = record.getRvcf().getSampleGenotype();
-            sampleIds.addAll(sampleGenotypes.keySet());
+            //Map<String, String> sampleGenotypes = record.getRvcf().getSampleGenotype();
+            //sampleIds.addAll(sampleGenotypes.keySet());
         }
         System.out.println(sampleIds);
 
@@ -70,7 +70,7 @@ public class RvcfGenoRestore {
 
                 Map<String, String> sampleGenotypes = null;
                 try {
-                    sampleGenotypes = new VcfEntity(rv).getRvcf().getSampleGenotype();
+                    //sampleGenotypes = new VcfEntity(rv).getRvcf().getSampleGenotype();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
