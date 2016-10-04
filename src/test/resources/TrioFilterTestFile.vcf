@@ -16,7 +16,7 @@
 1	7	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIMP1||||||||||||	GT	1/1	1/1	1/1
 1	8	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	0/0	0/0	0/1
 1	9	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	0/1	0/0	0/0
-1	9	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	0/1	0/1	0/0
-1	10	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	0/1	0/1	0/1
-1	11	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	1/1	1/1	0/1
-1	11	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	1/1	0/1	0/1
+1	10	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	0/1	0/1	0/0
+1	11	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	0/1	0/1	0/1
+1	12	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	1/1	1/1	0/1
+1	13	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|AIP||||||||||||	GT	1/1	0/1	0/1
