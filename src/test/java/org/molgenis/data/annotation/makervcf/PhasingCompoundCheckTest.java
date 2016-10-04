@@ -98,12 +98,10 @@ public class PhasingCompoundCheckTest extends Setup
 
 		// OverlapA and OverlapB check to find out if overlapping genes correctly have compounds detected
 		assertTrue(it.hasNext());
-		System.out.println(it.next().getRelevance().get(0).getSampleStatus().toString());
-
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
-		assertTrue(it.next().getRelevance().get(1).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(it.next().getRelevanceForGene("OverlapA").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
+		assertTrue(it.next().getRelevanceForGene("OverlapB").getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HOMOZYGOUS_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HOMOZYGOUS_COMPOUNDHET"));
 
@@ -134,6 +132,7 @@ public class PhasingCompoundCheckTest extends Setup
 		// unknown2
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS, p02=HOMOZYGOUS"));
+		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS, p02=HOMOZYGOUS"));
 
 		assertTrue(!it.hasNext());

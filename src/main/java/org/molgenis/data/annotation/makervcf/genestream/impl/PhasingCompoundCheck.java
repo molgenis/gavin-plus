@@ -71,6 +71,10 @@ public class PhasingCompoundCheck extends GeneStream{
         {
             for(Relevance rlv : rv.getRelevance())
             {
+                if(!rlv.getGene().equals(gene))
+                {
+                    continue;
+                }
                 char affectedIndex = Character.forDigit(rv.getVariant().getAltIndex(rlv.getAllele()), 10);
                 for(String sample : rlv.getSampleStatus().keySet())
                 {
@@ -135,6 +139,10 @@ public class PhasingCompoundCheck extends GeneStream{
         {
             for(Relevance rlv : rv.getRelevance())
             {
+                if(!rlv.getGene().equals(gene))
+                {
+                    continue;
+                }
                 for(String sample : rlv.getSampleStatus().keySet())
                 {
                     if(union.contains(sample) && !samplesWithUnphasedVariants.contains(sample) && status.isCompound(rlv.getSampleStatus().get(sample)))
