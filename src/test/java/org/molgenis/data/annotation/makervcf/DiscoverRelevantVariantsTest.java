@@ -43,10 +43,9 @@ public class DiscoverRelevantVariantsTest extends Setup
 		assertEquals(it.next().getRelevance().get(0).getAllele(), "T");
 		assertEquals(it.next().getRelevance().get(1).getAllele(), "A");
 		assertEquals(it.next().getRelevance().get(0).getGene(), "ALDH5A1");
-		assertEquals(it.next().getRelevance().get(1).getGene(), "OTHERGENE");
+		assertEquals(it.next().getRelevance().get(1).getGene(), "TERC");
 		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene"));
-		assertTrue(it.next().getRelevance().get(1).getJudgment().toString().contains("Variant MAF of 0.0 is rare enough to be potentially pathogenic and its CADD score of 99.0 is greater than a global threshold of 15"));
-
+		assertTrue(it.next().getRelevance().get(1).getJudgment().toString().contains("Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, the variant MAF of 0.0 is less than a MAF of 0.004622819999999994"));
 		assertFalse(it.hasNext());
 	}
 
