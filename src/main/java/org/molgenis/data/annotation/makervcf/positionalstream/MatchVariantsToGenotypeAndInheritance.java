@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.cgd.LoadCGD;
@@ -70,27 +71,15 @@ public class MatchVariantsToGenotypeAndInheritance {
                 try {
                     RelevantVariant rv = relevantVariants.next();
 
-//                    String gavinGene = rv.getGavinJudgment() != null ? (rv.getGavinJudgment().getGene() != null ? rv.getGavinJudgment().getGene() : null) : null;
-//                    String clinvarGene = rv.getClinvarJudgment().getGene() != null ? rv.getClinvarJudgment().getGene() : null;
-//
-//                    //extra checks that things are okay
-//                    if(gavinGene != null && clinvarGene != null && !gavinGene.equals(clinvarGene))
-//                    {
-//                        throw new Exception("Conflicting genes passed to MatchVariantsToGenotypeAndInheritance: " + gavinGene + " vs " + clinvarGene);
-//                    }
-//                    if(gavinGene == null && clinvarGene == null)
-//                    {
-//                        throw new Exception("No genes passed to MatchVariantsToGenotypeAndInheritance!");
-//                    }
+                    //key: gene, alt allele
+                    MultiKeyMap fullGenoMatch = findMatchingSamples(rv);
+
 
                     for(Relevance rlv : rv.getRelevance()) {
 
                         String gene = rlv.getGene();
 
                         CGDEntry ce = cgd.get(gene);
-                        generalizedInheritance inh = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;
-                        GenoMatchSamples genoMatch = findMatchingSamples(rv.getVariant(), rlv.getAllele(), inh);
-
                         rlv.setCgdInfo(ce);
 
                         status actingTerminology = status.HOMOZYGOUS;
@@ -111,14 +100,17 @@ public class MatchVariantsToGenotypeAndInheritance {
 
                         Map<String, status> sampleStatus = new HashMap<>();
                         Map<String, String> sampleGenotypes = new HashMap<>();
+                        GenoMatchSamples genoMatch = (GenoMatchSamples)fullGenoMatch.get(rlv.getGene(), rlv.getAllele());
 
-                        for (String key : genoMatch.affected.keySet()) {
-                            sampleStatus.put(key, actingTerminology);
-                            sampleGenotypes.put(key, genoMatch.affected.get(key).get("GT").toString());
-                        }
-                        for (String key : genoMatch.carriers.keySet()) {
-                            sampleStatus.put(key, nonActingTerminology);
-                            sampleGenotypes.put(key, genoMatch.carriers.get(key).get("GT").toString());
+                        if(genoMatch != null){
+                            for (String key : genoMatch.affected.keySet()) {
+                                sampleStatus.put(key, actingTerminology);
+                                sampleGenotypes.put(key, genoMatch.affected.get(key).get("GT").toString());
+                            }
+                            for (String key : genoMatch.carriers.keySet()) {
+                                sampleStatus.put(key, nonActingTerminology);
+                                sampleGenotypes.put(key, genoMatch.carriers.get(key).get("GT").toString());
+                            }
                         }
 
 
@@ -143,20 +135,16 @@ public class MatchVariantsToGenotypeAndInheritance {
     }
 
     /**
-     * TODO: compound heterozygous
-     * TODO: trio filter
-     * @param record
-     * @param alt
-     * @param inheritance
-     * @return
-     * @throws Exception
+     *
      */
-    public GenoMatchSamples findMatchingSamples(VcfEntity record, String alt, generalizedInheritance inheritance) throws Exception {
-        int altIndex = VcfEntity.getAltAlleleIndex(record, alt);
+    public MultiKeyMap findMatchingSamples(RelevantVariant rv) throws Exception {
 
-        HashMap<String, Entity> carriers = new HashMap<String, Entity>();
-        HashMap<String, Entity> affected = new HashMap<String, Entity>();
-        Set<String> parentsWithReferenceCalls = new HashSet<String>();
+        VcfEntity record = rv.getVariant();
+        Set<String> alts = rv.getRelevantAlts();
+        Set<String> genes = rv.getRelevantGenes();
+
+        MultiKeyMap res = new MultiKeyMap();
+
 
         Iterator<Entity> samples = record.getSamples();
 
@@ -181,6 +169,9 @@ public class MatchVariantsToGenotypeAndInheritance {
                 }
             }
 
+            Set<String> parentsWithReferenceCalls = new HashSet<String>();
+
+
             // skip reference genotypes unless parents of a child for de novo detection
             if ( genotype.equals("0/0") || genotype.equals("0|0")  || genotype.equals("0") )
             {
@@ -197,52 +188,70 @@ public class MatchVariantsToGenotypeAndInheritance {
                 continue;
             }
 
-            //now that everything is okay, we can match to inheritance mode
-
-            //all dominant types, so no carriers, and only requirement is that genotype contains 1 alt allele somewhere
-            if(inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT))
+            //now that everything is okay, we can match to inheritance mode for each alt
+            for(String alt : alts)
             {
-                // 1 or more, so works for hemizygous too
-                if ( genotype.contains(altIndex+"") )
+                int altIndex = VcfEntity.getAltAlleleIndex(record, alt);
+
+                //and each gene
+                for (String gene : genes)
                 {
-                    affected.put(sampleName, sample);
+                    HashMap<String, Entity> carriers = new HashMap<String, Entity>();
+                    HashMap<String, Entity> affected = new HashMap<String, Entity>();
+
+                    CGDEntry ce = cgd.get(gene);
+                    generalizedInheritance inheritance = ce != null ? ce.getGeneralizedInheritance() : generalizedInheritance.NOTINCGD;
+
+                    //all dominant types, so no carriers, and only requirement is that genotype contains 1 alt allele somewhere
+                    if (inheritance.equals(generalizedInheritance.DOMINANT_OR_RECESSIVE) || inheritance.equals(generalizedInheritance.DOMINANT)) {
+                        // 1 or more, so works for hemizygous too
+                        if (genotype.contains(altIndex + "")) {
+                            affected.put(sampleName, sample);
+                        }
+                    }
+
+                    //all other types, unknown, complex or recessive
+                    //for recessive we know if its acting or not, but this is handled in the terminology of a homozygous hit being labeled as 'AFFECTED'
+                    //for other (digenic, maternal, YL, etc) and not-in-CGD we don't know, but we still report homozygous as 'acting' and heterozygous as 'carrier' to make that distinction
+                    else if (inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.XL_LINKED)
+                            || inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD)
+                            || inheritance.equals(generalizedInheritance.BLOODGROUP)) {
+                        boolean homozygous = genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex);
+                        boolean hemizygous = genotype.equals(altIndex + "");
+                        boolean heterozygous = genotype.length() == 3 && StringUtils.countMatches(genotype, altIndex + "") == 1;
+
+                        // regular homozygous
+                        if (homozygous) {
+                            affected.put(sampleName, sample);
+                        }
+                        //for hemizygous, 1 allele is enough of course
+                        else if (hemizygous) {
+                            affected.put(sampleName, sample);
+                        }
+                        // heterozygous, ie. carriers when disease is recessive
+                        else if (heterozygous) {
+                            carriers.put(sampleName, sample);
+                        }
+
+                    } else {
+                        throw new Exception("inheritance unknown: " + inheritance);
+                    }
+
+                    if(res.containsKey(gene, alt))
+                    {
+                        GenoMatchSamples match = (GenoMatchSamples)res.get(gene, alt);
+                        match.carriers.putAll(carriers);
+                        match.affected.putAll(affected);
+                    }
+                    else
+                    {
+                        GenoMatchSamples match = new GenoMatchSamples(carriers, affected, parentsWithReferenceCalls);
+                        res.put(gene, alt, match);
+                    }
                 }
             }
-
-            //all other types, unknown, complex or recessive
-            //for recessive we know if its acting or not, but this is handled in the terminology of a homozygous hit being labeled as 'AFFECTED'
-            //for other (digenic, maternal, YL, etc) and not-in-CGD we don't know, but we still report homozygous as 'acting' and heterozygous as 'carrier' to make that distinction
-            else if(inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(generalizedInheritance.XL_LINKED)
-                    || inheritance.equals(generalizedInheritance.OTHER) || inheritance.equals(generalizedInheritance.NOTINCGD)
-                    || inheritance.equals(generalizedInheritance.BLOODGROUP))
-            {
-                boolean homozygous = genotype.equals(altIndex + "/" + altIndex) || genotype.equals(altIndex + "|" + altIndex);
-                boolean hemizygous = genotype.equals(altIndex+"");
-                boolean heterozygous = genotype.length() == 3 && StringUtils.countMatches(genotype, altIndex+"") == 1;
-
-                // regular homozygous
-                if (homozygous )
-                {
-                    affected.put(sampleName, sample);
-                }
-                //for hemizygous, 1 allele is enough of course
-                else if( hemizygous )
-                {
-                    affected.put(sampleName, sample);
-                }
-                // heterozygous, ie. carriers when disease is recessive
-                else if ( heterozygous )
-                {
-                    carriers.put(sampleName, sample);
-                }
-
-            }
-            else
-            {
-                throw new Exception("inheritance unknown: " + inheritance);
-            }
-
         }
-        return new GenoMatchSamples(carriers, affected, parentsWithReferenceCalls);
+
+        return res;
     }
 }

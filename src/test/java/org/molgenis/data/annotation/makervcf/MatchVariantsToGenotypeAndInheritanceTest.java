@@ -17,6 +17,11 @@ import java.util.Set;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+/**
+ * TODO
+ * this tests the basics, but not overlapping genes or multiple alleles
+ * AssignCompoundHetTest does this to some degree but here we need to do this as well
+ */
 public class MatchVariantsToGenotypeAndInheritanceTest extends Setup
 {
 
@@ -44,11 +49,6 @@ public class MatchVariantsToGenotypeAndInheritanceTest extends Setup
 
 		MatchVariantsToGenotypeAndInheritance m = new MatchVariantsToGenotypeAndInheritance(disc, cgdFile, new HashSet<>(), false);
 		Iterator<RelevantVariant> it = m.go();
-
-//		while(it.hasNext())
-//		{
-//			System.out.println(it.next());
-//		}
 
 		// dominant gene
 		assertTrue(it.hasNext());
