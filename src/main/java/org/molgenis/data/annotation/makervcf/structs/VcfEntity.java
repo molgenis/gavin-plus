@@ -7,10 +7,8 @@ import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
 import org.molgenis.data.vcf.VcfRepository;
 
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * Created by joeri on 6/1/16.
@@ -31,7 +29,7 @@ public class VcfEntity {
     private Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
     private Set<String> genes; //any associated genes, not in any given order
     private Iterable<Entity> samples;
-    private RVCF rvcf;
+    private List<RVCF> rvcf;
 
     //more? "EXAC_AC_HOM", "EXAC_AC_HET"
 
@@ -52,8 +50,23 @@ public class VcfEntity {
         this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED");
         this.ann = record.getString("ANN");
         this.genes = GavinUtils.getGenesFromAnn(ann);
-        this.rvcf = record.getString(RVCF.attributeName) != null ? RVCF.fromString(record.getString(RVCF.attributeName)) : null;
+        this.rvcf = setRvcfFromVcfInfoField(record.getString(RVCF.attributeName));
+   //     this.rvcf = record.getString(RVCF.attributeName) != null ? RVCF.fromString(record.getString(RVCF.attributeName)) : null;
 
+    }
+
+    public List<RVCF> setRvcfFromVcfInfoField(String infoField) throws Exception {
+        if(infoField == null)
+        {
+            return null;
+        }
+        String[] split = infoField.split(",");
+        ArrayList<RVCF> res = new ArrayList<>();
+        for(String s : split)
+        {
+            res.add(RVCF.fromString(s));
+        }
+        return res;
     }
 
     public String getClsf() {
@@ -141,7 +154,7 @@ public class VcfEntity {
         return alts;
     }
 
-    public RVCF getRvcf() {
+    public List<RVCF> getRvcf() {
         return rvcf != null ? rvcf : null;
     }
 
