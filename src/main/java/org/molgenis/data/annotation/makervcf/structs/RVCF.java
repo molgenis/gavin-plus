@@ -11,6 +11,7 @@ import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGen
 public class RVCF {
 
     private static int nrOfFields = 19;
+    private static String RVCF_GENEALLELECOMBISEP = ",";
     private static String RVCF_SAMPLESEP = "/";
     private static String RVCF_FIELDSEP = "|";
     private static String RVCF_KEYVALSEP = ":";
@@ -48,7 +49,7 @@ public class RVCF {
         RVCF rvcfInstance = new RVCF();
         if(split.length != nrOfFields)
         {
-            throw new Exception("Splitting RVCF entry on '|' did not yield "+nrOfFields+" fields, invalid format?");
+            throw new Exception("Splitting RVCF entry on '|' did not yield "+nrOfFields+" fields, invalid format? tried to split: " + rvcfEntry + " but had " + split.length + " fields");
         }
         rvcfInstance.setAllele(split[0]);
         rvcfInstance.setAlleleFreq(split[1]);
@@ -78,7 +79,7 @@ public class RVCF {
 
     public String escapeToSafeVCF (String in)
     {
-        return in.replace(VCF_INFOFIELDSEP, " ").replace(RVCF_FIELDSEP, " ").replace(RVCF.RVCF_SAMPLESEP, " ");
+        return in.replace(VCF_INFOFIELDSEP, " ").replace(RVCF_FIELDSEP, " ").replace(RVCF.RVCF_SAMPLESEP, " ").replace(RVCF_GENEALLELECOMBISEP, " ");
     }
 
     @Override
