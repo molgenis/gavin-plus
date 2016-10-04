@@ -82,11 +82,14 @@ public class Relevance
 
     @Override
     public String toString() {
-        return "RelevantVariant{" +
-                ", judgment=" + judgment +
+        return "Relevance{" +
+                "judgment=" + judgment +
                 ", allele='" + allele + '\'' +
                 ", gene='" + gene + '\'' +
+                ", FDR='" + FDR + '\'' +
                 ", sampleStatus=" + sampleStatus +
+                ", sampleGenotypes=" + sampleGenotypes +
+                ", parentsWithReferenceCalls=" + parentsWithReferenceCalls +
                 ", alleleFreq=" + alleleFreq +
                 ", gonlAlleleFreq=" + gonlAlleleFreq +
                 ", transcript='" + transcript + '\'' +

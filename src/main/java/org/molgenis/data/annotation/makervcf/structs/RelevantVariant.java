@@ -35,6 +35,16 @@ public class RelevantVariant
         return res;
     }
 
+    public Set<String> getRelevantAlts()
+    {
+        HashSet res = new HashSet<>();
+        for(Relevance rlv : this.relevance)
+        {
+            res.add(rlv.getAllele());
+        }
+        return res;
+    }
+
     public VcfEntity getVariant() {
         return variant;
     }
