@@ -81,7 +81,12 @@ public class TrioFilter extends GeneStream{
 
         for(RelevantVariant rv : variantsPerGene) {
 
-            for (Relevance rlv : rv.getRelevance()) {
+            for (Relevance rlv : rv.getRelevance())
+            {
+                if(!rlv.getGene().equals(gene))
+                {
+                    continue;
+                }
 
                 if (verbose) {
                     System.out.println("[TrioFilter] Encountered variant: " + rlv.toString());

@@ -76,7 +76,12 @@ public class AssignCompoundHet extends GeneStream {
         //iterate again and update marked samples
         for(RelevantVariant rv: variantsPerGene)
         {
-            for(Relevance rlv : rv.getRelevance()) {
+            for(Relevance rlv : rv.getRelevance())
+            {
+                if(!rlv.getGene().equals(gene))
+                {
+                    continue;
+                }
                 if(geneAlleleToMarkedSamples.get(rlv.getGene(), rlv.getAllele()) != null)
                 {
                     for (String sample : ((Set<String>)geneAlleleToMarkedSamples.get(rlv.getGene(), rlv.getAllele()))) {

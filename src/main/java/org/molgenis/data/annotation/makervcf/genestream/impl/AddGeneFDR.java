@@ -55,10 +55,9 @@ public class AddGeneFDR extends GeneStream{
         {
             for(Relevance rlv : rv.getRelevance())
             {
-                //just making sure
                 if(!rlv.getGene().equals(gene))
                 {
-                    throw new Exception("batch gene "+gene+"does not match variant gene " + rlv.getGene());
+                    continue;
                 }
                 String fdrInfo = affectedFracForGene+","+carrierFracForGene;
                 rlv.setFDR(fdrInfo);
