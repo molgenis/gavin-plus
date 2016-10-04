@@ -63,6 +63,8 @@ public class DiscoverRelevantVariants {
         return new Iterator<RelevantVariant>(){
 
             RelevantVariant nextResult;
+            int pos = -1;
+            int previousPos = -1;
 
             @Override
             public boolean hasNext()
@@ -72,6 +74,13 @@ public class DiscoverRelevantVariants {
                     try
                     {
                         VcfEntity record = new VcfEntity(vcfIterator.next());
+
+                        pos = record.getPos();
+                        if(previousPos != -1 && pos == previousPos)
+                        {
+                            throw new Exception("Duplicate site position in VCF: " + pos);
+                        }
+                        previousPos = pos;
 
                         List<Relevance> relevance = new ArrayList<>();
 
