@@ -52,6 +52,10 @@ public class MakeRVCFforClinicalVariants {
                 try {
                     RelevantVariant rv = relevantVariants.next();
 
+                    if(verbose) {
+                        System.out.println("[MakeRVCFforClinicalVariants] Looking at: " + rv.toString());
+                    }
+
                     List<RVCF> rvcfList = new ArrayList<>();
                     for(Relevance rlv : rv.getRelevance())
                     {

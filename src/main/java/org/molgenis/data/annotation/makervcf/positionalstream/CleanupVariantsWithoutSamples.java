@@ -32,6 +32,10 @@ public class CleanupVariantsWithoutSamples {
                     while (relevantVariants.hasNext()) {
                         RelevantVariant rv = relevantVariants.next();
 
+                        if(verbose) {
+                            System.out.println("[CleanupVariantsWithoutSamples] Looking at: " + rv.toString());
+                        }
+
                         for(Relevance rlv : rv.getRelevance())
                         {
                             if(rlv.getSampleStatus().size() != rlv.getSampleGenotypes().size())
