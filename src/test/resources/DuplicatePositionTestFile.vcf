@@ -1,0 +1,22 @@
+##fileformat=VCFv4.1
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##INFO=<ID=CADD_SCALED,Number=.,Type=Float,Description="Since the raw scores do have relative meaning, one can take a specific group of variants, define the rank for each variant within that group, and then use that value as a \"normalized\" and now externally comparable unit of analysis. In our case, we scored and ranked all ~8.6 billion SNVs of the GRCh37/hg19 reference and then \"PHRED-scaled\" those values by expressing the rank in order of magnitude terms rather than the precise rank itself. For example, reference genome single nucleotide variants at the 10th-% of CADD scores are assigned to CADD-10, top 1% to CADD-20, top 0.1% to CADD-30, etc. The results of this transformation are the \"scaled\" CADD scores.(source: http://cadd.gs.washington.edu/info)">
+##INFO=<ID=ANN,Number=.,Type=String,Description="Functional annotations: 'Allele | Annotation | Annotation_Impact | Gene_Name | Gene_ID | Feature_Type | Feature_ID | Transcript_BioType | Rank | HGVS.c | HGVS.p | cDNA.pos / cDNA.length | CDS.pos / CDS.length | AA.pos / AA.length | Distance | ERRORS / WARNINGS / INFO' ">
+##INFO=<ID=EXAC_AF,Number=.,Type=String,Description="The ExAC allele frequency">
+##INFO=<ID=GoNL_AF,Number=.,Type=String,Description="The allele frequency for variants seen in the population used for the GoNL project">
+##INFO=<ID=Thousand_Genomes_AF,Number=.,Type=String,Description="The allele frequency for variants seen in the population used for the thousand genomes project">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	p01
+1	1	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneA||||||||||||	GT	1/1
+1	2	.	G	T	.	.	CADD_SCALED=34.0;ANN=T||HIGH|geneA||||||||||||	GT	1/1
+1	2	.	G	C	.	.	CADD_SCALED=34.0;ANN=C||HIGH|geneA||||||||||||	GT	1/1
+1	3	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneA||||||||||||,A||HIGH|geneB||||||||||||	GT	1/1
+1	4	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneA||||||||||||,A||HIGH|geneB||||||||||||	GT	1/1
+1	4	.	G	T	.	.	CADD_SCALED=34.0;ANN=T||HIGH|geneA||||||||||||
+1	5	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneA||||||||||||,A||HIGH|geneC||||||||||||	GT	1/1
+1	6	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneC||||||||||||	GT	1
+1	7	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneC||||||||||||,A||HIGH|geneD||||||||||||	GT	1/1
+1	8	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneC||||||||||||	GT	1
+1	8	.	G	T	.	.	CADD_SCALED=34.0;ANN=T||HIGH|geneC||||||||||||	GT	1
+1	8	.	G	C	.	.	CADD_SCALED=34.0;ANN=C||HIGH|geneE||||||||||||	GT	1
+1	9	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneE||||||||||||	GT	1/1
+1	10	.	G	A	.	.	CADD_SCALED=34.0;ANN=A||HIGH|geneE||||||||||||	GT	1
