@@ -63,8 +63,17 @@ public class DiscoverRelevantVariants {
         return new Iterator<RelevantVariant>(){
 
             RelevantVariant nextResult;
+
             int pos = -1;
             int previousPos = -1;
+
+            String chrom;
+            String previousChrom = null;
+
+            String alts;
+            String previousAlts = null;
+
+            Set<String> chromosomesSeenBefore = new HashSet<>();
 
             @Override
             public boolean hasNext()
@@ -76,11 +85,37 @@ public class DiscoverRelevantVariants {
                         VcfEntity record = new VcfEntity(vcfIterator.next());
 
                         pos = record.getPos();
-                        if(previousPos != -1 && pos == previousPos)
+                        chrom = record.getChr();
+                        alts = record.getAltsAsString();
+
+                        // check: no 'before' positions on the same chromosome allowed
+                        if(previousPos != -1 && previousChrom != null && pos < previousPos && previousChrom.equals(chrom))
                         {
-                            throw new Exception("Duplicate site position in VCF: " + pos);
+                            throw new Exception("Site position " + pos + " before " + previousPos +" on the same chromosome (" + chrom + ") not allowed. Please sort your VCF file.");
                         }
+
+                        // check: same chrom+pos only allowed if alt alleles are different
+                        if(previousChrom != null && previousPos != -1 && previousAlts != null && previousChrom.equals(chrom) && pos == previousPos && previousAlts.equals(alts))
+                        {
+                            throw new Exception("Site position " + chrom + ":" + pos + " seen twice with the same alt alleles "+alts+". This is not allowed. Please check your VCF file.");
+                        }
+
+                        // check: when encountering new chromosome, save previous one seen before
+                        // subsequently, we should not encounter this chromosome again (e.g. 1, 2, 3, then 2 again)
+                        if(previousChrom != null && !previousChrom.equals(chrom))
+                        {
+                            chromosomesSeenBefore.add(previousChrom);
+                        }
+                        if(chromosomesSeenBefore.contains(chrom))
+                        {
+                            throw new Exception("Chromosome " + chrom + " was interrupted by other chromosomes. Please sort your VCF file.");
+
+                        }
+
+                        // cycle for next iteration
                         previousPos = pos;
+                        previousChrom = chrom;
+                        previousAlts = alts;
 
                         List<Relevance> relevance = new ArrayList<>();
 
