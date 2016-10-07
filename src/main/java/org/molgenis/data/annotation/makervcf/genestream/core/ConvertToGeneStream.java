@@ -40,14 +40,14 @@ public class ConvertToGeneStream {
             LinkedHashMap<String, Iterator<RelevantVariant>> resultBatches;
 
             // variantBuffer with genes and variants that lags behind the input and gets turned into result batches
-            HashMap<String, LinkedHashMap<Integer, RelevantVariant>> variantBuffer = new HashMap<>();
+            HashMap<String, List<RelevantVariant>> variantBuffer = new HashMap<>();
 
             // set of genes seen for variant in previous iteration
             Set<String> underlyingGenesForPreviousVariant = new HashSet<>();
 
             // within returning a batch, there may be duplicates (e.g. variants relevant for multiple genes)
             // we keep track of the positions and make sure they are only outputted once
-            List<Integer> positionCheck = new ArrayList<>();
+            List<String> positionCheck = new ArrayList<>();
 
 
             @Override
@@ -73,14 +73,22 @@ public class ConvertToGeneStream {
                             // of course we also delete the variants for the genes that were written out
                             for(String gene : resultBatches.keySet())
                             {
-                                ArrayList<Integer> removeVariantsByPosition = new ArrayList<Integer>(variantBuffer.get(gene).size());
-                                for(Integer pos : variantBuffer.get(gene).keySet())
+                                ArrayList<String> removeVariantsByPosition = new ArrayList<>(variantBuffer.get(gene).size());
+                                for(RelevantVariant rv : variantBuffer.get(gene))
                                 {
-                                    removeVariantsByPosition.add(pos);
+                                    removeVariantsByPosition.add(rv.getVariant().getPos() + "_" + rv.getVariant().getAltsAsString());
                                 }
                                 for(String geneInBuffer : variantBuffer.keySet())
                                 {
-                                    variantBuffer.get(geneInBuffer).keySet().removeAll(removeVariantsByPosition);
+
+                                    Iterator<RelevantVariant> it = variantBuffer.get(geneInBuffer).iterator();
+                                    while (it.hasNext()) {
+                                        RelevantVariant rlvToCheck = it.next();
+                                        if(removeVariantsByPosition.contains(rlvToCheck.getVariant().getPos() + "_" + rlvToCheck.getVariant().getAltsAsString()))
+                                        {
+                                            it.remove();
+                                        }
+                                    }
                                 }
                                 variantBuffer.remove(gene);
                             }
@@ -104,12 +112,12 @@ public class ConvertToGeneStream {
                             {
                                 if(rlv.getGene().equals(gene))
                                 {
-                                    LinkedHashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
+                                    List< RelevantVariant> variants = variantBuffer.get(gene);
                                     if(variants == null) {
-                                        variants = new LinkedHashMap<>();
+                                        variants = new ArrayList<>();
                                     }
                                     variantBuffer.put(gene, variants);
-                                    variants.put(pos, rv);
+                                    variants.add(rv);
                                     if(verbose){System.out.println("[ConvertToGeneStream] Adding variant for matching relevant gene " + gene);}
                                     break;
                                 }
@@ -126,8 +134,8 @@ public class ConvertToGeneStream {
                             if (!underlyingGenesForCurrentVariant.contains(gene) && variantBuffer.get(gene) != null)
                             {
                                 if(verbose){System.out.println("[ConvertToGeneStream] Gene " + gene + " ended, creating result batch");}
-                                HashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
-                                resultBatches.put(gene, variants.values().iterator());
+                                List< RelevantVariant> variants = variantBuffer.get(gene);
+                                resultBatches.put(gene, variants.iterator());
                             }
                         }
 
@@ -152,8 +160,8 @@ public class ConvertToGeneStream {
                     resultBatches = new LinkedHashMap<>();
                     for(String gene : variantBuffer.keySet())
                     {
-                        HashMap<Integer, RelevantVariant> variants = variantBuffer.get(gene);
-                        resultBatches.put(gene, variants.values().iterator());
+                        List< RelevantVariant> variants = variantBuffer.get(gene);
+                        resultBatches.put(gene, variants.iterator());
                     }
                     nextResult = getNextFromResultBatches(resultBatches, positionCheck);
                     if(nextResult != null)
@@ -180,8 +188,7 @@ public class ConvertToGeneStream {
      * @param resultBatches
      * @return
      */
-    private RelevantVariant getNextFromResultBatches(LinkedHashMap<String, Iterator<RelevantVariant>> resultBatches, List<Integer> positionsAlreadyReturned)
-    {
+    private RelevantVariant getNextFromResultBatches(LinkedHashMap<String, Iterator<RelevantVariant>> resultBatches, List<String> positionAltsAlreadyReturned) {
         if(resultBatches == null)
         {
             return null;
@@ -192,10 +199,10 @@ public class ConvertToGeneStream {
             while(resultBatches.get(gene).hasNext())
             {
                 RelevantVariant next = resultBatches.get(gene).next();
-                if(!positionsAlreadyReturned.contains(next.getVariant().getPos()))
+                if(!positionAltsAlreadyReturned.contains(next.getVariant().getPos() + "_" + next.getVariant().getAltsAsString()))
                 {
-                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionsAlreadyReturned + " does not contain " + next.getVariant().getPos() + ", so we output it");}
-                    positionsAlreadyReturned.add(next.getVariant().getPos());
+                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned + " does not contain " + next.getVariant().getPos() + "_" + next.getVariant().getAltsAsString() + ", so we output it");}
+                    positionAltsAlreadyReturned.add(next.getVariant().getPos() + "_" + next.getVariant().getAltsAsString());
                     return next;
                 }
             }
