@@ -154,6 +154,14 @@ public class VcfEntity {
         return alts;
     }
 
+    public List<String> getAltsAsList() {
+        return Arrays.asList(alts);
+    }
+
+    public String getAltsAsString() {
+        return Arrays.asList(alts).toString();
+    }
+
     public List<RVCF> getRvcf() {
         return rvcf != null ? rvcf : null;
     }
@@ -172,10 +180,10 @@ public class VcfEntity {
         return alts[i];
     }
 
-    public String getAlt() throws Exception {
+    public String getAlt() throws RuntimeException {
         if(alts.length > 1)
         {
-            throw new Exception("more than 1 alt ! " + this.toString());
+            throw new RuntimeException("more than 1 alt ! " + this.toString());
         }
         return alts[0];
     }
