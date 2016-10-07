@@ -26,6 +26,8 @@ public class DuplicateAndReversedPositionTest extends Setup
 	protected File inputDupVcfFile;
 	protected File inputDupBadVcfFile;
 	protected File inputRevVcfFile;
+	protected File inputChromBadVcfFile;
+
 
 	@Rule
 	public ExpectedException expectedEx = ExpectedException.none();
@@ -43,6 +45,10 @@ public class DuplicateAndReversedPositionTest extends Setup
 		InputStream inputVcf2 = DiscoverRelevantVariantsTest.class.getResourceAsStream("/ReversePositionTestFile.vcf");
 		inputRevVcfFile = new File(FileUtils.getTempDirectory(), "ReversePositionTestFile.vcf");
 		FileCopyUtils.copy(inputVcf2, new FileOutputStream(inputRevVcfFile));
+
+		InputStream inputVcf3 = DiscoverRelevantVariantsTest.class.getResourceAsStream("/ChromBadTestFile.vcf");
+		inputChromBadVcfFile = new File(FileUtils.getTempDirectory(), "ChromBadTestFile.vcf");
+		FileCopyUtils.copy(inputVcf3, new FileOutputStream(inputChromBadVcfFile));
 	}
 
 	@Test
@@ -76,7 +82,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 		}
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
-			assertEquals(ex.getMessage(), "java.lang.Exception: Site position 2 seen twice with the same alt alleles [T]. This is not allowed. Please check your VCF file.");
+			assertEquals(ex.getMessage(), "java.lang.Exception: Site position 1:2 seen twice with the same alt alleles [T]. This is not allowed. Please check your VCF file.");
 		}
 	}
 
@@ -97,6 +103,26 @@ public class DuplicateAndReversedPositionTest extends Setup
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
 			assertEquals(ex.getMessage(), "java.lang.Exception: Site position 1 before 6 on the same chromosome (3) not allowed. Please sort your VCF file.");
+		}
+	}
+
+	@Test
+	public void chromBadTest() throws Exception
+	{
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputChromBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
+		Iterator<RelevantVariant> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+
+		try {
+			while(it.hasNext())
+			{
+				it.next();
+			}
+			fail("No exception caught!");
+		}
+		catch (RuntimeException ex) {
+			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
+			assertEquals(ex.getMessage(), "java.lang.Exception: Chromosome 1 was interrupted by other chromosomes. Please sort your VCF file.");
 		}
 	}
 
