@@ -76,7 +76,7 @@ public class ConvertToGeneStream {
                                 ArrayList<String> removeVariantsByPosition = new ArrayList<>(variantBuffer.get(gene).size());
                                 for(RelevantVariant rv : variantBuffer.get(gene))
                                 {
-                                    removeVariantsByPosition.add(rv.getVariant().getPos() + "_" + rv.getVariant().getAltsAsString());
+                                    removeVariantsByPosition.add(rv.getVariant().getChrPosRefAlt());
                                 }
                                 for(String geneInBuffer : variantBuffer.keySet())
                                 {
@@ -84,7 +84,7 @@ public class ConvertToGeneStream {
                                     Iterator<RelevantVariant> it = variantBuffer.get(geneInBuffer).iterator();
                                     while (it.hasNext()) {
                                         RelevantVariant rlvToCheck = it.next();
-                                        if(removeVariantsByPosition.contains(rlvToCheck.getVariant().getPos() + "_" + rlvToCheck.getVariant().getAltsAsString()))
+                                        if(removeVariantsByPosition.contains(rlvToCheck.getVariant().getChrPosRefAlt()))
                                         {
                                             it.remove();
                                         }
@@ -199,10 +199,10 @@ public class ConvertToGeneStream {
             while(resultBatches.get(gene).hasNext())
             {
                 RelevantVariant next = resultBatches.get(gene).next();
-                if(!positionAltsAlreadyReturned.contains(next.getVariant().getPos() + "_" + next.getVariant().getAltsAsString()))
+                if(!positionAltsAlreadyReturned.contains(next.getVariant().getChrPosRefAlt()))
                 {
-                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned + " does not contain " + next.getVariant().getPos() + "_" + next.getVariant().getAltsAsString() + ", so we output it");}
-                    positionAltsAlreadyReturned.add(next.getVariant().getPos() + "_" + next.getVariant().getAltsAsString());
+                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned + " does not contain " + next.getVariant().getChrPosRefAlt() + ", so we output it");}
+                    positionAltsAlreadyReturned.add(next.getVariant().getChrPosRefAlt());
                     return next;
                 }
             }

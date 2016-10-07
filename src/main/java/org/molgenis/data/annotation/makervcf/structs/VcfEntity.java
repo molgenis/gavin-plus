@@ -55,6 +55,11 @@ public class VcfEntity {
 
     }
 
+    public String getChrPosRefAlt()
+    {
+        return this.getChr() + "_" + this.getPos() + "_" + this.getRef() + "_" + this.getAltsAsString();
+    }
+
     public List<RVCF> setRvcfFromVcfInfoField(String infoField) throws Exception {
         if(infoField == null)
         {

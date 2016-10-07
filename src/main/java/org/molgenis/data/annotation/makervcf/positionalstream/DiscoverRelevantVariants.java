@@ -70,8 +70,8 @@ public class DiscoverRelevantVariants {
             String chrom;
             String previousChrom = null;
 
-            String alts;
-            String previousAlts = null;
+            String chrPosRefAlt;
+            String previouschrPosRefAlt = null;
 
             Set<String> chromosomesSeenBefore = new HashSet<>();
 
@@ -86,7 +86,7 @@ public class DiscoverRelevantVariants {
 
                         pos = record.getPos();
                         chrom = record.getChr();
-                        alts = record.getAltsAsString();
+                        chrPosRefAlt = record.getChrPosRefAlt();
 
                         // check: no 'before' positions on the same chromosome allowed
                         if(previousPos != -1 && previousChrom != null && pos < previousPos && previousChrom.equals(chrom))
@@ -94,10 +94,10 @@ public class DiscoverRelevantVariants {
                             throw new Exception("Site position " + pos + " before " + previousPos +" on the same chromosome (" + chrom + ") not allowed. Please sort your VCF file.");
                         }
 
-                        // check: same chrom+pos only allowed if alt alleles are different
-                        if(previousChrom != null && previousPos != -1 && previousAlts != null && previousChrom.equals(chrom) && pos == previousPos && previousAlts.equals(alts))
+                        // check: same chrom+pos+ref+alt combinations not allowed
+                        if(previouschrPosRefAlt != null && previouschrPosRefAlt.equals(chrPosRefAlt))
                         {
-                            throw new Exception("Site position " + chrom + ":" + pos + " seen twice with the same alt alleles "+alts+". This is not allowed. Please check your VCF file.");
+                            throw new Exception("Chrom-pos-ref-alt combination seen twice: "+chrPosRefAlt+". This is not allowed. Please check your VCF file.");
                         }
 
                         // check: when encountering new chromosome, save previous one seen before
@@ -115,7 +115,7 @@ public class DiscoverRelevantVariants {
                         // cycle for next iteration
                         previousPos = pos;
                         previousChrom = chrom;
-                        previousAlts = alts;
+                        previouschrPosRefAlt = chrPosRefAlt;
 
                         List<Relevance> relevance = new ArrayList<>();
 
