@@ -10,4 +10,4 @@
 1	2	.	G	A	6733.05	.	GoNL_AF=0.06;CADD_SCALED=34.0;Thousand_Genomes_AF=3.99361E-4;ANN=A||HIGH|ABCG5||AD||||||||||	GT	0/0	0/1	1/1
 1	3	.	G	A	6733.05	.	GoNL_AF=0.03;CADD_SCALED=34.0;Thousand_Genomes_AF=3.99361E-4;ANN=A||HIGH|AIFM1||XL||||||||||	GT	0	0/1	1
 1	4	.	G	A	6733.05	.	GoNL_AF=0.07;CADD_SCALED=34.0;Thousand_Genomes_AF=3.99361E-4;ANN=A||HIGH|ALB||AD/AR||||||||||	GT	0/0	0/1	1/1
-1	5	.	G	T	20111.87	.	GoNL_AF=0.01;CADD_SCALED=34.0;Thousand_Genomes_AF=3.99361E-4;ANN=T||HIGH|USP9Y||YL||||||||||	GT	0	.	1
+1	5	.	G	T,C	20111.87	.	GoNL_AF=0.01,.;CADD_SCALED=34.0,.;Thousand_Genomes_AF=3.99361E-4,.;ANN=T||HIGH|USP9Y||YL||||||||||,C||HIGH|USP9Y||YL||||||||||	GT	0	.	1
