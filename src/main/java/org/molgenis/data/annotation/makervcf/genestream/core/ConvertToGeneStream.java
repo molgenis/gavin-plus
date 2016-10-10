@@ -131,9 +131,10 @@ public class ConvertToGeneStream {
                         for (String gene : underlyingGenesForPreviousVariant)
                         {
                             // include null check, for variants that are annotated to a gene but were not ever relevant for that gene
-                            if (!underlyingGenesForCurrentVariant.contains(gene) && variantBuffer.get(gene) != null)
+                            // added check: still variants left for this gene to be outputted
+                            if (!underlyingGenesForCurrentVariant.contains(gene) && variantBuffer.get(gene) != null && variantBuffer.get(gene).size() > 0 )
                             {
-                                if(verbose){System.out.println("[ConvertToGeneStream] Gene " + gene + " ended, creating result batch");}
+                                if(verbose){System.out.println("[ConvertToGeneStream] Gene " + gene + " ended, creating result batch. Putting " + variantBuffer.get(gene).size() + " variants in output batch");}
                                 List< RelevantVariant> variants = variantBuffer.get(gene);
                                 resultBatches.put(gene, variants.iterator());
                             }
@@ -160,16 +161,20 @@ public class ConvertToGeneStream {
                     resultBatches = new LinkedHashMap<>();
                     for(String gene : variantBuffer.keySet())
                     {
-                        List< RelevantVariant> variants = variantBuffer.get(gene);
-                        resultBatches.put(gene, variants.iterator());
+                        if(variantBuffer.get(gene).size() > 0){
+                            List< RelevantVariant> variants = variantBuffer.get(gene);
+                            resultBatches.put(gene, variants.iterator());
+                        }
                     }
-                    nextResult = getNextFromResultBatches(resultBatches, positionCheck);
-                    if(nextResult != null)
-                    {
-                        if(verbose){System.out.println("[ConvertToGeneStream] Flushing first of remaining variants: " + nextResult.toStringShort());}
-                        return true;
+                    if(resultBatches.size() > 0) {
+                        nextResult = getNextFromResultBatches(resultBatches, positionCheck);
+                        if (nextResult != null) {
+                            if (verbose) {
+                                System.out.println("[ConvertToGeneStream] Flushing first of remaining variants: " + nextResult.toStringShort());
+                            }
+                            return true;
+                        }
                     }
-
                 }
                 return false;
             }
