@@ -24,8 +24,8 @@ import static java.util.Arrays.asList;
  * We require the input VCF to be annotated with SnpEff, CADD (as much as possible), ExAC, GoNL and 1000G.
  *
  * Implementation TODO list:
- * - 'Restore genotypes' function where we combine RVCF with original VCF, to get genotypes back + original variants
- * - Usage of SV call data to prioritize more variants to as 'stand alone' source of relevant variation
+ * - 'Original variants+genotypes' function where we combine RVCF with original VCF, to get genotypes back + original variants (the ones filtered out)
+ * - Usage of Manta/Delly SV call data to prioritize more variants to as 'stand alone' source of relevant variation
  * - Support multiple relevant alleles per site - right now only the first one is considered
  * - Parse sample data from VCF (phenotype/sex, dynamic attributes?) and use in RLV output (sample groups?)
  * - Use 1000G information, including sub-populations?
@@ -35,6 +35,13 @@ import static java.util.Arrays.asList;
  * Tests TODO list:
  * - Different ways to discover variants (clinvar, lab list, gavin)
  * - CombineWithSVcalls when it's implemented
+ *
+ * Ideas TODO list:
+ * - Filter using sub-populations of ExAC/1000G for better power?
+ * - Consider using confidence intervals for MAFs relative to population size due to sampling error?
+ * - Check if variant MAFs are correctly allele-matched, e.g. rare variants in reference genome cause swap of AF?
+ * - Support VEP next to SnpEff, because it offers additional annotations and predictions that might help?
+ *
  *
  */
 public class Main {
