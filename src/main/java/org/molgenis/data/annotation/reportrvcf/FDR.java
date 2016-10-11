@@ -35,8 +35,8 @@ public class FDR {
     public static String HEADER = "Gene" + "\t" + "AffectedAbs" + "\t" + "CarrierAbs" + "\t" + "AffectedFrac" + "\t" + "CarrierFrac";
 
     public static void main(String[] args) throws Exception {
-        FDR fdr = new FDR(new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/ALL.chr1to22plusXYMT_RVCF.vcf"),
-                new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/FDR.tsv"),
+        FDR fdr = new FDR(new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/ALL.chr1to22plusXYMT_RVCF_r1.0.vcf"),
+                new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/FDR_r1.0.tsv"),
                 2504);
         fdr.go();
     }

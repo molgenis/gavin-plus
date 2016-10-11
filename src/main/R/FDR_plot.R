@@ -1,7 +1,7 @@
 library(ggplot2)
 
 # load FDR and CGD sets
-fdr <- read.table("/Users/joeri/github/rvcf/src/test/resources/bundle_r0.1/FDR_allGenes.tsv", sep="\t", header=T)
+fdr <- read.table("/Users/joeri/github/rvcf/src/test/resources/bundle_r1.0/FDR_allGenes.tsv", sep="\t", header=T)
 cgd <- read.table("/Users/joeri/github/rvcf/src/test/resources/GenesInheritance.tsv", sep="\t", header=T)
 
 # merge, keeping only CGD genes

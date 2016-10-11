@@ -18,16 +18,16 @@ public class CombineFDRwithAllGenes {
 
         //as produced by GetAllGeneNamesFromVCF
         //columns: no header, 1 gene per line
-        File allGenesFile = new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/allGenes.txt");
+        File allGenesFile = new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/allGenes.txt");
 
         //as produced by FDR, as ran on 1000G
         //using: https://molgenis26.gcc.rug.nl/downloads/5gpm/gavin/1000G_FDR/
         //columns: header "Gene Affected  Carrier"
-        File FDRfile = new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/FDR.tsv");
+        File FDRfile = new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/FDR_r1.0.tsv");
 
         //output file: combine FDR results with all genes
         //for some genes, we have found no false results, so their FDR will be 0
-        File outputFDR = new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/FDR_allGenes.tsv");
+        File outputFDR = new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/FDR_allGenes_r1.0.tsv");
 
         //read all genes
         Scanner allGenesScanner = new Scanner(allGenesFile);
