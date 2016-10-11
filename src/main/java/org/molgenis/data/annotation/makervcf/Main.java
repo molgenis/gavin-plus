@@ -41,7 +41,7 @@ import static java.util.Arrays.asList;
  * - Consider using confidence intervals for MAFs relative to population size due to sampling error?
  * - Check if variant MAFs are correctly allele-matched, e.g. rare variants in reference genome cause swap of AF?
  * - Support VEP next to SnpEff, because it offers additional annotations and predictions that might help?
- *
+ * - Use ExAC LOF/pLI annotations in output/interpretation?
  *
  */
 public class Main {
