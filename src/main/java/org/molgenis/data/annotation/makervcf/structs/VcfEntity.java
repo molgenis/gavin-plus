@@ -69,7 +69,13 @@ public class VcfEntity {
         ArrayList<RVCF> res = new ArrayList<>();
         for(String s : split)
         {
-            res.add(RVCF.fromString(s));
+            try {
+                res.add(RVCF.fromString(s));
+            }catch (Exception e)
+            {
+                System.out.println("RVCF parsing failed for " + s);
+                throw e;
+            }
         }
         return res;
     }
