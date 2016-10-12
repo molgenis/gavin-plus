@@ -63,9 +63,11 @@ public class RVCF {
         rvcfInstance.setPhenotypeDetails(split[8]);
         rvcfInstance.setPhenotypeGroup(split[9]);
 
-        rvcfInstance.setSampleStatusString(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[10]));
+        // 'no-sample' variants where at the same site, another variant does have samples, add empty lists
+        // example: 1	45795040	rs147923905	C	A,G
+        rvcfInstance.setSampleStatusString(split[10].isEmpty() ? new HashMap<>() : Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[10]));
       //  rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[11])); todo
-        rvcfInstance.setSampleGenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[12]));
+        rvcfInstance.setSampleGenotype(split[12].isEmpty() ? new HashMap<>() : Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[12]));
  //       rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[13])); todo
 
         rvcfInstance.setVariantSignificance(split[14]);
