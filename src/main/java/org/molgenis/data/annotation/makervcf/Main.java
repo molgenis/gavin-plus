@@ -24,6 +24,7 @@ import static java.util.Arrays.asList;
  * We require the input VCF to be annotated with SnpEff, CADD (as much as possible), ExAC, GoNL and 1000G.
  *
  * Implementation TODO list:
+ * - Allow leaving out 'fromCadd' file for input data that has already been fully scored
  * - 'Original variants+genotypes' function where we combine RVCF with original VCF, to get genotypes back + original variants (the ones filtered out)
  * - Usage of Manta/Delly SV call data to prioritize more variants to as 'stand alone' source of relevant variation
  * - Support multiple relevant alleles per site - right now only the first one is considered
