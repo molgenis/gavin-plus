@@ -2,7 +2,11 @@ package org.molgenis.data.annotation.reportrvcf;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.broadinstitute.variant.vcf.VCFUtils;
+import org.molgenis.cgd.CGDEntry;
+import org.molgenis.cgd.LoadCGD;
 import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
@@ -12,30 +16,31 @@ import org.molgenis.data.vcf.utils.VcfUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
 /**
  * Created by joeri on 10/12/16.
  */
-public class MultidiseaseCohortAnalysis {
+public class MultiPhenotypeCohortAnalysis {
 
     File rvcfInputFile;
     File outputZscoreFile;
-//    private VcfRepository vcf;
-//    private PrintWriter pw;
+    File cgdFile;
 
 
 
     public static void main(String[] args) throws Exception {
-        MultiPhenotypeCohortAnalysis mdca = new MultiPhenotypeCohortAnalysis(new File(args[0]), new File(args[1]));
+        MultiPhenotypeCohortAnalysis mdca = new MultiPhenotypeCohortAnalysis(new File(args[0]), new File(args[1]), new File(args[2]));
         mdca.start();
     }
 
-    public MultidiseaseCohortAnalysis(File rvcfInputFile, File outputZscoreFile)
+    public MultiPhenotypeCohortAnalysis(File rvcfInputFile, File outputZscoreFile, File cgdFile)
     {
         this.rvcfInputFile = rvcfInputFile;
         this.outputZscoreFile = outputZscoreFile;
+        this.cgdFile = cgdFile;
     }
 
     public void start() throws Exception {
@@ -60,18 +65,18 @@ public class MultidiseaseCohortAnalysis {
         MultiKeyMap geneAndPhenotypeToAffectedZscores = new MultiKeyMap();
 
         // execution
-        phenotypeToNrOfIndividualsFromInputVcf(individualsToPhenotype, diseaseToNrOfIndividuals, this.rvcfInputFile);
+        phenotypeToNrOfIndividualsFromInputVcf(individualsToPhenotype, phenotypeToNrOfIndividuals, this.rvcfInputFile);
         System.out.println("individualsToPhenotype: " + individualsToPhenotype.toString());
-        System.out.println("diseaseToNrOfIndividuals: " + diseaseToNrOfIndividuals.toString());
+        System.out.println("phenotypeToNrOfIndividuals: " + phenotypeToNrOfIndividuals.toString());
 
         countAffectedPerGene(geneToChromPos, individualsToPhenotype, geneAndPhenotypeToAffectedCount, this.rvcfInputFile);
         //System.out.println("countAffectedPerGene: " + geneAndPhenotypeToAffectedCount.toString());
 
-        convertToFraction(diseaseToNrOfIndividuals, geneAndPhenotypeToAffectedCount, geneAndPhenotypeToAffectedFraction);
+        convertToFraction(phenotypeToNrOfIndividuals, geneAndPhenotypeToAffectedCount, geneAndPhenotypeToAffectedFraction);
 
-        convertToZscore(geneAndPhenotypeToAffectedFraction, geneDiseaseToAffectedZscores, diseaseToNrOfIndividuals.keySet());
+        convertToZscore(geneAndPhenotypeToAffectedFraction, geneAndPhenotypeToAffectedZscores, phenotypeToNrOfIndividuals.keySet());
 
-        printToOutput(geneToChromPos, geneDiseaseToAffectedZscores, this.outputZscoreFile);
+        printToOutput(geneToChromPos, geneAndPhenotypeToAffectedZscores, this.outputZscoreFile, phenotypeToNrOfIndividuals.keySet(), this.cgdFile);
     }
 
 
@@ -110,6 +115,7 @@ public class MultidiseaseCohortAnalysis {
                     }
 
                     if (MatchVariantsToGenotypeAndInheritance.status.isPresumedAffected(rvcf.getSampleStatus().get(sample)))
+                    //if (rvcf.getSampleStatus().get(sample).toString().contains("AFFECTED"))
                     {
 
                         String phenotype = individualsToPhenotype.get(sample);
@@ -160,14 +166,83 @@ public class MultidiseaseCohortAnalysis {
 
             System.out.println("gene: " + gene + ", phenotype: " + phenotype + ", fractionAffected: " + fractionAffected);
 
-            for(String phenotype : )
+            int i = 0;
+            double[] testAgainst = new double[phenotypes.size()-1];
+            for(String phenotypeToTestAgainst : phenotypes)
+            {
+                if(phenotypeToTestAgainst.equals(phenotype))
+                {
+                    System.out.println("skipping self phenotype: " + phenotype+ " for gene " + gene);
+                    continue;
+                }
+
+                Double fractionAffectedToTestAgainst = (Double)geneAndPhenotypeToAffectedFraction.get(gene, phenotypeToTestAgainst);
+                fractionAffectedToTestAgainst = fractionAffectedToTestAgainst == null ? 0 : fractionAffectedToTestAgainst;
+
+                testAgainst[i++] = fractionAffectedToTestAgainst;
+
+                System.out.println("test against: " + phenotypeToTestAgainst + " for gene " + gene + ", fractionAffected: " + fractionAffectedToTestAgainst);
+
+            }
+
+            Mean meanEval = new Mean();
+            double mean = meanEval.evaluate(testAgainst);
+
+            StandardDeviation sdEval = new StandardDeviation();
+            double sd = sdEval.evaluate(testAgainst);
+
+            double zScore = (fractionAffected - mean) / sd;
+
+            zScore = zScore == Double.POSITIVE_INFINITY ? 99 : zScore;
+
+            System.out.println("mean: " + mean + ", sd: " + sd + ", Z-score: " + zScore);
+
+            geneAndPhenotypeToAffectedZscores.put(gene, phenotype, zScore);
 
 
         }
     }
 
-    public void printToOutput(HashMap<String, String> geneToChromPos, MultiKeyMap geneDiseaseToAffectedZscores, File outputZscoreFile)
+    public void printToOutput(HashMap<String, String> geneToChromPos, MultiKeyMap geneAndPhenotypeToAffectedZscores, File outputZscoreFile, Set<String> phenotypes, File cgdFile) throws IOException
     {
+
+        Map<String, CGDEntry> cgd = LoadCGD.loadCGD(cgdFile);
+
+        PrintWriter pw = new PrintWriter(outputZscoreFile);
+
+        String phenotypeHeader = "";
+        for(String p : phenotypes)
+        {
+            phenotypeHeader += "\t" + p;
+        }
+
+        pw.println("Gene" + "\t" + "Condition" + "\t" + "Chr" + "\t" + "Pos" + phenotypeHeader);
+
+        for(String gene : geneToChromPos.keySet())
+        {
+
+            String condition = cgd.containsKey(gene) ? cgd.get(gene).getCondition() : "";
+
+            StringBuffer zScores = new StringBuffer();
+            for(String p : phenotypes)
+            {
+                if(geneAndPhenotypeToAffectedZscores.containsKey(gene, p))
+                {
+                    zScores.append("\t"+(double)geneAndPhenotypeToAffectedZscores.get(gene, p));
+
+                }
+                else
+                {
+                    zScores.append("\t"+"0");
+
+                }
+            }
+
+            pw.println(gene + "\t" + condition + "\t" + geneToChromPos.get(gene) + zScores.toString());
+        }
+
+        pw.flush();
+        pw.close();
 
     }
 
