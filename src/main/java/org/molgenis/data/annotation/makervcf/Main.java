@@ -32,6 +32,7 @@ import static java.util.Arrays.asList;
  * - Use 1000G information, including sub-populations?
  * - Helper tool to get tabular output ('excel compatible')
  * - Report which variants were de novo
+ * - For multiallelic variants, where not all variants have relevant genotypes, filter out RLV fields for 'no-sample hits', or leave them in?
  *
  * Tests TODO list:
  * - Different ways to discover variants (clinvar, lab list, gavin)
@@ -85,7 +86,7 @@ public class Main {
                 + "This can be done with MOLGENIS CmdlineAnnotator, available at https://github.com/molgenis/molgenis/releases/download/v1.21.1/CmdLineAnnotator-1.21.1.jar\n"
                 + "\n"
                 + "-- PLEASE BE ADVISED --\n"
-                + "This is a rough, unpolished, unvalidated testing version. Crashed and bugs may happen. Do not use for production.\n"
+                + "This is the first production version. Crashed and bugs may still happen.\n"
                 + "\n"
                 + "Typical usage: java -jar GAVIN-APP-"+version+"-testing.jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
                 + "Example usage:\n"
@@ -117,8 +118,8 @@ public class Main {
 
     public void run(OptionSet options, OptionParser parser) throws Exception
     {
-        String version = "0.0.2";
-        String title = "* MOLGENIS GAVIN-APP for diagnostics, release "+version+"-testing";
+        String version = "1.0";
+        String title = "* MOLGENIS GAVIN-APP for diagnostics, release "+version+"";
         String titl2 = "* Gene-Aware Variant INterpretation - Automated Processing Pipeline";
 
         int len = Math.max(title.length(), titl2.length());
