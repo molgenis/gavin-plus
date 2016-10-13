@@ -67,41 +67,39 @@ public class Main {
         parser.acceptsAll(asList("f", "fdr"), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
         parser.acceptsAll(asList("a", "cadd"), "Input/output CADD missing annotations").withRequiredArg().ofType(File.class);
         parser.acceptsAll(asList("l", "lab"), "VCF file with lab specific variant classifications").withOptionalArg().ofType(File.class);
-        parser.acceptsAll(asList("s", "sv"), "Structural variation VCF file outputted by Delly, Manta or compatible").withOptionalArg().ofType(File.class);
+        parser.acceptsAll(asList("s", "sv"), "[not available] Structural variation VCF file outputted by Delly, Manta or compatible").withOptionalArg().ofType(File.class);
         parser.acceptsAll(asList("m", "mode"), "Create or use CADD file for missing annotations, either " + Mode.ANALYSIS.toString() + " or " + Mode.CREATEFILEFORCADD.toString()).withRequiredArg().ofType(String.class);
         parser.acceptsAll(asList("v", "verbose"), "Verbally express what is happening underneath the programmatic hood.");
         parser.acceptsAll(asList("r", "replace"), "Enables output RVCF and CADD intermediate file override, replacing a file with the same name as the argument for the -o option");
         parser.acceptsAll(asList("h", "help"), "Prints this help text");
-
-        parser.acceptsAll(asList("e", "restore"), "Supporting tool. Restore genotype columns of an RVCF file. Requires other argument: output.").withOptionalArg().ofType(File.class);
-
+        parser.acceptsAll(asList("e", "restore"), "[not available] Supporting tool. Combine RVCF results with original VCF.").withOptionalArg().ofType(File.class);
 
         return parser;
     }
 
     public void printHelp(String version, String title, OptionParser parser) throws IOException {
         System.out.println(""
-                + "Finds potentially relevant clinical variants and matching samples within your input VCF.\n"
+                + "Detect likely relevant clinical variants and matching samples in a VCF file.\n"
                 + "Your input VCF must be fully annotated with SnpEff, ExAC frequencies and CADD scores, and preferably also frequencies from GoNL and 1000G.\n"
                 + "This can be done with MOLGENIS CmdlineAnnotator, available at https://github.com/molgenis/molgenis/releases/download/v1.21.1/CmdLineAnnotator-1.21.1.jar\n"
                 + "\n"
                 + "-- PLEASE BE ADVISED --\n"
-                + "This is the first production version. Crashed and bugs may still happen.\n"
+                + "This is the first production version. Crashed and bugs may still happen. Please report them on https://github.com/molgenis/rvcf .\n"
                 + "\n"
-                + "Typical usage: java -jar GAVIN-APP-"+version+"-testing.jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
+                + "Typical usage: java -jar GAVIN-APP-"+version+".jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n"
                 + "Example usage:\n"
-                + "java -Xmx4g -jar GAVIN-APP-"+version+"-testing.jar \\\n"
-                + "-i patient76.snpeff.exac.caddsnv.vcf \\\n"
+                + "java -Xmx4g -jar GAVIN-APP-"+version+".jar \\\n"
+                + "-i patient76.snpeff.exac.gonl.caddsnv.vcf \\\n"
                 + "-o patient76_RVCF.vcf \\\n"
-                + "-g GAVIN_calibrations_r0.1.tsv \\\n"
-                + "-c clinvar.patho.fix.5.5.16.vcf.gz \\\n"
-                + "-d CGD_1jun2016.txt.gz \\\n"
-                + "-f FDR_allGenes.tsv \\\n"
+                + "-g GAVIN_calibrations_r0.3.tsv \\\n"
+                + "-c clinvar.patho.fix.11oct2016.vcf.gz \\\n"
+                + "-d CGD_11oct2016.txt.gz \\\n"
+                + "-f FDR_allGenes_r1.0.tsv \\\n"
                 + "-a fromCadd.tsv \\\n"
                 + "-m ANALYSIS \n"
                 + "\n"
                 + "Dealing with CADD intermediate files:\n"
-                + "You probably first want to generate a intermediate file with any missing CADD annotations using '-d toCadd.tsv -m CREATEFILEFORCADD'\n"
+                + "You first want to generate a intermediate file with any missing CADD annotations using '-d toCadd.tsv -m CREATEFILEFORCADD'\n"
                 + "After which, you want to score the variants in toCadd.tsv with the web service at http://cadd.gs.washington.edu/score\n"
                 + "The resulting scored file should be unpacked and then used for analysis with '-d fromCadd.tsv -m ANALYSIS'\n"
                 + "\n"
@@ -119,7 +117,7 @@ public class Main {
     public void run(OptionSet options, OptionParser parser) throws Exception
     {
         String version = "1.0";
-        String title = "* MOLGENIS GAVIN-APP for diagnostics, release "+version+"";
+        String title = "* MOLGENIS GAVIN-APP for genome diagnostics, release "+version+"";
         String titl2 = "* Gene-Aware Variant INterpretation - Automated Processing Pipeline";
 
         int len = Math.max(title.length(), titl2.length());
@@ -131,7 +129,7 @@ public class Main {
         System.out.println(appTitle);
 
         if (
-             (options.has("restore") && options.has("output")) ||
+             (options.has("restore") && options.has("input") && options.has("output")) ||
              (options.has("input") && options.has("output") && options.has("gavin") && options.has("clinvar") && options.has("cgd") && options.has("fdr") && options.has("cadd") && options.has("mode"))
            )
         {
@@ -140,13 +138,13 @@ public class Main {
         else if(options.has("help"))
         {
             System.out.println("Help page requested.");
-            printHelp(title, version, parser);
+            printHelp(version, title, parser);
             return;
         }
         else
         {
             System.out.println("Bad arguments. Showing help:");
-            printHelp(title, version, parser);
+            printHelp(version, title, parser);
             return;
         }
 
@@ -155,39 +153,42 @@ public class Main {
          *************/
         if(options.has("restore"))
         {
-            File inputRVCFFile = (File) options.valueOf("restore");
-            if (!inputRVCFFile.exists())
-            {
-                System.out.println("Input RVCF file not found at " + inputRVCFFile);
-                return;
-            }
-
-            File outputRVCFFile = (File) options.valueOf("output");
-            if (outputRVCFFile.exists())
-            {
-                if (options.has("replace"))
-                {
-                    System.out.println("Override enabled, replacing existing output RVCF file with specified output: "
-                            + outputRVCFFile.getAbsolutePath());
-                }
-                else
-                {
-                    System.out.println(
-                            "Output RVCF file already exists, please either enter a different output name or use the '-r' option to overwrite the output file.");
-                    return;
-                }
-            }
-
-            boolean verbose = false;
-            if(options.has("verbose"))
-            {
-                verbose = true;
-            }
-
-            System.out.println("Starting RVCF genotype restore..");
-            new RvcfGenoRestore(inputRVCFFile, outputRVCFFile, verbose);
-            System.out.println("..done!");
+            System.out.println("Restore mode not yet supported!");
             return;
+//
+//            File inputRVCFFile = (File) options.valueOf("restore");
+//            if (!inputRVCFFile.exists())
+//            {
+//                System.out.println("Input RVCF file not found at " + inputRVCFFile);
+//                return;
+//            }
+//
+//            File outputRVCFFile = (File) options.valueOf("output");
+//            if (outputRVCFFile.exists())
+//            {
+//                if (options.has("replace"))
+//                {
+//                    System.out.println("Override enabled, replacing existing output RVCF file with specified output: "
+//                            + outputRVCFFile.getAbsolutePath());
+//                }
+//                else
+//                {
+//                    System.out.println(
+//                            "Output RVCF file already exists, please either enter a different output name or use the '-r' option to overwrite the output file.");
+//                    return;
+//                }
+//            }
+//
+//            boolean verbose = false;
+//            if(options.has("verbose"))
+//            {
+//                verbose = true;
+//            }
+//
+//            System.out.println("Starting RVCF genotype restore..");
+//            new RvcfGenoRestore(inputRVCFFile, outputRVCFFile, verbose);
+//            System.out.println("..done!");
+//            return;
         }
 
 
