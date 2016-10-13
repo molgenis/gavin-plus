@@ -42,7 +42,7 @@ public class DiscoverRelevantVariants {
     {
         this.vcf = new VcfRepository(vcfFile, "vcf");
         this.clinvar = new ClinVar(clinvarFile);
-        if(labVariants!= null){
+        if(labVariants != null){
             this.lab = new LabVariants(labVariants);
         }
         this.gavin = new GavinAlgorithm();

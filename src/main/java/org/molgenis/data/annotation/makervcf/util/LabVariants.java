@@ -35,6 +35,7 @@ public class LabVariants {
                 posRefAltToLabVariant.put(key, record);
             }
         }
+        System.out.println("Lab variants ("+posRefAltToLabVariant.size()+") loaded");
     }
 
 
@@ -47,11 +48,14 @@ public class LabVariants {
             // CLSF=P;
             // CLSF=V;
             // CLSF=LB;
-            String labVariantInfo = posRefAltToLabVariant.get(key).getClinvar();
+            if(posRefAltToLabVariant.get(key).getClsf() == null)
+            {
+                throw new Exception("No CLSF field for lab variant at " + key);
+            }
+            String labVariantInfo = posRefAltToLabVariant.get(key).getClsf();
 
             if (labVariantInfo.equals("P") || labVariantInfo.equals("LP"))
             {
-                String clinvarGene = labVariantInfo.split("\\|", -1)[1];
                 return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, labVariantInfo).setSource("Lab variant").setType("Reported pathogenic");
             }
             else if(labVariantInfo.equals("V"))
