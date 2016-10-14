@@ -1,0 +1,30 @@
+##fileformat=VCFv4.0
+##reference=GRCh37/hg19
+##VEP=v82 cache=/data_ensembl/vep/grch37/release-83/homo_sapiens/83_GRCh37 db=homo_sapiens_core_83_37@ensdb-web-14 sift=sift5.2.2 polyphen=2.2.2 COSMIC=71 ESP=20141103 gencode=GENCODE 19 HGMD-PUBLIC=20152 genebuild=2011-04 regbuild=13 ClinVar=201507 dbSNP=144 assembly=GRCh37.p13
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##SnpEffVersion="4.2 (build 2015-12-05), by Pablo Cingolani"
+##SnpEffCmd="SnpEff  hg19 -noStats -lof ../onco/oncovariants.fix.vcf "
+##INFO=<ID=#CHROM,Number=.,Type=String,Description="The chromosome on which the variant is observed">
+##INFO=<ID=ALT,Number=.,Type=String,Description="The alternative allele observed">
+##INFO=<ID=POS,Number=.,Type=Float,Description="The position on the chromosome which the variant is observed">
+##INFO=<ID=REF,Number=.,Type=String,Description="The reference allele">
+##INFO=<ID=FILTER,Number=.,Type=String,Description="Description not provided">
+##INFO=<ID=QUAL,Number=.,Type=String,Description="Description not provided">
+##INFO=<ID=ID,Number=.,Type=String,Description="Description not provided">
+##INFO=<ID=INTERNAL_ID,Number=.,Type=String,Description="Description not provided">
+##INFO=<ID=CADD,Number=.,Type=String,Description="na">
+##INFO=<ID=CADD_SCALED,Number=.,Type=String,Description="na">
+##INFO=<ID=MVL,Number=.,Type=String,Description="The MVL this variant belongs to">
+##INFO=<ID=CLSF,Number=.,Type=String,Description="The classification of this variant">
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|SYMBOL_SOURCE|HGNC_ID|TSL|APPRIS|SIFT|PolyPhen|GMAF|AFR_MAF|AMR_MAF|EAS_MAF|EUR_MAF|SAS_MAF|AA_MAF|EA_MAF|ExAC_MAF|ExAC_Adj_MAF|ExAC_AFR_MAF|ExAC_AMR_MAF|ExAC_EAS_MAF|ExAC_FIN_MAF|ExAC_NFE_MAF|ExAC_OTH_MAF|ExAC_SAS_MAF|CLIN_SIG|SOMATIC|PHENO|PUBMED|MOTIF_NAME|MOTIF_POS|HIGH_INF_POS|MOTIF_SCORE_CHANGE">
+##INFO=<ID=ANN,Number=.,Type=String,Description="Functional annotations: 'Allele | Annotation | Annotation_Impact | Gene_Name | Gene_ID | Feature_Type | Feature_ID | Transcript_BioType | Rank | HGVS.c | HGVS.p | cDNA.pos / cDNA.length | CDS.pos / CDS.length | AA.pos / AA.length | Distance | ERRORS / WARNINGS / INFO' ">
+##INFO=<ID=LOF,Number=.,Type=String,Description="Predicted loss of function effects for this variant. Format: 'Gene_Name | Gene_ID | Number_of_transcripts_in_gene | Percent_of_transcripts_affected' ">
+##INFO=<ID=NMD,Number=.,Type=String,Description="Predicted nonsense mediated decay effects for this variant. Format: 'Gene_Name | Gene_ID | Number_of_transcripts_in_gene | Percent_of_transcripts_affected' ">
+##INFO=<ID=EXAC_AF,Number=.,Type=String,Description="The ExAC allele frequency">
+##INFO=<ID=EXAC_AC_HOM,Number=.,Type=String,Description="The ExAC homozygous alternative genotype count">
+##INFO=<ID=EXAC_AC_HET,Number=.,Type=String,Description="The ExAC heterozygous genotype count">
+##INFO=<ID=RLV,Number=.,Type=String,Description="Allele | AlleleFreq | Gene | FDR | Transcript | Phenotype | PhenotypeInheritance | PhenotypeOnset | PhenotypeDetails | PhenotypeGroup | SampleStatus | SamplePhenotype | SampleGenotype | SampleGroup | VariantSignificance | VariantSignificanceSource | VariantSignificanceJustification | VariantCompoundHet | VariantGroup">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+2	47602439	EPCAM:.	G	T	.	.	CADD=3.694353;CADD_SCALED=23.3;MVL=CLINVAR;CLSF=P;ANN=T|splice_donor_variant&intron_variant|HIGH|EPCAM|EPCAM|transcript|NM_002354.2|protein_coding|4/8|c.491+1G>T||||||;LOF=(EPCAM|EPCAM|1|1.00);EXAC_AF=8.237E-6;EXAC_AC_HOM=0;EXAC_AC_HET=1;RLV=T|8.237E-6|EPCAM|0.006389776357827476 0.0|NM_002354.2|Colorectal cancer  hereditary nonpolyposis  type 8  Diarrhea 5  with tufting enteropathy  congenital|DOMINANT_OR_RECESSIVE|Pediatric|Specific deletions result in MSH2 inactivation  Although Colorectal cancer  hereditary nonpolyposis  type 8 typically manifests in adulthood  individuals have been reported such that familial screening would be recommended to commence during the pediatric period  Diarrhea 5  with tufting enteropathy  congenital may include additional features  such as dysmorphism||SAMPLE:AFFECTED||SAMPLE:0s1||Reported pathogenic|ClinVar|NM_002354.2(EPCAM):c.491+1G>T EPCAM Pathogenic||;
+2	47641407	MSH2:.	G	A	.	.	CADD=5.665647;CADD_SCALED=26.7;MVL=CLINVAR;CLSF=P;ANN=A|splice_acceptor_variant&intron_variant|HIGH|MSH2|MSH2|transcript|NM_000251.2|protein_coding|4/15|c.793-1G>A||||||;LOF=(MSH2|MSH2|1|1.00);RLV=A|0.0|MSH2|0.003993610223642172 0.0|NM_000251.2|Colorectal cancer  hereditary nonpolyposis  type 1  Endometrial cancer  Mismatch repair cancer syndrome  Muir-Torre syndrome|DOMINANT_OR_RECESSIVE|Adult (Colorectal cancer  hereditary nonpolyposis  type 1  Endometrial cancer  Muir-Torre syndrome) Pediatric (Mismatch repair cancer syndrome)|Homozygous compound heterozygous mutations have been described in individuals with severe disease  Variants in PMS1 thought to be associated with hereditary colon cancer were found to co-segregate in individuals with MSH2 mutations  Variants may also contribute to cancer susceptibility  and individuals may be at risk for a number of cancer types||SAMPLE:AFFECTED||SAMPLE:0s1||Reported pathogenic|ClinVar|NM_000251.2(MSH2):c.793-1G>A MSH2 Likely pathogenic||;
+2	48018065	MSH6:.	G	C	.	.	CADD=3.756667;CADD_SCALED=23.3;MVL=CLINVAR;CLSF=P;ANN=C|splice_acceptor_variant&intron_variant|HIGH|MSH6|MSH6|transcript|NM_000179.2|protein_coding|1/9|c.261-1G>C||||||;LOF=(MSH6|MSH6|1|1.00);RLV=C|0.0|MSH6|0.01637380191693291 0.0|NM_000179.2|Colorectal cancer  hereditary nonpolyposis type 5  Mismatch repair cancer syndrome  Endometrial cancer|DOMINANT_OR_RECESSIVE|Adult (Colorectal cancer  hereditary nonpolyposis type 5  Endometrial cancer) Pediatric (Mismatch repair cancer syndrome)|||SAMPLE:AFFECTED||SAMPLE:0s1||Reported pathogenic|ClinVar|NM_000179.2(MSH6):c.261-1G>C MSH6 Likely pathogenic||;

@@ -1,6 +1,7 @@
 package org.molgenis.data.annotation.mergeback;
 
 import org.molgenis.data.Entity;
+import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
 
@@ -42,8 +43,15 @@ public class MergeBackTool
         {
             inputLine = inputScanner.nextLine();
 
-            if(inputLine.startsWith("#"))
+            if(inputLine.startsWith("##"))
             {
+                pw.println(inputLine);
+                continue;
+            }
+
+            if(inputLine.startsWith("#CHROM"))
+            {
+                pw.println("##INFO=<ID="+RVCF.attributeName+",Number=.,Type=String,Description=\""+RVCF.attributeMetaData+"\">");
                 pw.println(inputLine);
                 continue;
             }
