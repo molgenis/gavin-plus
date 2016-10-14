@@ -72,9 +72,7 @@ public class MultiPhenotypeCohortAnalysis {
         countAffectedPerGene(geneToChromPos, individualsToPhenotype, geneAndPhenotypeToAffectedCount, this.rvcfInputFile);
         //System.out.println("countAffectedPerGene: " + geneAndPhenotypeToAffectedCount.toString());
 
-        convertToFraction(phenotypeToNrOfIndividuals, geneAndPhenotypeToAffectedCount, geneAndPhenotypeToAffectedFraction);
-
-        convertToZscore(geneAndPhenotypeToAffectedFraction, geneAndPhenotypeToAffectedZscores, phenotypeToNrOfIndividuals.keySet());
+        ReactomeMultiPhenotypeCohortAnalysis.convertToZscore(geneAndPhenotypeToAffectedCount, geneAndPhenotypeToAffectedZscores, phenotypeToNrOfIndividuals.keySet());
 
         printToOutput(geneToChromPos, geneAndPhenotypeToAffectedZscores, this.outputZscoreFile, phenotypeToNrOfIndividuals.keySet(), this.cgdFile);
     }
@@ -97,7 +95,7 @@ public class MultiPhenotypeCohortAnalysis {
         Iterator<Entity> vcfIterator = vcf.iterator();
 
         // "SampleID_GeneName"
-        Set<String> sampleAddedForGene = new HashSet<>();
+  //      Set<String> sampleAddedForGene = new HashSet<>();
 
         while(vcfIterator.hasNext()) {
 
@@ -109,10 +107,10 @@ public class MultiPhenotypeCohortAnalysis {
 
                 for(String sample : rvcf.getSampleStatus().keySet()) {
 
-                    if(sampleAddedForGene.contains(sample+"_"+gene))
-                    {
-                        continue;
-                    }
+//                    if(sampleAddedForGene.contains(sample+"_"+gene))
+//                    {
+//                        continue;
+//                    }
 
                     if (MatchVariantsToGenotypeAndInheritance.status.isPresumedAffected(rvcf.getSampleStatus().get(sample)))
                     //if (rvcf.getSampleStatus().get(sample).toString().contains("AFFECTED"))
@@ -124,7 +122,7 @@ public class MultiPhenotypeCohortAnalysis {
                         geneAndPhenotypeToAffectedCount.put(gene, phenotype, count);
 
                         // make sure we count an individual only once per gene
-                        sampleAddedForGene.add(sample+"_"+gene);
+             //           sampleAddedForGene.add(sample+"_"+gene);
 
                         // add gene to meta data
                         if(!geneToChromPos.containsKey(gene))
@@ -133,73 +131,7 @@ public class MultiPhenotypeCohortAnalysis {
                         }
                     }
                 }
-
             }
-        }
-
-    }
-
-    public void convertToFraction(HashMap<String, Integer> phenotypeToNrOfIndividuals, MultiKeyMap geneAndPhenotypeToAffectedCount, MultiKeyMap geneAndPhenotypeToAffectedFraction) throws Exception {
-        for(Object o : geneAndPhenotypeToAffectedCount.keySet())
-        {
-            MultiKey key = (MultiKey)o;
-            Integer nrAffected = (Integer)geneAndPhenotypeToAffectedCount.get(key);
-            Integer nrOfIndividuals = phenotypeToNrOfIndividuals.get(key.getKey(1));
-            double fraction = ((double)nrAffected/(double)nrOfIndividuals) * 100.0;
-            if(fraction > 100.0)
-            {
-                throw new Exception("Fraction exceeds 100: " + fraction);
-            }
-            geneAndPhenotypeToAffectedFraction.put(key, fraction);
-            //System.out.println("put: " + key + " " + nrAffected + ", nrOfIndividuals "+ nrOfIndividuals + " fraction = " + fraction);
-        }
-    }
-
-    public void convertToZscore(MultiKeyMap geneAndPhenotypeToAffectedFraction, MultiKeyMap geneAndPhenotypeToAffectedZscores, Set<String> phenotypes)
-    {
-        for(Object o : geneAndPhenotypeToAffectedFraction.keySet())
-        {
-            MultiKey key = (MultiKey)o;
-            double fractionAffected = (double)geneAndPhenotypeToAffectedFraction.get(key);
-            String gene = (String)key.getKey(0);
-            String phenotype = (String)key.getKey(1);
-
-            System.out.println("gene: " + gene + ", phenotype: " + phenotype + ", fractionAffected: " + fractionAffected);
-
-            int i = 0;
-            double[] testAgainst = new double[phenotypes.size()-1];
-            for(String phenotypeToTestAgainst : phenotypes)
-            {
-                if(phenotypeToTestAgainst.equals(phenotype))
-                {
-                    System.out.println("skipping self phenotype: " + phenotype+ " for gene " + gene);
-                    continue;
-                }
-
-                Double fractionAffectedToTestAgainst = (Double)geneAndPhenotypeToAffectedFraction.get(gene, phenotypeToTestAgainst);
-                fractionAffectedToTestAgainst = fractionAffectedToTestAgainst == null ? 0 : fractionAffectedToTestAgainst;
-
-                testAgainst[i++] = fractionAffectedToTestAgainst;
-
-                System.out.println("test against: " + phenotypeToTestAgainst + " for gene " + gene + ", fractionAffected: " + fractionAffectedToTestAgainst);
-
-            }
-
-            Mean meanEval = new Mean();
-            double mean = meanEval.evaluate(testAgainst);
-
-            StandardDeviation sdEval = new StandardDeviation();
-            double sd = sdEval.evaluate(testAgainst);
-
-            double zScore = (fractionAffected - mean) / sd;
-
-            zScore = zScore == Double.POSITIVE_INFINITY ? 99 : zScore;
-
-            System.out.println("mean: " + mean + ", sd: " + sd + ", Z-score: " + zScore);
-
-            geneAndPhenotypeToAffectedZscores.put(gene, phenotype, zScore);
-
-
         }
     }
 
@@ -234,7 +166,6 @@ public class MultiPhenotypeCohortAnalysis {
                 else
                 {
                     zScores.append("\t"+"0");
-
                 }
             }
 
