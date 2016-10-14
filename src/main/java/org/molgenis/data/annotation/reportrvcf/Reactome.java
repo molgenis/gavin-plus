@@ -4,10 +4,7 @@ import net.didion.jwnl.data.Exc;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by joeri on 10/14/16.
@@ -29,14 +26,16 @@ public class Reactome
 
     public static void main(String[] args) throws Exception {
 
-        HashMap<String, List<String>> pathwayNameToGeneNames = load(new File(args[0]));
+        HashMap<String, Set<String>> pathwayNameToGeneNames = load(new File(args[0]));
         System.out.println("Loaded " + pathwayNameToGeneNames.size() + " pathways");
+
+        HashMap<String, Set<String>> geneToPathways = makeGeneToPathwaysMap(pathwayNameToGeneNames);
 
     }
 
-    public static HashMap<String, List<String>> load(File reactomeFile) throws Exception
+    public static HashMap<String, Set<String>> load(File reactomeFile) throws Exception
     {
-        HashMap<String, List<String>> pathwayNameToGeneNames = new HashMap<>();
+        HashMap<String, Set<String>> pathwayNameToGeneNames = new HashMap<>();
         Scanner s = new Scanner(reactomeFile);
         String line;
         while(s.hasNextLine())
@@ -59,7 +58,7 @@ public class Reactome
             {
                 throw new Exception("Bad data, less than 4 elements: " + pathwayName);
             }
-            List<String> genes = new ArrayList<>();
+            Set<String> genes = new HashSet<>();
             for(int i = 3; i < split.length; i++)
             {
                 genes.add(split[i]);
@@ -74,12 +73,36 @@ public class Reactome
         {
             throw new Exception("Expected pathway for ALKBH2 not present");
         }
-        if(!pathwayNameToGeneNames.get("ALKBH2 mediated reversal of alkylation damage|R-HSA-112122").get(0).equals("ALKBH2"))
+        if(!pathwayNameToGeneNames.get("ALKBH2 mediated reversal of alkylation damage|R-HSA-112122").iterator().next().equals("ALKBH2"))
         {
             throw new Exception("Expected gene for ALKBH2 pathway not present");
         }
 
         return pathwayNameToGeneNames;
+    }
+
+    public static HashMap<String, Set<String>> makeGeneToPathwaysMap(HashMap<String, Set<String>> pathwayNameToGeneNames)
+    {
+        HashMap<String, Set<String>> res = new HashMap<>();
+
+        for(String pathway : pathwayNameToGeneNames.keySet())
+        {
+            for(String gene : pathwayNameToGeneNames.get(pathway))
+            {
+                if(res.containsKey(gene))
+                {
+                    res.get(gene).add(pathway);
+                }
+                else
+                {
+                    Set<String> pwList = new HashSet<>();
+                    pwList.add(pathway);
+                    res.put(gene, pwList);
+                }
+            }
+        }
+        System.out.println("[Reactome] Converted list of " + pathwayNameToGeneNames.size() + " pathways into list with " + res.size() + " genes");
+        return res;
     }
 
 }
