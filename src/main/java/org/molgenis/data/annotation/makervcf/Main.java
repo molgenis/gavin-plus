@@ -25,6 +25,8 @@ import static java.util.Arrays.asList;
  *
  * Implementation TODO list:
  * - Allow leaving out 'fromCadd' file for input data that has already been fully scored
+ * - Check if CADD output file has been unzipped! right now you can run and get bad output
+ * - Make clear that 'firstpass' VCF output file should not be used but the _original_ file when analysing the data with fromCadd output file
  * - 'Original variants+genotypes' function where we combine RVCF with original VCF, to get genotypes back + original variants (the ones filtered out)
  * - Usage of Manta/Delly SV call data to prioritize more variants to as 'stand alone' source of relevant variation
  * - Support multiple relevant alleles per site - right now only the first one is considered
