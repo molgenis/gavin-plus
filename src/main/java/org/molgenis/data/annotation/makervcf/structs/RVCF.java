@@ -10,7 +10,7 @@ import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGen
  */
 public class RVCF {
 
-    private static int nrOfFields = 19;
+    public static int nrOfFields = 19;
     private static String RVCF_GENEALLELECOMBISEP = ",";
     private static String RVCF_SAMPLESEP = "/";
     private static String RVCF_FIELDSEP = "|";
