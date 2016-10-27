@@ -24,12 +24,12 @@ import static java.util.Arrays.asList;
  * We require the input VCF to be annotated with SnpEff, CADD (as much as possible), ExAC, GoNL and 1000G.
  *
  * Implementation TODO list:
+ * - Become better at avoiding FP, by perhaps using clinvar benign or exac hom/het counts directly
  * - Allow leaving out 'fromCadd' file for input data that has already been fully scored
  * - Check if CADD output file has been unzipped! right now you can run and get bad output
  * - Make clear that 'firstpass' VCF output file should not be used but the _original_ file when analysing the data with fromCadd output file
  * - 'Original variants+genotypes' function where we combine RVCF with original VCF, to get genotypes back + original variants (the ones filtered out)
  * - Usage of Manta/Delly SV call data to prioritize more variants to as 'stand alone' source of relevant variation
- * - Support multiple relevant alleles per site - right now only the first one is considered
  * - Parse sample data from VCF (phenotype/sex, dynamic attributes?) and use in RLV output (sample groups?)
  * - Use 1000G information, including sub-populations?
  * - Helper tool to get tabular output ('excel compatible')
