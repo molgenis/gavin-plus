@@ -86,7 +86,6 @@ public class SplitRlvTool
                         if(infoSplit[j].startsWith(RVCF.attributeName+"="))
                         {
                             infoSplit[j] = infoSplit[j].substring(4);
-                            System.out.println("infoSplit["+j+"] = " + infoSplit[j]);
                             rlvFound = true;
                             String[] rlvSplit = infoSplit[j].split(",", -1);
                             if(rlvSplit.length > 1)
