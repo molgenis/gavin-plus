@@ -85,6 +85,7 @@ public class SplitRlvTool
                     {
                         if(infoSplit[j].startsWith(RVCF.attributeName+"="))
                         {
+                            infoSplit[j] = infoSplit[j].substring(4);
                             System.out.println("infoSplit["+j+"] = " + infoSplit[j]);
                             rlvFound = true;
                             String[] rlvSplit = infoSplit[j].split(",", -1);
@@ -97,6 +98,15 @@ public class SplitRlvTool
                             if(rlvSplit.length != RVCF.nrOfFields)
                             {
                                 throw new Exception("RLV did not have "+RVCF.nrOfFields+" subfields but "+rlvSplit.length+"! bad data at line: " + inputLine);
+                            }
+
+
+                            for(int r = 0; r < rlvSplit.length; r++)
+                            {
+                                if(rlvSplit[r].isEmpty())
+                                {
+                                    rlvSplit[r] = "NA";
+                                }
                             }
 
                             sb.append("RLV_ALLELE=" + rlvSplit[0] + ";RLV_ALLELEFREQ=" + rlvSplit[1] + ";RLV_GENE=" + rlvSplit[2] + ";RLV_FDR=" + rlvSplit[3] + ";RLV_TRANSCRIPT=" + rlvSplit[4] +
@@ -117,6 +127,8 @@ public class SplitRlvTool
                     }
 
                     sb.deleteCharAt(sb.length()-1);
+                    sb.append("\t");
+
 
                 }
                 else
