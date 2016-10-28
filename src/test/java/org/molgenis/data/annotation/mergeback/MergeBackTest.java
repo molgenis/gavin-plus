@@ -53,7 +53,7 @@ public class MergeBackTest
 
 		System.out.println("Going to compare files:\n" + expectedOutputVcfFile.getAbsolutePath() + "\nvs.\n" + observedOutputVcfFile.getAbsolutePath());
 
-		assertEquals(FileUtils.readLines(expectedOutputVcfFile), FileUtils.readLines(observedOutputVcfFile));
+		assertEquals(FileUtils.readLines(observedOutputVcfFile), FileUtils.readLines(expectedOutputVcfFile));
 
 	}
 

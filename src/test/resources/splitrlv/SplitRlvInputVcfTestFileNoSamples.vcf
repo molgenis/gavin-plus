@@ -1,6 +1,5 @@
 ##fileformat=VCFv4.0
 ##reference=GRCh37/hg19
-##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##INFO=<ID=CADD_SCALED,Number=.,Type=String,Description="na">
 ##INFO=<ID=RLV,Number=.,Type=String,Description="Allele | AlleleFreq | Gene | FDR | Transcript | Phenotype | PhenotypeInheritance | PhenotypeOnset | PhenotypeDetails | PhenotypeGroup | SampleStatus | SamplePhenotype | SampleGenotype | SampleGroup | VariantSignificance | VariantSignificanceSource | VariantSignificanceJustification | VariantCompoundHet | VariantGroup">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO

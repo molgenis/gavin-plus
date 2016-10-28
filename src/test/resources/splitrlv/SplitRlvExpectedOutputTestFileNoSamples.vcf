@@ -1,0 +1,29 @@
+##fileformat=VCFv4.0
+##reference=GRCh37/hg19
+##INFO=<ID=CADD_SCALED,Number=.,Type=String,Description="na">
+##INFO=<ID=RLV_ALLELE,Number=1,Type=String,Description="Allele">
+##INFO=<ID=RLV_ALLELEFREQ,Number=1,Type=String,Description="AlleleFreq">
+##INFO=<ID=RLV_GENE,Number=1,Type=String,Description="Gene">
+##INFO=<ID=RLV_FDR,Number=1,Type=String,Description="FDR">
+##INFO=<ID=RLV_TRANSCRIPT,Number=1,Type=String,Description="Transcript">
+##INFO=<ID=RLV_PHENOTYPE,Number=1,Type=String,Description="Phenotype">
+##INFO=<ID=RLV_PHENOTYPEINHERITANCE,Number=1,Type=String,Description="PhenotypeInheritance">
+##INFO=<ID=RLV_PHENOTYPEONSET,Number=1,Type=String,Description="PhenotypeOnset">
+##INFO=<ID=RLV_PHENOTYPEDETAILS,Number=1,Type=String,Description="PhenotypeDetails">
+##INFO=<ID=RLV_PHENOTYPEGROUP,Number=1,Type=String,Description="PhenotypeGroup">
+##INFO=<ID=RLV_SAMPLESTATUS,Number=1,Type=String,Description="SampleStatus">
+##INFO=<ID=RLV_SAMPLEPHENOTYPE,Number=1,Type=String,Description="SamplePhenotype">
+##INFO=<ID=RLV_SAMPLEGENOTYPE,Number=1,Type=String,Description="SampleGenotype">
+##INFO=<ID=RLV_SAMPLEGROUP,Number=1,Type=String,Description="SampleGroup">
+##INFO=<ID=RLV_VARIANTSIGNIFICANCE,Number=1,Type=String,Description="VariantSignificance">
+##INFO=<ID=RLV_VARIANTSIGNIFICANCESOURCE,Number=1,Type=String,Description="VariantSignificanceSource">
+##INFO=<ID=RLV_VARIANTSIGNIFICANCEJUSTIFICATION,Number=1,Type=String,Description="VariantSignificanceJustification">
+##INFO=<ID=RLV_VARIANTCOMPOUNDHET,Number=1,Type=String,Description="VariantCompoundHet">
+##INFO=<ID=RLV_VARIANTGROUP,Number=1,Type=String,Description="VariantGroup">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+2	47602439	EPCAM:.	G	T	.	.	CADD_SCALED=23.3;RLV_ALLELE=T;RLV_ALLELEFREQ=8.237E-6;RLV_GENE=EPCAM;RLV_FDR=0.006389776357827476 0.0;RLV_TRANSCRIPT=NM_002354.2;RLV_PHENOTYPE=Colorectal cancer  hereditary nonpolyposis  type 8  Diarrhea 5  with tufting enteropathy  congenital;RLV_PHENOTYPEINHERITANCE=DOMINANT_OR_RECESSIVE;RLV_PHENOTYPEONSET=Pediatric;RLV_PHENOTYPEDETAILS=Specific deletions result in MSH2 inactivation  Although Colorectal cancer  hereditary nonpolyposis  type 8 typically manifests in adulthood  individuals have been reported such that familial screening would be recommended to commence during the pediatric period  Diarrhea 5  with tufting enteropathy  congenital may include additional features  such as dysmorphism;RLV_PHENOTYPEGROUP=NA;RLV_SAMPLESTATUS=SAMPLE:AFFECTED;RLV_SAMPLEPHENOTYPE=NA;RLV_SAMPLEGENOTYPE=SAMPLE:0s1;RLV_SAMPLEGROUP=NA;RLV_VARIANTSIGNIFICANCE=Reported pathogenic;RLV_VARIANTSIGNIFICANCESOURCE=ClinVar;RLV_VARIANTSIGNIFICANCEJUSTIFICATION=NM_002354.2(EPCAM):c.491+1G>T EPCAM Pathogenic;RLV_VARIANTCOMPOUNDHET=NA;RLV_VARIANTGROUP=NA
+2	47641407	MSH2:.	G	A	.	.	CADD_SCALED=26.7;RLV_ALLELE=A;RLV_ALLELEFREQ=0.0;RLV_GENE=MSH2;RLV_FDR=0.003993610223642172 0.0;RLV_TRANSCRIPT=NM_000251.2;RLV_PHENOTYPE=Colorectal cancer  hereditary nonpolyposis  type 1  Endometrial cancer  Mismatch repair cancer syndrome  Muir-Torre syndrome;RLV_PHENOTYPEINHERITANCE=DOMINANT_OR_RECESSIVE;RLV_PHENOTYPEONSET=Adult (Colorectal cancer  hereditary nonpolyposis  type 1  Endometrial cancer  Muir-Torre syndrome) Pediatric (Mismatch repair cancer syndrome);RLV_PHENOTYPEDETAILS=Homozygous compound heterozygous mutations have been described in individuals with severe disease  Variants in PMS1 thought to be associated with hereditary colon cancer were found to co-segregate in individuals with MSH2 mutations  Variants may also contribute to cancer susceptibility  and individuals may be at risk for a number of cancer types;RLV_PHENOTYPEGROUP=NA;RLV_SAMPLESTATUS=SAMPLE:AFFECTED;RLV_SAMPLEPHENOTYPE=NA;RLV_SAMPLEGENOTYPE=SAMPLE:0s1;RLV_SAMPLEGROUP=NA;RLV_VARIANTSIGNIFICANCE=Reported pathogenic;RLV_VARIANTSIGNIFICANCESOURCE=ClinVar;RLV_VARIANTSIGNIFICANCEJUSTIFICATION=NM_000251.2(MSH2):c.793-1G>A MSH2 Likely pathogenic;RLV_VARIANTCOMPOUNDHET=NA;RLV_VARIANTGROUP=NA
+2	48018065	MSH6:.	G	C	.	.	RLV_ALLELE=C;RLV_ALLELEFREQ=0.0;RLV_GENE=MSH6;RLV_FDR=0.01637380191693291 0.0;RLV_TRANSCRIPT=NM_000179.2;RLV_PHENOTYPE=Colorectal cancer  hereditary nonpolyposis type 5  Mismatch repair cancer syndrome  Endometrial cancer;RLV_PHENOTYPEINHERITANCE=DOMINANT_OR_RECESSIVE;RLV_PHENOTYPEONSET=Adult (Colorectal cancer  hereditary nonpolyposis type 5  Endometrial cancer) Pediatric (Mismatch repair cancer syndrome);RLV_PHENOTYPEDETAILS=NA;RLV_PHENOTYPEGROUP=NA;RLV_SAMPLESTATUS=SAMPLE:AFFECTED;RLV_SAMPLEPHENOTYPE=NA;RLV_SAMPLEGENOTYPE=SAMPLE:0s1;RLV_SAMPLEGROUP=NA;RLV_VARIANTSIGNIFICANCE=Reported pathogenic;RLV_VARIANTSIGNIFICANCESOURCE=ClinVar;RLV_VARIANTSIGNIFICANCEJUSTIFICATION=NM_000179.2(MSH6):c.261-1G>C MSH6 Likely pathogenic;RLV_VARIANTCOMPOUNDHET=NA;RLV_VARIANTGROUP=NA
+2	179394686	TTN:c.106531+1G>A	C	T	.	.	CADD_SCALED=25.7;
+2	179449797	TTN:c.64672+2T>C	A	G	.	.	CADD_SCALED=23.1
+2	179452242	TTN:c.63793+1G>A	C	T	.	.	.

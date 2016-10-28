@@ -11,6 +11,7 @@ import java.io.*;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 public class SplitRlvTest
 {
@@ -19,6 +20,11 @@ public class SplitRlvTest
 	protected File expectedOutputVcfFile;
 	protected File observedOutputVcfFile;
 
+	protected File inputVcfFileNoSamples;
+	protected File expectedOutputVcfFileNoSamples;
+	protected File observedOutputVcfFileNoSamples;
+
+	protected File splitRlvNotAllowedInputTestFile;
 
 	@BeforeClass
 	public void beforeClass() throws FileNotFoundException, IOException {
@@ -31,6 +37,20 @@ public class SplitRlvTest
 		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFile));
 
 		observedOutputVcfFile = new File(FileUtils.getTempDirectory(), "outputVcfFile.vcf");
+
+		InputStream inputVcfNoSamples = DiscoverRelevantVariantsTest.class.getResourceAsStream("/splitrlv/SplitRlvInputVcfTestFileNoSamples.vcf");
+		inputVcfFileNoSamples = new File(FileUtils.getTempDirectory(), "SplitRlvInputVcfTestFileNoSamples.vcf");
+		FileCopyUtils.copy(inputVcfNoSamples, new FileOutputStream(inputVcfFileNoSamples));
+
+		InputStream outputVcfNoSamples = DiscoverRelevantVariantsTest.class.getResourceAsStream("/splitrlv/SplitRlvExpectedOutputTestFileNoSamples.vcf");
+		expectedOutputVcfFileNoSamples = new File(FileUtils.getTempDirectory(), "SplitRlvExpectedOutputTestFileNoSamples.vcf");
+		FileCopyUtils.copy(outputVcfNoSamples, new FileOutputStream(expectedOutputVcfFileNoSamples));
+
+		observedOutputVcfFileNoSamples = new File(FileUtils.getTempDirectory(), "outputVcfFileNoSamples.vcf");
+
+		InputStream splitRlvNotAllowed = DiscoverRelevantVariantsTest.class.getResourceAsStream("/splitrlv/SplitRlvNotAllowedInputTestFile.vcf");
+		splitRlvNotAllowedInputTestFile = new File(FileUtils.getTempDirectory(), "SplitRlvNotAllowedInputTestFile.vcf");
+		FileCopyUtils.copy(splitRlvNotAllowed, new FileOutputStream(splitRlvNotAllowedInputTestFile));
 
 	}
 
@@ -49,7 +69,41 @@ public class SplitRlvTest
 
 		System.out.println("Going to compare files:\n" + expectedOutputVcfFile.getAbsolutePath() + "\nvs.\n" + observedOutputVcfFile.getAbsolutePath());
 
-		assertEquals(FileUtils.readLines(expectedOutputVcfFile), FileUtils.readLines(observedOutputVcfFile));
+		assertEquals(FileUtils.readLines(observedOutputVcfFile), FileUtils.readLines(expectedOutputVcfFile));
+
+	}
+
+	@Test
+	public void testNoSamples() throws Exception
+	{
+		// make sure there is no output file when we start
+		if(observedOutputVcfFileNoSamples.exists())
+		{
+			observedOutputVcfFileNoSamples.delete();
+		}
+		assertTrue(!observedOutputVcfFileNoSamples.exists());
+
+		// run tool
+		new SplitRlvTool().start(inputVcfFileNoSamples, observedOutputVcfFileNoSamples);
+
+		System.out.println("Going to compare files:\n" + expectedOutputVcfFileNoSamples.getAbsolutePath() + "\nvs.\n" + observedOutputVcfFileNoSamples.getAbsolutePath());
+
+		assertEquals(FileUtils.readLines(observedOutputVcfFileNoSamples), FileUtils.readLines(expectedOutputVcfFileNoSamples));
+
+	}
+
+	@Test
+	public void testNotAllowed() throws Exception
+	{
+		try
+		{
+			new SplitRlvTool().start(splitRlvNotAllowedInputTestFile, new File(FileUtils.getTempDirectory(), "notallowedtestout.vcf"));
+			fail("No exception caught!");
+		}
+		catch (Exception ex)
+			{
+			assertTrue(ex.getMessage().startsWith("Multiple RLV entries cannot be split!"));
+		}
 
 	}
 
