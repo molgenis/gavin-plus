@@ -2,7 +2,6 @@ package org.molgenis.data.annotation.splitrlv;
 
 import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.makervcf.DiscoverRelevantVariantsTest;
-import org.molgenis.data.annotation.mergeback.MergeBackTool;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,8 +47,8 @@ public class SplitRlvTest
 
 		observedOutputVcfFileNoSamples = new File(FileUtils.getTempDirectory(), "outputVcfFileNoSamples.vcf");
 
-		InputStream splitRlvNotAllowed = DiscoverRelevantVariantsTest.class.getResourceAsStream("/splitrlv/SplitRlvNotAllowedInputTestFile.vcf");
-		splitRlvNotAllowedInputTestFile = new File(FileUtils.getTempDirectory(), "SplitRlvNotAllowedInputTestFile.vcf");
+		InputStream splitRlvNotAllowed = DiscoverRelevantVariantsTest.class.getResourceAsStream("/splitrlv/SplitRlvMultiAlleleInputTestFile.vcf");
+		splitRlvNotAllowedInputTestFile = new File(FileUtils.getTempDirectory(), "SplitRlvMultiAlleleInputTestFile.vcf");
 		FileCopyUtils.copy(splitRlvNotAllowed, new FileOutputStream(splitRlvNotAllowedInputTestFile));
 
 	}
@@ -92,19 +91,5 @@ public class SplitRlvTest
 
 	}
 
-	@Test
-	public void testNotAllowed() throws Exception
-	{
-		try
-		{
-			new SplitRlvTool().start(splitRlvNotAllowedInputTestFile, new File(FileUtils.getTempDirectory(), "notallowedtestout.vcf"));
-			fail("No exception caught!");
-		}
-		catch (Exception ex)
-			{
-			assertTrue(ex.getMessage().startsWith("Multiple RLV entries cannot be split!"));
-		}
-
-	}
 
 }

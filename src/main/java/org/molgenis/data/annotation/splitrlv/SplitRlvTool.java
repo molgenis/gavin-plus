@@ -19,7 +19,10 @@ import java.util.stream.Collectors;
 public class SplitRlvTool
 {
 
-    String rlvSplit = "##INFO=<ID=RLV_ALLELE,Number=1,Type=String,Description=\"Allele\">\n" +
+    String rlvSplit =
+            "##INFO=<ID=RLV_PRESENT,Number=1,Type=String,Description=\"RLV present\">\n" +
+            "##INFO=<ID=RLV,Number=.,Type=String,Description=\"Allele | AlleleFreq | Gene | FDR | Transcript | Phenotype | PhenotypeInheritance | PhenotypeOnset | PhenotypeDetails | PhenotypeGroup | SampleStatus | SamplePhenotype | SampleGenotype | SampleGroup | VariantSignificance | VariantSignificanceSource | VariantSignificanceJustification | VariantCompoundHet | VariantGroup\">\n" +
+            "##INFO=<ID=RLV_ALLELE,Number=1,Type=String,Description=\"Allele\">\n" +
             "##INFO=<ID=RLV_ALLELEFREQ,Number=1,Type=String,Description=\"AlleleFreq\">\n" +
             "##INFO=<ID=RLV_GENE,Number=1,Type=String,Description=\"Gene\">\n" +
             "##INFO=<ID=RLV_FDR,Number=1,Type=String,Description=\"FDR\">\n" +
@@ -74,60 +77,78 @@ public class SplitRlvTool
 
             StringBuffer sb = new StringBuffer();
 
-            for(int i = 0; i < split.length; i++)
-            {
-                //INFO is at 7
-                if(i == 7 && split[7].contains(RVCF.attributeName+"="))
+            boolean rlvFound = false;
+
+            for(int i = 0; i < split.length; i++) {
+
+                // INFO is at 7
+                if (i == 7)
                 {
-                    boolean rlvFound = false;
                     String[] infoSplit = split[i].split(";", -1);
-                    for(int j = 0; j < infoSplit.length; j++)
+
+                    if(infoSplit.length == 1 && infoSplit[0].equals("."))
                     {
-                        if(infoSplit[j].startsWith(RVCF.attributeName+"="))
+                        sb.append("RLV_PRESENT=FALSE");
+                        if(split.length > 7)
                         {
-                            infoSplit[j] = infoSplit[j].substring(4);
+                            sb.append("\t");
+                        }
+                        continue;
+                    }
+
+                    // find RLV
+                    for (int j = 0; j < infoSplit.length; j++)
+                    {
+                        // match to RLV
+                        if (infoSplit[j].startsWith(RVCF.attributeName + "="))
+                        {
                             rlvFound = true;
+
+                            infoSplit[j] = infoSplit[j].substring(4);
                             String[] rlvSplit = infoSplit[j].split(",", -1);
-                            if(rlvSplit.length > 1)
-                            {
-                                throw new Exception("Multiple RLV entries cannot be split! not allowed at line: " + inputLine);
-                            }
 
-                            rlvSplit = infoSplit[j].split("\\|", -1);
-                            if(rlvSplit.length != RVCF.nrOfFields)
-                            {
-                                throw new Exception("RLV did not have "+RVCF.nrOfFields+" subfields but "+rlvSplit.length+"! bad data at line: " + inputLine);
-                            }
+                            String[] multiRlvSplitConcat = new String[RVCF.nrOfFields];
 
+                            for (int k = 0; k < rlvSplit.length; k++) {
+                                String[] multiRlvSplit = rlvSplit[k].split("\\|", -1);
 
-                            for(int r = 0; r < rlvSplit.length; r++)
-                            {
-                                if(rlvSplit[r].isEmpty())
-                                {
-                                    rlvSplit[r] = "NA";
+                                if (multiRlvSplit.length != RVCF.nrOfFields) {
+                                    throw new Exception("RLV did not have " + RVCF.nrOfFields + " subfields but " + multiRlvSplit.length + "! bad data: " + rlvSplit[k]);
+                                }
+
+                                //todo: check if combination unique?
+                                String alt = multiRlvSplit[0];
+                                String gene = multiRlvSplit[2];
+
+                                for (int r = 0; r < multiRlvSplit.length; r++) {
+                                    String value = multiRlvSplit[r].isEmpty() ? "NA" : multiRlvSplit[r];
+                                    String previous = multiRlvSplitConcat[r] == null ? "" : multiRlvSplitConcat[r] + ",";
+                                    multiRlvSplitConcat[r] = previous + "[" + alt + "|" + gene + "]" + value;
                                 }
                             }
 
-                            sb.append("RLV_ALLELE=" + rlvSplit[0] + ";RLV_ALLELEFREQ=" + rlvSplit[1] + ";RLV_GENE=" + rlvSplit[2] + ";RLV_FDR=" + rlvSplit[3] + ";RLV_TRANSCRIPT=" + rlvSplit[4] +
-                                    ";RLV_PHENOTYPE=" + rlvSplit[5] + ";RLV_PHENOTYPEINHERITANCE=" + rlvSplit[6] + ";RLV_PHENOTYPEONSET=" + rlvSplit[7] + ";RLV_PHENOTYPEDETAILS=" + rlvSplit[8] +
-                                    ";RLV_PHENOTYPEGROUP=" + rlvSplit[9] + ";RLV_SAMPLESTATUS=" + rlvSplit[10] + ";RLV_SAMPLEPHENOTYPE=" + rlvSplit[11] + ";RLV_SAMPLEGENOTYPE=" + rlvSplit[12] +
-                                    ";RLV_SAMPLEGROUP=" + rlvSplit[13] + ";RLV_VARIANTSIGNIFICANCE=" + rlvSplit[14] + ";RLV_VARIANTSIGNIFICANCESOURCE=" + rlvSplit[15] + ";RLV_VARIANTSIGNIFICANCEJUSTIFICATION=" + rlvSplit[16] +
-                                    ";RLV_VARIANTCOMPOUNDHET=" + rlvSplit[17] + ";RLV_VARIANTGROUP=" + rlvSplit[18] + ";");
+                            sb.append("RLV_PRESENT=TRUE;" + RVCF.attributeName + "=" + infoSplit[j] + ";RLV_ALLELE=" + multiRlvSplitConcat[0] + ";RLV_ALLELEFREQ=" + multiRlvSplitConcat[1] + ";RLV_GENE=" + multiRlvSplitConcat[2] + ";RLV_FDR=" + multiRlvSplitConcat[3] + ";RLV_TRANSCRIPT=" + multiRlvSplitConcat[4] +
+                                    ";RLV_PHENOTYPE=" + multiRlvSplitConcat[5] + ";RLV_PHENOTYPEINHERITANCE=" + multiRlvSplitConcat[6] + ";RLV_PHENOTYPEONSET=" + multiRlvSplitConcat[7] + ";RLV_PHENOTYPEDETAILS=" + multiRlvSplitConcat[8] +
+                                    ";RLV_PHENOTYPEGROUP=" + multiRlvSplitConcat[9] + ";RLV_SAMPLESTATUS=" + multiRlvSplitConcat[10] + ";RLV_SAMPLEPHENOTYPE=" + multiRlvSplitConcat[11] + ";RLV_SAMPLEGENOTYPE=" + multiRlvSplitConcat[12] +
+                                    ";RLV_SAMPLEGROUP=" + multiRlvSplitConcat[13] + ";RLV_VARIANTSIGNIFICANCE=" + multiRlvSplitConcat[14] + ";RLV_VARIANTSIGNIFICANCESOURCE=" + multiRlvSplitConcat[15] + ";RLV_VARIANTSIGNIFICANCEJUSTIFICATION=" + multiRlvSplitConcat[16] +
+                                    ";RLV_VARIANTCOMPOUNDHET=" + multiRlvSplitConcat[17] + ";RLV_VARIANTGROUP=" + multiRlvSplitConcat[18] + ";");
+
                         }
-                        else
+                        // other info fields
+                        else if(!infoSplit[j].isEmpty())
                         {
-                            sb.append(infoSplit[j]+";");
+                            sb.append(infoSplit[j] + ";");
                         }
                     }
 
                     if(!rlvFound)
                     {
-                        throw new Exception("INFO line contains "+RVCF.attributeName+", but not at the start of a field? problem at line: " + inputLine);
+                        sb.append("RLV_PRESENT=FALSE;");
                     }
 
-                    sb.deleteCharAt(sb.length()-1);
+                    // remove trailing ";" and add tab
+                    sb.deleteCharAt(sb.length() - 1);
                     sb.append("\t");
-
 
                 }
                 else
@@ -135,6 +156,9 @@ public class SplitRlvTool
                     sb.append(split[i]+"\t");
                 }
             }
+
+
+
 
             sb.deleteCharAt(sb.length()-1);
             pw.println(sb.toString());
