@@ -10,6 +10,12 @@ import static java.util.Arrays.asList;
 
 /**
  * Created by joeri on 10/13/16.
+ *
+ * Split RLV field into separate fields
+ * Multi allelic / multi genic results are grouped within the same field, denoted per gene/allele
+ * Original RLV field is also included
+ * Additional RLV_PRESENT field denoted if there was an RLV for this variant, always outputted
+ *
  */
 public class SplitRlvMain
 {
