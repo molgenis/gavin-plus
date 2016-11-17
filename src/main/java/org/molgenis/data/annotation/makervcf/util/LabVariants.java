@@ -5,6 +5,8 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
+import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
+import org.molgenis.genotype.util.FixedSizeIterable;
 
 import java.io.File;
 import java.util.HashMap;
@@ -30,7 +32,7 @@ public class LabVariants {
             VcfEntity record = new VcfEntity(cvIt.next());
             for(String alt : record.getAlts())
             {
-                String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), alt, "_");
+                String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), alt, "_");
                 String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
                 posRefAltToLabVariant.put(key, record);
             }
@@ -40,7 +42,7 @@ public class LabVariants {
 
 
     public Judgment classifyVariant(VcfEntity record, String alt, String gene) throws Exception {
-        String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), alt, "_");
+        String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), alt, "_");
         String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
 
         if(posRefAltToLabVariant.containsKey(key)) {

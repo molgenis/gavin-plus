@@ -5,6 +5,7 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
+import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
 
 import java.io.File;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class ClinVar {
             VcfEntity record = new VcfEntity(cvIt.next());
             for(String alt : record.getAlts())
             {
-                String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), alt, "_");
+                String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), alt, "_");
 
 //                if(!(record.getRef() + "_" + alt).equals(trimmedRefAlt))
 //                {
@@ -45,7 +46,7 @@ public class ClinVar {
 
 
     public Judgment classifyVariant(VcfEntity record, String alt, String gene, boolean overrideGeneWithClinvarGene) throws Exception {
-        String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), alt, "_");
+        String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), alt, "_");
         String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
 
         if(posRefAltToClinVar.containsKey(key)) {
