@@ -24,4 +24,4 @@ ggplot() +
   scale_x_log10(breaks = breaks) +
   scale_y_log10(breaks = breaks)
 
-#save as 10 x 10 inch for good scaling
+#save as 12 x 7 inch for good scaling
