@@ -4,9 +4,21 @@ library(ggplot2)
 fdr <- read.table("/Users/joeri/github/rvcf/src/test/resources/bundle_r1.0/FDR_allGenes_r1.0.tsv", sep="\t", header=T)
 cgd <- read.table("/Users/joeri/github/rvcf/src/test/resources/GenesInheritance31aug2016.tsv", sep="\t", header=T)
 
+# numbers in paper, all possible genes
+mean(fdr$AffectedFrac)*100
+median(fdr$AffectedFrac)*100
+mean(fdr$CarrierFrac)*100
+median(fdr$CarrierFrac)*100
+
 # merge, keeping only CGD genes
 df <- merge(fdr, cgd, by = "Gene", all.x = TRUE)
 df <- df[!is.na(df$Inheritance),]
+
+# more numbers in paper, now only CGD genes
+mean(df$AffectedFrac)*100
+median(df$AffectedFrac)*100
+mean(df$CarrierFrac)*100
+median(df$CarrierFrac)*100
 
 # replace 0 with 1e-4 to allow log plot and use nice breaks
 df$AffectedFrac[df$AffectedFrac == 0] <- 1e-4
