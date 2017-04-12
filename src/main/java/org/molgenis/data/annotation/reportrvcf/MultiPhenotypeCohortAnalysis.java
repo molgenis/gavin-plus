@@ -70,7 +70,6 @@ public class MultiPhenotypeCohortAnalysis {
         System.out.println("phenotypeToNrOfIndividuals: " + phenotypeToNrOfIndividuals.toString());
 
         countAffectedPerGene(geneToChromPos, individualsToPhenotype, geneAndPhenotypeToAffectedCount, this.rvcfInputFile);
-        //System.out.println("countAffectedPerGene: " + geneAndPhenotypeToAffectedCount.toString());
 
         ReactomeMultiPhenotypeCohortAnalysis.convertToZscore(geneAndPhenotypeToAffectedCount, geneAndPhenotypeToAffectedZscores, phenotypeToNrOfIndividuals.keySet());
 
@@ -94,9 +93,6 @@ public class MultiPhenotypeCohortAnalysis {
         VcfRepository vcf = new VcfRepository(rvcfInputFile, "vcf");
         Iterator<Entity> vcfIterator = vcf.iterator();
 
-        // "SampleID_GeneName"
-  //      Set<String> sampleAddedForGene = new HashSet<>();
-
         while(vcfIterator.hasNext()) {
 
             VcfEntity record = new VcfEntity(vcfIterator.next());
@@ -107,22 +103,13 @@ public class MultiPhenotypeCohortAnalysis {
 
                 for(String sample : rvcf.getSampleStatus().keySet()) {
 
-//                    if(sampleAddedForGene.contains(sample+"_"+gene))
-//                    {
-//                        continue;
-//                    }
-
                     if (MatchVariantsToGenotypeAndInheritance.status.isPresumedAffected(rvcf.getSampleStatus().get(sample)))
-                    //if (rvcf.getSampleStatus().get(sample).toString().contains("AFFECTED"))
                     {
 
                         String phenotype = individualsToPhenotype.get(sample);
                         Integer count = geneAndPhenotypeToAffectedCount.containsKey(gene, phenotype) ? (Integer)geneAndPhenotypeToAffectedCount.get(gene, phenotype) : 0;
                         count++;
                         geneAndPhenotypeToAffectedCount.put(gene, phenotype, count);
-
-                        // make sure we count an individual only once per gene
-             //           sampleAddedForGene.add(sample+"_"+gene);
 
                         // add gene to meta data
                         if(!geneToChromPos.containsKey(gene))
