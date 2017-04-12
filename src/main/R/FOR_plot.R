@@ -1,7 +1,7 @@
 library(ggplot2)
 
 # load FOR and CGD sets
-falseOmRate <- read.table("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/FOR/FOR_results_per_gene.tsv", sep="\t", header=T)
+falseOmRate <- read.table("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/FOR/FOR_results_per_gene_r1.0.tsv", sep="\t", header=T)
 cgd <- read.table("/Users/joeri/github/rvcf/src/test/resources/GenesInheritance31aug2016.tsv", sep="\t", header=T)
 
 # merge, keeping only CGD genes
@@ -16,4 +16,4 @@ ggplot() +
   ylab("Variants expected-observed (i.e. missed)") +
   xlab("Variants expected (i.e. total per gene)")
 
-ggsave("FOR_plot.pdf", width = 8, height = 6)
+ggsave("FOR_plot.pdf", width = 10, height = 6)
