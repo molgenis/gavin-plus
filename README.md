@@ -6,15 +6,18 @@ Detect potentially relevant clinical variants and matching samples in a VCF file
 Stand-alone demo is available at: http://molgenis.org/downloads/gavin/demo/GAVIN-Plus_Demo_r1.0.txt
 
 If you use GAVIN+, please cite the following manuscript:
+
 GAVIN - Gene-Aware Variant INterpretation for medical sequencing. K. Joeri van der Velde, Eddy N. de Boer, Cleo C. van Diemen, Birgit Sikkema-Raddatz, Kristin M. Abbott, Alain Knopperts, Lude Franke, Rolf H. Sijmons, Tom J. de Koning, Cisca Wijmenga, Richard J. Sinke and Morris A. Swertz. Genome Biology. 2017, 18(1). doi:10.1186/s13059-016-1141-7
 
 Your input VCF must be fully annotated with SnpEff, ExAC frequencies and CADD scores, and optionally frequencies from GoNL and 1000G.
 This can be done with MOLGENIS CmdlineAnnotator, available at https://github.com/molgenis/molgenis/releases/download/v1.21.1/CmdLineAnnotator-1.21.1.jar
 
 Typical usage:
-`java -jar GAVIN-APP-1.0.jar [inputfile] [outputfile] [helperfiles] [mode/flags]
+`java -jar GAVIN-Plus-1.0.jar [inputfile] [outputfile] [helperfiles] [mode/flags]`
+
 Example usage:
-java -Xmx4g -jar GAVIN-APP-1.0.jar \
+```
+java -Xmx4g -jar GAVIN-Plus-1.0.jar \
 -i patient76.snpeff.exac.gonl.caddsnv.vcf \
 -o patient76_RVCF.vcf \
 -g GAVIN_calibrations_r0.3.tsv \
@@ -22,7 +25,8 @@ java -Xmx4g -jar GAVIN-APP-1.0.jar \
 -d CGD_11oct2016.txt.gz \
 -f FDR_allGenes_r1.0.tsv \
 -a fromCadd.tsv \
--m ANALYSIS`
+-m ANALYSIS
+```
 
 Dealing with CADD intermediate files:
 You first want to generate a intermediate file with any missing CADD annotations using `-d toCadd.tsv -m CREATEFILEFORCADD`
