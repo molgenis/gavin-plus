@@ -1,8 +1,9 @@
 library(ggplot2)
+setwd("/Users/joeri/github/rvcf/src/test/resources/")
 
 # load FOR and CGD sets
-falseOmRate <- read.table("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/FOR/FOR_results_per_gene_r1.0.tsv", sep="\t", header=T)
-cgd <- read.table("/Users/joeri/github/rvcf/src/test/resources/GenesInheritance31aug2016.tsv", sep="\t", header=T)
+falseOmRate <- read.table("FOR_results_per_gene_r1.0.tsv", sep="\t", header=T)
+cgd <- read.table("GenesInheritance31aug2016.tsv", sep="\t", header=T)
 
 # merge, keeping only CGD genes
 df <- merge(falseOmRate, cgd, by = "Gene", all.x = TRUE)

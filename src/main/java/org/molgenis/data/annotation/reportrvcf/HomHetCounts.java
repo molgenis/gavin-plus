@@ -24,10 +24,10 @@ public class HomHetCounts {
 
     public static String HEADER = "Gene" + "\t" + "HetAbs" + "\t" + "HomAbs" + "\t" + "HomFrac" + "\t" + "HetFrac";
 
+    // args[0] = the 1000G FDR result file (RVCF), e.g. "ALL.chr1to22plusXYMT_RVCF_r1.0.vcf"
+    // args[1] = the output homhetcounts, e.g. HomHetCounts_r1.0.tsv
     public static void main(String[] args) throws Exception {
-        HomHetCounts hhc = new HomHetCounts(new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/ALL.chr1to22plusXYMT_RVCF_r1.0.vcf"),
-                new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/HomHetCounts_r1.0.tsv"),
-                2504);
+        HomHetCounts hhc = new HomHetCounts(new File(args[0]), new File(args[1]), 2504);
         hhc.go();
     }
 

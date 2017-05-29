@@ -1,8 +1,9 @@
 library(ggplot2)
+setwd("/Users/joeri/github/rvcf/src/test/resources/")
 
 # load FDR and CGD sets
-fdr <- read.table("/Users/joeri/github/rvcf/src/test/resources/bundle_r1.0/FDR_allGenes_r1.0.tsv", sep="\t", header=T)
-cgd <- read.table("/Users/joeri/github/rvcf/src/test/resources/GenesInheritance31aug2016.tsv", sep="\t", header=T)
+fdr <- read.table("bundle_r1.0/FDR_allGenes_r1.0.tsv", sep="\t", header=T)
+cgd <- read.table("GenesInheritance31aug2016.tsv", sep="\t", header=T)
 
 # numbers in paper, all possible genes
 mean(fdr$AffectedFrac)*100

@@ -1,8 +1,9 @@
 library(ggplot2)
+setwd("/Users/joeri/github/rvcf/src/test/resources/")
 
 # load HHC and CGD sets
-hhc <- read.table("/Users/joeri/github/rvcf/src/test/resources/HomHetCounts_r1.0.tsv", sep="\t", header=T)
-cgd <- read.table("/Users/joeri/github/rvcf/src/test/resources/GenesInheritance31aug2016.tsv", sep="\t", header=T)
+hhc <- read.table("HomHetCounts_r1.0.tsv", sep="\t", header=T)
+cgd <- read.table("GenesInheritance31aug2016.tsv", sep="\t", header=T)
 
 # merge, keeping only CGD genes
 df <- merge(hhc, cgd, by = "Gene", all.x = TRUE)
