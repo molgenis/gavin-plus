@@ -78,7 +78,7 @@ public class MakeRVCFforClinicalVariants {
                         rvcf.setVariantSignificance(rlv.getJudgment().getType());
                         rvcf.setVariantSignificanceSource(rlv.getJudgment().getSource());
                         rvcf.setVariantSignificanceJustification(rlv.getJudgment().getReason());
-                        rvcf.setVariantCompoundHet(null);
+                        rvcf.setVariantMultiGenic(null);
                         rvcf.setVariantGroup(null);
 
                         rvcf.setSampleStatus(rlv.getSampleStatus());

@@ -1,0 +1,7 @@
+##fileformat=VCFv4.0
+##reference=GRCh37/hg19
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##INFO=<ID=CADD_SCALED,Number=.,Type=String,Description="na">
+##INFO=<ID=RLV,Number=.,Type=String,Description="Allele | AlleleFreq | Gene | FDR | Transcript | Phenotype | PhenotypeInheritance | PhenotypeOnset | PhenotypeDetails | PhenotypeGroup | SampleStatus | SamplePhenotype | SampleGenotype | SampleGroup | VariantSignificance | VariantSignificanceSource | VariantSignificanceJustification | VariantCompoundHet | VariantGroup">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	p01
+2	47602439	EPCAM+MSH6:.	G	T,A	.	.	CADD_SCALED=23.3,99;RLV=T|8.237E-6|EPCAM|0.006389776357827476 0.0|NM_002354.2|Colorectal cancer  hereditary nonpolyposis  type 8  Diarrhea 5  with tufting enteropathy  congenital|DOMINANT_OR_RECESSIVE|Pediatric|Specific deletions result in MSH2 inactivation  Although Colorectal cancer  hereditary nonpolyposis  type 8 typically manifests in adulthood  individuals have been reported such that familial screening would be recommended to commence during the pediatric period  Diarrhea 5  with tufting enteropathy  congenital may include additional features  such as dysmorphism||SAMPLE:AFFECTED||SAMPLE:0s1||Reported pathogenic|ClinVar|NM_002354.2(EPCAM):c.491+1G>T EPCAM Pathogenic||,A|a|EPCAM|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q,A|am|MSH6|bm|cm|dm|em|fm|gm|hm|im|jm|km|lm|mm|nm|om|pm|qm,T|amt|MSH6|bmt|cmt|dmt|emt|fmt|gmt|hmt|imt|jmt|kmt|lmt|mmt|nmt|omt|pmt|qmt	GT	0/1

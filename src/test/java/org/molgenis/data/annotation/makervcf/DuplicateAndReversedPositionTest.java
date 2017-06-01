@@ -82,7 +82,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 		}
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
-			assertEquals(ex.getMessage(), "java.lang.Exception: Chrom-pos-ref-alt combination seen twice: 1_2_G_[T]. This is not allowed. Please check your VCF file.");
+			assertEquals(ex.getMessage(), "java.lang.Exception: Chrom-pos-ref-alt combination seen twice: 1_2_G_T. This is not allowed. Please check your VCF file.");
 		}
 	}
 

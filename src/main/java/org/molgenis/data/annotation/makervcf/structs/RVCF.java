@@ -10,7 +10,7 @@ import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGen
  */
 public class RVCF {
 
-    private static int nrOfFields = 19;
+    public static int nrOfFields = 19;
     private static String RVCF_GENEALLELECOMBISEP = ",";
     private static String RVCF_SAMPLESEP = "/";
     private static String RVCF_FIELDSEP = "|";
@@ -21,7 +21,7 @@ public class RVCF {
     public static String attributeMetaData = "Allele "+RVCF_FIELDSEP+" AlleleFreq "+RVCF_FIELDSEP+" Gene "+RVCF_FIELDSEP+" FDR " +RVCF_FIELDSEP+" Transcript "+RVCF_FIELDSEP +
             " Phenotype "+RVCF_FIELDSEP+" PhenotypeInheritance "+RVCF_FIELDSEP+" PhenotypeOnset " +RVCF_FIELDSEP+" PhenotypeDetails "+RVCF_FIELDSEP+" PhenotypeGroup "+RVCF_FIELDSEP +
             " SampleStatus "+RVCF_FIELDSEP+" SamplePhenotype "+RVCF_FIELDSEP+" SampleGenotype "+RVCF_FIELDSEP+" SampleGroup "+RVCF_FIELDSEP +
-            " VariantSignificance "+RVCF_FIELDSEP+" VariantSignificanceSource "+RVCF_FIELDSEP+" VariantSignificanceJustification "+RVCF_FIELDSEP+" VariantCompoundHet "+RVCF_FIELDSEP+" VariantGroup";
+            " VariantSignificance "+RVCF_FIELDSEP+" VariantSignificanceSource "+RVCF_FIELDSEP+" VariantSignificanceJustification "+RVCF_FIELDSEP+" VariantMultiGenic "+RVCF_FIELDSEP+" VariantGroup";
 
     String allele;
     String alleleFreq;
@@ -40,7 +40,7 @@ public class RVCF {
     String variantSignificance;
     String variantSignificanceSource;
     String variantSignificanceJustification;
-    String variantCompoundHet;
+    String variantMultiGenic;
     String variantGroup;
 
 
@@ -73,7 +73,7 @@ public class RVCF {
         rvcfInstance.setVariantSignificance(split[14]);
         rvcfInstance.setVariantSignificanceSource(split[15]);
         rvcfInstance.setVariantSignificanceJustification(split[16]);
-        rvcfInstance.setVariantCompoundHet(split[17]); //todo: is this necessary?
+        rvcfInstance.setVariantMultiGenic(split[17]);
         rvcfInstance.setVariantGroup(split[18]);
 
         return rvcfInstance;
@@ -89,7 +89,7 @@ public class RVCF {
         return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getAlleleFreq()) + RVCF_FIELDSEP + escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getFDR()) + RVCF_FIELDSEP + escapeToSafeVCF(getTranscript()) + RVCF_FIELDSEP +
                 escapeToSafeVCF(getPhenotype()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeInheritance()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeOnset()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeDetails()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeGroup()) + RVCF_FIELDSEP +
                 printSampleStatus(getSampleStatus()) + RVCF_FIELDSEP + printSampleList(getSamplePhenotype()) + RVCF_FIELDSEP + printSampleList(getSampleGenotype(), true) + RVCF_FIELDSEP + printSampleList(getSampleGroup()) + RVCF_FIELDSEP +
-                escapeToSafeVCF(getVariantSignificance()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceSource()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceJustification()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantCompoundHet()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantGroup());
+                escapeToSafeVCF(getVariantSignificance()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceSource()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceJustification()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantMultiGenic()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantGroup());
     }
 
     /** sigh **/
@@ -278,12 +278,12 @@ public class RVCF {
         this.variantSignificanceJustification = variantSignificanceJustification;
     }
 
-    public String getVariantCompoundHet() {
-        return variantCompoundHet != null ? variantCompoundHet : "";
+    public String getVariantMultiGenic() {
+        return variantMultiGenic != null ? variantMultiGenic : "";
     }
 
-    public void setVariantCompoundHet(String variantCompoundHet) {
-        this.variantCompoundHet = variantCompoundHet;
+    public void setVariantMultiGenic(String variantMultiGenic) {
+        this.variantMultiGenic = variantMultiGenic;
     }
 
     public String getVariantGroup() {

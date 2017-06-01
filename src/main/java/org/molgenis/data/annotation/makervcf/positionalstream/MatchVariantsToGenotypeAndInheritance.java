@@ -42,6 +42,12 @@ public class MatchVariantsToGenotypeAndInheritance {
         public static boolean isPresumedAffected(status status){
             return (status == HOMOZYGOUS || status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED || status == AFFECTED_COMPOUNDHET) ? true : false;}
 
+        public static boolean isHomozygous(String genotype) throws Exception {
+            if (genotype.length() == 1) { return true;}
+            if (genotype.length() != 3) { throw new Exception("Genotype '" + genotype + "' not length 3");}
+            if (genotype.charAt(0) == genotype.charAt(2)) { return true;}
+            return false;
+        }
     }
 
     public MatchVariantsToGenotypeAndInheritance(Iterator<RelevantVariant> relevantVariants, File cgdFile, Set<String> parents, boolean verbose) throws IOException

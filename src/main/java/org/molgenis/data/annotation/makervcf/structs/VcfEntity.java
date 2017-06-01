@@ -9,6 +9,7 @@ import org.molgenis.data.vcf.VcfRepository;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by joeri on 6/1/16.
@@ -170,7 +171,7 @@ public class VcfEntity {
     }
 
     public String getAltsAsString() {
-        return Arrays.asList(alts).toString();
+        return Arrays.asList(alts).stream().map(Object::toString).collect(Collectors.joining(","));
     }
 
     public List<RVCF> getRvcf() {

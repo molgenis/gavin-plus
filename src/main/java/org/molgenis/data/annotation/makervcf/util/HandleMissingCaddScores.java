@@ -2,6 +2,7 @@ package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -42,7 +43,7 @@ public class HandleMissingCaddScores {
         {
             if(mode.equals(Mode.CREATEFILEFORCADD))
             {
-                String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), record.getAlts(altIndex), "\t");
+                String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), record.getAlts(altIndex), "\t");
                 this.pw.println(record.getChr() + "\t" + record.getPos() + "\t" + "." + "\t" + trimmedRefAlt);
                 this.pw.flush();
                 return null;
@@ -56,7 +57,7 @@ public class HandleMissingCaddScores {
                 }
                 else
                 {
-                    String trimmedRefAlt = LoadCADDWebserviceOutput.trimRefAlt(record.getRef(), record.getAlts(altIndex), "_");
+                    String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), record.getAlts(altIndex), "_");
                     key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
                     if(this.caddScores.containsKey(key))
                     {

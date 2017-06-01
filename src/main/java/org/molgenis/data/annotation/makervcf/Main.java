@@ -23,27 +23,8 @@ import static java.util.Arrays.asList;
  * Output is written to a VCF with all relevant variants where information is contained in the RLV field.
  * We require the input VCF to be annotated with SnpEff, CADD (as much as possible), ExAC, GoNL and 1000G.
  *
- * Implementation TODO list:
- * - Allow leaving out 'fromCadd' file for input data that has already been fully scored
- * - 'Original variants+genotypes' function where we combine RVCF with original VCF, to get genotypes back + original variants (the ones filtered out)
- * - Usage of Manta/Delly SV call data to prioritize more variants to as 'stand alone' source of relevant variation
- * - Support multiple relevant alleles per site - right now only the first one is considered
- * - Parse sample data from VCF (phenotype/sex, dynamic attributes?) and use in RLV output (sample groups?)
- * - Use 1000G information, including sub-populations?
- * - Helper tool to get tabular output ('excel compatible')
- * - Report which variants were de novo
- * - For multiallelic variants, where not all variants have relevant genotypes, filter out RLV fields for 'no-sample hits', or leave them in?
- *
- * Tests TODO list:
+ * Tests TODO:
  * - Different ways to discover variants (clinvar, lab list, gavin)
- * - CombineWithSVcalls when it's implemented
- *
- * Ideas TODO list:
- * - Filter using sub-populations of ExAC/1000G for better power?
- * - Consider using confidence intervals for MAFs relative to population size due to sampling error?
- * - Check if variant MAFs are correctly allele-matched, e.g. rare variants in reference genome cause swap of AF?
- * - Support VEP next to SnpEff, because it offers additional annotations and predictions that might help?
- * - Use ExAC LOF/pLI annotations in output/interpretation?
  *
  */
 public class Main {
@@ -129,8 +110,8 @@ public class Main {
     public void run(OptionSet options, OptionParser parser) throws Exception
     {
         String version = "1.0";
-        String title = "* MOLGENIS GAVIN-APP for genome diagnostics, release "+version+"";
-        String titl2 = "* Gene-Aware Variant INterpretation - Automated Processing Pipeline";
+        String title = "* MOLGENIS GAVIN+ for genome diagnostics, release "+version+"";
+        String titl2 = "* Gene-Aware Variant INterpretation Plus";
 
         int len = Math.max(title.length(), titl2.length());
         String appTitle = "\n" + StringUtils.repeat('*', len) + "\n"

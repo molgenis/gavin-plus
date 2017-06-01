@@ -26,9 +26,15 @@ public class FOR {
     private File rvcfFile;
     private File genesFORoutput;
 
+    /*
+    args[0] = working dir (e.g. /Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/FOR/)
+    args[1] = original VCF (e.g. GAVIN_FOR_benchmark_goldstandard_nodup_gonl.vcf)
+    args[2] = RVCF output (e.g. RVCF_GAVIN_FOR_benchmark_goldstandard_nodup_gonl_r1.0.vcf)
+    args[3] = FOR summary per gene, output file (e.g. FOR.tsv)
+     */
     public static void main(String[] args) throws Exception {
-        String dir = "/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/FOR/";
-        FOR falseOM = new FOR(new File(dir+"GAVIN_FOR_benchmark_goldstandard_nodup.vcf"), new File(dir+"GAVIN_FOR_benchmark_RVCF.vcf"), new File(dir+"FOR.tsv"));
+        String dir = args[0];
+        FOR falseOM = new FOR(new File(dir+args[1]), new File(dir+args[2]), new File(dir+args[3]));
         falseOM.go();
     }
 
