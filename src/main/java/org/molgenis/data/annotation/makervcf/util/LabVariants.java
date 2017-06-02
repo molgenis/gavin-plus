@@ -32,7 +32,7 @@ public class LabVariants {
             VcfEntity record = new VcfEntity(cvIt.next());
             for(String alt : record.getAlts())
             {
-                String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), alt, "_");
+                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
                 String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
                 posRefAltToLabVariant.put(key, record);
             }
@@ -42,7 +42,7 @@ public class LabVariants {
 
 
     public Judgment classifyVariant(VcfEntity record, String alt, String gene) throws Exception {
-        String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), alt, "_");
+        String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
         String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
 
         if(posRefAltToLabVariant.containsKey(key)) {

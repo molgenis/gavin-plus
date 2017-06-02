@@ -31,7 +31,7 @@ public class ClinVar {
             VcfEntity record = new VcfEntity(cvIt.next());
             for(String alt : record.getAlts())
             {
-                String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), alt, "_");
+                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
 
 //                if(!(record.getRef() + "_" + alt).equals(trimmedRefAlt))
 //                {
@@ -46,7 +46,7 @@ public class ClinVar {
 
 
     public Judgment classifyVariant(VcfEntity record, String alt, String gene, boolean overrideGeneWithClinvarGene) throws Exception {
-        String trimmedRefAlt = FixVcfAlleleNotation.trimRefAlt(record.getRef(), alt, "_");
+        String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
         String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
 
         if(posRefAltToClinVar.containsKey(key)) {
