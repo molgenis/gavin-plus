@@ -337,6 +337,13 @@ public class Main {
                 System.out.println("CADD intermediate file location is a directory, not a file!");
                 return;
             }
+            else {
+                if (!caddFile.getName().endsWith(".tsv"))
+                {
+                    System.out.println("CADD intermediate file location extension expected to end in *.tsv, do not supply a gzipped file");
+                    return;
+                }
+            }
         }
         else if(mode == Mode.CREATEFILEFORCADD)
         {
