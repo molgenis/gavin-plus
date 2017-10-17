@@ -1,7 +1,16 @@
 # GAVIN+ 
 ## Gene-Aware Variant INterpretation for genome diagnostics
 
-Detect potentially relevant clinical variants and matching samples in a VCF file.
+GAVIN+ is a diagnostic interpretation tool that prioritizes DNA variants of potential clinical relevance in the genome.
+It achieves this by using GAVIN (Van der Velde et al., 2017), a sensitive tool to predict pathogenic variants based on gene-specific CADD scores calibrated on ExAC, ClinVar and SnpEff.
+In addition, GAVIN+ matches against candidates against known pathogenic variants in ClinVar but removes potential false positives with a GoNL/ExAC $>$5\% MAF.
+The tool then queries the Clinical Genomics Database to find affected and carrier individuals depending on sample genotype and mode of inheritance.
+For uncharacterized genes, the default heterozygous, compound heterozygous and homozygous states are assigned.
+Depending on the input VCF, additional knowledge is automatically used.
+This includes trio-aware sample filtering and genotype phasing to check validity of compound heterozygous hits, or reassigning status from, e.g., ‘homozygous by compound mutation’ back to ‘multiple hits on the same allele’.
+Hemizygous genotypes for chromosome X and Y are also taken into consideration.
+The tool even works on mitochondrial genotypes, albeit with limited references.
+We run GAVIN+ as a command line runnable standalone tool that takes an annotated VCF file and returns a Report VCF (RVCF) file.
 
 Stand-alone demo is available at: http://molgenis.org/downloads/gavin/demo/GAVIN-Plus_Demo_r1.0.txt
 
