@@ -3,7 +3,7 @@
 
 GAVIN+ is a diagnostic interpretation tool that prioritizes DNA variants of potential clinical relevance in the genome.
 It achieves this by using GAVIN (Van der Velde et al., 2017), a sensitive tool to predict pathogenic variants based on gene-specific CADD scores calibrated on ExAC, ClinVar and SnpEff.
-In addition, GAVIN+ matches against candidates against known pathogenic variants in ClinVar but removes potential false positives with a GoNL/ExAC $>$5\% MAF.
+In addition, GAVIN+ matches against candidates against known pathogenic variants in ClinVar but removes potential false positives with a GoNL/ExAC >5% MAF.
 The tool then queries the Clinical Genomics Database to find affected and carrier individuals depending on sample genotype and mode of inheritance.
 For uncharacterized genes, the default heterozygous, compound heterozygous and homozygous states are assigned.
 Depending on the input VCF, additional knowledge is automatically used.
