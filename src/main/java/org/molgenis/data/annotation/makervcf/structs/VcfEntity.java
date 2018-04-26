@@ -25,6 +25,8 @@ public class VcfEntity {
     private String clinvar;
     private String clsf;
     private String[] alts; //alternative alleles, in order
+    private Integer[] AC; // plain AC as in VCF file, null if not present
+    private Integer AN; // plain AN as in VCF file, null if not present
     private Double[] exac_AFs; //ExAC allele frequencies in order of alt alleles, null if no match
     private Double[] gonl_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
     private Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
@@ -46,6 +48,8 @@ public class VcfEntity {
         this.clinvar = record.getString("CLINVAR"); //e.g. CLINVAR=NM_024596.4(MCPH1):c.215C>T (p.Ser72Leu)|MCPH1|Pathogenic
         this.clsf = record.getString("CLSF"); //e.g. CLSF=P;
         this.alts = record.getString("ALT").split(",", -1);
+        this.AC = setAltAlleleOrderedIntegerField(record, "AC");
+        this.AN = record.get("AN") == null ? null : Integer.parseInt(record.get("AN").toString());
         this.exac_AFs = setAltAlleleOrderedDoubleField(record, "EXAC_AF");
         this.gonl_AFs = setAltAlleleOrderedDoubleField(record, "GoNL_AF");
         this.caddPhredScores = setAltAlleleOrderedDoubleField(record, "CADD_SCALED");
@@ -124,6 +128,31 @@ public class VcfEntity {
             throw new Exception(fieldName + " split is null");
         }
 
+        return res;
+    }
+
+    public Integer[] setAltAlleleOrderedIntegerField(Entity record, String fieldName) throws Exception {
+        Integer[] res = new Integer[this.alts.length];
+        if(record.get(fieldName) == null)
+        {
+            return res;
+        }
+        String[] split = record.get(fieldName) == null ? null : record.getString(fieldName).split(",", -1);
+        if(split != null)
+        {
+            if(split.length != this.alts.length)
+            {
+                throw new Exception(fieldName + " split length "+split.length+" of string '"+record.get(fieldName)+"' not equal to alt allele split length "+this.alts.length+" for record " + record.toString());
+            }
+            for(int i = 0; i < split.length; i++)
+            {
+                res[i] = (split[i] != null && !split[i].isEmpty() && !split[i].equals(".")) ? Integer.parseInt(split[i]) : null;
+            }
+        }
+        else
+        {
+            throw new Exception(fieldName + " split is null");
+        }
         return res;
     }
 
@@ -208,6 +237,14 @@ public class VcfEntity {
         return exac_AFs;
     }
 
+    public Integer[] getAC() {
+        return AC;
+    }
+
+    public Integer getAN() {
+        return AN;
+    }
+
     public double getExac_AFs(int i) {
         //return exac_AFs[i] == null ? 0 : exac_AFs[i];
         return exac_AFs[i] != null ? exac_AFs[i] : 0;
@@ -256,6 +293,8 @@ public class VcfEntity {
                 ", ann='" + ann + '\'' +
                 ", clinvar='" + clinvar + '\'' +
                 ", alts=" + Arrays.toString(alts) +
+                ", AC=" + Arrays.toString(AC) +
+                ", AN=" + AN +
                 ", exac_AFs=" + Arrays.toString(exac_AFs) +
                 ", caddPhredScores=" + Arrays.toString(caddPhredScores) +
                 ", genes=" + genes +
