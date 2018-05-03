@@ -1,8 +1,7 @@
 package org.molgenis.data.annotation.makervcf.util;
 
-import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;
-import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
+import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
@@ -69,7 +68,7 @@ public class ClinVar {
 
                     }
                 }
-                return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, clinvarInfo).setSource("ClinVar").setType("Reported pathogenic");
+                return Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, clinvarInfo).setSource("ClinVar").setType("Reported pathogenic");
             } else {
                 throw new Exception("clinvar hit is not pathogenic: " + clinvarInfo);
             }

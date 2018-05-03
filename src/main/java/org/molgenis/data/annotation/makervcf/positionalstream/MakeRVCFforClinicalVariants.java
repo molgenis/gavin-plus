@@ -2,7 +2,6 @@ package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
-import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;

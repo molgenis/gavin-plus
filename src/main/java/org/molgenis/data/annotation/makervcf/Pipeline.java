@@ -12,13 +12,9 @@ import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.support.DefaultAttributeMetaData;
-import org.molgenis.data.vcf.datastructures.Trio;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Created by joeri on 7/18/16.

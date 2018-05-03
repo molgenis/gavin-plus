@@ -2,13 +2,13 @@ package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.EntityMetaData;
+import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
+import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinAlgorithm;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.Entity;
-import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
-import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.annotation.makervcf.util.ClinVar;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
@@ -58,6 +58,7 @@ public class DiscoverRelevantVariants {
 
     public Iterator<RelevantVariant> findRelevantVariants() throws Exception
     {
+
         Iterator<Entity> vcfIterator = vcf.iterator();
 
         return new Iterator<RelevantVariant>(){

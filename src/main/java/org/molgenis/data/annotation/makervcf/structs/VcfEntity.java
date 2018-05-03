@@ -1,9 +1,8 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import net.didion.jwnl.data.Exc;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.Entity;
-import org.molgenis.data.annotation.entity.impl.snpEff.Impact;
+import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.vcf.VcfRepository;
 
 

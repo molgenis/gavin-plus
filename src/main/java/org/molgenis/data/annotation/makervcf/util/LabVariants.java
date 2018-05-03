@@ -2,6 +2,7 @@ package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.Entity;
+import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.vcf.VcfRepository;
