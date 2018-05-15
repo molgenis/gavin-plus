@@ -180,9 +180,10 @@ public class MatchVariantsToGenotypeAndInheritance
 		Set<String> parentsWithReferenceCalls = new HashSet<>();
 
 		Iterator<VcfSample> samples = record.getSamples().iterator();
-		int sampleIndex = 0;
+		int sampleIndex = -1;
 		while (samples.hasNext())
 		{
+			sampleIndex++;
 			VcfSample sample = samples.next();
 
 			if (getSampleFieldValue(sample, record, "GT") == null)
@@ -295,7 +296,6 @@ public class MatchVariantsToGenotypeAndInheritance
 					}
 				}
 			}
-			sampleIndex++;
 		}
 
 		//for relevant combinations, set parents with reference calls (--> this is not related to alternative alleles or gene combinations)
