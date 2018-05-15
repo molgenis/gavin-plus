@@ -1,16 +1,10 @@
 package org.molgenis.data.annotation.splitrlv;
 
-import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.VcfRepository;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 
 /**
@@ -44,129 +38,139 @@ public class SplitRlvTool
 
     public void start(File inputVcfFile, File outputVCFFile) throws Exception {
 
-
+        Scanner inputScanner = null;
+        PrintWriter pw = null;
         // iterate over input and write output
-        Scanner inputScanner = new Scanner(inputVcfFile);
-        PrintWriter pw = new PrintWriter(outputVCFFile);
-        String inputLine;
-
-        while(inputScanner.hasNextLine())
+        try
         {
-            inputLine = inputScanner.nextLine();
+            inputScanner = new Scanner(inputVcfFile);
+            pw = new PrintWriter(outputVCFFile);
+            String inputLine;
 
-            if(inputLine.startsWith("##INFO=<ID=RLV"))
+            while (inputScanner.hasNextLine())
             {
-                continue;
-            }
+                inputLine = inputScanner.nextLine();
 
-            if(inputLine.startsWith("##"))
-            {
-                pw.println(inputLine);
-                continue;
-            }
-
-            if(inputLine.startsWith("#CHROM"))
-            {
-                pw.println(rlvSplit);
-                pw.println(inputLine);
-                continue;
-            }
-
-
-            String[] split = inputLine.split("\t", -1);
-
-            StringBuffer sb = new StringBuffer();
-
-            boolean rlvFound = false;
-
-            for(int i = 0; i < split.length; i++) {
-
-                // INFO is at 7
-                if (i == 7)
+                if (inputLine.startsWith("##INFO=<ID=RLV"))
                 {
-                    String[] infoSplit = split[i].split(";", -1);
+                    continue;
+                }
 
-                    if(infoSplit.length == 1 && infoSplit[0].equals("."))
+                if (inputLine.startsWith("##"))
+                {
+                    pw.println(inputLine);
+                    continue;
+                }
+
+                if (inputLine.startsWith("#CHROM"))
+                {
+                    pw.println(rlvSplit);
+                    pw.println(inputLine);
+                    continue;
+                }
+
+                String[] split = inputLine.split("\t", -1);
+
+                StringBuffer sb = new StringBuffer();
+
+                boolean rlvFound = false;
+
+                for (int i = 0; i < split.length; i++)
+                {
+
+                    // INFO is at 7
+                    if (i == 7)
                     {
-                        sb.append("RLV_PRESENT=FALSE");
-                        if(split.length > 7)
+                        String[] infoSplit = split[i].split(";", -1);
+
+                        if (infoSplit.length == 1 && infoSplit[0].equals("."))
                         {
-                            sb.append("\t");
-                        }
-                        continue;
-                    }
-
-                    // find RLV
-                    for (int j = 0; j < infoSplit.length; j++)
-                    {
-                        // match to RLV
-                        if (infoSplit[j].startsWith(RVCF.attributeName + "="))
-                        {
-                            rlvFound = true;
-
-                            infoSplit[j] = infoSplit[j].substring(4);
-                            String[] rlvSplit = infoSplit[j].split(",", -1);
-
-                            String[] multiRlvSplitConcat = new String[RVCF.nrOfFields];
-
-                            for (int k = 0; k < rlvSplit.length; k++) {
-                                String[] multiRlvSplit = rlvSplit[k].split("\\|", -1);
-
-                                if (multiRlvSplit.length != RVCF.nrOfFields) {
-                                    throw new Exception("RLV did not have " + RVCF.nrOfFields + " subfields but " + multiRlvSplit.length + "! bad data: " + rlvSplit[k]);
-                                }
-
-                                //todo: check if combination unique?
-                                String alt = multiRlvSplit[0];
-                                String gene = multiRlvSplit[2];
-
-                                for (int r = 0; r < multiRlvSplit.length; r++) {
-                                    String value = multiRlvSplit[r].isEmpty() ? "NA" : multiRlvSplit[r];
-                                    String previous = multiRlvSplitConcat[r] == null ? "" : multiRlvSplitConcat[r] + ",";
-                                    multiRlvSplitConcat[r] = previous + "[" + alt + "|" + gene + "]" + value;
-                                }
+                            sb.append("RLV_PRESENT=FALSE");
+                            if (split.length > 7)
+                            {
+                                sb.append("\t");
                             }
-
-                            sb.append("RLV_PRESENT=TRUE;" + RVCF.attributeName + "=" + infoSplit[j] + ";RLV_ALLELE=" + multiRlvSplitConcat[0] + ";RLV_ALLELEFREQ=" + multiRlvSplitConcat[1] + ";RLV_GENE=" + multiRlvSplitConcat[2] + ";RLV_FDR=" + multiRlvSplitConcat[3] + ";RLV_TRANSCRIPT=" + multiRlvSplitConcat[4] +
-                                    ";RLV_PHENOTYPE=" + multiRlvSplitConcat[5] + ";RLV_PHENOTYPEINHERITANCE=" + multiRlvSplitConcat[6] + ";RLV_PHENOTYPEONSET=" + multiRlvSplitConcat[7] + ";RLV_PHENOTYPEDETAILS=" + multiRlvSplitConcat[8] +
-                                    ";RLV_PHENOTYPEGROUP=" + multiRlvSplitConcat[9] + ";RLV_SAMPLESTATUS=" + multiRlvSplitConcat[10] + ";RLV_SAMPLEPHENOTYPE=" + multiRlvSplitConcat[11] + ";RLV_SAMPLEGENOTYPE=" + multiRlvSplitConcat[12] +
-                                    ";RLV_SAMPLEGROUP=" + multiRlvSplitConcat[13] + ";RLV_VARIANTSIGNIFICANCE=" + multiRlvSplitConcat[14] + ";RLV_VARIANTSIGNIFICANCESOURCE=" + multiRlvSplitConcat[15] + ";RLV_VARIANTSIGNIFICANCEJUSTIFICATION=" + multiRlvSplitConcat[16] +
-                                    ";RLV_VARIANTCOMPOUNDHET=" + multiRlvSplitConcat[17] + ";RLV_VARIANTGROUP=" + multiRlvSplitConcat[18] + ";");
-
+                            continue;
                         }
-                        // other info fields
-                        else if(!infoSplit[j].isEmpty())
+
+                        // find RLV
+                        for (int j = 0; j < infoSplit.length; j++)
                         {
-                            sb.append(infoSplit[j] + ";");
+                            // match to RLV
+                            if (infoSplit[j].startsWith(RVCF.attributeName + "="))
+                            {
+                                rlvFound = true;
+
+                                infoSplit[j] = infoSplit[j].substring(4);
+                                String[] rlvSplit = infoSplit[j].split(",", -1);
+
+                                String[] multiRlvSplitConcat = new String[RVCF.nrOfFields];
+
+                                for (int k = 0; k < rlvSplit.length; k++)
+                                {
+                                    String[] multiRlvSplit = rlvSplit[k].split("\\|", -1);
+
+                                    if (multiRlvSplit.length != RVCF.nrOfFields)
+                                    {
+                                        throw new Exception("RLV did not have " + RVCF.nrOfFields + " subfields but " + multiRlvSplit.length + "! bad data: " + rlvSplit[k]);
+                                    }
+
+                                    //todo: check if combination unique?
+                                    String alt = multiRlvSplit[0];
+                                    String gene = multiRlvSplit[2];
+
+                                    for (int r = 0; r < multiRlvSplit.length; r++)
+                                    {
+                                        String value = multiRlvSplit[r].isEmpty() ? "NA" : multiRlvSplit[r];
+                                        String previous = multiRlvSplitConcat[r] == null ? "" : multiRlvSplitConcat[r] + ",";
+                                        multiRlvSplitConcat[r] = previous + "[" + alt + "|" + gene + "]" + value;
+                                    }
+                                }
+
+                                sb.append("RLV_PRESENT=TRUE;" + RVCF.attributeName + "=" + infoSplit[j] + ";RLV_ALLELE="
+                                        + multiRlvSplitConcat[0] + ";RLV_ALLELEFREQ=" + multiRlvSplitConcat[1] + ";RLV_GENE=" + multiRlvSplitConcat[2] + ";RLV_FDR=" + multiRlvSplitConcat[3]
+                                        + ";RLV_TRANSCRIPT=" + multiRlvSplitConcat[4] + ";RLV_PHENOTYPE=" + multiRlvSplitConcat[5] + ";RLV_PHENOTYPEINHERITANCE=" + multiRlvSplitConcat[6]
+                                        + ";RLV_PHENOTYPEONSET=" + multiRlvSplitConcat[7] + ";RLV_PHENOTYPEDETAILS=" + multiRlvSplitConcat[8] + ";RLV_PHENOTYPEGROUP=" + multiRlvSplitConcat[9]
+                                        + ";RLV_SAMPLESTATUS=" + multiRlvSplitConcat[10] + ";RLV_SAMPLEPHENOTYPE=" + multiRlvSplitConcat[11] + ";RLV_SAMPLEGENOTYPE=" + multiRlvSplitConcat[12]
+                                        + ";RLV_SAMPLEGROUP=" + multiRlvSplitConcat[13] + ";RLV_VARIANTSIGNIFICANCE=" + multiRlvSplitConcat[14] + ";RLV_VARIANTSIGNIFICANCESOURCE="
+                                        + multiRlvSplitConcat[15] + ";RLV_VARIANTSIGNIFICANCEJUSTIFICATION=" + multiRlvSplitConcat[16] + ";RLV_VARIANTCOMPOUNDHET=" + multiRlvSplitConcat[17]
+                                        + ";RLV_VARIANTGROUP=" + multiRlvSplitConcat[18] + ";");
+
+                            }
+                            // other info fields
+                            else if (!infoSplit[j].isEmpty())
+                            {
+                                sb.append(infoSplit[j] + ";");
+                            }
                         }
-                    }
 
-                    if(!rlvFound)
+                        if (!rlvFound)
+                        {
+                            sb.append("RLV_PRESENT=FALSE;");
+                        }
+
+                        // remove trailing ";" and add tab
+                        sb.deleteCharAt(sb.length() - 1);
+                        sb.append("\t");
+
+                    }
+                    else
                     {
-                        sb.append("RLV_PRESENT=FALSE;");
+                        sb.append(split[i] + "\t");
                     }
-
-                    // remove trailing ";" and add tab
-                    sb.deleteCharAt(sb.length() - 1);
-                    sb.append("\t");
-
                 }
-                else
-                {
-                    sb.append(split[i]+"\t");
-                }
+
+                sb.deleteCharAt(sb.length() - 1);
+                pw.println(sb.toString());
+
             }
 
-
-
-
-            sb.deleteCharAt(sb.length()-1);
-            pw.println(sb.toString());
-
+            pw.flush();
+        }finally
+        {
+            inputScanner.close();
+            pw.close();
         }
-
-        pw.flush();
-        pw.close();
 
 
     }

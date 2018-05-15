@@ -1,10 +1,11 @@
 package org.molgenis.data.annotation.makervcf.util;
 
-import org.molgenis.data.Entity;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.VcfRepository;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfRecord;
 
 import java.io.File;
 import java.util.HashMap;
@@ -21,13 +22,13 @@ public class ClinVar {
     private Map<String, VcfEntity> posRefAltToClinVar;
 
     public ClinVar(File clinvarFile) throws Exception {
-        VcfRepository clinvar = new VcfRepository(clinvarFile, "clinvar");
+        VcfReader clinvar = GavinUtils.getVcfReader(clinvarFile);
         //ClinVar match
-        Iterator<Entity> cvIt = clinvar.iterator();
+        Iterator<VcfRecord> cvIt = clinvar.iterator();
         this.posRefAltToClinVar = new HashMap<>();
         while (cvIt.hasNext())
         {
-            VcfEntity record = new VcfEntity(cvIt.next());
+            VcfEntity record = new VcfEntity(cvIt.next(), clinvar.getVcfMeta());
             for(String alt : record.getAlts())
             {
                 String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
@@ -68,7 +69,7 @@ public class ClinVar {
 
                     }
                 }
-                return Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, clinvarInfo).setSource("ClinVar").setType("Reported pathogenic");
+                return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, clinvarInfo, "ClinVar", "Reported pathogenic");
             } else {
                 throw new Exception("clinvar hit is not pathogenic: " + clinvarInfo);
             }

@@ -1,14 +1,9 @@
 package org.molgenis.data.annotation.core.entity.impl.gavin;
 
-import com.google.auto.value.AutoValue;
-
-import javax.annotation.Nullable;
-
 /**
  * Judgment result of the gavin method
  */
-@AutoValue
-public abstract class Judgment
+public class Judgment
 {
 	public enum Classification
 	{
@@ -20,18 +15,89 @@ public abstract class Judgment
 		calibrated, genomewide
 	}
 
-	public abstract Classification getClassification();
+	public Classification classification;
+	public Method confidence;
+	public String gene;
+	public String reason;
+	public String source;
+	public String type;
 
-	public abstract Method getConfidence();
-
-	@Nullable
-	public abstract String getGene();
-
-	public abstract String getReason();
-
-	public static Judgment create(Classification classification, Method method, String gene, String reason)
+	public Judgment(Classification classification, Method confidence, String gene, String reason, String source,
+			String type)
 	{
-		return new AutoValue_Judgment(classification, method, gene, reason);
+		this.classification = classification;
+		this.confidence = confidence;
+		this.gene = gene;
+		this.reason = reason;
+		this.source = source;
+		this.type = type;
 	}
+
+	public Classification getClassification()
+	{
+		return classification;
+	}
+
+	public Judgment setClassification(Classification classification)
+	{
+		this.classification = classification;
+		return this;
+	}
+
+	public Method getConfidence()
+	{
+		return confidence;
+	}
+
+	public Judgment setConfidence(Method confidence)
+	{
+		this.confidence = confidence;
+		return this;}
+
+	public String getGene()
+	{
+		return gene;
+	}
+
+	public Judgment setGene(String gene)
+	{
+		this.gene = gene;
+		return this;
+	}
+
+	public String getReason()
+	{
+		return reason;
+	}
+
+	public Judgment setReason(String reason)
+	{
+		this.reason = reason;
+		return this;
+	}
+
+	public String getSource()
+	{
+		return source;
+	}
+
+	public Judgment setSource(String source)
+	{
+		this.source = source;
+		return this;
+	}
+
+	public String getType()
+	{
+		return type;
+
+	}
+
+	public Judgment setType(String type)
+	{
+		this.type = type;
+		return this;
+	}
+
 
 }

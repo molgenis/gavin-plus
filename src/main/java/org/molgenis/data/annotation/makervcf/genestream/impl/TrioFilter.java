@@ -1,23 +1,15 @@
 package org.molgenis.data.annotation.makervcf.genestream.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.vcf.datastructures.Trio;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
-
-import org.molgenis.data.vcf.utils.VcfUtils;
-import org.molgenis.data.vcf.utils.VcfWriterUtils;
-
 
 /**
  * Created by joeri on 6/29/16.
@@ -52,8 +44,8 @@ public class TrioFilter extends GeneStream{
 
 
     public static TrioData getTrioData(File inputVcfFile) throws Exception {
-        BufferedReader bufferedVCFReader = VcfWriterUtils.getBufferedVCFReader(inputVcfFile);
-        HashMap<String, Trio> trios = VcfUtils.getPedigree(bufferedVCFReader);
+        Scanner scanner = GavinUtils.createVcfFileScanner(inputVcfFile);
+        HashMap<String, Trio> trios = GavinUtils.getPedigree(scanner);
 
         Set<String> parents = new HashSet<>();
         for(String child : trios.keySet())

@@ -1,16 +1,10 @@
 package org.molgenis.data.annotation.makervcf.util;
 
-import com.google.common.collect.Lists;
-import org.molgenis.data.AttributeMetaData;
-import org.molgenis.data.Entity;
-import org.molgenis.data.EntityMetaData;
-import org.molgenis.data.annotation.makervcf.WriteToRVCF;
-import org.molgenis.data.annotation.makervcf.structs.RVCF;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.support.DefaultAttributeMetaData;
-import org.molgenis.data.vcf.VcfRepository;
-import org.molgenis.data.vcf.utils.VcfWriterUtils;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.meta.VcfMeta;
 
 import java.io.File;
 import java.util.*;
@@ -22,40 +16,41 @@ public class RvcfGenoRestore {
 
     public RvcfGenoRestore(File inputRVCFFile, File outputRVCFFile, boolean verbose) throws Exception {
 
-        VcfRepository rvcfInput = new VcfRepository(inputRVCFFile, "rvcf");
+        VcfReader rvcfInput = GavinUtils.getVcfReader(inputRVCFFile);
 
         System.out.println("Getting unique sample identifiers..");
         Set<String> sampleIds = new HashSet<String>();
-        Iterator<Entity> it = rvcfInput.iterator();
+        Iterator<VcfRecord> it = rvcfInput.iterator();
         while (it.hasNext()) {
-            VcfEntity record = new VcfEntity(it.next());
-            //Map<String, String> sampleGenotypes = record.getRvcf().getSampleGenotype();
-            //sampleIds.addAll(sampleGenotypes.keySet());
+            VcfEntity record = new VcfEntity(it.next(), rvcfInput.getVcfMeta());
+            //FIXME: enable or remove: Map<String, String> sampleGenotypes = record.getRvcf().getSampleGenotype();
+            //FIXME: enable or remove: sampleIds.addAll(sampleGenotypes.keySet());
         }
         System.out.println(sampleIds);
 
-        Iterator<Entity> newIt = rvcfInput.iterator();
+        Iterator<VcfRecord> newIt = rvcfInput.iterator();
 
         System.out.println("Reconstructing genotype columns..");
-        Iterator<Entity> rve = addGenotypes(newIt, sampleIds);
+        Iterator<VcfEntity> rve = addGenotypes(newIt,rvcfInput.getVcfMeta(), sampleIds);
 
         //write Entities output VCF file
-        AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
+/* FIXME: write VCF
+   AttributeMetaData rlv = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
         List<AttributeMetaData> attributes = Lists.newArrayList(rvcfInput.getEntityMetaData().getAttributes());
         AttributeMetaData format = new DefaultAttributeMetaData(VcfRepository.FORMAT_GT);
         AttributeMetaData samples = new DefaultAttributeMetaData(VcfRepository.SAMPLES);
         attributes.add(rlv);
         attributes.add(format);
         attributes.add(samples);
-        new WriteToRVCF().writeRVCF(rve, outputRVCFFile, inputRVCFFile, attributes, true, verbose);
+        new WriteToRVCF().writeRVCF(rve, outputRVCFFile, inputRVCFFile, attributes, true, verbose);*/
 
 
     }
 
-    public Iterator<Entity> addGenotypes(Iterator<Entity> it, Set<String> sampleIds)
+    public Iterator<VcfEntity> addGenotypes(Iterator<VcfRecord> it, VcfMeta vcfMeta, Set<String> sampleIds)
     {
 
-        return new Iterator<Entity>() {
+        return new Iterator<VcfEntity>() {
 
 
             @Override
@@ -64,9 +59,17 @@ public class RvcfGenoRestore {
             }
 
             @Override
-            public Entity next() {
+            public VcfEntity next() {
 
-                Entity rv = it.next();
+                VcfEntity rv = null;
+                try
+                {
+                    rv = new VcfEntity(it.next(),vcfMeta);
+                }
+                catch (Exception e)
+                {
+                    //FIXME: what to do?
+                }
 
                 Map<String, String> sampleGenotypes = null;
                 try {
@@ -85,7 +88,7 @@ public class RvcfGenoRestore {
 
                 System.out.print("\n");
 
-                rv.set(VcfRepository.FORMAT_GT, "GT");
+                rv.setFormat(new String[]{"GT"});
 
                 return rv;
 

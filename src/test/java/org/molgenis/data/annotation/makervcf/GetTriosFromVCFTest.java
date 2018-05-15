@@ -26,7 +26,7 @@ public class GetTriosFromVCFTest
 
 
 	@BeforeClass
-	public void beforeClass() throws FileNotFoundException, IOException {
+	public void beforeClass() throws IOException {
 		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/GetTriosFromVCFTestFile.vcf");
 		inputVcfFile = new File(FileUtils.getTempDirectory(), "GetTriosFromVCFTestFile.vcf");
 		FileCopyUtils.copy(inputVcf, new FileOutputStream(inputVcfFile));

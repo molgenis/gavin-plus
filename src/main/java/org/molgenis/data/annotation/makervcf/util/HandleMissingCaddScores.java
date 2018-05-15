@@ -43,21 +43,21 @@ public class HandleMissingCaddScores {
         {
             if(mode.equals(Mode.CREATEFILEFORCADD))
             {
-                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), record.getAlts(altIndex), "\t");
+                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), record.getAlt(altIndex), "\t");
                 this.pw.println(record.getChr() + "\t" + record.getPos() + "\t" + "." + "\t" + trimmedRefAlt);
                 this.pw.flush();
                 return null;
             }
             else if(mode.equals(Mode.ANALYSIS))
             {
-                String key = record.getChr() + "_" + record.getPos() + "_" + record.getRef() + "_" + record.getAlts(altIndex);
+                String key = record.getChr() + "_" + record.getPos() + "_" + record.getRef() + "_" + record.getAlt(altIndex);
                 if(this.caddScores.containsKey(key))
                 {
                     return this.caddScores.get(key);
                 }
                 else
                 {
-                    String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), record.getAlts(altIndex), "_");
+                    String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), record.getAlt(altIndex), "_");
                     key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
                     if(this.caddScores.containsKey(key))
                     {
@@ -65,7 +65,7 @@ public class HandleMissingCaddScores {
                     }
                     else
                     {
-                        System.out.println("[HandleMissingCaddScores] WARNING: CADD score missing for " + record.getChr() + " " + record.getPos() + " " + record.getRef() + " " + record.getAlts(altIndex) + " ! (even when using trimmed key '"+key+"')");
+                        System.out.println("[HandleMissingCaddScores] WARNING: CADD score missing for " + record.getChr() + " " + record.getPos() + " " + record.getRef() + " " + record.getAlt(altIndex) + " ! (even when using trimmed key '"+key+"')");
                         return null;
                     }
                 }

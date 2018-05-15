@@ -1,13 +1,8 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
-import org.molgenis.data.AttributeMetaData;
-import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
-import org.molgenis.data.support.DefaultAttributeMetaData;
-import org.molgenis.data.support.DefaultEntityMetaData;
-import org.molgenis.data.vcf.VcfRepository;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,20 +18,20 @@ import java.util.List;
 public class MakeRVCFforClinicalVariants {
 
     private Iterator<RelevantVariant> relevantVariants;
-    private AttributeMetaData rlv;
+    private String rlvMetadata;
     private boolean verbose;
 
-    public MakeRVCFforClinicalVariants(Iterator<RelevantVariant> relevantVariants, AttributeMetaData rlv, boolean verbose)
+    public MakeRVCFforClinicalVariants(Iterator<RelevantVariant> relevantVariants, String rlvMetadata, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
-        this.rlv = rlv;
+        this.rlvMetadata = rlvMetadata;
         this.verbose = verbose;
     }
 
-    public Iterator<Entity> addRVCFfield()
+    public Iterator<RelevantVariant> addRVCFfield()
     {
 
-        return new Iterator<Entity>() {
+        return new Iterator<RelevantVariant>() {
 
 
             @Override
@@ -45,18 +40,16 @@ public class MakeRVCFforClinicalVariants {
             }
 
             @Override
-            public Entity next() {
-
-
+            public RelevantVariant next() {
                 try {
-                    RelevantVariant rv = relevantVariants.next();
+                    RelevantVariant relevantVariant = relevantVariants.next();
 
                     if(verbose) {
-                        System.out.println("[MakeRVCFforClinicalVariants] Looking at: " + rv.toString());
+                        System.out.println("[MakeRVCFforClinicalVariants] Looking at: " + relevantVariant.toString());
                     }
 
                     List<RVCF> rvcfList = new ArrayList<>();
-                    for(Relevance rlv : rv.getRelevance())
+                    for(Relevance rlv : relevantVariant.getRelevance())
                     {
                         RVCF rvcf = new RVCF();
 
@@ -88,12 +81,7 @@ public class MakeRVCFforClinicalVariants {
                         rvcfList.add(rvcf);
                     }
 
-
-                    Entity e = rv.getVariant().getOrignalEntity();
-                    DefaultEntityMetaData emd = (DefaultEntityMetaData) e.getEntityMetaData();
-                    DefaultAttributeMetaData infoAttribute = (DefaultAttributeMetaData) emd.getAttribute(VcfRepository.INFO);
-                    infoAttribute.addAttributePart(rlv);
-
+                    relevantVariant.setRlvMetadata(rlvMetadata);
                     StringBuffer rvcfListSB = new StringBuffer();
                     for(RVCF rvcf: rvcfList)
                     {
@@ -101,14 +89,13 @@ public class MakeRVCFforClinicalVariants {
                     }
                     rvcfListSB.deleteCharAt(rvcfListSB.length()-1);
 
-                    e.set(RVCF.attributeName,rvcfListSB.toString());
+                    relevantVariant.setRlv(rvcfListSB.toString());
 
                     if(verbose) {
                         System.out.println("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: " + rvcfListSB.toString());
                     }
 
-                    return e;
-
+                    return relevantVariant;
                 }
                 catch(Exception e)
                 {

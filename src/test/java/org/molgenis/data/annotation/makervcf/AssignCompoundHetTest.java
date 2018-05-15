@@ -2,10 +2,8 @@ package org.molgenis.data.annotation.makervcf;
 
 import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
-import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MAFFilter;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
@@ -17,7 +15,6 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import static org.testng.Assert.*;
 import static org.testng.Assert.assertTrue;
 
 public class AssignCompoundHetTest extends Setup
@@ -28,7 +25,7 @@ public class AssignCompoundHetTest extends Setup
 
 
 	@BeforeClass
-	public void beforeClass() throws FileNotFoundException, IOException {
+	public void beforeClass() throws IOException {
 		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/AssignCompoundHetTestFile.vcf");
 		inputVcfFile = new File(FileUtils.getTempDirectory(), "AssignCompoundHetTestFile.vcf");
 		FileCopyUtils.copy(inputVcf, new FileOutputStream(inputVcfFile));
@@ -142,7 +139,5 @@ public class AssignCompoundHetTest extends Setup
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS, p02=HOMOZYGOUS"));
 
 		assertTrue(!it.hasNext());
-
 	}
-
 }

@@ -1,20 +1,20 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinAlgorithm;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
-import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.annotation.makervcf.util.ClinVar;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.annotation.makervcf.util.LabVariants;
-import org.molgenis.data.vcf.VcfRepository;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.meta.VcfMeta;
 
 import java.io.File;
 import java.util.*;
@@ -29,18 +29,17 @@ import java.util.*;
  */
 public class DiscoverRelevantVariants {
 
-    private VcfRepository vcf;
+    private VcfReader vcf;
     private LabVariants lab;
     private HashMap<String, GavinEntry> gavinData;
     private GavinAlgorithm gavin;
     private HandleMissingCaddScores hmcs;
     private ClinVar clinvar;
-    private EntityMetaData vcfMeta;
     private boolean verbose;
 
     public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, File labVariants, Mode mode, boolean verbose) throws Exception
     {
-        this.vcf = new VcfRepository(vcfFile, "vcf");
+        this.vcf = GavinUtils.getVcfReader(vcfFile);
         this.clinvar = new ClinVar(clinvarFile);
         if(labVariants != null){
             this.lab = new LabVariants(labVariants);
@@ -48,18 +47,13 @@ public class DiscoverRelevantVariants {
         this.gavin = new GavinAlgorithm();
         this.gavinData = new GavinUtils(gavinFile).getGeneToEntry();
         this.hmcs = new HandleMissingCaddScores(mode, caddFile);
-        this.vcfMeta = vcf.getEntityMetaData();
         this.verbose = verbose;
     }
 
-    public EntityMetaData getVcfMeta() {
-        return vcfMeta;
-    }
-
-    public Iterator<RelevantVariant> findRelevantVariants() throws Exception
+    public Iterator<RelevantVariant> findRelevantVariants()
     {
 
-        Iterator<Entity> vcfIterator = vcf.iterator();
+        Iterator<VcfRecord> vcfIterator = vcf.iterator();
 
         return new Iterator<RelevantVariant>(){
 
@@ -83,11 +77,11 @@ public class DiscoverRelevantVariants {
                 {
                     try
                     {
-                        VcfEntity record = new VcfEntity(vcfIterator.next());
+                        VcfEntity vcfEntity = new VcfEntity(vcfIterator.next(), vcf.getVcfMeta());
 
-                        pos = record.getPos();
-                        chrom = record.getChr();
-                        chrPosRefAlt = record.getChrPosRefAlt();
+                        pos = vcfEntity.getPos();
+                        chrom = vcfEntity.getChr();
+                        chrPosRefAlt = vcfEntity.getChrPosRefAlt();
 
                         // check: no 'before' positions on the same chromosome allowed
                         if(previousPos != -1 && previousChrom != null && pos < previousPos && previousChrom.equals(chrom))
@@ -123,16 +117,16 @@ public class DiscoverRelevantVariants {
                         /**
                          * Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
                          */
-                        for (int i = 0; i < record.getAlts().length; i++)
+                        for (int i = 0; i < vcfEntity.getAlts().length; i++)
                         {
-                            Double cadd = hmcs.dealWithCaddScores(record, i);
+                            Double cadd = hmcs.dealWithCaddScores(vcfEntity, i);
 
                             //if mitochondrial, we have less tools / data, can't do much, just match to clinvar
-                            if(record.getChr().equals("MT")|| record.getChr().equals("M") || record.getChr().equals("mtDNA"))
+                            if(vcfEntity.getChr().equals("MT")|| vcfEntity.getChr().equals("M") || vcfEntity.getChr().equals("mtDNA"))
                             {
                                 Judgment judgment = null;
-                                Judgment labJudgment = lab != null ? lab.classifyVariant(record, record.getAlts(i), "MT") : null;
-                                Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), "MT", true);
+                                Judgment labJudgment = lab != null ? lab.classifyVariant(vcfEntity, vcfEntity.getAlt(i), "MT") : null;
+                                Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity, vcfEntity.getAlt(i), "MT", true);
 
                                 if(labJudgment != null && labJudgment.getClassification() == Judgment.Classification.Pathogenic)
                                 {
@@ -145,25 +139,25 @@ public class DiscoverRelevantVariants {
 
                                 if (judgment != null && judgment.getClassification().equals(Judgment.Classification.Pathogenic))
                                 {
-                                    record.setGenes(judgment.getGene());
-                                    relevance.add(new Relevance(record.getAlts(i), clinvarJudgment.getGene(), record.getExac_AFs(i), record.getGoNL_AFs(i), clinvarJudgment.getGene(), clinvarJudgment));
+                                    vcfEntity.setGenes(judgment.getGene());
+                                    relevance.add(new Relevance(vcfEntity.getAlt(i), clinvarJudgment.getGene(), vcfEntity.getExac_AFs(i), vcfEntity.getGoNL_AFs(i), clinvarJudgment.getGene(), clinvarJudgment));
                                 }
                             }
 
                             else {
 
-                                if(record.getGenes().size() == 0)
+                                if(vcfEntity.getGenes().size() == 0)
                                 {
-                                    if(verbose){ System.out.println("[DiscoverRelevantVariants] WARNING: no genes for variant " + record.toString()); }
+                                    if(verbose){ System.out.println("[DiscoverRelevantVariants] WARNING: no genes for variant " + vcfEntity.toString()); }
                                 }
-                                for (String gene : record.getGenes()) {
-                                    Impact impact = record.getImpact(i, gene);
-                                    String transcript = record.getTranscript(i, gene);
+                                for (String gene : vcfEntity.getGenes()) {
+                                    Impact impact = vcfEntity.getImpact(i, gene);
+                                    String transcript = vcfEntity.getTranscript(i, gene);
 
                                     Judgment judgment = null;
-                                    Judgment labJudgment = lab != null ? lab.classifyVariant(record, record.getAlts(i), gene) : null;
-                                    Judgment clinvarJudgment = clinvar.classifyVariant(record, record.getAlts(i), gene, false);
-                                    Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, record.getExac_AFs(i), gene, null, gavinData);
+                                    Judgment labJudgment = lab != null ? lab.classifyVariant(vcfEntity, vcfEntity.getAlt(i), gene) : null;
+                                    Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity, vcfEntity.getAlt(i), gene, false);
+                                    Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, vcfEntity.getExac_AFs(i), gene, null);
 
                                     if(labJudgment != null && labJudgment.getClassification() == Judgment.Classification.Pathogenic)
                                     {
@@ -179,7 +173,7 @@ public class DiscoverRelevantVariants {
                                     }
 
                                     if (judgment != null && judgment.getClassification() == Judgment.Classification.Pathogenic) {
-                                        relevance.add(new Relevance(record.getAlts(i), transcript, record.getExac_AFs(i), record.getGoNL_AFs(i), gene, judgment));
+                                        relevance.add(new Relevance(vcfEntity.getAlt(i), transcript, vcfEntity.getExac_AFs(i), vcfEntity.getGoNL_AFs(i), gene, judgment));
                                     }
                                 }
                             }
@@ -187,7 +181,7 @@ public class DiscoverRelevantVariants {
 
                         if(relevance.size() > 0)
                         {
-                            nextResult = new RelevantVariant(record, relevance);
+                            nextResult = new RelevantVariant(vcfEntity, relevance);
                             if(verbose){ System.out.println("[DiscoverRelevantVariants] Found relevant variant: " + nextResult.toStringShort()); }
                             return true;
                         }

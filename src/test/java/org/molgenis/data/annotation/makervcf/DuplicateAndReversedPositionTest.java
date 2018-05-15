@@ -1,6 +1,5 @@
 package org.molgenis.data.annotation.makervcf;
 
-import net.didion.jwnl.data.Exc;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;

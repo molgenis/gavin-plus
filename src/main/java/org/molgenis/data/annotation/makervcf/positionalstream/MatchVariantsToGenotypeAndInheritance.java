@@ -4,11 +4,11 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.cgd.LoadCGD;
-import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.vcf.VcfSample;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class MatchVariantsToGenotypeAndInheritance
 		this.parents = parents;
 	}
 
-	public Iterator<RelevantVariant> go() throws Exception
+	public Iterator<RelevantVariant> go()
 	{
 
 		return new Iterator<RelevantVariant>()
@@ -121,12 +121,6 @@ public class MatchVariantsToGenotypeAndInheritance
 							actingTerminology = status.AFFECTED;
 							nonActingTerminology = status.CARRIER;
 						}
-						//TODO: handle blood group marker information? not pathogenic but still valuable?
-						//                    else if (cgd.containsKey(gene) && (cgd.get(gene).getGeneralizedInheritance() == generalizedInheritance.BLOODGROUP))
-						//                    {
-						//                        actingTerminology = status.BLOODGROUP;
-						//                        nonActingTerminology = status.BLOODGROUP;
-						//                    }
 
 						Map<String, status> sampleStatus = new HashMap<>();
 						Map<String, String> sampleGenotypes = new HashMap<>();
@@ -138,12 +132,12 @@ public class MatchVariantsToGenotypeAndInheritance
 							for (String key : genoMatch.affected.keySet())
 							{
 								sampleStatus.put(key, actingTerminology);
-								sampleGenotypes.put(key, genoMatch.affected.get(key).get("GT").toString());
+								sampleGenotypes.put(key, getSampleFieldValue(genoMatch.affected.get(key), rv.getVariant(), "GT"));
 							}
 							for (String key : genoMatch.carriers.keySet())
 							{
 								sampleStatus.put(key, nonActingTerminology);
-								sampleGenotypes.put(key, genoMatch.carriers.get(key).get("GT").toString());
+								sampleGenotypes.put(key, getSampleFieldValue(genoMatch.carriers.get(key), rv.getVariant(), "GT"));
 							}
 						}
 
@@ -177,32 +171,32 @@ public class MatchVariantsToGenotypeAndInheritance
 	 */
 	public MultiKeyMap findMatchingSamples(RelevantVariant rv) throws Exception
 	{
-
 		VcfEntity record = rv.getVariant();
 		Set<String> alts = rv.getRelevantAlts();
 		Set<String> genes = rv.getRelevantGenes();
 
-		MultiKeyMap res = new MultiKeyMap();
+		MultiKeyMap result = new MultiKeyMap();
 
-		Set<String> parentsWithReferenceCalls = new HashSet<String>();
+		Set<String> parentsWithReferenceCalls = new HashSet<>();
 
-		Iterator<Entity> samples = record.getSamples();
-
+		Iterator<VcfSample> samples = record.getSamples().iterator();
+		int sampleIndex = 0;
 		while (samples.hasNext())
 		{
-			Entity sample = samples.next();
-			if (sample.get("GT") == null)
+			VcfSample sample = samples.next();
+
+			if (getSampleFieldValue(sample, record, "GT") == null)
 			{
 				continue;
 			}
 
-			String genotype = sample.get("GT").toString();
-			String sampleName = sample.get("ORIGINAL_NAME").toString();
+			String genotype = getSampleFieldValue(sample, record, "GT");
+			String sampleName = record.getVcfMeta().getSampleName(sampleIndex);//FIXME verify that this is correct
 
 			// quality filter: we want depth X or more, if available
-			if (sample.get("DP") != null)
+			if (getSampleFieldValue(sample, record, "DP") != null)
 			{
-				int depthOfCoverage = Integer.parseInt(sample.get("DP").toString());
+				int depthOfCoverage = Integer.parseInt(getSampleFieldValue(sample, record, "DP"));
 				if (depthOfCoverage < minDepth)
 				{
 					continue;
@@ -233,8 +227,8 @@ public class MatchVariantsToGenotypeAndInheritance
 				//and each gene
 				for (String gene : genes)
 				{
-					HashMap<String, Entity> carriers = new HashMap<String, Entity>();
-					HashMap<String, Entity> affected = new HashMap<String, Entity>();
+					HashMap<String, VcfSample> carriers = new HashMap<>();
+					HashMap<String, VcfSample> affected = new HashMap<>();
 
 					CGDEntry ce = cgd.get(gene);
 					generalizedInheritance inheritance =
@@ -288,19 +282,20 @@ public class MatchVariantsToGenotypeAndInheritance
 					}
 
 					//FIXME: set directly above with put instead of via putAll afterwards?
-					if (res.containsKey(gene, alt))
+					if (result.containsKey(gene, alt))
 					{
-						GenoMatchSamples match = (GenoMatchSamples) res.get(gene, alt);
+						GenoMatchSamples match = (GenoMatchSamples) result.get(gene, alt);
 						match.carriers.putAll(carriers);
 						match.affected.putAll(affected);
 					}
 					else
 					{
 						GenoMatchSamples match = new GenoMatchSamples(carriers, affected);
-						res.put(gene, alt, match);
+						result.put(gene, alt, match);
 					}
 				}
 			}
+			sampleIndex++;
 		}
 
 		//for relevant combinations, set parents with reference calls (--> this is not related to alternative alleles or gene combinations)
@@ -309,14 +304,26 @@ public class MatchVariantsToGenotypeAndInheritance
 		{
 			for (String gene : genes)
 			{
-				if (res.get(gene, alt) != null)
+				if (result.get(gene, alt) != null)
 				{
-					((GenoMatchSamples) res.get(gene, alt)).setParentsWithReferenceCalls(parentsWithReferenceCalls);
+					((GenoMatchSamples) result.get(gene, alt)).setParentsWithReferenceCalls(parentsWithReferenceCalls);
 				}
 			}
 		}
 
-		return res;
+		return result;
+	}
+
+	//FIXME: move method to appropriate class, which one? VcfEntity? GavinUtils? new utils class?
+	private String getSampleFieldValue(VcfSample sample, VcfEntity vcfEntity, String field)
+	{
+		String[] format = vcfEntity.getFormat();
+		for (int i = 0; i < format.length; i++) {
+			if(format[i].equals(field)){
+				return sample.getData(i);
+			}
+		}
+		return null;
 	}
 
 }

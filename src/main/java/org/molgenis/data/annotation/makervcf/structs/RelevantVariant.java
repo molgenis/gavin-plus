@@ -7,10 +7,13 @@ import java.util.Set;
 /**
  * Created by joeri on 6/13/16.
  */
+//FIXME: refactor to extend VcfEntity
 public class RelevantVariant
 {
 	VcfEntity variant;
 	List<Relevance> relevance;
+	private String rlvMetadata;
+	private String rlv;
 
 	public RelevantVariant(VcfEntity variant, List<Relevance> relevance)
 	{
@@ -74,5 +77,15 @@ public class RelevantVariant
 	public String toString()
 	{
 		return "RelevantVariant{" + "variant=" + variant + ", relevance=" + relevance + '}';
+	}
+
+	public void setRlvMetadata(String rlvMetadata)
+	{
+		this.rlvMetadata = rlvMetadata;
+	}
+
+	public void setRlv(String rlv)
+	{
+		this.rlv = rlv;
 	}
 }
