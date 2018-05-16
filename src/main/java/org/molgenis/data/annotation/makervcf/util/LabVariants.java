@@ -1,13 +1,11 @@
 package org.molgenis.data.annotation.makervcf.util;
 
-import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
-import org.molgenis.data.Entity;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
-import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.VcfRepository;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
-import org.molgenis.genotype.util.FixedSizeIterable;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfRecord;
 
 import java.io.File;
 import java.util.HashMap;
@@ -24,18 +22,18 @@ public class LabVariants {
     private Map<String, VcfEntity> posRefAltToLabVariant;
 
     public LabVariants(File labVariantsFile) throws Exception {
-        VcfRepository clinvar = new VcfRepository(labVariantsFile, "lab");
+        VcfReader clinvar = GavinUtils.getVcfReader(labVariantsFile);
         //ClinVar match
-        Iterator<Entity> cvIt = clinvar.iterator();
+        Iterator<VcfRecord> cvIt = clinvar.iterator();
         this.posRefAltToLabVariant = new HashMap<>();
         while (cvIt.hasNext())
         {
-            VcfEntity record = new VcfEntity(cvIt.next());
-            for(String alt : record.getAlts())
+            VcfEntity vcfEntity = new VcfEntity(cvIt.next(), clinvar.getVcfMeta());
+            for(String alt : vcfEntity.getAlts())
             {
-                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
-                String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
-                posRefAltToLabVariant.put(key, record);
+                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(vcfEntity.getRef(), alt, "_");
+                String key = vcfEntity.getChr() + "_" + vcfEntity.getPos() + "_" + trimmedRefAlt;
+                posRefAltToLabVariant.put(key, vcfEntity);
             }
         }
         System.out.println("Lab variants ("+posRefAltToLabVariant.size()+") loaded");
@@ -59,15 +57,15 @@ public class LabVariants {
 
             if (labVariantInfo.equals("P") || labVariantInfo.equals("LP"))
             {
-                return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, labVariantInfo).setSource("Lab variant").setType("Reported pathogenic");
+                return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, labVariantInfo,"Lab variant","Reported pathogenic");
             }
             else if(labVariantInfo.equals("V"))
             {
-                return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide, gene, labVariantInfo).setSource("Lab variant").setType("Reported VUS");
+                return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide, gene, labVariantInfo,"Lab variant","Reported VUS");
             }
             else if (labVariantInfo.equals("B") || labVariantInfo.equals("LB"))
             {
-                return new Judgment(Judgment.Classification.Benign, Judgment.Method.genomewide, gene, labVariantInfo).setSource("Lab variant").setType("Reported benign");
+                return new Judgment(Judgment.Classification.Benign, Judgment.Method.genomewide, gene, labVariantInfo,"Lab variant","Reported benign");
             }
             else
             {

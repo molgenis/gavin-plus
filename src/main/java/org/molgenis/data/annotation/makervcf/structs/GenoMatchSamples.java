@@ -1,6 +1,6 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import org.molgenis.data.Entity;
+import org.molgenis.vcf.VcfSample;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -9,12 +9,12 @@ import java.util.Set;
  * Created by joeri on 7/17/16.
  */
 public class GenoMatchSamples {
-    public HashMap<String, Entity> carriers;
-    public HashMap<String, Entity> affected;
+    public HashMap<String, VcfSample> carriers;
+    public HashMap<String, VcfSample> affected;
     public Set<String> parentsWithReferenceCalls;
 
 
-    public GenoMatchSamples(HashMap<String, Entity> carriers, HashMap<String, Entity> affected)
+    public GenoMatchSamples(HashMap<String, VcfSample> carriers, HashMap<String, VcfSample> affected)
     {
         this.carriers = carriers;
         this.affected = affected;

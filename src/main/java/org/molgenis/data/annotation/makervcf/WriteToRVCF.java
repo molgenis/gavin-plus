@@ -1,11 +1,6 @@
 package org.molgenis.data.annotation.makervcf;
 
 import com.google.common.collect.Lists;
-import org.molgenis.data.AttributeMetaData;
-import org.molgenis.data.Entity;
-import org.molgenis.data.EntityMetaData;
-import org.molgenis.data.MolgenisInvalidFormatException;
-import org.molgenis.data.vcf.utils.VcfWriterUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,7 +15,7 @@ import java.util.List;
  */
 public class WriteToRVCF {
 
-    public void writeRVCF(Iterator<Entity> relevantVariants, File writeTo, File inputVcfFile, List<AttributeMetaData> attributes, boolean writeToDisk, boolean verbose) throws IOException
+/*    public void writeRVCF(Iterator<Entity> relevantVariants, File writeTo, File inputVcfFile, List<AttributeMetaData> attributes, boolean writeToDisk, boolean verbose) throws IOException
         FileWriter fw = new FileWriter(writeTo);
         BufferedWriter outputVCFWriter = new BufferedWriter(fw);
         if(verbose) { System.out.println("[WriteToRVCF] Writing header"); }
@@ -40,5 +35,5 @@ public class WriteToRVCF {
         if(verbose) { System.out.println("[WriteToRVCF] Flushing and closing"); }
         outputVCFWriter.flush();
         outputVCFWriter.close();
-    }
+    }*/
 }

@@ -1,8 +1,9 @@
 package org.molgenis.data.annotation.reportrvcf;
 
-import org.molgenis.data.Entity;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.VcfRepository;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfRecord;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -49,13 +50,13 @@ public class FOR
 		//first, since we don't know the original, read the input VCF file that was processed before
 		//and count how many pathogenic variants per gene should have been found
 		//assumes that all variants in this list are (likely) pathogenic
-		VcfRepository vcf = new VcfRepository(originalVcfFile, "vcf");
-		Iterator<Entity> originalVcfIterator = vcf.iterator();
+		VcfReader vcf = GavinUtils.getVcfReader(originalVcfFile);
+		Iterator<VcfRecord> originalVcfIterator = vcf.iterator();
 
 		HashMap<String, String> variantToGene = new HashMap<String, String>(); //e.g. 10_126092389_G_A -> OAT, 10_126097170_C_T -> OAT
 		while (originalVcfIterator.hasNext())
 		{
-			VcfEntity record = new VcfEntity(originalVcfIterator.next());
+			VcfEntity record = new VcfEntity(originalVcfIterator.next(), vcf.getVcfMeta());
 
 			String gene;
 			if (record.getId() != null && record.getId().split(":", -1).length == 2)
@@ -95,14 +96,14 @@ public class FOR
 
 		System.out.println("gold standard patho variant counts per gene: " + countPerGeneExpected.toString());
 
-		VcfRepository rvcf = new VcfRepository(rvcfFile, "vcf");
+		VcfReader rvcf = GavinUtils.getVcfReader(rvcfFile);
 
-		Iterator<Entity> rvcfIterator = rvcf.iterator();
+		Iterator<VcfRecord> rvcfIterator = rvcf.iterator();
 
 		//remove variants seen in in RVCF
 		while (rvcfIterator.hasNext())
 		{
-			VcfEntity record = new VcfEntity(rvcfIterator.next());
+			VcfEntity record = new VcfEntity(rvcfIterator.next(), rvcf.getVcfMeta());
 			String key = record.getChr() + "_" + record.getPos() + "_" + record.getRef() + "_" + record.getAlt();
 			variantToGene.remove(key);
 		}

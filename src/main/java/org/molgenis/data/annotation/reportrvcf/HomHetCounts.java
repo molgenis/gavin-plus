@@ -1,10 +1,11 @@
 package org.molgenis.data.annotation.reportrvcf;
 
-import org.molgenis.data.Entity;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.VcfRepository;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfRecord;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -17,7 +18,7 @@ import java.util.*;
  */
 public class HomHetCounts {
 
-    private VcfRepository vcf;
+    private VcfReader vcf;
     private PrintWriter pw;
     int nrOfSamples;
 
@@ -33,7 +34,7 @@ public class HomHetCounts {
 
 
     public HomHetCounts(File rvcfInput, File outputHHC, int nrOfSamples) throws Exception {
-        this.vcf = new VcfRepository(rvcfInput, "vcf");
+        this.vcf = GavinUtils.getVcfReader(rvcfInput);
         this.pw = new PrintWriter(outputHHC);
         this.nrOfSamples = nrOfSamples;
     }
@@ -46,11 +47,11 @@ public class HomHetCounts {
         //make sure we only count every sample once per gene
         Set<String> sampleGeneCombo = new HashSet<>();
 
-        Iterator<Entity> vcfIterator = vcf.iterator();
+        Iterator<VcfRecord> vcfIterator = vcf.iterator();
         while(vcfIterator.hasNext())
         {
 
-            VcfEntity record = new VcfEntity(vcfIterator.next());
+            VcfEntity record = new VcfEntity(vcfIterator.next(), vcf.getVcfMeta());
 
             for(RVCF rvcf : record.getRvcf())
             {

@@ -1,7 +1,6 @@
 package org.molgenis.data.annotation.entity.impl.gavin;
 
 import com.google.auto.value.AutoValue;
-import org.molgenis.data.Entity;
 
 import javax.annotation.Nullable;
 
@@ -69,27 +68,6 @@ public abstract class GavinThresholds
 	{
 		return new AutoValue_GavinThresholds(pathoMAFThreshold, meanPathogenicCADDScore, meanPopulationCADDScore,
 				spec95thPerCADDThreshold, sens95thPerCADDThreshold, category);
-	}
-
-	public static GavinThresholds fromEntity(Entity annotationSourceEntity)
-	{
-		Double pathoMAFThreshold, meanPathogenicCADDScore, meanPopulationCADDScore, spec95thPerCADDThreshold, sens95thPerCADDThreshold;
-		//get data from entity for the annotator
-		pathoMAFThreshold = annotationSourceEntity.getString(PATHO_MAF_THRESHOLD) != null ? Double.valueOf(
-				annotationSourceEntity.getString(PATHO_MAF_THRESHOLD)) : null;
-		meanPathogenicCADDScore = annotationSourceEntity.getString(MEAN_PATHOGENIC_CADD_SCORE) != null ? Double.valueOf(
-				annotationSourceEntity.getString(MEAN_PATHOGENIC_CADD_SCORE)) : null;
-		meanPopulationCADDScore = annotationSourceEntity.getString(MEAN_POPULATION_CADD_SCORE) != null ? Double.valueOf(
-				annotationSourceEntity.getString(MEAN_POPULATION_CADD_SCORE)) : null;
-		spec95thPerCADDThreshold =
-				annotationSourceEntity.getString(SPEC_95TH_PER_CADD_THRESHOLD) != null ? Double.valueOf(
-						annotationSourceEntity.getString(SPEC_95TH_PER_CADD_THRESHOLD)) : null;
-		sens95thPerCADDThreshold =
-				annotationSourceEntity.getString(SENS_95TH_PER_CADD_THRESHOLD) != null ? Double.valueOf(
-						annotationSourceEntity.getString(SENS_95TH_PER_CADD_THRESHOLD)) : null;
-		return new AutoValue_GavinThresholds(pathoMAFThreshold, meanPathogenicCADDScore, meanPopulationCADDScore,
-				spec95thPerCADDThreshold, sens95thPerCADDThreshold,
-				Category.valueOf(annotationSourceEntity.getString(CATEGORY)));
 	}
 
 	public boolean isAboveMeanPathogenicCADDScore(double caddScaled)

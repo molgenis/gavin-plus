@@ -2,9 +2,7 @@ package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
-import org.molgenis.data.vcf.datastructures.Trio;
 
-import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -31,7 +29,6 @@ public class MAFFilter {
 
             @Override
             public boolean hasNext() {
-                try {
                     while (relevantVariants.hasNext()) {
                         RelevantVariant rv = relevantVariants.next();
 
@@ -50,14 +47,7 @@ public class MAFFilter {
                         }
 
                     }
-
                     return false;
-                }
-                catch(Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-
             }
 
             @Override

@@ -1,8 +1,6 @@
 package org.molgenis.data.annotation.makervcf;
 
 import com.google.common.collect.Lists;
-import org.molgenis.data.AttributeMetaData;
-import org.molgenis.data.Entity;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertBackToPositionalStream;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.genestream.impl.*;
@@ -10,8 +8,8 @@ import org.molgenis.data.annotation.makervcf.positionalstream.*;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.TrioData;
+import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
-import org.molgenis.data.support.DefaultAttributeMetaData;
 
 import java.io.File;
 import java.util.Iterator;
@@ -21,7 +19,7 @@ import java.util.Iterator;
  */
 public class Pipeline {
 
-    public static AttributeMetaData RLV = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
+    //FIXME public static AttributeMetaData RLV = new DefaultAttributeMetaData(RVCF.attributeName).setDescription(RVCF.attributeMetaData);
 
     public void start(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile, HandleMissingCaddScores.Mode mode, File outputVcfFile, File labVariants, boolean verbose) throws Exception
     {
@@ -66,12 +64,12 @@ public class Pipeline {
         Iterator<RelevantVariant> rv10 = new CleanupVariantsWithoutSamples(rv9, verbose).go();
 
         //write convert RVCF records to Entity
-        Iterator<Entity> rve = new MakeRVCFforClinicalVariants(rv10, RLV, verbose).addRVCFfield();
+        //FIXME Iterator<VcfEntity> rve = new MakeRVCFforClinicalVariants(rv10, RLV, verbose).addRVCFfield();
 
         //write Entities output VCF file
-        List<AttributeMetaData> attributes = Lists.newArrayList(discover.getVcfMeta().getAttributes());
-        attributes.add(RLV);
-        new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, attributes, true, verbose);
+        //FIXME List<AttributeMetaData> attributes = Lists.newArrayList(discover.getVcfMeta().getAttributes());
+        //FIXME attributes.add(RLV);
+        //FIXME new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile, attributes, true, verbose);
 
     }
 }

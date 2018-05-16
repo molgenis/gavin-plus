@@ -2,13 +2,13 @@ package org.molgenis.data.vcf.datastructures;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.molgenis.data.Entity;
+import org.molgenis.vcf.VcfRecord;
 
 public class Sample
 {
 	String id;
 
-	Entity genotype;
+	VcfRecord genotype;
 
 	public Sample()
 	{
@@ -21,7 +21,7 @@ public class Sample
 		this.id = id;
 	}
 
-	public Sample(String id, Entity genotype)
+	public Sample(String id, VcfRecord genotype)
 	{
 		super();
 		this.id = id;
@@ -38,12 +38,12 @@ public class Sample
 		this.id = id;
 	}
 
-	public Entity getGenotype()
+	public VcfRecord getGenotype()
 	{
 		return genotype;
 	}
 
-	public void setGenotype(Entity genotype)
+	public void setGenotype(VcfRecord genotype)
 	{
 		this.genotype = genotype;
 	}

@@ -44,7 +44,6 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 	@Test
 	public void test() throws Exception
 	{
-
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
@@ -62,7 +61,5 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 			count++;
 		}
 		assertEquals(count, 5);
-
 	}
-
 }
