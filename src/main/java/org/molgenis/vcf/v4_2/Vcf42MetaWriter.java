@@ -1,17 +1,20 @@
-package org.molgenis.vcf;
+package org.molgenis.vcf.v4_2;
 
 import org.molgenis.vcf.meta.VcfMeta;
 import org.molgenis.vcf.meta.VcfMetaEntry;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
-class VcfMetaWriter
+/**
+ * VCF v4.2 meta-information lines writer
+ */
+class Vcf42MetaWriter
 {
 	private static final String HEADER_PREFIX = "##";
 
@@ -40,9 +43,9 @@ class VcfMetaWriter
 	private static final String HEADER_PEDIGREE_KEY = "PEDIGREE";
 	private static final String HEADER_SAMPLE_KEY = "SAMPLE";
 
-	private final BufferedWriter writer;
+	private final Writer writer;
 
-	VcfMetaWriter(BufferedWriter writer)
+	Vcf42MetaWriter(Writer writer)
 	{
 		this.writer = requireNonNull(writer);
 	}
