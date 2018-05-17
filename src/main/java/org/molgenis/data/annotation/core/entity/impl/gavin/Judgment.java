@@ -1,5 +1,7 @@
 package org.molgenis.data.annotation.core.entity.impl.gavin;
 
+import java.util.Objects;
+
 /**
  * Judgment result of the gavin method
  */
@@ -99,5 +101,28 @@ public class Judgment
 		return this;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Judgment{" + "classification=" + classification + ", confidence=" + confidence + ", gene='" + gene
+				+ '\'' + ", reason='" + reason + '\'' + ", source='" + source + '\'' + ", type='" + type + '\'' + '}';
+	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Judgment judgment = (Judgment) o;
+		return classification == judgment.classification && confidence == judgment.confidence && Objects.equals(gene,
+				judgment.gene) && Objects.equals(reason, judgment.reason) && Objects.equals(source, judgment.source)
+				&& Objects.equals(type, judgment.type);
+	}
+
+	@Override
+	public int hashCode()
+	{
+
+		return Objects.hash(classification, confidence, gene, reason, source, type);
+	}
 }

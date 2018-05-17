@@ -157,7 +157,8 @@ public class DiscoverRelevantVariants {
                                     Judgment judgment = null;
                                     Judgment labJudgment = lab != null ? lab.classifyVariant(vcfEntity, vcfEntity.getAlt(i), gene) : null;
                                     Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity, vcfEntity.getAlt(i), gene, false);
-                                    Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, vcfEntity.getExac_AFs(i), gene, null);
+                                    //FIXME: where to get gavin thresholds
+                                    Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, vcfEntity.getExac_AFs(i), gene, gavinData);
 
                                     if(labJudgment != null && labJudgment.getClassification() == Judgment.Classification.Pathogenic)
                                     {
