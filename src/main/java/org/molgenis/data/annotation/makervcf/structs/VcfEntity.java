@@ -1,8 +1,10 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
+import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
@@ -10,12 +12,22 @@ import org.molgenis.vcf.meta.VcfMeta;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singleton;
+
 /**
  * Created by joeri on 6/1/16.
  */
 public class VcfEntity
 {
 	private final VcfMeta vcfMeta;
+	/**
+	 * <code>null</code> for 'missing value'
+	 */
+	private String quality;
+	/**
+	 * <code>null</code> for 'missing value'
+	 */
+	private String filterStatus;
 	private String chr;
 	private Integer pos;
 	private String id;
@@ -28,6 +40,7 @@ public class VcfEntity
 	private Double[] gonl_AFs; //ExAC allele frequencies in order of alt alleles, 0 if no match
 	private Double[] caddPhredScores; //CADD scores in order of alt alleles, may be null
 	private Set<String> genes; //any associated genes, not in any given order
+	private Iterable<VcfInfo> information;
 	private Iterable<VcfSample> samples;
 	private List<RVCF> rvcf;
 	private String[] format;
@@ -39,6 +52,9 @@ public class VcfEntity
 		this.vcfMeta = vcfMeta;
 		this.chr = record.getChromosome();
 		this.pos = record.getPosition();
+		this.quality = record.getQuality();
+		this.filterStatus = record.getFilterStatus();
+		this.information = record.getInformation();
 		this.id = record.getIdentifiers().size() > 0 ? record.getIdentifiers()
 															 .get(0) : null;//FIXME: possible more than one, what to do than...
 		this.ref = record.getReferenceAllele().getAlleleAsString();
@@ -56,6 +72,16 @@ public class VcfEntity
 		this.ann = GavinUtils.getInfoStringValue(record, "ANN");
 		this.genes = GavinUtils.getGenesFromAnn(ann);
 		this.rvcf = setRvcfFromVcfInfoField(GavinUtils.getInfoStringValue(record, RVCF.attributeName));
+	}
+
+	public String getQuality()
+	{
+		return quality;
+	}
+
+	public String getFilterStatus()
+	{
+		return filterStatus;
 	}
 
 	public String getChrPosRefAlt()
@@ -160,6 +186,28 @@ public class VcfEntity
 		return GavinUtils.getTranscript(this.ann, gene, this.alts[i]);
 	}
 
+	/**
+	 * Returns information without RVCF information
+	 *
+	 * @see #getRvcf()
+	 */
+	public Iterable<VcfInfo> getInformation()
+	{
+		Iterable<VcfInfo> rvcfInformation;
+		if (rvcf == null)
+		{
+			return rvcfInformation = information;
+		}
+		else
+		{
+			String key = "RLV";
+			String value = rvcf.stream().map(RVCF::toString).collect(Collectors.joining(","));
+			VcfInfo rlvVcfInfo = new VcfInfo(vcfMeta, key, value);
+			rvcfInformation = Iterables.concat(information, singleton(rlvVcfInfo));
+		}
+		return rvcfInformation;
+	}
+
 	public Iterable<VcfSample> getSamples()
 	{
 		return samples;
@@ -180,6 +228,7 @@ public class VcfEntity
 		return ref;
 	}
 
+	// TODO return empty list instead of null
 	public List<RVCF> getRvcf()
 	{
 		return rvcf != null ? rvcf : null;

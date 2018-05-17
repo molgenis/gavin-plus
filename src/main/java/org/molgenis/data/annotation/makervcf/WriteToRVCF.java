@@ -1,39 +1,67 @@
 package org.molgenis.data.annotation.makervcf;
 
-import com.google.common.collect.Lists;
+import org.molgenis.calibratecadd.support.GavinUtils;
+import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfWriter;
+import org.molgenis.vcf.VcfWriterFactory;
+import org.molgenis.vcf.meta.VcfMeta;
+import org.molgenis.vcf.meta.VcfMetaInfo;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by joeri on 7/18/16.
  */
-public class WriteToRVCF {
+class WriteToRVCF
+{
+	void writeRVCF(Iterator<RelevantVariant> relevantVariants, File writeTo, File inputVcfFile, boolean writeToDisk,
+			boolean verbose) throws Exception
+	{
+		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile);
+		if (verbose)
+		{
+			System.out.println("[WriteToRVCF] Writing header");
+		}
 
-/*    public void writeRVCF(Iterator<Entity> relevantVariants, File writeTo, File inputVcfFile, List<AttributeMetaData> attributes, boolean writeToDisk, boolean verbose) throws IOException
-        FileWriter fw = new FileWriter(writeTo);
-        BufferedWriter outputVCFWriter = new BufferedWriter(fw);
-        if(verbose) { System.out.println("[WriteToRVCF] Writing header"); }
-        VcfWriterUtils.writeVcfHeader(inputVcfFile, outputVCFWriter, attributes, Collections.emptyList(), true);
+		try (VcfWriter vcfWriter = new VcfWriterFactory().create(writeTo, vcfMeta))
+		{
+			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta);
+			while (relevantVariants.hasNext())
+			{
+				RelevantVariant relevantVariant = relevantVariants.next();
+				if (writeToDisk)
+				{
+					if (verbose)
+					{
+						System.out.println("[WriteToRVCF] Writing VCF record");
+					}
+					vcfWriter.write(vcfRecordMapper.map(relevantVariant));
+				}
+			}
+		}
+	}
 
-        while(relevantVariants.hasNext())
-        {
-            Entity e = relevantVariants.next();
+	private VcfMeta createRvcfMeta(File inputVcfFile) throws IOException
+	{
+		VcfMeta vcfMeta;
+		try (VcfReader vcfReader = GavinUtils.getVcfReader(inputVcfFile))
+		{
+			vcfMeta = vcfReader.getVcfMeta();
+		}
 
-            if(writeToDisk)
-            {
-                if(verbose) { System.out.println("[WriteToRVCF] Writing VCF record"); }
-                VcfWriterUtils.writeToVcf(e, outputVCFWriter);
-                outputVCFWriter.newLine();
-            }
-        }
-        if(verbose) { System.out.println("[WriteToRVCF] Flushing and closing"); }
-        outputVCFWriter.flush();
-        outputVCFWriter.close();
-    }*/
+		Map<String, String> properties = new LinkedHashMap<>();
+		properties.put("ID", "RLV");
+		properties.put("NUMBER", ".");
+		properties.put("TYPE", "String");
+		properties.put("Description",
+				"Allele | AlleleFreq | Gene | FDR | Transcript | Phenotype | PhenotypeInheritance | PhenotypeOnset | PhenotypeDetails | PhenotypeGroup | SampleStatus | SamplePhenotype | SampleGenotype | SampleGroup | VariantSignificance | VariantSignificanceSource | VariantSignificanceJustification | VariantCompoundHet | VariantGroup");
+		vcfMeta.addInfoMeta(new VcfMetaInfo(properties));
+
+		return vcfMeta;
+	}
 }

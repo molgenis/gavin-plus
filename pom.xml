@@ -7,13 +7,16 @@
     <parent>
         <groupId>io.spring.platform</groupId>
         <artifactId>platform-bom</artifactId>
-        <version>Cairo-RELEASE</version>
+        <version>Cairo-SR1</version>
     </parent>
 
     <properties>
         <!-- dependency versions not managed by parent pom -->
         <google.auto-value.version>1.4.1</google.auto-value.version>
         <Genotype-IO.version>1.0.3</Genotype-IO.version>
+
+        <!-- override dependency versions managed by parent pom -->
+        <testng.version>6.8</testng.version>
     </properties>
 
     <dependencies>
@@ -95,7 +98,6 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
