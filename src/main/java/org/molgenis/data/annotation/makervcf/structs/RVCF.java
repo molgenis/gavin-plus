@@ -84,6 +84,7 @@ public class RVCF {
         return in.replace(VCF_INFOFIELDSEP, " ").replace(RVCF_FIELDSEP, " ").replace(RVCF.RVCF_SAMPLESEP, " ").replace(RVCF_GENEALLELECOMBISEP, " ");
     }
 
+    // TODO do not use toString for this but a separate method
     @Override
     public String toString() {
         return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getAlleleFreq()) + RVCF_FIELDSEP + escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getFDR()) + RVCF_FIELDSEP + escapeToSafeVCF(getTranscript()) + RVCF_FIELDSEP +

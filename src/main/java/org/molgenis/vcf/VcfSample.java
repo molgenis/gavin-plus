@@ -15,17 +15,22 @@ public class VcfSample
 	private String[] tokens;
 
 	private transient List<Allele> cachedAlleles;
-	
+
 	public VcfSample(VcfRecord vcfRecord) {
 		this(vcfRecord, null);
 	}
-	
+
 	public VcfSample(VcfRecord vcfRecord, String[] tokens) {
 		if(vcfRecord == null) throw new IllegalArgumentException("vcfRecord is null");
 		this.vcfRecord = vcfRecord;
 		this.tokens = tokens;
 	}
-	
+
+	public String[] getTokens()
+	{
+		return tokens;
+	}
+
 	/**
 	 * @param idx
 	 * @return data for the sample record at the given position or null if data is set to the missing value
