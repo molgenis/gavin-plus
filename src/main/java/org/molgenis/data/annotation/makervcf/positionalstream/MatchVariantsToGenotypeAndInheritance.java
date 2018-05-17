@@ -184,7 +184,7 @@ public class MatchVariantsToGenotypeAndInheritance
 		while (samples.hasNext())
 		{
 			sampleIndex++;
-			VcfSample sample = samples.next();
+			VcfSample sample = samples.next().createClone();
 
 			if (getSampleFieldValue(sample, record, "GT") == null)
 			{
