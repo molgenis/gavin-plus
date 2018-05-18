@@ -1,8 +1,8 @@
 package org.molgenis.data.annotation.makervcf.genestream.impl;
 
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.Iterator;
 import java.util.List;
@@ -17,18 +17,18 @@ import java.util.List;
  */
 public class CombineWithSVcalls extends GeneStream{
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     private boolean verbose;
 
-    public CombineWithSVcalls(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public CombineWithSVcalls(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         super(relevantVariants, verbose);
     }
 
     @Override
-    public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
+    public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
 
-        for(RelevantVariant rv: variantsPerGene) {
+        for(GavinRecord rv: variantsPerGene) {
             for (Relevance rlv : rv.getRelevance()) {
                 if (!rlv.getGene().equals(gene)) {
                     continue;

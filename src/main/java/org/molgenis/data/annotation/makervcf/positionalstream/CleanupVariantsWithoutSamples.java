@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.Iterator;
 
@@ -11,26 +11,26 @@ import java.util.Iterator;
  */
 public class CleanupVariantsWithoutSamples {
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     private boolean verbose;
 
-    public CleanupVariantsWithoutSamples(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public CleanupVariantsWithoutSamples(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.verbose = verbose;
     }
 
-    public Iterator<RelevantVariant> go()
+    public Iterator<GavinRecord> go()
     {
-        return new Iterator<RelevantVariant>(){
+        return new Iterator<GavinRecord>(){
 
-            RelevantVariant nextResult;
+            GavinRecord nextResult;
 
             @Override
             public boolean hasNext() {
                 try {
                     while (relevantVariants.hasNext()) {
-                        RelevantVariant rv = relevantVariants.next();
+                        GavinRecord rv = relevantVariants.next();
 
                         if(verbose) {
                             System.out.println("[CleanupVariantsWithoutSamples] Looking at: " + rv.toString());
@@ -51,7 +51,7 @@ public class CleanupVariantsWithoutSamples {
                             }
                             else if(verbose)
                             {
-                                if(verbose) { System.out.println("[CleanupVariantsWithoutSamples] Removing variant at " +rv.getVariant().getChromosome() +":"+rv.getVariant().getPosition() + " because it has 0 samples left"); }
+                                if(verbose) { System.out.println("[CleanupVariantsWithoutSamples] Removing variant at " +rv.getChromosome() +":"+rv.getPosition() + " because it has 0 samples left"); }
                             }
                         }
 
@@ -68,7 +68,7 @@ public class CleanupVariantsWithoutSamples {
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 return nextResult;
             }
         };

@@ -5,16 +5,14 @@ import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinAlgorithm;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.annotation.makervcf.util.ClinVar;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.data.annotation.makervcf.util.LabVariants;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
-import org.molgenis.vcf.meta.VcfMeta;
 
 import java.io.File;
 import java.util.*;
@@ -50,14 +48,14 @@ public class DiscoverRelevantVariants {
         this.verbose = verbose;
     }
 
-    public Iterator<RelevantVariant> findRelevantVariants()
+    public Iterator<GavinRecord> findRelevantVariants()
     {
 
         Iterator<VcfRecord> vcfIterator = vcf.iterator();
 
-        return new Iterator<RelevantVariant>(){
+        return new Iterator<GavinRecord>(){
 
-            RelevantVariant nextResult;
+            GavinRecord nextResult;
 
             int pos = -1;
             int previousPos = -1;
@@ -77,7 +75,7 @@ public class DiscoverRelevantVariants {
                 {
                     try
                     {
-                        VcfEntity vcfEntity = new VcfEntity(vcfIterator.next());
+                        GavinRecord vcfEntity = new GavinRecord(vcfIterator.next());
 
                         pos = vcfEntity.getPosition();
                         chrom = vcfEntity.getChromosome();
@@ -182,7 +180,7 @@ public class DiscoverRelevantVariants {
 
                         if(relevance.size() > 0)
                         {
-                            nextResult = new RelevantVariant(vcfEntity, relevance);
+                            nextResult = new GavinRecord(vcfEntity, relevance);
                             if(verbose){ System.out.println("[DiscoverRelevantVariants] Found relevant variant: " + nextResult.toStringShort()); }
                             return true;
                         }
@@ -196,7 +194,7 @@ public class DiscoverRelevantVariants {
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 return nextResult;
             }
         };

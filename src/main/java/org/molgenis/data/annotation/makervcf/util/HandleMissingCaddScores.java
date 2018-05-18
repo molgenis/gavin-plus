@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class HandleMissingCaddScores {
     }
 
 
-    public Double dealWithCaddScores(VcfEntity record, int altIndex) throws Exception {
+    public Double dealWithCaddScores(GavinRecord record, int altIndex) throws Exception {
         if(record.getCaddPhredScores(altIndex) == null)
         {
             if(mode.equals(Mode.CREATEFILEFORCADD))

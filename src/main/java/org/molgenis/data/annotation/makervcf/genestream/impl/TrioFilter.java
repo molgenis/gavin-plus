@@ -3,8 +3,8 @@ package org.molgenis.data.annotation.makervcf.genestream.impl;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.vcf.datastructures.Trio;
 
@@ -33,7 +33,7 @@ public class TrioFilter extends GeneStream{
     private HashMap<String, Trio> trios;
     private Set<String> parents;
 
-    public TrioFilter(Iterator<RelevantVariant> relevantVariants, TrioData td, boolean verbose) throws Exception {
+    public TrioFilter(Iterator<GavinRecord> relevantVariants, TrioData td, boolean verbose) throws Exception {
         super(relevantVariants, verbose);
         this.trios = td.getTrios();
         this.parents = td.getParents();
@@ -67,11 +67,11 @@ public class TrioFilter extends GeneStream{
     }
 
     @Override
-    public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
+    public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
 
         if(verbose) { System.out.println("[TrioFilter] Encountered gene: " + gene); }
 
-        for(RelevantVariant rv : variantsPerGene) {
+        for(GavinRecord rv : variantsPerGene) {
 
             for (Relevance rlv : rv.getRelevance())
             {
@@ -85,7 +85,7 @@ public class TrioFilter extends GeneStream{
                 }
 
                 Set<String> samplesToRemove = new HashSet<>();
-                char affectedIndex = Character.forDigit(rv.getVariant().getAltIndex(rlv.getAllele()), 10);
+                char affectedIndex = Character.forDigit(rv.getAltIndex(rlv.getAllele()), 10);
 
                 for (String sample : rlv.getSampleStatus().keySet()) {
 

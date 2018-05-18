@@ -1,6 +1,7 @@
 package org.molgenis.data.annotation.reportrvcf;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
@@ -56,7 +57,7 @@ public class FOR
 		HashMap<String, String> variantToGene = new HashMap<String, String>(); //e.g. 10_126092389_G_A -> OAT, 10_126097170_C_T -> OAT
 		while (originalVcfIterator.hasNext())
 		{
-			VcfEntity record = new VcfEntity(originalVcfIterator.next());
+			GavinRecord record = new GavinRecord(originalVcfIterator.next());
 
 			String gene;
 			if (record.getId() != null && record.getId().split(":", -1).length == 2)

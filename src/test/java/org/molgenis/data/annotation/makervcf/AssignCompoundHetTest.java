@@ -5,7 +5,7 @@ import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream
 import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -40,11 +40,11 @@ public class AssignCompoundHetTest extends Setup
 	{
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
+		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(match, true);
-		Iterator<RelevantVariant> gsi = gs.go();
+		Iterator<GavinRecord> gsi = gs.go();
 
-		Iterator<RelevantVariant> it = new AssignCompoundHet(gsi, true).go();
+		Iterator<GavinRecord> it = new AssignCompoundHet(gsi, true).go();
 
 
 		// AIMP1

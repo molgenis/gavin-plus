@@ -4,8 +4,8 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,18 +17,18 @@ import java.util.Set;
  */
 public class AssignCompoundHet extends GeneStream {
 
-    public AssignCompoundHet(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public AssignCompoundHet(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         super(relevantVariants, verbose);
     }
 
     @Override
-    public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception
+    public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception
     {
         MultiKeyMap geneAlleleToSeenSamples = new MultiKeyMap();
         MultiKeyMap geneAlleleToMarkedSamples = new MultiKeyMap();
 
-        for(RelevantVariant rv: variantsPerGene)
+        for(GavinRecord rv: variantsPerGene)
         {
             for(Relevance rlv : rv.getRelevance())
             {
@@ -74,7 +74,7 @@ public class AssignCompoundHet extends GeneStream {
         }
 
         //iterate again and update marked samples
-        for(RelevantVariant rv: variantsPerGene)
+        for(GavinRecord rv: variantsPerGene)
         {
             for(Relevance rlv : rv.getRelevance())
             {

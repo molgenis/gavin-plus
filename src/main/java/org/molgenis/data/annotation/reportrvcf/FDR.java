@@ -20,8 +20,8 @@ import java.util.*;
  *
  *            //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
              //FOR: report missed hits per gene, same as above with pathogenic gold standard set
-             //Iterator<RelevantVariant> rv8 = new FDR(rv7, new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/FDR.tsv"), verbose).go();
-             //Iterator<RelevantVariant> rv8 = new FOR(rv7, inputVcfFile).go();
+             //Iterator<GavinRecord> rv8 = new FDR(rv7, new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/FDR.tsv"), verbose).go();
+             //Iterator<GavinRecord> rv8 = new FOR(rv7, inputVcfFile).go();
 
  */
 public class FDR {

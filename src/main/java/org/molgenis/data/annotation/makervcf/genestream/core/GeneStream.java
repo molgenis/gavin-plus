@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.genestream.core;
 
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.*;
 
@@ -11,26 +11,26 @@ import java.util.*;
  */
 public abstract class GeneStream {
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     protected boolean verbose;
 
-    public GeneStream(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public GeneStream(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.verbose = verbose;
     }
 
-    public Iterator<RelevantVariant> go()
+    public Iterator<GavinRecord> go()
     {
-        return new Iterator<RelevantVariant>(){
+        return new Iterator<GavinRecord>(){
 
-            RelevantVariant nextResult;
+            GavinRecord nextResult;
             Set<String> previousGenes;
             Set<String> currentGenes;
 
-            HashMap<String, List<RelevantVariant>> variantBufferPerGene = new HashMap<>();
-            List<RelevantVariant> variantBuffer = new ArrayList<>();
-            Iterator<RelevantVariant> resultBatch;
+            HashMap<String, List<GavinRecord>> variantBufferPerGene = new HashMap<>();
+            List<GavinRecord> variantBuffer = new ArrayList<>();
+            Iterator<GavinRecord> resultBatch;
 
             @Override
             public boolean hasNext() {
@@ -50,7 +50,7 @@ public abstract class GeneStream {
                                 resultBatch = null;
                             }
 
-                            RelevantVariant rv = relevantVariants.next();
+                            GavinRecord rv = relevantVariants.next();
                             currentGenes = rv.getRelevantGenes();
                             if (verbose) { System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGenes); }
 
@@ -86,7 +86,7 @@ public abstract class GeneStream {
                                 if (variantBufferPerGene.containsKey(gene)) {
                                     variantBufferPerGene.get(gene).add(rv);
                                 } else {
-                                    List<RelevantVariant> variants = new ArrayList<>();
+                                    List<GavinRecord> variants = new ArrayList<>();
                                     variants.add(rv);
                                     variantBufferPerGene.put(gene, variants);
                                 }
@@ -140,12 +140,12 @@ public abstract class GeneStream {
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 return nextResult;
             }
         };
     }
 
-    public abstract void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception;
+    public abstract void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception;
 
 }

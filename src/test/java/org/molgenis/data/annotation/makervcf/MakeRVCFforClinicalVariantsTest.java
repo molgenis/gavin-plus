@@ -1,21 +1,11 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.apache.commons.io.FileUtils;
-import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
-import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
-import org.molgenis.data.annotation.makervcf.genestream.impl.PhasingCompoundCheck;
-import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MakeRVCFforClinicalVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
-import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -44,7 +34,7 @@ public class MakeRVCFforClinicalVariantsTest extends Setup
 	{
 
 /*		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
+		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
 		Iterator<Entity> it = new MakeRVCFforClinicalVariants(match, Pipeline.RLV, false).addRVCFfield();
 
 		assertTrue(it.hasNext());

@@ -1,19 +1,14 @@
 package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * Created by joeri on 7/14/16.
@@ -35,7 +30,7 @@ public class GetAllGeneNamesFromVCF
 				int i = 0;
 				while (vcfIterator.hasNext())
 				{
-					VcfEntity record = new VcfEntity(vcfIterator.next());
+					GavinRecord record = new GavinRecord(vcfIterator.next());
 					i++;
 					Set<String> genesForVariant = record.getGenes();
 					if (genesForVariant != null)

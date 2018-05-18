@@ -1,14 +1,12 @@
 package org.molgenis.data.annotation.makervcf.util;
 
-import com.google.common.collect.Lists;
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
 
 import java.io.*;
 import java.util.Iterator;
-import java.util.List;
 
 /** 
  * Annotator that adds the output of the CADD webservice to a VCF file.
@@ -67,7 +65,7 @@ public class CaddWebserviceOutputAnnotator
 
 		while(vcfIterator.hasNext())
 		{
-			VcfEntity vcfEntity = new VcfEntity(vcfIterator.next());
+			GavinRecord vcfEntity = new GavinRecord(vcfIterator.next());
 			for(int altIndex = 0; altIndex < vcfEntity.getAlts().length; altIndex++)
 			{
 				if(vcfEntity.getCaddPhredScores(altIndex) == null){

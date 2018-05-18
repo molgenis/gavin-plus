@@ -1,13 +1,12 @@
 package org.molgenis.data.annotation.makervcf.genestream.impl;
 
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by joeri on 6/29/16.
@@ -17,13 +16,13 @@ import java.util.concurrent.ExecutionException;
  */
 public class AddGeneFDR extends GeneStream{
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     private boolean verbose;
     private Map<String, Double> affectedFrac;
     private Map<String, Double> carrierFrac;
 
 
-    public AddGeneFDR(Iterator<RelevantVariant> relevantVariants, File FDRfile, boolean verbose) throws FileNotFoundException {
+    public AddGeneFDR(Iterator<GavinRecord> relevantVariants, File FDRfile, boolean verbose) throws FileNotFoundException {
         super(relevantVariants, verbose);
 
         Map<String, Double> affectedFrac = new HashMap<>();
@@ -44,14 +43,14 @@ public class AddGeneFDR extends GeneStream{
     }
 
     @Override
-    public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
+    public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
 
 
         Double affectedFracForGene = this.affectedFrac.get(gene);
         Double carrierFracForGene = this.carrierFrac.get(gene);
 
 
-        for(RelevantVariant rv : variantsPerGene)
+        for(GavinRecord rv : variantsPerGene)
         {
             for(Relevance rlv : rv.getRelevance())
             {

@@ -1,6 +1,6 @@
 package org.molgenis.data.annotation.makervcf;
 
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
 /**
- * Maps {@link RelevantVariant} to {@link VcfRecord}.
+ * Maps {@link GavinRecord} to {@link VcfRecord}.
  */
 class VcfRecordMapper
 {
@@ -29,15 +29,15 @@ class VcfRecordMapper
 		this.vcfMeta = requireNonNull(vcfMeta);
 	}
 
-	public VcfRecord map(RelevantVariant relevantVariant)
+	public VcfRecord map(GavinRecord gavinRecord)
 	{
-		List<String> tokens = createTokens(relevantVariant);
+		List<String> tokens = createTokens(gavinRecord);
 		return new VcfRecord(vcfMeta, tokens.toArray(new String[0]));
 	}
 
-	private List<String> createTokens(RelevantVariant relevantVariant)
+	private List<String> createTokens(GavinRecord gavinRecord)
 	{
-		VcfEntity vcfEntity = relevantVariant.getVariant();
+		VcfEntity vcfEntity = gavinRecord;
 
 		List<String> tokens = new ArrayList<>();
 		tokens.add(vcfEntity.getChromosome());
@@ -58,7 +58,7 @@ class VcfRecordMapper
 		String filterStatus = vcfEntity.getFilterStatus();
 		tokens.add(filterStatus != null ? filterStatus : MISSING_VALUE);
 
-		tokens.add(createInfoToken(vcfEntity.getVcfEntityInformation()) + ";RLV=" + relevantVariant.getRlv());
+		tokens.add(createInfoToken(vcfEntity.getVcfEntityInformation()) + ";RLV=" + gavinRecord.getRlv());
 
 //		Iterable<VcfSample> vcfSamples = vcfEntity.getSamples();
 //		if (vcfSamples.iterator().hasNext())
