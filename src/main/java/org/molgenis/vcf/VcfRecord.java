@@ -59,10 +59,6 @@ public class VcfRecord
 		}
 		return cachedIdentifiers;
 	}
-
-	/**
-	 * TODO how about multiple reference bases? (see v4.2 spec)
-	 */
 	public Allele getReferenceAllele() {
 		return Allele.create(tokens[VcfMeta.COL_REF_IDX]);
 	}
