@@ -88,4 +88,9 @@ public class RelevantVariant
 	{
 		this.rlv = rlv;
 	}
+
+	public String getRlv()
+	{
+		return rlv;
+	}
 }
