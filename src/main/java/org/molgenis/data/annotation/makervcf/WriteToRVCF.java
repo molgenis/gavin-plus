@@ -10,9 +10,7 @@ import org.molgenis.vcf.meta.VcfMetaInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by joeri on 7/18/16.
@@ -53,6 +51,8 @@ class WriteToRVCF
 		{
 			vcfMeta = vcfReader.getVcfMeta();
 		}
+		vcfMeta.setColNames(Arrays.copyOfRange(vcfMeta.getColNames(), 0, VcfMeta.COL_FORMAT_IDX));
+		vcfMeta.setVcfMetaSamples(Collections.emptyMap());
 
 		Map<String, String> properties = new LinkedHashMap<>();
 		properties.put("ID", "RLV");

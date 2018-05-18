@@ -58,14 +58,14 @@ class VcfRecordMapper
 		String filterStatus = vcfEntity.getFilterStatus();
 		tokens.add(filterStatus != null ? filterStatus : MISSING_VALUE);
 
-		tokens.add(createInfoToken(vcfEntity.getInformation()));
+		tokens.add(createInfoToken(vcfEntity.getInformation()) + ";RLV=" + relevantVariant.getRlv());
 
-		Iterable<VcfSample> vcfSamples = vcfEntity.getSamples();
-		if (vcfSamples.iterator().hasNext())
-		{
-			tokens.add(createFormatToken(vcfEntity));
-			vcfSamples.forEach(vcfSample -> tokens.add(createSampleToken(vcfSample)));
-		}
+//		Iterable<VcfSample> vcfSamples = vcfEntity.getSamples();
+//		if (vcfSamples.iterator().hasNext())
+//		{
+//			tokens.add(createFormatToken(vcfEntity));
+//			vcfSamples.forEach(vcfSample -> tokens.add(createSampleToken(vcfSample)));
+//		}
 		return tokens;
 	}
 

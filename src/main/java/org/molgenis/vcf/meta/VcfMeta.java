@@ -166,6 +166,11 @@ public class VcfMeta
 		return vcfMetaPedigrees != null ? vcfMetaPedigrees : Collections.<VcfMetaPedigree>emptyList();
 	}
 
+	public void setVcfMetaSamples(Map<String, VcfMetaSample> vcfMetaSamples)
+	{
+		this.vcfMetaSamples = vcfMetaSamples;
+	}
+
 	public void addSampleMeta(VcfMetaSample vcfMetaSample)
 	{
 		if (vcfMetaSamples == null) vcfMetaSamples = new LinkedHashMap<String, VcfMetaSample>();

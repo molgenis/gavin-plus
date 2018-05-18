@@ -42,7 +42,7 @@ public class VcfEntity
 	private Set<String> genes; //any associated genes, not in any given order
 	private Iterable<VcfInfo> information;
 	private Iterable<VcfSample> samples;
-	private List<RVCF> rvcf;
+	private final List<RVCF> rvcf;
 	private String[] format;
 
 	public VcfEntity(VcfRecord record, VcfMeta vcfMeta) throws Exception
@@ -196,7 +196,7 @@ public class VcfEntity
 		Iterable<VcfInfo> rvcfInformation;
 		if (rvcf == null)
 		{
-			return rvcfInformation = information;
+			rvcfInformation = information;
 		}
 		else
 		{
