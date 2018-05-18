@@ -59,7 +59,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getVariant().getPosition() + "_");
 		}
 
 		String expected = "1_2_2_3_4_4_5_6_7_8_8_8_9_10_";

@@ -42,7 +42,7 @@ public class ConvertBackToPositionalStreamTest extends Setup
 		while(it.hasNext())
 		{
 		//	System.out.println(it.next().getVariant().getGenes() + " -> " + it.next().getRelevance() + " at " + it.next().getVariant().getPos());
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getVariant().getPosition() + "_");
 		}
 
 		//39 is missing, does not contain relevant variants (2x MODIFIER)

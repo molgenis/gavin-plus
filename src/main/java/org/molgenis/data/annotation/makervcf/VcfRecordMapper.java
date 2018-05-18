@@ -40,8 +40,8 @@ class VcfRecordMapper
 		VcfEntity vcfEntity = relevantVariant.getVariant();
 
 		List<String> tokens = new ArrayList<>();
-		tokens.add(vcfEntity.getChr());
-		tokens.add(vcfEntity.getPos().toString());
+		tokens.add(vcfEntity.getChromosome());
+		tokens.add(vcfEntity.getPosition()+"");
 		tokens.add(vcfEntity.getId());
 		tokens.add(vcfEntity.getRef());
 		String[] altTokens = vcfEntity.getAlts();
@@ -58,7 +58,7 @@ class VcfRecordMapper
 		String filterStatus = vcfEntity.getFilterStatus();
 		tokens.add(filterStatus != null ? filterStatus : MISSING_VALUE);
 
-		tokens.add(createInfoToken(vcfEntity.getInformation()) + ";RLV=" + relevantVariant.getRlv());
+		tokens.add(createInfoToken(vcfEntity.getVcfEntityInformation()) + ";RLV=" + relevantVariant.getRlv());
 
 //		Iterable<VcfSample> vcfSamples = vcfEntity.getSamples();
 //		if (vcfSamples.iterator().hasNext())

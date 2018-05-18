@@ -51,7 +51,7 @@ public class CleanupVariantsWithoutSamples {
                             }
                             else if(verbose)
                             {
-                                if(verbose) { System.out.println("[CleanupVariantsWithoutSamples] Removing variant at " +rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " because it has 0 samples left"); }
+                                if(verbose) { System.out.println("[CleanupVariantsWithoutSamples] Removing variant at " +rv.getVariant().getChromosome() +":"+rv.getVariant().getPosition() + " because it has 0 samples left"); }
                             }
                         }
 

@@ -67,8 +67,7 @@ public class CaddWebserviceOutputAnnotator
 
 		while(vcfIterator.hasNext())
 		{
-			VcfEntity vcfEntity = new VcfEntity(vcfIterator.next(), vcfReader.getVcfMeta());
-			StringBuffer cadd_scaled = new StringBuffer();
+			VcfEntity vcfEntity = new VcfEntity(vcfIterator.next());
 			for(int altIndex = 0; altIndex < vcfEntity.getAlts().length; altIndex++)
 			{
 				if(vcfEntity.getCaddPhredScores(altIndex) == null){

@@ -51,9 +51,9 @@ public class HomHetCounts {
         while(vcfIterator.hasNext())
         {
 
-            VcfEntity record = new VcfEntity(vcfIterator.next(), vcf.getVcfMeta());
+            VcfEntity record = new VcfEntity(vcfIterator.next());
 
-            for(RVCF rvcf : record.getRvcf())
+            for(RVCF rvcf : record.getRvcfFromVcfInfoField())
             {
 
             String gene = rvcf.getGene();
@@ -83,11 +83,8 @@ public class HomHetCounts {
                         geneToHet.put(gene, count + 1);
                         sampleGeneCombo.add(gene + "_" + sample);
                     }
-
                 }
             }
-
-
         }
 
         pw.println(HEADER);

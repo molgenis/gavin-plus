@@ -46,7 +46,7 @@ public class ConvertToGeneStreamTest extends Setup
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getVariant().getPosition() + "_");
 		}
 
 		// note: the order is arbitrary to some respects, for example when 2 genes end at exactly the same position.
@@ -68,7 +68,7 @@ public class ConvertToGeneStreamTest extends Setup
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getVariant().getPosition() + "_");
 		}
 
 		// test bug where A -> A,B -> B was reversed incorrectly to 13_14_16_15_17_18

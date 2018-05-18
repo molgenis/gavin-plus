@@ -13,7 +13,7 @@ import org.molgenis.vcf.meta.VcfMeta;
 public class VcfRecord
 {
 	static final String MISSING_VALUE = ".";
-	
+
 	private final VcfMeta vcfMeta;
 	private String[] tokens;
 
@@ -199,6 +199,11 @@ public class VcfRecord
 					}};
 			}
 		};
+	}
+
+	public VcfMeta getVcfMeta()
+	{
+		return vcfMeta;
 	}
 
 	public void reset(String[] tokens) {

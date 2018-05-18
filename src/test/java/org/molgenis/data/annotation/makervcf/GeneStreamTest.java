@@ -60,7 +60,7 @@ public class GeneStreamTest extends Setup
 		while(it.hasNext())
 		{
 			nrOfVariants++;
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getVariant().getPosition() + "_");
 
 		}
 
@@ -124,7 +124,7 @@ public class GeneStreamTest extends Setup
 
 		while(it.hasNext())
 		{
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getVariant().getPosition() + "_");
 
 		}
 		// originally a bug found in ConvertToGeneStreamTest

@@ -70,7 +70,7 @@ public class RelevantVariant
 
 	public String toStringShort()
 	{
-		return variant.getChr() + " " + variant.getPos() + " " + variant.getRef() + " " + variant.getAltString();
+		return variant.getChromosome() + " " + variant.getPosition() + " " + variant.getRef() + " " + variant.getAltString();
 	}
 
 	@Override

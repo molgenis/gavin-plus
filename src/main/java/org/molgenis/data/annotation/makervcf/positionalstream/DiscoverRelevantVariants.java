@@ -77,10 +77,10 @@ public class DiscoverRelevantVariants {
                 {
                     try
                     {
-                        VcfEntity vcfEntity = new VcfEntity(vcfIterator.next(), vcf.getVcfMeta());
+                        VcfEntity vcfEntity = new VcfEntity(vcfIterator.next());
 
-                        pos = vcfEntity.getPos();
-                        chrom = vcfEntity.getChr();
+                        pos = vcfEntity.getPosition();
+                        chrom = vcfEntity.getChromosome();
                         chrPosRefAlt = vcfEntity.getChrPosRefAlt();
 
                         // check: no 'before' positions on the same chromosome allowed
@@ -122,7 +122,7 @@ public class DiscoverRelevantVariants {
                             Double cadd = hmcs.dealWithCaddScores(vcfEntity, i);
 
                             //if mitochondrial, we have less tools / data, can't do much, just match to clinvar
-                            if(vcfEntity.getChr().equals("MT")|| vcfEntity.getChr().equals("M") || vcfEntity.getChr().equals("mtDNA"))
+                            if(vcfEntity.getChromosome().equals("MT")|| vcfEntity.getChromosome().equals("M") || vcfEntity.getChromosome().equals("mtDNA"))
                             {
                                 Judgment judgment = null;
                                 Judgment labJudgment = lab != null ? lab.classifyVariant(vcfEntity, vcfEntity.getAlt(i), "MT") : null;

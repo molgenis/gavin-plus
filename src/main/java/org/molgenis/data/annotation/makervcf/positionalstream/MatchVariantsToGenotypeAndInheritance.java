@@ -95,14 +95,20 @@ public class MatchVariantsToGenotypeAndInheritance
 			public RelevantVariant next()
 			{
 
-				try
-				{
 					RelevantVariant rv = relevantVariants.next();
 
 					//key: gene, alt allele
-					MultiKeyMap fullGenoMatch = findMatchingSamples(rv);
+				MultiKeyMap fullGenoMatch = null;
+				try
+				{
+					fullGenoMatch = findMatchingSamples(rv);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 
-					for (Relevance rlv : rv.getRelevance())
+				for (Relevance rlv : rv.getRelevance())
 					{
 
 						String gene = rlv.getGene();
@@ -156,12 +162,6 @@ public class MatchVariantsToGenotypeAndInheritance
 						}
 					}
 					return rv;
-				}
-				catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
-
 			}
 		};
 	}
@@ -223,7 +223,7 @@ public class MatchVariantsToGenotypeAndInheritance
 			//now that everything is okay, we can match to inheritance mode for each alt
 			for (String alt : alts)
 			{
-				int altIndex = VcfEntity.getAltAlleleIndex(record, alt);
+				int altIndex = record.getAltAlleleIndex(alt);
 
 				//and each gene
 				for (String gene : genes)

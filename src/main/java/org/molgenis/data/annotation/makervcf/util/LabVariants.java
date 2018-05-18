@@ -28,11 +28,11 @@ public class LabVariants {
         this.posRefAltToLabVariant = new HashMap<>();
         while (cvIt.hasNext())
         {
-            VcfEntity vcfEntity = new VcfEntity(cvIt.next(), clinvar.getVcfMeta());
+            VcfEntity vcfEntity = new VcfEntity(cvIt.next());
             for(String alt : vcfEntity.getAlts())
             {
                 String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(vcfEntity.getRef(), alt, "_");
-                String key = vcfEntity.getChr() + "_" + vcfEntity.getPos() + "_" + trimmedRefAlt;
+                String key = vcfEntity.getChromosome() + "_" + vcfEntity.getPosition() + "_" + trimmedRefAlt;
                 posRefAltToLabVariant.put(key, vcfEntity);
             }
         }
@@ -42,7 +42,7 @@ public class LabVariants {
 
     public Judgment classifyVariant(VcfEntity record, String alt, String gene) throws Exception {
         String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
-        String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
+        String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
 
         if(posRefAltToLabVariant.containsKey(key)) {
             // e.g.

@@ -34,8 +34,6 @@ public abstract class GeneStream {
 
             @Override
             public boolean hasNext() {
-                try {
-
                     if(resultBatch != null && resultBatch.hasNext())
                     {
                         if(verbose){System.out.println("[GeneStream] Returning subsequent result of gene stream batch");}
@@ -64,7 +62,14 @@ public abstract class GeneStream {
                                 // process per gene in abstract function
                                 for (String gene : variantBufferPerGene.keySet()) {
                                     if (verbose) { System.out.println("[GeneStream] Processing gene "+gene+" having " + variantBufferPerGene.get(gene).size() + " variants"); }
-                                    perGene(gene, variantBufferPerGene.get(gene));
+                                    try
+                                    {
+                                        perGene(gene, variantBufferPerGene.get(gene));
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 // create shallow copy, so that we can add another variant to buffer after we instantiate the iterator
                                 resultBatch = new ArrayList<>(variantBuffer).iterator();
@@ -111,7 +116,14 @@ public abstract class GeneStream {
                         if (verbose) { System.out.println("[GeneStream] Buffer has " + variantBuffer.size() + " variants left in " + variantBufferPerGene.keySet().toString()); }
                         for(String gene : variantBufferPerGene.keySet())
                         {
-                            perGene(gene, variantBufferPerGene.get(gene));
+                            try
+                            {
+                                perGene(gene, variantBufferPerGene.get(gene));
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
                         }
                         resultBatch = new ArrayList<>(variantBuffer).iterator();
                         variantBuffer = new ArrayList<>();
@@ -125,12 +137,6 @@ public abstract class GeneStream {
                     }
 
                     return false;
-                }
-                catch(Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-
             }
 
             @Override

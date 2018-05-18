@@ -59,10 +59,10 @@ public class FDR {
         while(vcfIterator.hasNext())
         {
 
-            VcfEntity record = new VcfEntity(vcfIterator.next(), vcf.getVcfMeta());
+            VcfEntity record = new VcfEntity(vcfIterator.next());
 
             //TODO: check implications of this being a loop now instead of 1 rvcf
-            for(RVCF rvcf : record.getRvcf()){
+            for(RVCF rvcf : record.getRvcfFromVcfInfoField()){
 
             String gene = rvcf.getGene();
 

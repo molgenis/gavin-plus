@@ -98,7 +98,7 @@ public class ConvertToGeneStream {
 
                         // get variant, store position, and get underlying genes
                         RelevantVariant rv = relevantVariants.next();
-                        int pos = rv.getVariant().getPos();
+                        int pos = rv.getVariant().getPosition();
                         positionalOrder.add(pos);
                         Set<String> underlyingGenesForCurrentVariant = rv.getVariant().getGenes();
 

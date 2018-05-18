@@ -22,7 +22,7 @@ public class RvcfGenoRestore {
         Set<String> sampleIds = new HashSet<String>();
         Iterator<VcfRecord> it = rvcfInput.iterator();
         while (it.hasNext()) {
-            VcfEntity record = new VcfEntity(it.next(), rvcfInput.getVcfMeta());
+            VcfEntity record = new VcfEntity(it.next());
             //FIXME: enable or remove: Map<String, String> sampleGenotypes = record.getRvcf().getSampleGenotype();
             //FIXME: enable or remove: sampleIds.addAll(sampleGenotypes.keySet());
         }
@@ -64,7 +64,7 @@ public class RvcfGenoRestore {
                 VcfEntity rv = null;
                 try
                 {
-                    rv = new VcfEntity(it.next(),vcfMeta);
+                    rv = new VcfEntity(it.next());
                 }
                 catch (Exception e)
                 {
@@ -88,9 +88,9 @@ public class RvcfGenoRestore {
 
                 System.out.print("\n");
 
-                rv.setFormat(new String[]{"GT"});
-
-                return rv;
+                //FIXME rv.setFormat(new String[]{"GT"});
+                throw new RuntimeException("TODO");
+                //return rv;
 
             }
         };

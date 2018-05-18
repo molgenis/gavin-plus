@@ -45,7 +45,7 @@ public class ConvertBackToPositionalStream {
                         i++;
 
                         RelevantVariant rv = relevantVariants.next();
-                        int pos = rv.getVariant().getPos();
+                        int pos = rv.getVariant().getPosition();
 
                         //position of stream matches real variant position, stable situation
                         //write out any buffered variants in the correct order until this point
