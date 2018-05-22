@@ -28,7 +28,9 @@ class WriteToRVCF
 
 		try (VcfWriter vcfWriter = new VcfWriterFactory().create(writeTo, vcfMeta))
 		{
-			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta);
+			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false,
+					false); // TODO create settings based on CLI arguments
+			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 			while (relevantVariants.hasNext())
 			{
 				GavinRecord gavinRecord = relevantVariants.next();

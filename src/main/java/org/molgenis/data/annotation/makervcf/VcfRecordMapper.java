@@ -23,10 +23,12 @@ class VcfRecordMapper
 	private static final String MISSING_VALUE = ".";
 
 	private final VcfMeta vcfMeta;
+	private final VcfRecordMapperSettings vcfRecordMapperSettings;
 
-	VcfRecordMapper(VcfMeta vcfMeta)
+	VcfRecordMapper(VcfMeta vcfMeta, VcfRecordMapperSettings vcfRecordMapperSettings)
 	{
 		this.vcfMeta = requireNonNull(vcfMeta);
+		this.vcfRecordMapperSettings = requireNonNull(vcfRecordMapperSettings);
 	}
 
 	public VcfRecord map(GavinRecord gavinRecord)
@@ -37,14 +39,12 @@ class VcfRecordMapper
 
 	private List<String> createTokens(GavinRecord gavinRecord)
 	{
-		VcfEntity vcfEntity = gavinRecord;
-
 		List<String> tokens = new ArrayList<>();
-		tokens.add(vcfEntity.getChromosome());
-		tokens.add(vcfEntity.getPosition()+"");
-		tokens.add(vcfEntity.getId());
-		tokens.add(vcfEntity.getRef());
-		String[] altTokens = vcfEntity.getAlts();
+		tokens.add(gavinRecord.getChromosome());
+		tokens.add(gavinRecord.getPosition() + "");
+		tokens.add(gavinRecord.getId());
+		tokens.add(gavinRecord.getRef());
+		String[] altTokens = gavinRecord.getAlts();
 		if (altTokens.length == 0)
 		{
 			tokens.add(MISSING_VALUE);
@@ -53,19 +53,21 @@ class VcfRecordMapper
 		{
 			tokens.add(stream(altTokens).collect(joining(",")));
 		}
-		String quality = vcfEntity.getQuality();
+		String quality = gavinRecord.getQuality();
 		tokens.add(quality != null ? quality : MISSING_VALUE);
-		String filterStatus = vcfEntity.getFilterStatus();
+		String filterStatus = gavinRecord.getFilterStatus();
 		tokens.add(filterStatus != null ? filterStatus : MISSING_VALUE);
 
-		tokens.add(createInfoToken(vcfEntity.getVcfEntityInformation()) + ";RLV=" + gavinRecord.getRlv());
+		tokens.add(createInfoToken(gavinRecord.getVcfEntityInformation()) + ";RLV=" + gavinRecord.getRlv());
 
-//		Iterable<VcfSample> vcfSamples = vcfEntity.getSamples();
-//		if (vcfSamples.iterator().hasNext())
-//		{
-//			tokens.add(createFormatToken(vcfEntity));
-//			vcfSamples.forEach(vcfSample -> tokens.add(createSampleToken(vcfSample)));
-//		}
+		if(vcfRecordMapperSettings.includeSamples()) {
+			Iterable<VcfSample> vcfSamples = gavinRecord.getSamples();
+			if (vcfSamples.iterator().hasNext())
+			{
+				tokens.add(createFormatToken(gavinRecord));
+				vcfSamples.forEach(vcfSample -> tokens.add(createSampleToken(vcfSample)));
+			}
+		}
 		return tokens;
 	}
 
