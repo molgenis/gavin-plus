@@ -6,7 +6,7 @@ import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
 import org.molgenis.data.annotation.makervcf.genestream.impl.PhasingCompoundCheck;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -41,12 +41,12 @@ public class PhasingCompoundCheckTest extends Setup
 	{
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
+		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
-		Iterator<RelevantVariant> gsi = gs.go();
-		Iterator<RelevantVariant> assignCompHet = new AssignCompoundHet(gsi, false).go();
+		Iterator<GavinRecord> gsi = gs.go();
+		Iterator<GavinRecord> assignCompHet = new AssignCompoundHet(gsi, false).go();
 
-		Iterator<RelevantVariant> it = new PhasingCompoundCheck(assignCompHet, true).go();
+		Iterator<GavinRecord> it = new PhasingCompoundCheck(assignCompHet, true).go();
 
 		// AIMP1
 		assertTrue(it.hasNext());

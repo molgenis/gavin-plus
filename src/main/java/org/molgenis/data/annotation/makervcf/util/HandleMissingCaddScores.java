@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
 
 import java.io.File;
@@ -38,19 +38,19 @@ public class HandleMissingCaddScores {
     }
 
 
-    public Double dealWithCaddScores(VcfEntity record, int altIndex) throws Exception {
+    public Double dealWithCaddScores(GavinRecord record, int altIndex) throws Exception {
         if(record.getCaddPhredScores(altIndex) == null)
         {
             if(mode.equals(Mode.CREATEFILEFORCADD))
             {
                 String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), record.getAlt(altIndex), "\t");
-                this.pw.println(record.getChr() + "\t" + record.getPos() + "\t" + "." + "\t" + trimmedRefAlt);
+                this.pw.println(record.getChromosome() + "\t" + record.getPosition() + "\t" + "." + "\t" + trimmedRefAlt);
                 this.pw.flush();
                 return null;
             }
             else if(mode.equals(Mode.ANALYSIS))
             {
-                String key = record.getChr() + "_" + record.getPos() + "_" + record.getRef() + "_" + record.getAlt(altIndex);
+                String key = record.getChromosome() + "_" + record.getPosition() + "_" + record.getRef() + "_" + record.getAlt(altIndex);
                 if(this.caddScores.containsKey(key))
                 {
                     return this.caddScores.get(key);
@@ -58,14 +58,14 @@ public class HandleMissingCaddScores {
                 else
                 {
                     String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), record.getAlt(altIndex), "_");
-                    key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
+                    key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
                     if(this.caddScores.containsKey(key))
                     {
                         return this.caddScores.get(key);
                     }
                     else
                     {
-                        System.out.println("[HandleMissingCaddScores] WARNING: CADD score missing for " + record.getChr() + " " + record.getPos() + " " + record.getRef() + " " + record.getAlt(altIndex) + " ! (even when using trimmed key '"+key+"')");
+                        System.out.println("[HandleMissingCaddScores] WARNING: CADD score missing for " + record.getChromosome() + " " + record.getPosition() + " " + record.getRef() + " " + record.getAlt(altIndex) + " ! (even when using trimmed key '"+key+"')");
                         return null;
                     }
                 }

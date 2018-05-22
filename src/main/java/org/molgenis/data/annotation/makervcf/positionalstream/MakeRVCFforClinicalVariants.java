@@ -1,8 +1,8 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,21 +17,21 @@ import java.util.List;
  */
 public class MakeRVCFforClinicalVariants {
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     private String rlvMetadata;
     private boolean verbose;
 
-    public MakeRVCFforClinicalVariants(Iterator<RelevantVariant> relevantVariants, String rlvMetadata, boolean verbose)
+    public MakeRVCFforClinicalVariants(Iterator<GavinRecord> relevantVariants, String rlvMetadata, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.rlvMetadata = rlvMetadata;
         this.verbose = verbose;
     }
 
-    public Iterator<RelevantVariant> addRVCFfield()
+    public Iterator<GavinRecord> addRVCFfield()
     {
 
-        return new Iterator<RelevantVariant>() {
+        return new Iterator<GavinRecord>() {
 
 
             @Override
@@ -40,16 +40,16 @@ public class MakeRVCFforClinicalVariants {
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 try {
-                    RelevantVariant relevantVariant = relevantVariants.next();
+                    GavinRecord gavinRecord = relevantVariants.next();
 
                     if(verbose) {
-                        System.out.println("[MakeRVCFforClinicalVariants] Looking at: " + relevantVariant.toString());
+                        System.out.println("[MakeRVCFforClinicalVariants] Looking at: " + gavinRecord.toString());
                     }
 
                     List<RVCF> rvcfList = new ArrayList<>();
-                    for(Relevance rlv : relevantVariant.getRelevance())
+                    for(Relevance rlv : gavinRecord.getRelevance())
                     {
                         RVCF rvcf = new RVCF();
 
@@ -81,7 +81,7 @@ public class MakeRVCFforClinicalVariants {
                         rvcfList.add(rvcf);
                     }
 
-                    relevantVariant.setRlvMetadata(rlvMetadata);
+                    gavinRecord.setRlvMetadata(rlvMetadata);
                     StringBuffer rvcfListSB = new StringBuffer();
                     for(RVCF rvcf: rvcfList)
                     {
@@ -89,13 +89,13 @@ public class MakeRVCFforClinicalVariants {
                     }
                     rvcfListSB.deleteCharAt(rvcfListSB.length()-1);
 
-                    relevantVariant.setRlv(rvcfListSB.toString());
+                    gavinRecord.setRlv(rvcfListSB.toString());
 
                     if(verbose) {
                         System.out.println("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: " + rvcfListSB.toString());
                     }
 
-                    return relevantVariant;
+                    return gavinRecord;
                 }
                 catch(Exception e)
                 {

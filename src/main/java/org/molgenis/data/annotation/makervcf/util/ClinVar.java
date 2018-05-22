@@ -28,7 +28,7 @@ public class ClinVar {
         this.posRefAltToClinVar = new HashMap<>();
         while (cvIt.hasNext())
         {
-            VcfEntity record = new VcfEntity(cvIt.next(), clinvar.getVcfMeta());
+            VcfEntity record = new VcfEntity(cvIt.next());
             for(String alt : record.getAlts())
             {
                 String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
@@ -38,7 +38,7 @@ public class ClinVar {
 //                    System.out.println("trimmed " + (record.getRef() + "_" + alt) + " to " + trimmedRefAlt);
 //                }
 
-                String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
+                String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
                 posRefAltToClinVar.put(key, record);
             }
         }
@@ -47,7 +47,7 @@ public class ClinVar {
 
     public Judgment classifyVariant(VcfEntity record, String alt, String gene, boolean overrideGeneWithClinvarGene) throws Exception {
         String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
-        String key = record.getChr() + "_" + record.getPos() + "_" + trimmedRefAlt;
+        String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
 
         if(posRefAltToClinVar.containsKey(key)) {
             // e.g.

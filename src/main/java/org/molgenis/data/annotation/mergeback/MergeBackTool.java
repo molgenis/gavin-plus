@@ -28,8 +28,8 @@ public class MergeBackTool
         Iterator<VcfRecord> vcfIterator = vcfReader.iterator();
         while(vcfIterator.hasNext())
         {
-            VcfEntity record = new VcfEntity(vcfIterator.next(), vcfReader.getVcfMeta());
-            chrPosRefAltToRLV.put(record.getChr() + "_" + record.getPos() + "_" + record.getRef() + "_" + record.getAlt(), record.getRvcf().stream().map(Object::toString).collect(Collectors.joining(",")));
+            VcfEntity record = new VcfEntity(vcfIterator.next());
+            chrPosRefAltToRLV.put(record.getChromosome() + "_" + record.getPosition() + "_" + record.getRef() + "_" + record.getAlt(), record.getRvcfFromVcfInfoField().stream().map(Object::toString).collect(Collectors.joining(",")));
         }
 
         System.out.println("chrPosRefAltToRLV = " + chrPosRefAltToRLV);

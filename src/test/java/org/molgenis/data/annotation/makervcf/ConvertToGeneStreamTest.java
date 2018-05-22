@@ -3,8 +3,7 @@ package org.molgenis.data.annotation.makervcf;
 import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MAFFilter;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -42,11 +41,11 @@ public class ConvertToGeneStreamTest extends Setup
 	public void test() throws Exception
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile1, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> it = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		Iterator<GavinRecord> it = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getPosition() + "_");
 		}
 
 		// note: the order is arbitrary to some respects, for example when 2 genes end at exactly the same position.
@@ -64,11 +63,11 @@ public class ConvertToGeneStreamTest extends Setup
 	public void test2() throws Exception
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile2, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> it = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		Iterator<GavinRecord> it = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getPosition() + "_");
 		}
 
 		// test bug where A -> A,B -> B was reversed incorrectly to 13_14_16_15_17_18

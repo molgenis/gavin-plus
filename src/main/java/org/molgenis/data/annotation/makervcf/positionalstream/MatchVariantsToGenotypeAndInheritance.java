@@ -4,9 +4,9 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.cgd.LoadCGD;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.vcf.VcfSample;
 
@@ -25,7 +25,7 @@ import static org.molgenis.cgd.CGDEntry.*;
 public class MatchVariantsToGenotypeAndInheritance
 {
 
-	Iterator<RelevantVariant> relevantVariants;
+	Iterator<GavinRecord> relevantVariants;
 	Map<String, CGDEntry> cgd;
 	int minDepth;
 	boolean verbose;
@@ -69,7 +69,7 @@ public class MatchVariantsToGenotypeAndInheritance
 		}
 	}
 
-	public MatchVariantsToGenotypeAndInheritance(Iterator<RelevantVariant> relevantVariants, File cgdFile,
+	public MatchVariantsToGenotypeAndInheritance(Iterator<GavinRecord> relevantVariants, File cgdFile,
 			Set<String> parents, boolean verbose) throws IOException
 	{
 		this.relevantVariants = relevantVariants;
@@ -79,10 +79,10 @@ public class MatchVariantsToGenotypeAndInheritance
 		this.parents = parents;
 	}
 
-	public Iterator<RelevantVariant> go()
+	public Iterator<GavinRecord> go()
 	{
 
-		return new Iterator<RelevantVariant>()
+		return new Iterator<GavinRecord>()
 		{
 
 			@Override
@@ -92,17 +92,23 @@ public class MatchVariantsToGenotypeAndInheritance
 			}
 
 			@Override
-			public RelevantVariant next()
+			public GavinRecord next()
 			{
 
-				try
-				{
-					RelevantVariant rv = relevantVariants.next();
+					GavinRecord rv = relevantVariants.next();
 
 					//key: gene, alt allele
-					MultiKeyMap fullGenoMatch = findMatchingSamples(rv);
+				MultiKeyMap fullGenoMatch = null;
+				try
+				{
+					fullGenoMatch = findMatchingSamples(rv);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 
-					for (Relevance rlv : rv.getRelevance())
+				for (Relevance rlv : rv.getRelevance())
 					{
 
 						String gene = rlv.getGene();
@@ -132,12 +138,12 @@ public class MatchVariantsToGenotypeAndInheritance
 							for (String key : genoMatch.affected.keySet())
 							{
 								sampleStatus.put(key, actingTerminology);
-								sampleGenotypes.put(key, getSampleFieldValue(genoMatch.affected.get(key), rv.getVariant(), "GT"));
+								sampleGenotypes.put(key, getSampleFieldValue(genoMatch.affected.get(key), rv, "GT"));
 							}
 							for (String key : genoMatch.carriers.keySet())
 							{
 								sampleStatus.put(key, nonActingTerminology);
-								sampleGenotypes.put(key, getSampleFieldValue(genoMatch.carriers.get(key), rv.getVariant(), "GT"));
+								sampleGenotypes.put(key, getSampleFieldValue(genoMatch.carriers.get(key), rv, "GT"));
 							}
 						}
 
@@ -156,12 +162,6 @@ public class MatchVariantsToGenotypeAndInheritance
 						}
 					}
 					return rv;
-				}
-				catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
-
 			}
 		};
 	}
@@ -169,9 +169,9 @@ public class MatchVariantsToGenotypeAndInheritance
 	/**
 	 *
 	 */
-	public MultiKeyMap findMatchingSamples(RelevantVariant rv) throws Exception
+	public MultiKeyMap findMatchingSamples(GavinRecord rv) throws Exception
 	{
-		VcfEntity record = rv.getVariant();
+		VcfEntity record = rv;
 		Set<String> alts = rv.getRelevantAlts();
 		Set<String> genes = rv.getRelevantGenes();
 
@@ -223,7 +223,7 @@ public class MatchVariantsToGenotypeAndInheritance
 			//now that everything is okay, we can match to inheritance mode for each alt
 			for (String alt : alts)
 			{
-				int altIndex = VcfEntity.getAltAlleleIndex(record, alt);
+				int altIndex = record.getAltAlleleIndex(alt);
 
 				//and each gene
 				for (String gene : genes)

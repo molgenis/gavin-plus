@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.genestream.core;
 
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.*;
 
@@ -13,11 +13,11 @@ import java.util.*;
  */
 public class ConvertToGeneStream {
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     private ArrayList<Integer> positionalOrder;
     private boolean verbose;
 
-    public ConvertToGeneStream(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public ConvertToGeneStream(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.positionalOrder = new ArrayList<>();
@@ -28,19 +28,19 @@ public class ConvertToGeneStream {
         return positionalOrder;
     }
 
-    public Iterator<RelevantVariant> go()
+    public Iterator<GavinRecord> go()
     {
 
-        return new Iterator<RelevantVariant>(){
+        return new Iterator<GavinRecord>(){
 
             // the next result as prepared by hasNext() and outputted by next()
-            RelevantVariant nextResult;
+            GavinRecord nextResult;
 
             // result iterators that become active once one or more genes end and output nextResult
-            LinkedHashMap<String, Iterator<RelevantVariant>> resultBatches;
+            LinkedHashMap<String, Iterator<GavinRecord>> resultBatches;
 
             // variantBuffer with genes and variants that lags behind the input and gets turned into result batches
-            HashMap<String, List<RelevantVariant>> variantBuffer = new HashMap<>();
+            HashMap<String, List<GavinRecord>> variantBuffer = new HashMap<>();
 
             // set of genes seen for variant in previous iteration
             Set<String> underlyingGenesForPreviousVariant = new HashSet<>();
@@ -53,7 +53,7 @@ public class ConvertToGeneStream {
             @Override
             public boolean hasNext() {
 
-                RelevantVariant nextFromResultBatches = getNextFromResultBatches(resultBatches, positionCheck);
+                GavinRecord nextFromResultBatches = getNextFromResultBatches(resultBatches, positionCheck);
                 if(nextFromResultBatches != null)
                 {
                     if(verbose){System.out.println("[ConvertToGeneStream] Flushing next variant: " + nextFromResultBatches.toStringShort()); }
@@ -74,17 +74,17 @@ public class ConvertToGeneStream {
                             for(String gene : resultBatches.keySet())
                             {
                                 ArrayList<String> removeVariantsByPosition = new ArrayList<>(variantBuffer.get(gene).size());
-                                for(RelevantVariant rv : variantBuffer.get(gene))
+                                for(GavinRecord rv : variantBuffer.get(gene))
                                 {
-                                    removeVariantsByPosition.add(rv.getVariant().getChrPosRefAlt());
+                                    removeVariantsByPosition.add(rv.getChrPosRefAlt());
                                 }
                                 for(String geneInBuffer : variantBuffer.keySet())
                                 {
 
-                                    Iterator<RelevantVariant> it = variantBuffer.get(geneInBuffer).iterator();
+                                    Iterator<GavinRecord> it = variantBuffer.get(geneInBuffer).iterator();
                                     while (it.hasNext()) {
-                                        RelevantVariant rlvToCheck = it.next();
-                                        if(removeVariantsByPosition.contains(rlvToCheck.getVariant().getChrPosRefAlt()))
+                                        GavinRecord rlvToCheck = it.next();
+                                        if(removeVariantsByPosition.contains(rlvToCheck.getChrPosRefAlt()))
                                         {
                                             it.remove();
                                         }
@@ -97,10 +97,10 @@ public class ConvertToGeneStream {
                         }
 
                         // get variant, store position, and get underlying genes
-                        RelevantVariant rv = relevantVariants.next();
-                        int pos = rv.getVariant().getPos();
+                        GavinRecord rv = relevantVariants.next();
+                        int pos = rv.getPosition();
                         positionalOrder.add(pos);
-                        Set<String> underlyingGenesForCurrentVariant = rv.getVariant().getGenes();
+                        Set<String> underlyingGenesForCurrentVariant = rv.getGenes();
 
                         if(verbose){System.out.println("[ConvertToGeneStream] Assessing next variant: " +rv.toStringShort() );}
 
@@ -112,7 +112,7 @@ public class ConvertToGeneStream {
                             {
                                 if(rlv.getGene().equals(gene))
                                 {
-                                    List< RelevantVariant> variants = variantBuffer.get(gene);
+                                    List<GavinRecord> variants = variantBuffer.get(gene);
                                     if(variants == null) {
                                         variants = new ArrayList<>();
                                     }
@@ -135,7 +135,7 @@ public class ConvertToGeneStream {
                             if (!underlyingGenesForCurrentVariant.contains(gene) && variantBuffer.get(gene) != null && variantBuffer.get(gene).size() > 0 )
                             {
                                 if(verbose){System.out.println("[ConvertToGeneStream] Gene " + gene + " ended, creating result batch. Putting " + variantBuffer.get(gene).size() + " variants in output batch");}
-                                List< RelevantVariant> variants = variantBuffer.get(gene);
+                                List<GavinRecord> variants = variantBuffer.get(gene);
                                 resultBatches.put(gene, variants.iterator());
                             }
                         }
@@ -162,7 +162,7 @@ public class ConvertToGeneStream {
                     for(String gene : variantBuffer.keySet())
                     {
                         if(variantBuffer.get(gene).size() > 0){
-                            List< RelevantVariant> variants = variantBuffer.get(gene);
+                            List<GavinRecord> variants = variantBuffer.get(gene);
                             resultBatches.put(gene, variants.iterator());
                         }
                     }
@@ -180,7 +180,7 @@ public class ConvertToGeneStream {
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 return nextResult;
             }
         };
@@ -193,7 +193,7 @@ public class ConvertToGeneStream {
      * @param resultBatches
      * @return
      */
-    private RelevantVariant getNextFromResultBatches(LinkedHashMap<String, Iterator<RelevantVariant>> resultBatches, List<String> positionAltsAlreadyReturned) {
+    private GavinRecord getNextFromResultBatches(LinkedHashMap<String, Iterator<GavinRecord>> resultBatches, List<String> positionAltsAlreadyReturned) {
         if(resultBatches == null)
         {
             return null;
@@ -203,11 +203,11 @@ public class ConvertToGeneStream {
         {
             while(resultBatches.get(gene).hasNext())
             {
-                RelevantVariant next = resultBatches.get(gene).next();
-                if(!positionAltsAlreadyReturned.contains(next.getVariant().getChrPosRefAlt()))
+                GavinRecord next = resultBatches.get(gene).next();
+                if(!positionAltsAlreadyReturned.contains(next.getChrPosRefAlt()))
                 {
-                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned + " does not contain " + next.getVariant().getChrPosRefAlt() + ", so we output it");}
-                    positionAltsAlreadyReturned.add(next.getVariant().getChrPosRefAlt());
+                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned + " does not contain " + next.getChrPosRefAlt() + ", so we output it");}
+                    positionAltsAlreadyReturned.add(next.getChrPosRefAlt());
                     return next;
                 }
             }

@@ -1,12 +1,6 @@
 package org.molgenis.data.annotation.makervcf;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MakeRVCFforClinicalVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
-import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -86,7 +80,7 @@ public class WriteToRVCFTest extends Setup
 	public void test() throws Exception
 	{
 /*		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
+		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
 		Iterator<Entity> it = new MakeRVCFforClinicalVariants(match, Pipeline.RLV, false).addRVCFfield();
 
 		List<AttributeMetaData> attributes = Lists.newArrayList(discover.getVcfMeta().getAttributes());

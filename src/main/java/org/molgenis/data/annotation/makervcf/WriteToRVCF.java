@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfWriter;
 import org.molgenis.vcf.VcfWriterFactory;
@@ -17,7 +17,7 @@ import java.util.*;
  */
 class WriteToRVCF
 {
-	void writeRVCF(Iterator<RelevantVariant> relevantVariants, File writeTo, File inputVcfFile, boolean writeToDisk,
+	void writeRVCF(Iterator<GavinRecord> relevantVariants, File writeTo, File inputVcfFile, boolean writeToDisk,
 			boolean verbose) throws Exception
 	{
 		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile);
@@ -31,14 +31,14 @@ class WriteToRVCF
 			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta);
 			while (relevantVariants.hasNext())
 			{
-				RelevantVariant relevantVariant = relevantVariants.next();
+				GavinRecord gavinRecord = relevantVariants.next();
 				if (writeToDisk)
 				{
 					if (verbose)
 					{
 						System.out.println("[WriteToRVCF] Writing VCF record");
 					}
-					vcfWriter.write(vcfRecordMapper.map(relevantVariant));
+					vcfWriter.write(vcfRecordMapper.map(gavinRecord));
 				}
 			}
 		}
