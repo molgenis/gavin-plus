@@ -2,6 +2,7 @@ package org.molgenis.calibratecadd.support;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
@@ -17,8 +18,8 @@ import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
-import static org.apache.commons.codec.Charsets.UTF_8;
 
 public class GavinUtils
 {
