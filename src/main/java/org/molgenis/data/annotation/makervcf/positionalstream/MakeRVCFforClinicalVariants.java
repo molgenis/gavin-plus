@@ -18,13 +18,11 @@ import java.util.List;
 public class MakeRVCFforClinicalVariants {
 
     private Iterator<GavinRecord> relevantVariants;
-    private String rlvMetadata;
     private boolean verbose;
 
-    public MakeRVCFforClinicalVariants(Iterator<GavinRecord> relevantVariants, String rlvMetadata, boolean verbose)
+    public MakeRVCFforClinicalVariants(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
-        this.rlvMetadata = rlvMetadata;
         this.verbose = verbose;
     }
 
@@ -81,7 +79,6 @@ public class MakeRVCFforClinicalVariants {
                         rvcfList.add(rvcf);
                     }
 
-                    gavinRecord.setRlvMetadata(rlvMetadata);
                     StringBuffer rvcfListSB = new StringBuffer();
                     for(RVCF rvcf: rvcfList)
                     {

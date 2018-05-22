@@ -3,19 +3,23 @@ package org.molgenis.data.annotation.makervcf.structs;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.vcf.VcfRecord;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 public class GavinRecord extends VcfEntity
 {
 	public static final String CADD_SCALED = "CADD_SCALED";
 	public static final String ANN = "ANN";
 
-	List<Relevance> relevance;
-	private String rlvMetadata;
-	private String rlv;
-	private Set<String> genes; //any associated genes, not in any given order
+	private List<Relevance> relevances;
+	/**
+	 * Any associated genes
+	 */
+	private Set<String> genes;
+	private String rlvVcfValue; // TODO generate from relevance list (see MakeRVCFforClinicalVariants)
 	private Double[] caddPhredScores;
 
 	public GavinRecord(VcfRecord record)
@@ -23,15 +27,15 @@ public class GavinRecord extends VcfEntity
 		this(record, null);
 	}
 
-	public GavinRecord(VcfRecord record, List<Relevance> relevance)
+	public GavinRecord(VcfRecord record, List<Relevance> relevances)
 	{
 		super(record);
-		this.relevance = relevance;
+		this.relevances = relevances;
 		this.genes = GavinUtils.getGenesFromAnn(GavinUtils.getInfoStringValue(record, ANN));
 		this.caddPhredScores = getAltAlleleOrderedDoubleField(CADD_SCALED);
 	}
 
-	public Double[] getCaddPhredScores()
+	private Double[] getCaddPhredScores()
 	{
 		return caddPhredScores;
 	}
@@ -49,9 +53,7 @@ public class GavinRecord extends VcfEntity
 	public void setGenes(String gene)
 	{
 		//FIXME: shouldn't this update the genes field in the info
-		Set<String> genes = new HashSet<>();
-		genes.add(gene);
-		this.genes = genes;
+		this.genes = Collections.singleton(gene);
 	}
 
 	public void setGenes(Set<String> genes)
@@ -60,52 +62,33 @@ public class GavinRecord extends VcfEntity
 		this.genes = genes;
 	}
 
-	public void setCaddPhredScore(int i, Double setMe)
+	public void setCaddPhredScore(int i, Double phredScore)
 	{
 		//FIXME: shouldn't this update the CADD field in the info
-		this.caddPhredScores[i] = setMe;
+		this.caddPhredScores[i] = phredScore;
 	}
 
 	/**
 	 * Helper function to group all genes of relevance
-	 *
-	 * @return
 	 */
 	public Set<String> getRelevantGenes()
 	{
-		HashSet res = new HashSet<>();
-		for (Relevance rlv : this.relevance)
-		{
-			res.add(rlv.getGene());
-		}
-		return res;
+		return relevances.stream().map(Relevance::getGene).collect(toSet());
 	}
 
 	public Set<String> getRelevantAlts()
 	{
-		HashSet res = new HashSet<>();
-		for (Relevance rlv : this.relevance)
-		{
-			res.add(rlv.getAllele());
-		}
-		return res;
+		return relevances.stream().map(Relevance::getAllele).collect(toSet());
 	}
 
 	public List<Relevance> getRelevance()
 	{
-		return relevance;
+		return relevances;
 	}
 
 	public Relevance getRelevanceForGene(String gene)
 	{
-		for (Relevance rlv : relevance)
-		{
-			if (rlv.getGene().equals(gene))
-			{
-				return rlv;
-			}
-		}
-		return null;
+		return relevances.stream().filter(relevance -> relevance.getGene().equals(gene)).findFirst().orElse(null);
 	}
 
 	public String toStringShort()
@@ -113,18 +96,13 @@ public class GavinRecord extends VcfEntity
 		return getChromosome() + " " + getPosition() + " " + getRef() + " " + getAltString();
 	}
 
-	public void setRlvMetadata(String rlvMetadata)
-	{
-		this.rlvMetadata = rlvMetadata;
-	}
-
 	public void setRlv(String rlv)
 	{
-		this.rlv = rlv;
+		this.rlvVcfValue = rlv;
 	}
 
 	public String getRlv()
 	{
-		return rlv;
+		return rlvVcfValue;
 	}
 }

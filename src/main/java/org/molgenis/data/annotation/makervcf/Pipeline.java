@@ -63,7 +63,7 @@ public class Pipeline
 		Iterator<GavinRecord> rv10 = new CleanupVariantsWithoutSamples(rv9, verbose).go();
 
 		//write convert RVCF records to Entity
-		Iterator<GavinRecord> rve = new MakeRVCFforClinicalVariants(rv10, "rlvMetadata", verbose).addRVCFfield();
+		Iterator<GavinRecord> rve = new MakeRVCFforClinicalVariants(rv10, verbose).addRVCFfield();
 
 		//write Entities output VCF file
 		new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile,true, verbose);
