@@ -7,15 +7,14 @@ import org.molgenis.cgd.LoadCGD;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
-import org.molgenis.vcf.VcfRecordUtils;
+import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
 import org.molgenis.vcf.VcfSample;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static org.molgenis.cgd.CGDEntry.*;
+import static org.molgenis.cgd.CGDEntry.generalizedInheritance;
 
 /**
  * Created by joeri on 6/1/16.
@@ -96,9 +95,9 @@ public class MatchVariantsToGenotypeAndInheritance
 			public GavinRecord next()
 			{
 
-					GavinRecord rv = relevantVariants.next();
+				GavinRecord rv = relevantVariants.next();
 
-					//key: gene, alt allele
+				//key: gene, alt allele
 				MultiKeyMap fullGenoMatch = null;
 				try
 				{
@@ -110,59 +109,58 @@ public class MatchVariantsToGenotypeAndInheritance
 				}
 
 				for (Relevance rlv : rv.getRelevance())
+				{
+
+					String gene = rlv.getGene();
+
+					CGDEntry ce = cgd.get(gene);
+					rlv.setCgdInfo(ce);
+
+					status actingTerminology = status.HOMOZYGOUS;
+					status nonActingTerminology = status.HETEROZYGOUS;
+
+					// regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
+					// females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
+					if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(
+							cgd.get(gene).getGeneralizedInheritance())))
 					{
+						actingTerminology = status.AFFECTED;
+						nonActingTerminology = status.CARRIER;
+					}
 
-						String gene = rlv.getGene();
+					Map<String, status> sampleStatus = new HashMap<>();
+					Map<String, String> sampleGenotypes = new HashMap<>();
+					GenoMatchSamples genoMatch = (GenoMatchSamples) fullGenoMatch.get(rlv.getGene(), rlv.getAllele());
 
-						CGDEntry ce = cgd.get(gene);
-						rlv.setCgdInfo(ce);
-
-						status actingTerminology = status.HOMOZYGOUS;
-						status nonActingTerminology = status.HETEROZYGOUS;
-
-						// regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
-						// females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
-						if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(
-								cgd.get(gene).getGeneralizedInheritance())))
+					if (genoMatch != null)
+					{
+						for (String key : genoMatch.affected.keySet())
 						{
-							actingTerminology = status.AFFECTED;
-							nonActingTerminology = status.CARRIER;
+							sampleStatus.put(key, actingTerminology);
+							sampleGenotypes.put(key, rv.getSampleFieldValue(genoMatch.affected.get(key), "GT"));
 						}
-
-						Map<String, status> sampleStatus = new HashMap<>();
-						Map<String, String> sampleGenotypes = new HashMap<>();
-						GenoMatchSamples genoMatch = (GenoMatchSamples) fullGenoMatch.get(rlv.getGene(),
-								rlv.getAllele());
-
-						if (genoMatch != null)
+						for (String key : genoMatch.carriers.keySet())
 						{
-							for (String key : genoMatch.affected.keySet())
-							{
-								sampleStatus.put(key, actingTerminology);
-								sampleGenotypes.put(key, getSampleFieldValue(genoMatch.affected.get(key), rv, "GT"));
-							}
-							for (String key : genoMatch.carriers.keySet())
-							{
-								sampleStatus.put(key, nonActingTerminology);
-								sampleGenotypes.put(key, getSampleFieldValue(genoMatch.carriers.get(key), rv, "GT"));
-							}
-						}
-
-						if (!sampleStatus.isEmpty())
-						{
-							rlv.setSampleStatus(sampleStatus);
-							rlv.setSampleGenotypes(sampleGenotypes);
-							rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
-							if (verbose)
-							{
-								System.out.println("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: "
-										+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
-										+ ", plus trio parents with reference alleles: "
-										+ genoMatch.parentsWithReferenceCalls.toString());
-							}
+							sampleStatus.put(key, nonActingTerminology);
+							sampleGenotypes.put(key, rv.getSampleFieldValue(genoMatch.carriers.get(key), "GT"));
 						}
 					}
-					return rv;
+
+					if (!sampleStatus.isEmpty())
+					{
+						rlv.setSampleStatus(sampleStatus);
+						rlv.setSampleGenotypes(sampleGenotypes);
+						rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
+						if (verbose)
+						{
+							System.out.println("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: "
+									+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
+									+ ", plus trio parents with reference alleles: "
+									+ genoMatch.parentsWithReferenceCalls.toString());
+						}
+					}
+				}
+				return rv;
 			}
 		};
 	}
@@ -170,11 +168,10 @@ public class MatchVariantsToGenotypeAndInheritance
 	/**
 	 *
 	 */
-	public MultiKeyMap findMatchingSamples(GavinRecord rv) throws Exception
+	public MultiKeyMap findMatchingSamples(GavinRecord record) throws Exception
 	{
-		AnnotatedVcfRecord record = rv;
-		Set<String> alts = rv.getRelevantAlts();
-		Set<String> genes = rv.getRelevantGenes();
+		Set<String> alts = RelevanceUtils.getRelevantAlts(record.getRelevance());
+		Set<String> genes = RelevanceUtils.getRelevantGenes(record.getRelevance());
 
 		MultiKeyMap result = new MultiKeyMap();
 
@@ -187,18 +184,18 @@ public class MatchVariantsToGenotypeAndInheritance
 			sampleIndex++;
 			VcfSample sample = samples.next().createClone();
 
-			if (getSampleFieldValue(sample, record, "GT") == null)
+			if (record.getSampleFieldValue(sample, "GT") == null)
 			{
 				continue;
 			}
 
-			String genotype = getSampleFieldValue(sample, record, "GT");
+			String genotype = record.getSampleFieldValue(sample, "GT");
 			String sampleName = record.getVcfMeta().getSampleName(sampleIndex);//FIXME verify that this is correct
 
 			// quality filter: we want depth X or more, if available
-			if (getSampleFieldValue(sample, record, "DP") != null)
+			if (record.getSampleFieldValue(sample, "DP") != null)
 			{
-				int depthOfCoverage = Integer.parseInt(getSampleFieldValue(sample, record, "DP"));
+				int depthOfCoverage = Integer.parseInt(record.getSampleFieldValue(sample, "DP"));
 				if (depthOfCoverage < minDepth)
 				{
 					continue;
@@ -224,7 +221,7 @@ public class MatchVariantsToGenotypeAndInheritance
 			//now that everything is okay, we can match to inheritance mode for each alt
 			for (String alt : alts)
 			{
-				int altIndex = VcfRecordUtils.getAltAlleleIndex(record, alt);
+				int altIndex = record.getAltAlleleIndex(alt);
 
 				//and each gene
 				for (String gene : genes)
@@ -314,17 +311,4 @@ public class MatchVariantsToGenotypeAndInheritance
 
 		return result;
 	}
-
-	//FIXME: move method to appropriate class, which one? VcfEntity? GavinUtils? new utils class?
-	private String getSampleFieldValue(VcfSample sample, AnnotatedVcfRecord vcfEntity, String field)
-	{
-		String[] format = vcfEntity.getFormat();
-		for (int i = 0; i < format.length; i++) {
-			if(format[i].equals(field)){
-				return sample.getData(i);
-			}
-		}
-		return null;
-	}
-
 }

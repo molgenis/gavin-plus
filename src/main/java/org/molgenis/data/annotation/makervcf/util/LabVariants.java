@@ -3,6 +3,7 @@ package org.molgenis.data.annotation.makervcf.util;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
@@ -41,8 +42,8 @@ public class LabVariants {
     }
 
 
-    public Judgment classifyVariant(AnnotatedVcfRecord record, String alt, String gene) throws Exception {
-        String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(VcfRecordUtils.getRef(record), alt, "_");
+    public Judgment classifyVariant(GavinRecord record, String alt, String gene) throws Exception {
+        String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
         String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
 
         if(posRefAltToLabVariant.containsKey(key)) {

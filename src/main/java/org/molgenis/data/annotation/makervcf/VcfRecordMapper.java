@@ -1,18 +1,21 @@
 package org.molgenis.data.annotation.makervcf;
 
-import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
+import com.google.common.collect.Iterables;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
+import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
-import org.molgenis.vcf.VcfRecordUtils;
 import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.stream;
+import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
@@ -38,14 +41,15 @@ class VcfRecordMapper
 		return new VcfRecord(vcfMeta, tokens.toArray(new String[0]));
 	}
 
+	// TODO ask JvdV write cadd phred scores and genes from gavin record or from source vcf?
 	private List<String> createTokens(GavinRecord gavinRecord)
 	{
 		List<String> tokens = new ArrayList<>();
 		tokens.add(gavinRecord.getChromosome());
 		tokens.add(gavinRecord.getPosition() + "");
-		tokens.add(VcfRecordUtils.getId(gavinRecord));
-		tokens.add(VcfRecordUtils.getRef(gavinRecord));
-		String[] altTokens = VcfRecordUtils.getAlts(gavinRecord);
+		tokens.add(gavinRecord.getId());
+		tokens.add(gavinRecord.getRef());
+		String[] altTokens = gavinRecord.getAlts();
 		if (altTokens.length == 0)
 		{
 			tokens.add(MISSING_VALUE);
@@ -54,18 +58,21 @@ class VcfRecordMapper
 		{
 			tokens.add(stream(altTokens).collect(joining(",")));
 		}
-		String quality = gavinRecord.getQuality();
+
+		AnnotatedVcfRecord annotatedVcfRecord = gavinRecord.getAnnotatedVcfRecord();
+		String quality = annotatedVcfRecord.getQuality();
 		tokens.add(quality != null ? quality : MISSING_VALUE);
-		String filterStatus = gavinRecord.getFilterStatus();
+		String filterStatus = annotatedVcfRecord.getFilterStatus();
 		tokens.add(filterStatus != null ? filterStatus : MISSING_VALUE);
 
-		tokens.add(createInfoToken(gavinRecord.getVcfEntityInformation()) + ";RLV=" + gavinRecord.getRlv());
+		tokens.add(createInfoToken(getVcfEntityInformation(annotatedVcfRecord)) + ";RLV=" + gavinRecord.getRlv());
 
-		if(vcfRecordMapperSettings.includeSamples()) {
+		if (vcfRecordMapperSettings.includeSamples())
+		{
 			Iterable<VcfSample> vcfSamples = gavinRecord.getSamples();
 			if (vcfSamples.iterator().hasNext())
 			{
-				tokens.add(createFormatToken(gavinRecord));
+				tokens.add(createFormatToken(annotatedVcfRecord));
 				vcfSamples.forEach(vcfSample -> tokens.add(createSampleToken(vcfSample)));
 			}
 		}
@@ -164,5 +171,28 @@ class VcfRecordMapper
 			}
 		}
 		return stringBuilder.toString();
+	}
+
+
+
+	// TODO refactor code such that method is removed
+	public Iterable<VcfInfo> getVcfEntityInformation(AnnotatedVcfRecord annotatedVcfRecord)
+	{
+		List<RVCF> rvcf;
+		rvcf = annotatedVcfRecord.getRvcf();
+
+		Iterable<VcfInfo> rvcfInformation;
+		if (rvcf == null)
+		{
+			rvcfInformation = annotatedVcfRecord.getInformation();
+		}
+		else
+		{
+			String key = "RLV";
+			String value = rvcf.stream().map(RVCF::toString).collect(Collectors.joining(","));
+			VcfInfo rlvVcfInfo = new VcfInfo(annotatedVcfRecord.getVcfMeta(), key, value);
+			rvcfInformation = Iterables.concat(annotatedVcfRecord.getInformation(), singleton(rlvVcfInfo));
+		}
+		return rvcfInformation;
 	}
 }

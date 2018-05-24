@@ -67,7 +67,7 @@ public class CaddWebserviceOutputAnnotator
 		while(vcfIterator.hasNext())
 		{
 			GavinRecord vcfEntity = new GavinRecord(vcfIterator.next());
-			for(int altIndex = 0; altIndex < VcfRecordUtils.getAlts(vcfEntity).length; altIndex++)
+			for(int altIndex = 0; altIndex < vcfEntity.getAlts().length; altIndex++)
 			{
 				if(vcfEntity.getCaddPhredScores(altIndex) == null){
 					Double cadd = hmcs.dealWithCaddScores(vcfEntity, altIndex);

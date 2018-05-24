@@ -76,7 +76,7 @@ public class PhasingCompoundCheck extends GeneStream{
                 {
                     continue;
                 }
-                char affectedIndex = Character.forDigit(VcfRecordUtils.getAltIndex(rv, rlv.getAllele()), 10);
+                char affectedIndex = Character.forDigit(rv.getAltIndex(rlv.getAllele()), 10);
                 for(String sample : rlv.getSampleStatus().keySet())
                 {
                     if(samplesWithUnphasedVariants.contains(sample))

@@ -5,6 +5,7 @@ import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Benign;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Pathogenic;
@@ -43,7 +44,7 @@ public class GavinAlgorithm
 	 * @return
 	 */
 	public Judgment classifyVariant(Impact impact, Double caddScaled, Double exacMAF, String gene,
-			HashMap<String, GavinEntry> geneToEntry) {
+			Map<String, GavinEntry> geneToEntry) {
 		Double pathoMAFThreshold, meanPathogenicCADDScore, meanPopulationCADDScore, spec95thPerCADDThreshold, sens95thPerCADDThreshold = null;
 		Category category = null;
 

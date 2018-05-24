@@ -1,7 +1,5 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import com.google.common.collect.Iterables;
-import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
@@ -12,10 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 
 /**
  * {@link VcfRecord} annotated with SnpEff, CADD (as much as possible), ExAC, GoNL and 1000G.
@@ -35,15 +31,15 @@ public class AnnotatedVcfRecord extends VcfRecord
 		super(record.getVcfMeta(), record.getTokens());
 	}
 
-	public double getExAcAlleleFrequencies(int i)
+	double getExAcAlleleFrequencies(int i)
 	{
-		Double[] alleleFrequencies = getAltAlleleOrderedDoubleField(EXAC_AF);
+		Double[] alleleFrequencies = VcfRecordUtils.getAltAlleleOrderedDoubleField(this, EXAC_AF);
 		return alleleFrequencies[i] != null ? alleleFrequencies[i] : 0;
 	}
 
-	public double getGoNlAlleleFrequencies(int i)
+	double getGoNlAlleleFrequencies(int i)
 	{
-		Double[] alleleFrequencies = getAltAlleleOrderedDoubleField(GO_NL_AF);
+		Double[] alleleFrequencies = VcfRecordUtils.getAltAlleleOrderedDoubleField(this, GO_NL_AF);
 		return alleleFrequencies[i] != null ? alleleFrequencies[i] : 0;
 	}
 
@@ -54,7 +50,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal()).orElse("");
 	}
 
-	public Set<String> getGenesFromAnn()
+	Set<String> getGenesFromAnn()
 	{
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(ANN, this);
 		return optionalVcfInfo.map(vcfInfo ->
@@ -75,20 +71,20 @@ public class AnnotatedVcfRecord extends VcfRecord
 
 	// TODO return Optional<Impact> instead of Impact
 	@Nullable
-	public Impact getImpact(int i, String gene)
+	Impact getImpact(int i, String gene)
 	{
 		String allele = VcfRecordUtils.getAltsAsStringArray(this)[i];
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(ANN, this);
-		return optionalVcfInfo.map(vcfInfo -> GavinUtils.getImpact(vcfInfo.getValRaw(), gene, allele)).orElse(null);
+		return optionalVcfInfo.map(vcfInfo -> getImpact(vcfInfo.getValRaw(), gene, allele)).orElse(null);
 	}
 
 	// TODO return Optional<String> instead of String
 	@Nullable
-	public String getTranscript(int i, String gene)
+	String getTranscript(int i, String gene)
 	{
 		String allele = VcfRecordUtils.getAltsAsStringArray(this)[i];
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(ANN, this);
-		return optionalVcfInfo.map(vcfInfo -> GavinUtils.getTranscript(vcfInfo.getValRaw(), gene, allele)).orElse(null);
+		return optionalVcfInfo.map(vcfInfo -> getTranscript(vcfInfo.getValRaw(), gene, allele)).orElse(null);
 	}
 
 	// TODO return empty list instead of null
@@ -99,16 +95,12 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return optionalVcfInfo.map(RVCF::fromVcfInfo).orElse(null);
 	}
 
-	public Double[] getCaddPhredScores()
+	/**
+	 * @return phred scores (can contain null values)
+	 */
+	Double[] getCaddPhredScores()
 	{
-		return getAltAlleleOrderedDoubleField(CADD_SCALED);
-	}
-
-	// TODO do not return null, same as getExAcAlleleFrequencies/getGoNlAlleleFrequencies
-	@Nullable
-	public Double getCaddPhredScores(int i)
-	{
-		return getCaddPhredScores()[i];
+		return VcfRecordUtils.getAltAlleleOrderedDoubleField(this, CADD_SCALED);
 	}
 
 	@Nullable
@@ -118,61 +110,64 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal()).orElse(null);
 	}
 
-	private Double[] getAltAlleleOrderedDoubleField(String fieldName)
+	private static Impact getImpact(String ann, String gene, String allele)
 	{
-		Double[] res = new Double[VcfRecordUtils.getAltsAsStringArray(this).length];
-		if (GavinUtils.getInfoStringValue(this, fieldName) == null)
+		//get the right annotation entry that matches both gene and allele
+		String findAnn = getAnn(ann, gene, allele);
+		if (findAnn == null)
 		{
-			//the entire field is not present
-			return res;
-		}
-		String[] split =
-				GavinUtils.getInfoStringValue(this, fieldName) == null ? null : GavinUtils.getInfoStringValue(this,
-						fieldName).split(",", -1);
-		if (split != null)
-		{
-			if (split.length != VcfRecordUtils.getAltsAsStringArray(this).length)
-			{
-				//todo what is happening? loading back RVCF file:
-				//Exception in thread "main" java.lang.Exception: CADD_SCALED split length not equal to alt allele split length for record vcf=[#CHROM=1,ALT=TG,C,POS=1116188,REF=CG,FILTER=PASS,QUAL=100.0,ID=rs367560627,INTERNAL_ID=RNWUDmMnfJqUyWdP6mlXlA,INFO={#CHROM_vcf=null,ALT_vcf=null,POS_vcf=null,REF_vcf=null,FILTER_vcf=null,QUAL_vcf=null,ID_vcf=null,INTERNAL_ID_vcf=null,CIEND=null,CIPOS=null,CS=null,END=null,IMPRECISE=false,MC=null,MEINFO=null,MEND=null,MLEN=null,MSTART=null,SVLEN=null,SVTYPE=null,TSD=null,AC=3,13,AF=5.99042E-4,0.00259585,NS=2504,AN=5008,LEN=null,TYPE=null,OLD_VARIANT=null,VT=null,EAS_AF=0.0,0.0129,EUR_AF=0.0,0.0,AFR_AF=0.0023,0.0,AMR_AF=0.0,0.0,SAS_AF=0.0,0.0,DP=6911,AA=null,ANN=C|frameshift_variant|HIGH|TTLL10|TTLL10|transcript|NM_001130045.1|protein_coding|8/16|c.706delG|p.Ala236fs|857/2259|706/2022|236/673||INFO_REALIGN_3_PRIME,TG|missense_variant|MODERATE|TTLL10|TTLL10|transcript|NM_001130045.1|protein_coding|8/16|c.703C>T|p.Arg235Trp|854/2259|703/2022|235/673||,LOF=(TTLL10|TTLL10|1|1.00),NMD=null,EXAC_AF=3.148E-4,0.001425,EXAC_AC_HOM=0,1,EXAC_AC_HET=31,145,GoNL_GTC=null,GoNL_AF=null,CADD=3.339984,CADD_SCALED=22.9,RLV=TG|3.148E-4|TTLL10|NM_001130045.1||||||NA19346:HOMOZYGOUS_COMPOUNDHET/NA19454:HETEROZYGOUS/HG03130:HETEROZYGOUS||NA19346:0p1/NA19454:0p1/HG03130:1p0||Predicted pathogenic|GAVIN|Variant MAF of 3.148E-4 is rare enough to be potentially pathogenic and its CADD score of 22.9 is greater than a global threshold of 15.||},SAMPLES_ENTITIES=org.molgenis.data.vcf.format.VcfToEntity$1@7f416310]
-				throw new RuntimeException(
-						fieldName + " split length " + split.length + " of string '" + GavinUtils.getInfoStringValue(
-								this, fieldName) + "' not equal to alt allele split length "
-								+ VcfRecordUtils.getAltsAsStringArray(this).length + " for record " + this.toString());
-				//   System.out.println("WARNING: fieldName split length not equal to alt allele split length for record " + record.toString());
-			}
-			for (int i = 0; i < split.length; i++)
-			{
-				res[i] = (split[i] != null && !split[i].isEmpty() && !split[i].equals(".")) ? Double.parseDouble(
-						split[i]) : null;
-			}
+			System.out.println(
+					"WARNING: failed to get impact for gene '" + gene + "', allele '" + allele + "' in " + ann);
+			return null;
 		}
 		else
 		{
-			throw new RuntimeException(fieldName + " split is null");
+			//from the right one, get the impact
+			String[] fields = findAnn.split("\\|", -1);
+			String impact = fields[2];
+			return Impact.valueOf(impact);
 		}
-
-		return res;
 	}
 
-	// TODO refactor code such that method is removed
-	public Iterable<VcfInfo> getVcfEntityInformation()
+	private static String getTranscript(String ann, String gene, String allele)
 	{
-		List<RVCF> rvcf;
-		rvcf = getRvcf();
-
-		Iterable<VcfInfo> rvcfInformation;
-		if (rvcf == null)
+		//get the right annotation entry that matches both gene and allele
+		String findAnn = getAnn(ann, gene, allele);
+		if (findAnn == null)
 		{
-			rvcfInformation = super.getInformation();
+			System.out.println(
+					"WARNING: failed to get impact for gene '" + gene + "', allele '" + allele + "' in " + ann);
+			return null;
 		}
 		else
 		{
-			String key = RLV;
-			String value = rvcf.stream().map(RVCF::toString).collect(Collectors.joining(","));
-			VcfInfo rlvVcfInfo = new VcfInfo(getVcfMeta(), key, value);
-			rvcfInformation = Iterables.concat(super.getInformation(), singleton(rlvVcfInfo));
+			//from the right one, get the impact
+			String[] fields = findAnn.split("\\|", -1);
+			String transcript = fields[6];
+			return transcript;
 		}
-		return rvcfInformation;
+	}
+
+	private static String getAnn(String ann, String gene, String allele)
+	{
+		String[] annSplit = ann.split(",", -1);
+		for (String oneAnn : annSplit)
+		{
+			String[] fields = oneAnn.split("\\|", -1);
+			String geneFromAnn = fields[3];
+			if (!gene.equals(geneFromAnn))
+			{
+				continue;
+			}
+			String alleleFromAnn = fields[0];
+			if (!allele.equals(alleleFromAnn))
+			{
+				continue;
+			}
+			return oneAnn;
+		}
+		System.out.println(
+				"WARNING: annotation could not be found for " + gene + ", allele=" + allele + ", ann=" + ann);
+		return null;
 	}
 }

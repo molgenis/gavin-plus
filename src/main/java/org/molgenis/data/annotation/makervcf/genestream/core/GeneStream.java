@@ -2,6 +2,7 @@ package org.molgenis.data.annotation.makervcf.genestream.core;
 
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
+import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
 
 import java.util.*;
 
@@ -51,7 +52,7 @@ public abstract class GeneStream {
                             }
 
                             GavinRecord rv = relevantVariants.next();
-                            currentGenes = rv.getRelevantGenes();
+                            currentGenes = RelevanceUtils.getRelevantGenes(rv.getRelevance());
                             if (verbose) { System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGenes); }
 
 
