@@ -47,6 +47,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return alleleFrequencies[i] != null ? alleleFrequencies[i] : 0;
 	}
 
+	// TODO return Optional.empty() instead of empty String
 	public String getClsf()
 	{
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(CLSF, this);
@@ -72,6 +73,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		}).orElse(emptySet());
 	}
 
+	// TODO return Optional<Impact> instead of Impact
 	@Nullable
 	public Impact getImpact(int i, String gene)
 	{
@@ -80,6 +82,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return optionalVcfInfo.map(vcfInfo -> GavinUtils.getImpact(vcfInfo.getValRaw(), gene, allele)).orElse(null);
 	}
 
+	// TODO return Optional<String> instead of String
 	@Nullable
 	public String getTranscript(int i, String gene)
 	{
@@ -88,6 +91,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return optionalVcfInfo.map(vcfInfo -> GavinUtils.getTranscript(vcfInfo.getValRaw(), gene, allele)).orElse(null);
 	}
 
+	// TODO return empty list instead of null
 	@Nullable
 	public List<RVCF> getRvcf()
 	{
@@ -100,14 +104,18 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return getAltAlleleOrderedDoubleField(CADD_SCALED);
 	}
 
+	// TODO do not return null, same as getExAcAlleleFrequencies/getGoNlAlleleFrequencies
+	@Nullable
 	public Double getCaddPhredScores(int i)
 	{
 		return getCaddPhredScores()[i];
 	}
 
+	@Nullable
 	public String getClinvar()
 	{
-		return GavinUtils.getInfoStringValue(this, CLINVAR);
+		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(CLINVAR, this);
+		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal()).orElse(null);
 	}
 
 	private Double[] getAltAlleleOrderedDoubleField(String fieldName)
@@ -147,9 +155,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return res;
 	}
 
-	/**
-	 * Returns information without RVCF information
-	 */
+	// TODO refactor code such that method is removed
 	public Iterable<VcfInfo> getVcfEntityInformation()
 	{
 		List<RVCF> rvcf;
