@@ -18,18 +18,16 @@ import java.util.zip.ZipFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-// TODO refactor such that this is a proper util class (without main and with static methods)
 public class GavinUtils
 {
 	private static final String HEADER_PREFIX = "##";
 	private static final String PEDIGREE = "##PEDIGREE";
-	private final HashMap<String, GavinEntry> geneToEntry = new HashMap<>();
 
-	public GavinUtils(File gavin) throws Exception
+	public static Map<String, GavinEntry> getGeneToEntry(File gavin)
 	{
+		HashMap<String, GavinEntry> geneToEntry = new HashMap<>();
 		try (Scanner s = new Scanner(gavin))
 		{
-
 			//skip header
 			s.nextLine();
 
@@ -42,24 +40,12 @@ public class GavinUtils
 				geneToEntry.put(e.gene, e);
 			}
 		}
-
-	}
-
-	public Map<String, GavinEntry> getGeneToEntry()
-	{
+		catch (Exception e)
+		{
+			//TODO: what to do here...
+			throw new RuntimeException(e);
+		}
 		return geneToEntry;
-	}
-
-	public boolean contains(String gene)
-	{
-		return geneToEntry.containsKey(gene);
-	}
-
-	public static void main(String[] args) throws Exception
-	{
-		File gavin = new File(args[0]);
-		new GavinUtils(gavin);
-
 	}
 
 	public static VcfReader getVcfReader(File file) throws IOException
@@ -145,7 +131,6 @@ public class GavinUtils
 		return result;
 	}
 
-	//FIXME: was bufferedreader in Joeri's branch? try to find the code with this version...
 	public static Scanner createVcfFileScanner(File vcfFile) throws IOException
 	{
 		InputStream inputStream = new FileInputStream(vcfFile);

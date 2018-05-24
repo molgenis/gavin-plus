@@ -46,7 +46,7 @@ public class DiscoverRelevantVariants
 			this.lab = new LabVariants(labVariants);
 		}
 		this.gavin = new GavinAlgorithm();
-		this.gavinData = new GavinUtils(gavinFile).getGeneToEntry();
+		this.gavinData = GavinUtils.getGeneToEntry(gavinFile);
 		this.hmcs = new HandleMissingCaddScores(mode, caddFile);
 		this.verbose = verbose;
 	}
