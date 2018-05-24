@@ -60,7 +60,8 @@ public class RVCF
 		if (!(obj instanceof List))
 		{
 			throw new AnnotatedVcfParseException(
-					String.format("Error parsing RLV info field value '%s'. Value is not a list of strings.", vcfInfo.getValRaw()));
+					String.format("Error parsing RLV info field value '%s'. Value is not a list of strings.",
+							vcfInfo.getValRaw()));
 		}
 		@SuppressWarnings("unchecked")
 		List<String> rlvValue = (List<String>) obj;
@@ -111,10 +112,11 @@ public class RVCF
 
 	public String escapeToSafeVCF(String in)
 	{
-		return in.replace(VCF_INFOFIELDSEP, " ")
-				 .replace(RVCF_FIELDSEP, " ")
-				 .replace(RVCF.RVCF_SAMPLESEP, " ")
-				 .replace(RVCF_GENEALLELECOMBISEP, " ");
+		return in.replace(VCF_INFOFIELDSEP, "_")
+				 .replace(RVCF_FIELDSEP, "_")
+				 .replace(RVCF.RVCF_SAMPLESEP, "_")
+				 .replace(RVCF_GENEALLELECOMBISEP, "_")
+				 .replaceAll("\\s", "_");
 	}
 
 	// TODO do not use toString for this but a separate method

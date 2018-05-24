@@ -51,7 +51,7 @@ public class VcfRecordMapperTest
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", "q10;s50",
-						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my reason #0||,G|3.4|gene1||transcript1||||||||||type1|source1|my reason #1||" }));
+						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my_reason_#0||,G|3.4|gene1||transcript1||||||||||type1|source1|my_reason_#1||" }));
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class VcfRecordMapperTest
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", ".", "GTC", "G,GTCT", "123.45", "q10;s50",
-						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my reason #0||,G|3.4|gene1||transcript1||||||||||type1|source1|my reason #1||" }));
+						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my_reason_#0||,G|3.4|gene1||transcript1||||||||||type1|source1|my_reason_#1||" }));
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class VcfRecordMapperTest
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", ".", "123.45", "q10;s50",
-						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my reason #0||,G|3.4|gene1||transcript1||||||||||type1|source1|my reason #1||" }));
+						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my_reason_#0||,G|3.4|gene1||transcript1||||||||||type1|source1|my_reason_#1||" }));
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class VcfRecordMapperTest
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", ".", "q10;s50",
-						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my reason #0||,G|3.4|gene1||transcript1||||||||||type1|source1|my reason #1||" }));
+						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my_reason_#0||,G|3.4|gene1||transcript1||||||||||type1|source1|my_reason_#1||" }));
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class VcfRecordMapperTest
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", ".",
-						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my reason #0||,G|3.4|gene1||transcript1||||||||||type1|source1|my reason #1||" }));
+						"key0=val0;key1=val1;RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my_reason_#0||,G|3.4|gene1||transcript1||||||||||type1|source1|my_reason_#1||" }));
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class VcfRecordMapperTest
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", "q10;s50",
-						"RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my reason #0||,G|3.4|gene1||transcript1||||||||||type1|source1|my reason #1||" }));
+						"RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my_reason_#0||,G|3.4|gene1||transcript1||||||||||type1|source1|my_reason_#1||" }));
 	}
 
 	@Test
