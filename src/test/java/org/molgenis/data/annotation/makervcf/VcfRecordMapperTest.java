@@ -47,7 +47,7 @@ public class VcfRecordMapperTest
 	@Test
 	public void testMap()
 	{
-		GavinRecord gavinRecord = createMock(true, true, true, true, true);
+		GavinRecord gavinRecord = createMock(true, true, true, true, true, true);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", "q10;s50",
@@ -57,7 +57,7 @@ public class VcfRecordMapperTest
 	@Test
 	public void testMapNoIdentifiers()
 	{
-		GavinRecord gavinRecord = createMock(false, true, true, true, true);
+		GavinRecord gavinRecord = createMock(false, true, true, true, true, true);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", ".", "GTC", "G,GTCT", "123.45", "q10;s50",
@@ -67,7 +67,7 @@ public class VcfRecordMapperTest
 	@Test
 	public void testMapNoAlt()
 	{
-		GavinRecord gavinRecord = createMock(true, false, true, true, true);
+		GavinRecord gavinRecord = createMock(true, false, true, true, true, true);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", ".", "123.45", "q10;s50",
@@ -77,7 +77,7 @@ public class VcfRecordMapperTest
 	@Test
 	public void testMapNoQuality()
 	{
-		GavinRecord gavinRecord = createMock(true, true, false, true, true);
+		GavinRecord gavinRecord = createMock(true, true, false, true, true, true);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", ".", "q10;s50",
@@ -87,7 +87,7 @@ public class VcfRecordMapperTest
 	@Test
 	public void testMapNoFilterStatus()
 	{
-		GavinRecord gavinRecord = createMock(true, true, true, false, true);
+		GavinRecord gavinRecord = createMock(true, true, true, false, true, true);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", ".",
@@ -97,26 +97,51 @@ public class VcfRecordMapperTest
 	@Test
 	public void testMapAnnotatedVcfRecordNoRlv()
 	{
-		GavinRecord gavinRecord = createMock(true, true, true, true, false);
+		GavinRecord gavinRecord = createMock(true, true, true, true, false, true);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", "q10;s50",
 						"key0=val0;key1=val1" }));
 	}
 
-	private GavinRecord createMock(boolean includeIdentifiers, boolean includeAlt, boolean includeQuality,
-			boolean includeFilter, boolean includeRlv)
+	@Test
+	public void testMapNoInfo()
 	{
-		VcfInfo vcfInfo0 = mock(VcfInfo.class);
-		when(vcfInfo0.getKey()).thenReturn("key0");
-		when(vcfInfo0.getValRaw()).thenReturn("val0");
-		VcfInfo vcfInfo1 = mock(VcfInfo.class);
-		when(vcfInfo1.getKey()).thenReturn("key1");
-		when(vcfInfo1.getValRaw()).thenReturn("val1");
+		GavinRecord gavinRecord = createMock(true, true, true, true, true, false);
+		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
+		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
+				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", "q10;s50",
+						"RLV=A|0.1|gene0||transcript0||||||||||type0|source0|my reason #0||,G|3.4|gene1||transcript1||||||||||type1|source1|my reason #1||" }));
+	}
 
+	@Test
+	public void testMapNoInfoNoRlv()
+	{
+		GavinRecord gavinRecord = createMock(true, true, true, true, false, false);
+		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
+		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
+				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", "q10;s50",
+						"." }));
+	}
+
+	private GavinRecord createMock(boolean includeIdentifiers, boolean includeAlt, boolean includeQuality,
+			boolean includeFilter, boolean includeRlv, boolean includeInfo)
+	{
 		AnnotatedVcfRecord annotatedVcfRecord = mock(AnnotatedVcfRecord.class);
-		when(annotatedVcfRecord.getInformation()).thenReturn(asList(vcfInfo0, vcfInfo1));
-		when(annotatedVcfRecord.getRvcf()).thenReturn(null);
+		if (includeInfo)
+		{
+			VcfInfo vcfInfo0 = mock(VcfInfo.class);
+			when(vcfInfo0.getKey()).thenReturn("key0");
+			when(vcfInfo0.getValRaw()).thenReturn("val0");
+			VcfInfo vcfInfo1 = mock(VcfInfo.class);
+			when(vcfInfo1.getKey()).thenReturn("key1");
+			when(vcfInfo1.getValRaw()).thenReturn("val1");
+			when(annotatedVcfRecord.getInformation()).thenReturn(asList(vcfInfo0, vcfInfo1));
+		}
+		else
+		{
+			when(annotatedVcfRecord.getInformation()).thenReturn(emptyList());
+		}
 
 		GavinRecord gavinRecord = mock(GavinRecord.class);
 		when(gavinRecord.getChromosome()).thenReturn("1");
