@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
+import org.apache.commons.lang3.StringUtils;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
@@ -7,9 +8,11 @@ import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Collections.singleton;
+import static java.util.Arrays.asList;
+import static java.util.Collections.*;
 
 public class GavinRecord
 {
@@ -20,9 +23,6 @@ public class GavinRecord
 	 */
 	private Set<String> genes;
 	private Double[] caddPhredScores;
-
-	// TODO remove
-	private String rlvVcfValue; // TODO generate from relevance list (see MakeRVCFforClinicalVariants)
 
 	public GavinRecord(VcfRecord record)
 	{
@@ -84,18 +84,6 @@ public class GavinRecord
 				+ VcfRecordUtils.getRef(annotatedVcfRecord) + " " + VcfRecordUtils.getAltString(annotatedVcfRecord);
 	}
 
-	// TODO remove
-	public void setRlv(String rlv)
-	{
-		this.rlvVcfValue = rlv;
-	}
-
-	// TODO remove
-	public String getRlv()
-	{
-		return rlvVcfValue;
-	}
-
 	/**
 	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
 	 */
@@ -136,6 +124,40 @@ public class GavinRecord
 	public int getPosition()
 	{
 		return annotatedVcfRecord.getPosition();
+	}
+
+	public List<String> getIdentifiers()
+	{
+		return annotatedVcfRecord.getIdentifiers();
+	}
+
+	public Optional<Double> getQuality()
+	{
+		String quality = annotatedVcfRecord.getQuality();
+		return quality != null ? Optional.of(Double.valueOf(quality)) : Optional.empty();
+	}
+
+	/**
+	 * Returns:
+	 * - [] if filters have not been applied
+	 * - ["PASS"] if this position has passed all filters, If filters have not been applied an empty list.
+	 * - Otherwise, a list of codes for filters that fail. e.g. ["q10", "s50"]
+	 */
+	public List<String> getFilterStatus()
+	{
+		String filterStatus = annotatedVcfRecord.getFilterStatus();
+		if (filterStatus == null)
+		{
+			return emptyList();
+		}
+		else if (filterStatus.equals("PASS"))
+		{
+			return singletonList("PASS");
+		}
+		else
+		{
+			return asList(StringUtils.split(filterStatus, ';'));
+		}
 	}
 
 	public String getRef()

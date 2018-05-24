@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
+import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfSample;
@@ -28,11 +29,15 @@ class VcfRecordMapper
 
 	private final VcfMeta vcfMeta;
 	private final VcfRecordMapperSettings vcfRecordMapperSettings;
+	private final boolean verbose;
+	private final RlvInfoMapper rlvInfoMapper;
 
-	VcfRecordMapper(VcfMeta vcfMeta, VcfRecordMapperSettings vcfRecordMapperSettings)
+	VcfRecordMapper(VcfMeta vcfMeta, VcfRecordMapperSettings vcfRecordMapperSettings, boolean verbose)
 	{
 		this.vcfMeta = requireNonNull(vcfMeta);
 		this.vcfRecordMapperSettings = requireNonNull(vcfRecordMapperSettings);
+		this.verbose = verbose;
+		rlvInfoMapper = new RlvInfoMapper();
 	}
 
 	public VcfRecord map(GavinRecord gavinRecord)
@@ -41,13 +46,15 @@ class VcfRecordMapper
 		return new VcfRecord(vcfMeta, tokens.toArray(new String[0]));
 	}
 
-	// TODO ask JvdV write cadd phred scores and genes from gavin record or from source vcf?
 	private List<String> createTokens(GavinRecord gavinRecord)
 	{
 		List<String> tokens = new ArrayList<>();
 		tokens.add(gavinRecord.getChromosome());
-		tokens.add(gavinRecord.getPosition() + "");
-		tokens.add(gavinRecord.getId());
+		tokens.add(String.valueOf(gavinRecord.getPosition()));
+
+		List<String> identifiers = gavinRecord.getIdentifiers();
+		tokens.add(!identifiers.isEmpty() ? identifiers.stream().collect(joining(";")) : MISSING_VALUE);
+
 		tokens.add(gavinRecord.getRef());
 		String[] altTokens = gavinRecord.getAlts();
 		if (altTokens.length == 0)
@@ -59,13 +66,17 @@ class VcfRecordMapper
 			tokens.add(stream(altTokens).collect(joining(",")));
 		}
 
-		AnnotatedVcfRecord annotatedVcfRecord = gavinRecord.getAnnotatedVcfRecord();
-		String quality = annotatedVcfRecord.getQuality();
-		tokens.add(quality != null ? quality : MISSING_VALUE);
-		String filterStatus = annotatedVcfRecord.getFilterStatus();
-		tokens.add(filterStatus != null ? filterStatus : MISSING_VALUE);
+		tokens.add(gavinRecord.getQuality().map(Object::toString).orElse(MISSING_VALUE));
+		List<String> filterStatus = gavinRecord.getFilterStatus();
+		tokens.add(!filterStatus.isEmpty() ? filterStatus.stream().collect(joining(";")) : MISSING_VALUE);
 
-		tokens.add(createInfoToken(getVcfEntityInformation(annotatedVcfRecord)) + ";RLV=" + gavinRecord.getRlv());
+		AnnotatedVcfRecord annotatedVcfRecord = gavinRecord.getAnnotatedVcfRecord();
+		String infoToken = createInfoToken(getVcfEntityInformation(annotatedVcfRecord));
+		if (!gavinRecord.getRelevance().isEmpty())
+		{
+			infoToken += ";RLV=" + getRlv(gavinRecord);
+		}
+		tokens.add(infoToken);
 
 		if (vcfRecordMapperSettings.includeSamples())
 		{
@@ -97,89 +108,45 @@ class VcfRecordMapper
 
 	private String createInfoTokenPart(VcfInfo vcfInfo)
 	{
-		return escapeToken(vcfInfo.getKey()) + '=' + escapeToken(vcfInfo.getValRaw());
+		return vcfInfo.getKey() + '=' + vcfInfo.getValRaw();
 	}
 
 	private String createFormatToken(AnnotatedVcfRecord vcfEntity)
 	{
 		String[] formatTokens = vcfEntity.getFormat();
-		return stream(formatTokens).map(this::escapeToken).collect(joining(":"));
+		return stream(formatTokens).collect(joining(":"));
 	}
 
 	private String createSampleToken(VcfSample vcfSample)
 	{
 		String[] sampleTokens = vcfSample.getTokens();
-		return stream(sampleTokens).map(this::escapeToken).collect(joining(":"));
+		return stream(sampleTokens).collect(joining(":"));
 	}
 
-	/**
-	 * TODO ask RK and JvdV: does this apply to v4.2 as well? are we interpreting this correctly?
-	 * TODO check if our VcfReader unescapes tokens?
-	 * <p>
-	 * The Variant Call Format Specification VCFv4.3:
-	 * Characters with special meaning (such as field delimiters ’;’ in INFO or ’:’ FORMAT fields) must be represented using the capitalized percent encoding:
-	 * %3A : (colon)
-	 * %3B ; (semicolon)
-	 * %3D = (equal sign)
-	 * %25 % (percent sign)
-	 * %2C , (comma)
-	 * %0D CR
-	 * %0A LF
-	 * %09 TAB
-	 * <p>
-	 */
-	private String escapeToken(String token)
+	private String getRlv(GavinRecord gavinRecord)
 	{
-		if (token == null || token.isEmpty())
+		if (verbose)
 		{
-			return token;
+			System.out.println("[MakeRVCFforClinicalVariants] Looking at: " + gavinRecord.toString());
 		}
 
-		StringBuilder stringBuilder = new StringBuilder(token.length());
-		for (int i = 0; i < token.length(); ++i)
+		List<Relevance> relevance = gavinRecord.getRelevance();
+		String rlv = !relevance.isEmpty() ? rlvInfoMapper.map(relevance) : null;
+
+		if (verbose)
 		{
-			char c = token.charAt(i);
-			switch (c)
-			{
-				case ':':
-					stringBuilder.append("%3A");
-					break;
-				case ';':
-					stringBuilder.append("%3B");
-					break;
-				case '=':
-					stringBuilder.append("%3D");
-					break;
-				case '%':
-					stringBuilder.append("%25");
-					break;
-				case ',':
-					stringBuilder.append("%2C");
-					break;
-				case '\r':
-					stringBuilder.append("%0D");
-					break;
-				case '\n':
-					stringBuilder.append("%0A");
-					break;
-				case '\t':
-					stringBuilder.append("%09");
-					break;
-				default:
-					stringBuilder.append(c);
-					break;
-			}
+			System.out.println(
+					"[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: "
+							+ rlv);
 		}
-		return stringBuilder.toString();
+
+		return rlv;
 	}
-
-
 
 	// TODO refactor code such that method is removed
-	public Iterable<VcfInfo> getVcfEntityInformation(AnnotatedVcfRecord annotatedVcfRecord)
+	private Iterable<VcfInfo> getVcfEntityInformation(AnnotatedVcfRecord annotatedVcfRecord)
 	{
-		List<RVCF> rvcf;
-		rvcf = annotatedVcfRecord.getRvcf();
+		List<RVCF> rvcf = annotatedVcfRecord.getRvcf();
 
 		Iterable<VcfInfo> rvcfInformation;
 		if (rvcf == null)
