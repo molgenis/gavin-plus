@@ -2,10 +2,11 @@ package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class LabVariants {
 
-    private Map<String, VcfEntity> posRefAltToLabVariant;
+    private Map<String, AnnotatedVcfRecord> posRefAltToLabVariant;
 
     public LabVariants(File labVariantsFile) throws Exception {
         VcfReader clinvar = GavinUtils.getVcfReader(labVariantsFile);
@@ -28,10 +29,10 @@ public class LabVariants {
         this.posRefAltToLabVariant = new HashMap<>();
         while (cvIt.hasNext())
         {
-            VcfEntity vcfEntity = new VcfEntity(cvIt.next());
-            for(String alt : vcfEntity.getAlts())
+            AnnotatedVcfRecord vcfEntity = new AnnotatedVcfRecord(cvIt.next());
+            for(String alt : VcfRecordUtils.getAlts(vcfEntity))
             {
-                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(vcfEntity.getRef(), alt, "_");
+                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(VcfRecordUtils.getRef(vcfEntity), alt, "_");
                 String key = vcfEntity.getChromosome() + "_" + vcfEntity.getPosition() + "_" + trimmedRefAlt;
                 posRefAltToLabVariant.put(key, vcfEntity);
             }
@@ -40,8 +41,8 @@ public class LabVariants {
     }
 
 
-    public Judgment classifyVariant(VcfEntity record, String alt, String gene) throws Exception {
-        String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
+    public Judgment classifyVariant(AnnotatedVcfRecord record, String alt, String gene) throws Exception {
+        String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(VcfRecordUtils.getRef(record), alt, "_");
         String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
 
         if(posRefAltToLabVariant.containsKey(key)) {

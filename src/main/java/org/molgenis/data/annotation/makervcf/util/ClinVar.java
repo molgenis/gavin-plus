@@ -2,10 +2,11 @@ package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class ClinVar {
 
     //  /Users/joeri/github/clinvar.5.5.16/clinvar.patho.fix.5.5.16.vcf.gz
 
-    private Map<String, VcfEntity> posRefAltToClinVar;
+    private Map<String, AnnotatedVcfRecord> posRefAltToClinVar;
 
     public ClinVar(File clinvarFile) throws Exception {
         VcfReader clinvar = GavinUtils.getVcfReader(clinvarFile);
@@ -28,10 +29,10 @@ public class ClinVar {
         this.posRefAltToClinVar = new HashMap<>();
         while (cvIt.hasNext())
         {
-            VcfEntity record = new VcfEntity(cvIt.next());
-            for(String alt : record.getAlts())
+            AnnotatedVcfRecord record = new AnnotatedVcfRecord(cvIt.next());
+            for(String alt : VcfRecordUtils.getAlts(record))
             {
-                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
+                String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(VcfRecordUtils.getRef(record), alt, "_");
 
 //                if(!(record.getRef() + "_" + alt).equals(trimmedRefAlt))
 //                {
@@ -45,8 +46,8 @@ public class ClinVar {
     }
 
 
-    public Judgment classifyVariant(VcfEntity record, String alt, String gene, boolean overrideGeneWithClinvarGene) throws Exception {
-        String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
+    public Judgment classifyVariant(AnnotatedVcfRecord record, String alt, String gene, boolean overrideGeneWithClinvarGene) throws Exception {
+        String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(VcfRecordUtils.getRef(record), alt, "_");
         String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
 
         if(posRefAltToClinVar.containsKey(key)) {

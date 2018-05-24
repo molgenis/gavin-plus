@@ -4,6 +4,7 @@ import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.*;
 import java.util.Iterator;
@@ -66,7 +67,7 @@ public class CaddWebserviceOutputAnnotator
 		while(vcfIterator.hasNext())
 		{
 			GavinRecord vcfEntity = new GavinRecord(vcfIterator.next());
-			for(int altIndex = 0; altIndex < vcfEntity.getAlts().length; altIndex++)
+			for(int altIndex = 0; altIndex < VcfRecordUtils.getAlts(vcfEntity).length; altIndex++)
 			{
 				if(vcfEntity.getCaddPhredScores(altIndex) == null){
 					Double cadd = hmcs.dealWithCaddScores(vcfEntity, altIndex);

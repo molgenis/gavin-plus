@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.util;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.meta.VcfMeta;
@@ -22,7 +22,7 @@ public class RvcfGenoRestore {
         Set<String> sampleIds = new HashSet<String>();
         Iterator<VcfRecord> it = rvcfInput.iterator();
         while (it.hasNext()) {
-            VcfEntity record = new VcfEntity(it.next());
+            AnnotatedVcfRecord record = new AnnotatedVcfRecord(it.next());
             //FIXME: enable or remove: Map<String, String> sampleGenotypes = record.getRvcf().getSampleGenotype();
             //FIXME: enable or remove: sampleIds.addAll(sampleGenotypes.keySet());
         }
@@ -31,7 +31,7 @@ public class RvcfGenoRestore {
         Iterator<VcfRecord> newIt = rvcfInput.iterator();
 
         System.out.println("Reconstructing genotype columns..");
-        Iterator<VcfEntity> rve = addGenotypes(newIt,rvcfInput.getVcfMeta(), sampleIds);
+        Iterator<AnnotatedVcfRecord> rve = addGenotypes(newIt,rvcfInput.getVcfMeta(), sampleIds);
 
         //write Entities output VCF file
 /* FIXME: write VCF
@@ -47,10 +47,10 @@ public class RvcfGenoRestore {
 
     }
 
-    public Iterator<VcfEntity> addGenotypes(Iterator<VcfRecord> it, VcfMeta vcfMeta, Set<String> sampleIds)
+    public Iterator<AnnotatedVcfRecord> addGenotypes(Iterator<VcfRecord> it, VcfMeta vcfMeta, Set<String> sampleIds)
     {
 
-        return new Iterator<VcfEntity>() {
+        return new Iterator<AnnotatedVcfRecord>() {
 
 
             @Override
@@ -59,12 +59,12 @@ public class RvcfGenoRestore {
             }
 
             @Override
-            public VcfEntity next() {
+            public AnnotatedVcfRecord next() {
 
-                VcfEntity rv = null;
+                AnnotatedVcfRecord rv = null;
                 try
                 {
-                    rv = new VcfEntity(it.next());
+                    rv = new AnnotatedVcfRecord(it.next());
                 }
                 catch (Exception e)
                 {

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.vcf.VcfRecordUtils;
 
 /**
  * Created by joeri on 6/29/16.
@@ -75,7 +76,7 @@ public class PhasingCompoundCheck extends GeneStream{
                 {
                     continue;
                 }
-                char affectedIndex = Character.forDigit(rv.getAltIndex(rlv.getAllele()), 10);
+                char affectedIndex = Character.forDigit(VcfRecordUtils.getAltIndex(rv, rlv.getAllele()), 10);
                 for(String sample : rlv.getSampleStatus().keySet())
                 {
                     if(samplesWithUnphasedVariants.contains(sample))

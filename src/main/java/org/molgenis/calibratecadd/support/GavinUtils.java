@@ -62,23 +62,7 @@ public class GavinUtils
 		return geneToEntry.containsKey(gene);
 	}
 
-	public static Set<String> getGenesFromAnn(String ann)
-	{
-		if (ann == null)
-		{
-			return new HashSet<>();
-		}
-		Set<String> genes = new HashSet<>();
-		String[] annSplit = ann.split(",", -1);
-		for (String oneAnn : annSplit)
-		{
-			String[] fields = oneAnn.split("\\|", -1);
-			String gene = fields[3];
-			genes.add(gene);
-		}
 
-		return genes;
-	}
 
 	public static Double getInfoForAllele(VcfRecord record, String infoField, String altAllele) throws Exception
 	{
@@ -151,7 +135,7 @@ public class GavinUtils
 		}
 	}
 
-	public static Impact getImpact(String ann, String gene, String allele) throws Exception
+	public static Impact getImpact(String ann, String gene, String allele)
 	{
 		//get the right annotation entry that matches both gene and allele
 		String findAnn = getAnn(ann, gene, allele);
@@ -170,7 +154,7 @@ public class GavinUtils
 		}
 	}
 
-	public static String getTranscript(String ann, String gene, String allele) throws Exception
+	public static String getTranscript(String ann, String gene, String allele)
 	{
 		//get the right annotation entry that matches both gene and allele
 		String findAnn = getAnn(ann, gene, allele);

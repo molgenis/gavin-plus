@@ -2,6 +2,7 @@ package org.molgenis.data.annotation.makervcf.genestream.core;
 
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.util.*;
 
@@ -76,7 +77,7 @@ public class ConvertToGeneStream {
                                 ArrayList<String> removeVariantsByPosition = new ArrayList<>(variantBuffer.get(gene).size());
                                 for(GavinRecord rv : variantBuffer.get(gene))
                                 {
-                                    removeVariantsByPosition.add(rv.getChrPosRefAlt());
+                                    removeVariantsByPosition.add(VcfRecordUtils.getChrPosRefAlt(rv));
                                 }
                                 for(String geneInBuffer : variantBuffer.keySet())
                                 {
@@ -84,7 +85,8 @@ public class ConvertToGeneStream {
                                     Iterator<GavinRecord> it = variantBuffer.get(geneInBuffer).iterator();
                                     while (it.hasNext()) {
                                         GavinRecord rlvToCheck = it.next();
-                                        if(removeVariantsByPosition.contains(rlvToCheck.getChrPosRefAlt()))
+                                        if(removeVariantsByPosition.contains(
+												VcfRecordUtils.getChrPosRefAlt(rlvToCheck)))
                                         {
                                             it.remove();
                                         }
@@ -204,10 +206,11 @@ public class ConvertToGeneStream {
             while(resultBatches.get(gene).hasNext())
             {
                 GavinRecord next = resultBatches.get(gene).next();
-                if(!positionAltsAlreadyReturned.contains(next.getChrPosRefAlt()))
+                if(!positionAltsAlreadyReturned.contains(VcfRecordUtils.getChrPosRefAlt(next)))
                 {
-                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned + " does not contain " + next.getChrPosRefAlt() + ", so we output it");}
-                    positionAltsAlreadyReturned.add(next.getChrPosRefAlt());
+                    if(verbose){System.out.println("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned + " does not contain " + VcfRecordUtils
+							.getChrPosRefAlt(next) + ", so we output it");}
+                    positionAltsAlreadyReturned.add(VcfRecordUtils.getChrPosRefAlt(next));
                     return next;
                 }
             }

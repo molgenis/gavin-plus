@@ -13,6 +13,7 @@ import org.molgenis.data.annotation.makervcf.util.ClinVar;
 import org.molgenis.data.annotation.makervcf.util.LabVariants;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.File;
 import java.util.*;
@@ -79,7 +80,7 @@ public class DiscoverRelevantVariants {
 
                         pos = vcfEntity.getPosition();
                         chrom = vcfEntity.getChromosome();
-                        chrPosRefAlt = vcfEntity.getChrPosRefAlt();
+                        chrPosRefAlt = VcfRecordUtils.getChrPosRefAlt(vcfEntity);
 
                         // check: no 'before' positions on the same chromosome allowed
                         if(previousPos != -1 && previousChrom != null && pos < previousPos && previousChrom.equals(chrom))
@@ -115,7 +116,7 @@ public class DiscoverRelevantVariants {
                         /**
                          * Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
                          */
-                        for (int i = 0; i < vcfEntity.getAlts().length; i++)
+                        for (int i = 0; i < VcfRecordUtils.getAlts(vcfEntity).length; i++)
                         {
                             Double cadd = hmcs.dealWithCaddScores(vcfEntity, i);
 
@@ -123,8 +124,10 @@ public class DiscoverRelevantVariants {
                             if(vcfEntity.getChromosome().equals("MT")|| vcfEntity.getChromosome().equals("M") || vcfEntity.getChromosome().equals("mtDNA"))
                             {
                                 Judgment judgment = null;
-                                Judgment labJudgment = lab != null ? lab.classifyVariant(vcfEntity, vcfEntity.getAlt(i), "MT") : null;
-                                Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity, vcfEntity.getAlt(i), "MT", true);
+                                Judgment labJudgment = lab != null ? lab.classifyVariant(vcfEntity, VcfRecordUtils.getAlt(
+                                        vcfEntity, i), "MT") : null;
+                                Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity, VcfRecordUtils.getAlt(
+                                        vcfEntity, i), "MT", true);
 
                                 if(labJudgment != null && labJudgment.getClassification() == Judgment.Classification.Pathogenic)
                                 {
@@ -138,7 +141,8 @@ public class DiscoverRelevantVariants {
                                 if (judgment != null && judgment.getClassification().equals(Judgment.Classification.Pathogenic))
                                 {
                                     vcfEntity.setGenes(judgment.getGene());
-                                    relevance.add(new Relevance(vcfEntity.getAlt(i), clinvarJudgment.getGene(), vcfEntity.getExac_AFs(i), vcfEntity.getGoNL_AFs(i), clinvarJudgment.getGene(), clinvarJudgment));
+                                    relevance.add(new Relevance(
+                                            VcfRecordUtils.getAlt(vcfEntity, i), clinvarJudgment.getGene(), vcfEntity.getExAcAlleleFrequencies(i), vcfEntity.getGoNlAlleleFrequencies(i), clinvarJudgment.getGene(), clinvarJudgment));
                                 }
                             }
 
@@ -153,10 +157,12 @@ public class DiscoverRelevantVariants {
                                     String transcript = vcfEntity.getTranscript(i, gene);
 
                                     Judgment judgment = null;
-                                    Judgment labJudgment = lab != null ? lab.classifyVariant(vcfEntity, vcfEntity.getAlt(i), gene) : null;
-                                    Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity, vcfEntity.getAlt(i), gene, false);
+                                    Judgment labJudgment = lab != null ? lab.classifyVariant(vcfEntity, VcfRecordUtils
+                                            .getAlt(vcfEntity, i), gene) : null;
+                                    Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity, VcfRecordUtils.getAlt(
+                                            vcfEntity, i), gene, false);
                                     //FIXME: where to get gavin thresholds
-                                    Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, vcfEntity.getExac_AFs(i), gene, gavinData);
+                                    Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, vcfEntity.getExAcAlleleFrequencies(i), gene, gavinData);
 
                                     if(labJudgment != null && labJudgment.getClassification() == Judgment.Classification.Pathogenic)
                                     {
@@ -172,7 +178,7 @@ public class DiscoverRelevantVariants {
                                     }
 
                                     if (judgment != null && judgment.getClassification() == Judgment.Classification.Pathogenic) {
-                                        relevance.add(new Relevance(vcfEntity.getAlt(i), transcript, vcfEntity.getExac_AFs(i), vcfEntity.getGoNL_AFs(i), gene, judgment));
+                                        relevance.add(new Relevance(VcfRecordUtils.getAlt(vcfEntity, i), transcript, vcfEntity.getExAcAlleleFrequencies(i), vcfEntity.getGoNlAlleleFrequencies(i), gene, judgment));
                                     }
                                 }
                             }

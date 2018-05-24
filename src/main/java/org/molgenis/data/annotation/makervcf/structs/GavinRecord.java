@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,9 +9,8 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class GavinRecord extends VcfEntity
+public class GavinRecord extends AnnotatedVcfRecord
 {
-	public static final String CADD_SCALED = "CADD_SCALED";
 	public static final String ANN = "ANN";
 
 	private List<Relevance> relevances;
@@ -31,18 +30,19 @@ public class GavinRecord extends VcfEntity
 	{
 		super(record);
 		this.relevances = relevances;
-		this.genes = GavinUtils.getGenesFromAnn(GavinUtils.getInfoStringValue(record, ANN));
-		this.caddPhredScores = getAltAlleleOrderedDoubleField(CADD_SCALED);
-	}
-
-	private Double[] getCaddPhredScores()
-	{
-		return caddPhredScores;
+		this.genes = getGenesFromAnn();
+		this.caddPhredScores = super.getCaddPhredScores();
 	}
 
 	public Double getCaddPhredScores(int i)
 	{
-		return getCaddPhredScores()[i];
+		return caddPhredScores[i];
+	}
+
+	public void setCaddPhredScore(int i, Double phredScore)
+	{
+		//FIXME: shouldn't this update the CADD field in the info
+		this.caddPhredScores[i] = phredScore;
 	}
 
 	public Set<String> getGenes()
@@ -60,12 +60,6 @@ public class GavinRecord extends VcfEntity
 	{
 		//FIXME: shouldn't this update the genes field in the info
 		this.genes = genes;
-	}
-
-	public void setCaddPhredScore(int i, Double phredScore)
-	{
-		//FIXME: shouldn't this update the CADD field in the info
-		this.caddPhredScores[i] = phredScore;
 	}
 
 	/**
@@ -93,7 +87,8 @@ public class GavinRecord extends VcfEntity
 
 	public String toStringShort()
 	{
-		return getChromosome() + " " + getPosition() + " " + getRef() + " " + getAltString();
+		return getChromosome() + " " + getPosition() + " " + VcfRecordUtils.getRef(this) + " "
+				+ VcfRecordUtils.getAltString(this);
 	}
 
 	public void setRlv(String rlv)

@@ -7,6 +7,7 @@ import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.vcf.datastructures.Trio;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.File;
 import java.util.*;
@@ -85,7 +86,7 @@ public class TrioFilter extends GeneStream{
                 }
 
                 Set<String> samplesToRemove = new HashSet<>();
-                char affectedIndex = Character.forDigit(rv.getAltIndex(rlv.getAllele()), 10);
+                char affectedIndex = Character.forDigit(VcfRecordUtils.getAltIndex(rv, rlv.getAllele()), 10);
 
                 for (String sample : rlv.getSampleStatus().keySet()) {
 

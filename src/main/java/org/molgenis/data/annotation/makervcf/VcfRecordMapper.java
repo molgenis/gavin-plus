@@ -1,9 +1,10 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
 
@@ -42,9 +43,9 @@ class VcfRecordMapper
 		List<String> tokens = new ArrayList<>();
 		tokens.add(gavinRecord.getChromosome());
 		tokens.add(gavinRecord.getPosition() + "");
-		tokens.add(gavinRecord.getId());
-		tokens.add(gavinRecord.getRef());
-		String[] altTokens = gavinRecord.getAlts();
+		tokens.add(VcfRecordUtils.getId(gavinRecord));
+		tokens.add(VcfRecordUtils.getRef(gavinRecord));
+		String[] altTokens = VcfRecordUtils.getAlts(gavinRecord);
 		if (altTokens.length == 0)
 		{
 			tokens.add(MISSING_VALUE);
@@ -92,7 +93,7 @@ class VcfRecordMapper
 		return escapeToken(vcfInfo.getKey()) + '=' + escapeToken(vcfInfo.getValRaw());
 	}
 
-	private String createFormatToken(VcfEntity vcfEntity)
+	private String createFormatToken(AnnotatedVcfRecord vcfEntity)
 	{
 		String[] formatTokens = vcfEntity.getFormat();
 		return stream(formatTokens).map(this::escapeToken).collect(joining(":"));

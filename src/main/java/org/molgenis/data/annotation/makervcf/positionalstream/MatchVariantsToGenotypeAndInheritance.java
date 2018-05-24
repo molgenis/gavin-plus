@@ -7,7 +7,8 @@ import org.molgenis.cgd.LoadCGD;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 import org.molgenis.vcf.VcfSample;
 
 import java.io.File;
@@ -171,7 +172,7 @@ public class MatchVariantsToGenotypeAndInheritance
 	 */
 	public MultiKeyMap findMatchingSamples(GavinRecord rv) throws Exception
 	{
-		VcfEntity record = rv;
+		AnnotatedVcfRecord record = rv;
 		Set<String> alts = rv.getRelevantAlts();
 		Set<String> genes = rv.getRelevantGenes();
 
@@ -223,7 +224,7 @@ public class MatchVariantsToGenotypeAndInheritance
 			//now that everything is okay, we can match to inheritance mode for each alt
 			for (String alt : alts)
 			{
-				int altIndex = record.getAltAlleleIndex(alt);
+				int altIndex = VcfRecordUtils.getAltAlleleIndex(record, alt);
 
 				//and each gene
 				for (String gene : genes)
@@ -315,7 +316,7 @@ public class MatchVariantsToGenotypeAndInheritance
 	}
 
 	//FIXME: move method to appropriate class, which one? VcfEntity? GavinUtils? new utils class?
-	private String getSampleFieldValue(VcfSample sample, VcfEntity vcfEntity, String field)
+	private String getSampleFieldValue(VcfSample sample, AnnotatedVcfRecord vcfEntity, String field)
 	{
 		String[] format = vcfEntity.getFormat();
 		for (int i = 0; i < format.length; i++) {
