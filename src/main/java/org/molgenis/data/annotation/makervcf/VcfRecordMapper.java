@@ -1,9 +1,7 @@
 package org.molgenis.data.annotation.makervcf;
 
-import com.google.common.collect.Iterables;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
-import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
@@ -12,11 +10,9 @@ import org.molgenis.vcf.meta.VcfMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.stream;
-import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
@@ -70,16 +66,12 @@ class VcfRecordMapper
 		List<String> filterStatus = gavinRecord.getFilterStatus();
 		tokens.add(!filterStatus.isEmpty() ? filterStatus.stream().collect(joining(";")) : MISSING_VALUE);
 
-		AnnotatedVcfRecord annotatedVcfRecord = gavinRecord.getAnnotatedVcfRecord();
-		String infoToken = createInfoToken(getVcfEntityInformation(annotatedVcfRecord));
-		if (!gavinRecord.getRelevance().isEmpty())
-		{
-			infoToken += ";RLV=" + getRlv(gavinRecord);
-		}
-		tokens.add(infoToken);
+		tokens.add(createInfoToken(gavinRecord));
 
 		if (vcfRecordMapperSettings.includeSamples())
 		{
+
+			AnnotatedVcfRecord annotatedVcfRecord = gavinRecord.getAnnotatedVcfRecord();
 			Iterable<VcfSample> vcfSamples = gavinRecord.getSamples();
 			if (vcfSamples.iterator().hasNext())
 			{
@@ -90,20 +82,32 @@ class VcfRecordMapper
 		return tokens;
 	}
 
-	private String createInfoToken(Iterable<VcfInfo> vcfInformations)
+	private String createInfoToken(GavinRecord gavinRecord)
 	{
-		String infoToken;
-		if (vcfInformations.iterator().hasNext())
+		Iterable<VcfInfo> vcfInformations = gavinRecord.getAnnotatedVcfRecord().getInformation();
+
+		boolean hasInformation = vcfInformations.iterator().hasNext();
+		if (!hasInformation && gavinRecord.getRelevance().isEmpty())
 		{
-			infoToken = StreamSupport.stream(vcfInformations.spliterator(), false)
-									 .map(this::createInfoTokenPart)
-									 .collect(joining(";"));
+			return MISSING_VALUE;
 		}
-		else
+
+		StringBuilder stringBuilder = new StringBuilder();
+		if (hasInformation)
 		{
-			infoToken = MISSING_VALUE;
+			stringBuilder.append(StreamSupport.stream(vcfInformations.spliterator(), false)
+											  .map(this::createInfoTokenPart)
+											  .collect(joining(";")));
 		}
-		return infoToken;
+		if (!gavinRecord.getRelevance().isEmpty())
+		{
+			if (stringBuilder.length() > 0)
+			{
+				stringBuilder.append(';');
+			}
+			stringBuilder.append("RLV=").append(getRlv(gavinRecord));
+		}
+		return stringBuilder.toString();
 	}
 
 	private String createInfoTokenPart(VcfInfo vcfInfo)
@@ -141,25 +145,5 @@ class VcfRecordMapper
 		}
 
 		return rlv;
-	}
-
-	// TODO refactor code such that method is removed
-	private Iterable<VcfInfo> getVcfEntityInformation(AnnotatedVcfRecord annotatedVcfRecord)
-	{
-		List<RVCF> rvcf = annotatedVcfRecord.getRvcf();
-
-		Iterable<VcfInfo> rvcfInformation;
-		if (rvcf == null)
-		{
-			rvcfInformation = annotatedVcfRecord.getInformation();
-		}
-		else
-		{
-			String key = "RLV";
-			String value = rvcf.stream().map(RVCF::toString).collect(Collectors.joining(","));
-			VcfInfo rlvVcfInfo = new VcfInfo(annotatedVcfRecord.getVcfMeta(), key, value);
-			rvcfInformation = Iterables.concat(annotatedVcfRecord.getInformation(), singleton(rlvVcfInfo));
-		}
-		return rvcfInformation;
 	}
 }
