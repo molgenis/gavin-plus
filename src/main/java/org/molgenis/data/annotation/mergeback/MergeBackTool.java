@@ -2,9 +2,10 @@ package org.molgenis.data.annotation.mergeback;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
+import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -28,8 +29,9 @@ public class MergeBackTool
         Iterator<VcfRecord> vcfIterator = vcfReader.iterator();
         while(vcfIterator.hasNext())
         {
-            VcfEntity record = new VcfEntity(vcfIterator.next());
-            chrPosRefAltToRLV.put(record.getChromosome() + "_" + record.getPosition() + "_" + record.getRef() + "_" + record.getAlt(), record.getRvcfFromVcfInfoField().stream().map(Object::toString).collect(Collectors.joining(",")));
+            AnnotatedVcfRecord record = new AnnotatedVcfRecord(vcfIterator.next());
+            chrPosRefAltToRLV.put(record.getChromosome() + "_" + record.getPosition() + "_" + VcfRecordUtils.getRef(
+					record) + "_" + VcfRecordUtils.getAlt(record), record.getRvcf().stream().map(Object::toString).collect(Collectors.joining(",")));
         }
 
         System.out.println("chrPosRefAltToRLV = " + chrPosRefAltToRLV);

@@ -6,6 +6,7 @@ import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
+import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -103,8 +104,8 @@ public class AssignCompoundHetTest extends Setup
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 
-		assertTrue(it.next().getRelevanceForGene("OverlapA").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
-		assertTrue(it.next().getRelevanceForGene("OverlapB").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(RelevanceUtils.getRelevanceForGene(it.next().getRelevance(), "OverlapA").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(RelevanceUtils.getRelevanceForGene(it.next().getRelevance(), "OverlapB").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HOMOZYGOUS_COMPOUNDHET"));
 

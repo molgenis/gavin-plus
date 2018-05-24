@@ -1,44 +1,61 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import org.molgenis.calibratecadd.support.GavinUtils;
+import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
+import org.molgenis.vcf.VcfSample;
+import org.molgenis.vcf.meta.VcfMeta;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GavinRecord extends VcfEntity
-{
-	public static final String CADD_SCALED = "CADD_SCALED";
-	public static final String ANN = "ANN";
+import static java.util.Collections.singleton;
 
-	List<Relevance> relevance;
-	private String rlvMetadata;
-	private String rlv;
-	private Set<String> genes; //any associated genes, not in any given order
+public class GavinRecord
+{
+	private AnnotatedVcfRecord annotatedVcfRecord;
+	private List<Relevance> relevances;
+	/**
+	 * Any associated genes
+	 */
+	private Set<String> genes;
 	private Double[] caddPhredScores;
+
+	// TODO remove
+	private String rlvVcfValue; // TODO generate from relevance list (see MakeRVCFforClinicalVariants)
 
 	public GavinRecord(VcfRecord record)
 	{
 		this(record, null);
 	}
 
-	public GavinRecord(VcfRecord record, List<Relevance> relevance)
+	public GavinRecord(VcfRecord record, List<Relevance> relevances)
 	{
-		super(record);
-		this.relevance = relevance;
-		this.genes = GavinUtils.getGenesFromAnn(GavinUtils.getInfoStringValue(record, ANN));
-		this.caddPhredScores = getAltAlleleOrderedDoubleField(CADD_SCALED);
+		this.annotatedVcfRecord = new AnnotatedVcfRecord(record);
+		this.relevances = relevances;
+
+		this.genes = annotatedVcfRecord.getGenesFromAnn();
+		this.caddPhredScores = annotatedVcfRecord.getCaddPhredScores();
 	}
 
-	public Double[] getCaddPhredScores()
+	public AnnotatedVcfRecord getAnnotatedVcfRecord()
 	{
-		return caddPhredScores;
+		return annotatedVcfRecord;
+	}
+
+	public void setRelevances(List<Relevance> relevances)
+	{
+		this.relevances = relevances;
 	}
 
 	public Double getCaddPhredScores(int i)
 	{
-		return getCaddPhredScores()[i];
+		return caddPhredScores[i];
+	}
+
+	public void setCaddPhredScore(int i, Double phredScore)
+	{
+		this.caddPhredScores[i] = phredScore;
 	}
 
 	public Set<String> getGenes()
@@ -48,83 +65,131 @@ public class GavinRecord extends VcfEntity
 
 	public void setGenes(String gene)
 	{
-		//FIXME: shouldn't this update the genes field in the info
-		Set<String> genes = new HashSet<>();
-		genes.add(gene);
-		this.genes = genes;
+		this.genes = singleton(gene);
 	}
 
 	public void setGenes(Set<String> genes)
 	{
-		//FIXME: shouldn't this update the genes field in the info
 		this.genes = genes;
-	}
-
-	public void setCaddPhredScore(int i, Double setMe)
-	{
-		//FIXME: shouldn't this update the CADD field in the info
-		this.caddPhredScores[i] = setMe;
-	}
-
-	/**
-	 * Helper function to group all genes of relevance
-	 *
-	 * @return
-	 */
-	public Set<String> getRelevantGenes()
-	{
-		HashSet res = new HashSet<>();
-		for (Relevance rlv : this.relevance)
-		{
-			res.add(rlv.getGene());
-		}
-		return res;
-	}
-
-	public Set<String> getRelevantAlts()
-	{
-		HashSet res = new HashSet<>();
-		for (Relevance rlv : this.relevance)
-		{
-			res.add(rlv.getAllele());
-		}
-		return res;
 	}
 
 	public List<Relevance> getRelevance()
 	{
-		return relevance;
-	}
-
-	public Relevance getRelevanceForGene(String gene)
-	{
-		for (Relevance rlv : relevance)
-		{
-			if (rlv.getGene().equals(gene))
-			{
-				return rlv;
-			}
-		}
-		return null;
+		return relevances;
 	}
 
 	public String toStringShort()
 	{
-		return getChromosome() + " " + getPosition() + " " + getRef() + " " + getAltString();
+		return annotatedVcfRecord.getChromosome() + " " + annotatedVcfRecord.getPosition() + " "
+				+ VcfRecordUtils.getRef(annotatedVcfRecord) + " " + VcfRecordUtils.getAltString(annotatedVcfRecord);
 	}
 
-	public void setRlvMetadata(String rlvMetadata)
-	{
-		this.rlvMetadata = rlvMetadata;
-	}
-
+	// TODO remove
 	public void setRlv(String rlv)
 	{
-		this.rlv = rlv;
+		this.rlvVcfValue = rlv;
 	}
 
+	// TODO remove
 	public String getRlv()
 	{
-		return rlv;
+		return rlvVcfValue;
+	}
+
+	/**
+	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
+	 */
+	@Deprecated
+	public String getSampleFieldValue(VcfSample vcfSample, String field)
+	{
+		return VcfRecordUtils.getSampleFieldValue(annotatedVcfRecord, vcfSample, field);
+	}
+
+	/**
+	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
+	 */
+	@Deprecated
+	public Iterable<VcfSample> getSamples()
+	{
+		return annotatedVcfRecord.getSamples();
+	}
+
+	/**
+	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
+	 */
+	@Deprecated
+	public VcfMeta getVcfMeta()
+	{
+		return annotatedVcfRecord.getVcfMeta();
+	}
+
+	public int getAltAlleleIndex(String alt)
+	{
+		return VcfRecordUtils.getAltAlleleIndex(annotatedVcfRecord, alt);
+	}
+
+	public String getChromosome()
+	{
+		return annotatedVcfRecord.getChromosome();
+	}
+
+	public int getPosition()
+	{
+		return annotatedVcfRecord.getPosition();
+	}
+
+	public String getRef()
+	{
+		return VcfRecordUtils.getRef(annotatedVcfRecord);
+	}
+
+	public String getAlt()
+	{
+		return VcfRecordUtils.getAlt(annotatedVcfRecord);
+	}
+
+	public String getAlt(int altIndex)
+	{
+		return VcfRecordUtils.getAlt(annotatedVcfRecord, altIndex);
+	}
+
+	public String getChrPosRefAlt()
+	{
+		return VcfRecordUtils.getChrPosRefAlt(annotatedVcfRecord);
+	}
+
+	public int getAltIndex(String allele) throws Exception
+	{
+		return VcfRecordUtils.getAltIndex(annotatedVcfRecord, allele);
+	}
+
+	public String[] getAlts()
+	{
+		return VcfRecordUtils.getAlts(annotatedVcfRecord);
+	}
+
+	public double getExAcAlleleFrequencies(int i)
+	{
+		return annotatedVcfRecord.getExAcAlleleFrequencies(i);
+	}
+
+	public double getGoNlAlleleFrequencies(int i)
+	{
+		return annotatedVcfRecord.getGoNlAlleleFrequencies(i);
+	}
+
+	public Impact getImpact(int i, String gene)
+	{
+		return annotatedVcfRecord.getImpact(i, gene);
+	}
+
+	public String getTranscript(int i, String gene)
+	{
+		return annotatedVcfRecord.getTranscript(i, gene);
+	}
+
+	public String getId()
+	{
+		return VcfRecordUtils.getId(annotatedVcfRecord);
 	}
 }

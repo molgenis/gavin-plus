@@ -32,7 +32,7 @@ public class GetTriosFromVCFTest
 	{
 		TrioData td = TrioFilter.getTrioData(inputVcfFile);
 
-		HashMap<String, Trio> trios = td.getTrios();
+		Map<String, Trio> trios = td.getTrios();
 		Set<String> parents = td.getParents();
 
 		assertEquals(trios.size(), 6);

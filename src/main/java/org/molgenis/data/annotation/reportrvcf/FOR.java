@@ -1,10 +1,11 @@
 package org.molgenis.data.annotation.reportrvcf;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
+import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -60,6 +61,7 @@ public class FOR
 			GavinRecord record = new GavinRecord(originalVcfIterator.next());
 
 			String gene;
+			// TODO check if : split is correct
 			if (record.getId() != null && record.getId().split(":", -1).length == 2)
 			{
 				gene = record.getId().split(":", -1)[0];
@@ -74,7 +76,8 @@ public class FOR
 				gene = record.getGenes().toArray()[0].toString();
 			}
 
-			variantToGene.put(record.getChromosome() + "_" + record.getPosition() + "_" + record.getRef() + "_" + record.getAlt(),
+			variantToGene.put(
+					record.getChromosome() + "_" + record.getPosition() + "_" + record.getRef() + "_" + record.getAlt(),
 					gene);
 
 		}
@@ -104,8 +107,9 @@ public class FOR
 		//remove variants seen in in RVCF
 		while (rvcfIterator.hasNext())
 		{
-			VcfEntity record = new VcfEntity(rvcfIterator.next());
-			String key = record.getChromosome() + "_" + record.getPosition() + "_" + record.getRef() + "_" + record.getAlt();
+			AnnotatedVcfRecord record = new AnnotatedVcfRecord(rvcfIterator.next());
+			String key = record.getChromosome() + "_" + record.getPosition() + "_" + VcfRecordUtils.getRef(record) + "_"
+					+ VcfRecordUtils.getAlt(record);
 			variantToGene.remove(key);
 		}
 
