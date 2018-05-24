@@ -30,7 +30,7 @@ class WriteToRVCF
 		{
 			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false,
 					false); // TODO create settings based on CLI arguments
-			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
+			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings, verbose);
 			while (relevantVariants.hasNext())
 			{
 				GavinRecord gavinRecord = relevantVariants.next();

@@ -62,11 +62,8 @@ public class Pipeline
 		//cleanup stream by ditching variants without samples due to filtering
 		Iterator<GavinRecord> rv10 = new CleanupVariantsWithoutSamples(rv9, verbose).go();
 
-		//write convert RVCF records to Entity
-		Iterator<GavinRecord> rve = new MakeRVCFforClinicalVariants(rv10, verbose).addRVCFfield();
-
 		//write Entities output VCF file
-		new WriteToRVCF().writeRVCF(rve, outputVcfFile, inputVcfFile,true, verbose);
+		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile,true, verbose);
 
 	}
 }
