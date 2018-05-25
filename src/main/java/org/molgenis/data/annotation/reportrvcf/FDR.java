@@ -1,16 +1,13 @@
 package org.molgenis.data.annotation.reportrvcf;
 
-import org.molgenis.data.Entity;
-import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.VcfRepository;
+import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfRecord;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -21,13 +18,13 @@ import java.util.*;
  *
  *            //FDR: report false hits per gene, right before the stream is swapped from 'gene based' to 'position based'
              //FOR: report missed hits per gene, same as above with pathogenic gold standard set
-             //Iterator<RelevantVariant> rv8 = new FDR(rv7, new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/FDR.tsv"), verbose).go();
-             //Iterator<RelevantVariant> rv8 = new FOR(rv7, inputVcfFile).go();
+             //Iterator<GavinRecord> rv8 = new FDR(rv7, new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/FDR.tsv"), verbose).go();
+             //Iterator<GavinRecord> rv8 = new FOR(rv7, inputVcfFile).go();
 
  */
 public class FDR {
 
-    private VcfRepository vcf;
+    private VcfReader vcf;
     private PrintWriter pw;
     int nrOfSamples;
 
@@ -43,7 +40,7 @@ public class FDR {
 
 
     public FDR(File rvcfInput, File outputFDR, int nrOfSamples) throws Exception {
-        this.vcf = new VcfRepository(rvcfInput, "vcf");
+        this.vcf = GavinUtils.getVcfReader(rvcfInput);
         this.pw = new PrintWriter(outputFDR);
         this.nrOfSamples = nrOfSamples;
     }
@@ -56,11 +53,11 @@ public class FDR {
         //make sure we only count every sample once per gene
         Set<String> sampleGeneCombo = new HashSet<>();
 
-        Iterator<Entity> vcfIterator = vcf.iterator();
+        Iterator<VcfRecord> vcfIterator = vcf.iterator();
         while(vcfIterator.hasNext())
         {
 
-            VcfEntity record = new VcfEntity(vcfIterator.next());
+            AnnotatedVcfRecord record = new AnnotatedVcfRecord(vcfIterator.next());
 
             //TODO: check implications of this being a loop now instead of 1 rvcf
             for(RVCF rvcf : record.getRvcf()){

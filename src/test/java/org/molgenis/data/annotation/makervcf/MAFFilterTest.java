@@ -3,7 +3,7 @@ package org.molgenis.data.annotation.makervcf;
 import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MAFFilter;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +35,7 @@ public class MAFFilterTest extends Setup
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 
-		Iterator<RelevantVariant> it = new MAFFilter(discover.findRelevantVariants(), false).go();
+		Iterator<GavinRecord> it = new MAFFilter(discover.findRelevantVariants(), false).go();
 		assertTrue(it.hasNext());
 		assertEquals(0.02, it.next().getRelevance().get(0).getGonlAlleleFreq());
 		assertTrue(it.hasNext());

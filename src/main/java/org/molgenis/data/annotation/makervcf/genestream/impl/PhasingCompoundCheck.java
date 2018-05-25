@@ -2,8 +2,8 @@ package org.molgenis.data.annotation.makervcf.genestream.impl;
 
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.vcf.VcfRecordUtils;
 
 /**
  * Created by joeri on 6/29/16.
@@ -47,13 +48,13 @@ import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGen
  */
 public class PhasingCompoundCheck extends GeneStream{
 
-    public PhasingCompoundCheck(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public PhasingCompoundCheck(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         super(relevantVariants, verbose);
     }
 
     @Override
-    public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
+    public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
 
 
         if(verbose){System.out.println("[PhasingCompoundCheck] Encountered gene: " + gene);}
@@ -67,7 +68,7 @@ public class PhasingCompoundCheck extends GeneStream{
         // samples with 1+ variants unphased, cannot call fake comphet on them
         Set<String> samplesWithUnphasedVariants = new HashSet<String>();
 
-        for(RelevantVariant rv : variantsPerGene)
+        for(GavinRecord rv : variantsPerGene)
         {
             for(Relevance rlv : rv.getRelevance())
             {
@@ -75,7 +76,7 @@ public class PhasingCompoundCheck extends GeneStream{
                 {
                     continue;
                 }
-                char affectedIndex = Character.forDigit(rv.getVariant().getAltIndex(rlv.getAllele()), 10);
+                char affectedIndex = Character.forDigit(rv.getAltIndex(rlv.getAllele()), 10);
                 for(String sample : rlv.getSampleStatus().keySet())
                 {
                     if(samplesWithUnphasedVariants.contains(sample))
@@ -135,7 +136,7 @@ public class PhasingCompoundCheck extends GeneStream{
         if(verbose){System.out.println("[PhasingCompoundCheck] False compounds with only left-hand or right-hand haplotypes: " + union.toString());}
 
 
-        for(RelevantVariant rv : variantsPerGene)
+        for(GavinRecord rv : variantsPerGene)
         {
             for(Relevance rlv : rv.getRelevance())
             {

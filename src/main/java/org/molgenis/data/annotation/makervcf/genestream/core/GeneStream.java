@@ -1,8 +1,8 @@
 package org.molgenis.data.annotation.makervcf.genestream.core;
 
-import com.sun.tools.javac.jvm.Gen;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
 
 import java.util.*;
 
@@ -12,31 +12,29 @@ import java.util.*;
  */
 public abstract class GeneStream {
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     protected boolean verbose;
 
-    public GeneStream(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public GeneStream(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.verbose = verbose;
     }
 
-    public Iterator<RelevantVariant> go()
+    public Iterator<GavinRecord> go()
     {
-        return new Iterator<RelevantVariant>(){
+        return new Iterator<GavinRecord>(){
 
-            RelevantVariant nextResult;
+            GavinRecord nextResult;
             Set<String> previousGenes;
             Set<String> currentGenes;
 
-            HashMap<String, List<RelevantVariant>> variantBufferPerGene = new HashMap<>();
-            List<RelevantVariant> variantBuffer = new ArrayList<>();
-            Iterator<RelevantVariant> resultBatch;
+            HashMap<String, List<GavinRecord>> variantBufferPerGene = new HashMap<>();
+            List<GavinRecord> variantBuffer = new ArrayList<>();
+            Iterator<GavinRecord> resultBatch;
 
             @Override
             public boolean hasNext() {
-                try {
-
                     if(resultBatch != null && resultBatch.hasNext())
                     {
                         if(verbose){System.out.println("[GeneStream] Returning subsequent result of gene stream batch");}
@@ -53,8 +51,8 @@ public abstract class GeneStream {
                                 resultBatch = null;
                             }
 
-                            RelevantVariant rv = relevantVariants.next();
-                            currentGenes = rv.getRelevantGenes();
+                            GavinRecord rv = relevantVariants.next();
+                            currentGenes = RelevanceUtils.getRelevantGenes(rv.getRelevance());
                             if (verbose) { System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGenes); }
 
 
@@ -65,7 +63,14 @@ public abstract class GeneStream {
                                 // process per gene in abstract function
                                 for (String gene : variantBufferPerGene.keySet()) {
                                     if (verbose) { System.out.println("[GeneStream] Processing gene "+gene+" having " + variantBufferPerGene.get(gene).size() + " variants"); }
-                                    perGene(gene, variantBufferPerGene.get(gene));
+                                    try
+                                    {
+                                        perGene(gene, variantBufferPerGene.get(gene));
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 // create shallow copy, so that we can add another variant to buffer after we instantiate the iterator
                                 resultBatch = new ArrayList<>(variantBuffer).iterator();
@@ -82,7 +87,7 @@ public abstract class GeneStream {
                                 if (variantBufferPerGene.containsKey(gene)) {
                                     variantBufferPerGene.get(gene).add(rv);
                                 } else {
-                                    List<RelevantVariant> variants = new ArrayList<>();
+                                    List<GavinRecord> variants = new ArrayList<>();
                                     variants.add(rv);
                                     variantBufferPerGene.put(gene, variants);
                                 }
@@ -112,7 +117,14 @@ public abstract class GeneStream {
                         if (verbose) { System.out.println("[GeneStream] Buffer has " + variantBuffer.size() + " variants left in " + variantBufferPerGene.keySet().toString()); }
                         for(String gene : variantBufferPerGene.keySet())
                         {
-                            perGene(gene, variantBufferPerGene.get(gene));
+                            try
+                            {
+                                perGene(gene, variantBufferPerGene.get(gene));
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
                         }
                         resultBatch = new ArrayList<>(variantBuffer).iterator();
                         variantBuffer = new ArrayList<>();
@@ -126,21 +138,15 @@ public abstract class GeneStream {
                     }
 
                     return false;
-                }
-                catch(Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 return nextResult;
             }
         };
     }
 
-    public abstract void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception;
+    public abstract void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception;
 
 }

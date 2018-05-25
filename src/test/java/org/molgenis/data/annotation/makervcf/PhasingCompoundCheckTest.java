@@ -6,7 +6,8 @@ import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
 import org.molgenis.data.annotation.makervcf.genestream.impl.PhasingCompoundCheck;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
+import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -41,12 +42,12 @@ public class PhasingCompoundCheckTest extends Setup
 	{
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
+		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
-		Iterator<RelevantVariant> gsi = gs.go();
-		Iterator<RelevantVariant> assignCompHet = new AssignCompoundHet(gsi, false).go();
+		Iterator<GavinRecord> gsi = gs.go();
+		Iterator<GavinRecord> assignCompHet = new AssignCompoundHet(gsi, false).go();
 
-		Iterator<RelevantVariant> it = new PhasingCompoundCheck(assignCompHet, true).go();
+		Iterator<GavinRecord> it = new PhasingCompoundCheck(assignCompHet, true).go();
 
 		// AIMP1
 		assertTrue(it.hasNext());
@@ -100,8 +101,8 @@ public class PhasingCompoundCheckTest extends Setup
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getRelevanceForGene("OverlapA").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
-		assertTrue(it.next().getRelevanceForGene("OverlapB").getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HOMOZYGOUS_COMPOUNDHET"));
+		assertTrue(RelevanceUtils.getRelevanceForGene(it.next().getRelevance(), "OverlapA").getSampleStatus().toString().contains("p01=HOMOZYGOUS_COMPOUNDHET, p02=HETEROZYGOUS_MULTIHIT"));
+		assertTrue(RelevanceUtils.getRelevanceForGene(it.next().getRelevance(), "OverlapB").getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HOMOZYGOUS_COMPOUNDHET"));
 		assertTrue(it.hasNext());
 		assertTrue(it.next().getRelevance().get(0).getSampleStatus().toString().contains("p01=HETEROZYGOUS_MULTIHIT, p02=HOMOZYGOUS_COMPOUNDHET"));
 
