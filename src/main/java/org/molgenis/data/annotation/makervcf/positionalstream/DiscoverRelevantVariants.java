@@ -181,7 +181,7 @@ public class DiscoverRelevantVariants
 											vcfEntity.getAlt(i), gene) : null;
 									Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity,
 											vcfEntity.getAlt(i), gene, false);
-									//FIXME: where to get gavin thresholds
+
 									Judgment gavinJudgment = gavin.classifyVariant(impact, cadd,
 											vcfEntity.getExAcAlleleFrequencies(i), gene, gavinData);
 

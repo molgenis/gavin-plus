@@ -16,14 +16,6 @@ import static org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category
 
 public class GavinAlgorithm
 {
-	public static final String NAME = "GavinAnnotator";
-	public static final String PATHOMAFTHRESHOLD = "PathoMAFThreshold";
-	public static final String MEANPATHOGENICCADDSCORE = "MeanPathogenicCADDScore";
-	public static final String MEANPOPULATIONCADDSCORE = "MeanPopulationCADDScore";
-	public static final String SPEC95THPERCADDTHRESHOLD = "Spec95thPerCADDThreshold";
-	public static final String SENS95THPERCADDTHRESHOLD = "Sens95thPerCADDThreshold";
-	private static final String CATEGORY = "Category";
-
 	//this is the MAF threshold as calculated in r0.3 of the calibration data
 	public static final double GENOMEWIDE_MAF_THRESHOLD = 0.003456145;
 	public static final int GENOMEWIDE_CADD_THRESHOLD = 15;
