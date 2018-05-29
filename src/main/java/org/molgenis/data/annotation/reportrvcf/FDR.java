@@ -59,7 +59,7 @@ public class FDR {
 
             AnnotatedVcfRecord record = new AnnotatedVcfRecord(vcfIterator.next());
 
-            //TODO: check implications of this being a loop now instead of 1 rvcf
+            //TODO JvdV: check implications of this being a loop now instead of 1 rvcf
             for(RVCF rvcf : record.getRvcf()){
 
             String gene = rvcf.getGene();

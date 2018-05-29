@@ -105,7 +105,7 @@ public class MatchVariantsToGenotypeAndInheritance
 				}
 				catch (Exception e)
 				{
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 
 				for (Relevance rlv : rv.getRelevance())
@@ -190,7 +190,7 @@ public class MatchVariantsToGenotypeAndInheritance
 			}
 
 			String genotype = record.getSampleFieldValue(sample, "GT");
-			String sampleName = record.getVcfMeta().getSampleName(sampleIndex);//FIXME verify that this is correct
+			String sampleName = record.getVcfMeta().getSampleName(sampleIndex);
 
 			// quality filter: we want depth X or more, if available
 			if (record.getSampleFieldValue(sample, "DP") != null)
@@ -297,7 +297,7 @@ public class MatchVariantsToGenotypeAndInheritance
 		}
 
 		//for relevant combinations, set parents with reference calls (--> this is not related to alternative alleles or gene combinations)
-		// FIXME: also this can be set directly, earlier?
+		// FIXME JvdV: : also this can be set directly, earlier?
 		for (String alt : alts)
 		{
 			for (String gene : genes)

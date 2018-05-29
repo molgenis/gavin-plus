@@ -13,7 +13,6 @@ import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.annotation.makervcf.util.LabVariants;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
-import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.File;
 import java.util.*;

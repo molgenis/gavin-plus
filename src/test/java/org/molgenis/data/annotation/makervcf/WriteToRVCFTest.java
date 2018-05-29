@@ -13,7 +13,7 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertFalse;
 
 /**
- * FIXME: Right now, we only test the content AND NOT THE HEADERS of the VCF files
+ * FIXME JvdV: Right now, we only test the content AND NOT THE HEADERS of the VCF files
  *
  * The headers are not equal!
  *

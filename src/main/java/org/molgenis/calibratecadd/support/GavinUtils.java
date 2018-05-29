@@ -42,7 +42,6 @@ public class GavinUtils
 		}
 		catch (Exception e)
 		{
-			//TODO: what to do here...
 			throw new RuntimeException(e);
 		}
 		return geneToEntry;

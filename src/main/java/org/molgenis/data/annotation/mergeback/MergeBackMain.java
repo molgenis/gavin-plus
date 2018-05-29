@@ -2,7 +2,6 @@ package org.molgenis.data.annotation.mergeback;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.molgenis.data.annotation.makervcf.Pipeline;
 
 import java.io.File;
 

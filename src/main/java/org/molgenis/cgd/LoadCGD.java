@@ -57,7 +57,7 @@ public class LoadCGD {
 			// However there are many combinations and exceptions.
 			// Does AR take prevalence of AD or the other way around? be restrictive or loose here?
 
-			// TODO: correctly!!
+			// TODO JvdV: correctly!!
 
 			generalizedInheritance inherMode = generalizedInheritance.OTHER;
 			if(split[4].contains("AD") && split[4].contains("AR"))
@@ -101,7 +101,7 @@ public class LoadCGD {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
+		// TODO JvdV: Auto-generated method stub
 
 		Map<String, CGDEntry> cgd = LoadCGD.loadCGD(new File("/Users/joeri/github/gavin/data/other/CGD_1jun2016.txt.gz"));
 

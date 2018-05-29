@@ -4,7 +4,6 @@ import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
-import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.*;
 import java.util.Iterator;

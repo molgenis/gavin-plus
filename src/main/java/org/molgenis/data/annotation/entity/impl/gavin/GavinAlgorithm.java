@@ -4,7 +4,6 @@ import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Benign;
