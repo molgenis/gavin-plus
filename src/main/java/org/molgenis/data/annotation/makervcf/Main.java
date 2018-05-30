@@ -21,8 +21,7 @@ import static java.util.Arrays.asList;
  * Output is written to a VCF with all relevant variants where information is contained in the RLV field.
  * We require the input VCF to be annotated with SnpEff, CADD (as much as possible), ExAC, GoNL and 1000G.
  * <p>
- * Tests TODO:
- * - Different ways to discover variants (clinvar, lab list, gavin)
+ * Tests TODO JvdV: Different ways to discover variants (clinvar, lab list, gavin)
  */
 public class Main
 {

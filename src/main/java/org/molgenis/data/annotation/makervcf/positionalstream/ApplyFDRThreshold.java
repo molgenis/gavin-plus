@@ -7,7 +7,7 @@ import java.util.Iterator;
 /**
  * Created by joeri on 6/29/16.
  *
- * TODO
+ * TODO JvdV:
  *
  */
 public class ApplyFDRThreshold {

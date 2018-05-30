@@ -21,10 +21,9 @@ import java.util.*;
  * as well as any children that share one or both of their parents genotypes, including IBS (e.g. 0|1 and 1|0 are equal)
  * <p>
  * <p>
- * TODO
- * drop ? update?
- * //todo: swapped genotypes (phases)
- * //todo: also remove parent(s) !!
+ * TODO JvdV: drop ? update?
+ * TODO JvdV: swapped genotypes (phases)
+ * TODO JvdV: also remove parent(s) !!
  */
 public class TrioFilter extends GeneStream
 {

@@ -95,11 +95,9 @@ public class RVCF
 		rvcfInstance.setSampleStatusString(split[10].isEmpty() ? new HashMap<>() : Splitter.on(RVCF_SAMPLESEP)
 																						   .withKeyValueSeparator(":")
 																						   .split(split[10]));
-		//  rvcfInstance.setSamplePhenotype(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[11])); todo
 		rvcfInstance.setSampleGenotype(split[12].isEmpty() ? new HashMap<>() : Splitter.on(RVCF_SAMPLESEP)
 																					   .withKeyValueSeparator(":")
 																					   .split(split[12]));
-		//       rvcfInstance.setSampleGroup(Splitter.on(RVCF_SAMPLESEP).withKeyValueSeparator(":").split(split[13])); todo
 
 		rvcfInstance.setVariantSignificance(split[14]);
 		rvcfInstance.setVariantSignificanceSource(split[15]);

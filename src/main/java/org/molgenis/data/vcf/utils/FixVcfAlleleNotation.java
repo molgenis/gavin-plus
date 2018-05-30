@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Scanner;
 import org.apache.commons.lang.StringUtils;
 
