@@ -1,13 +1,12 @@
 package org.molgenis.data.annotation.makervcf;
 
-import net.didion.jwnl.data.Exc;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertBackToPositionalStream;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -56,11 +55,11 @@ public class DuplicateAndReversedPositionTest extends Setup
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
-		Iterator<RelevantVariant> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getPosition() + "_");
 		}
 
 		String expected = "1_2_2_3_4_4_5_6_7_8_8_8_9_10_";
@@ -72,7 +71,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
-		Iterator<RelevantVariant> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
 
 		assertTrue(it.hasNext());
 
@@ -91,7 +90,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputRevVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
-		Iterator<RelevantVariant> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
 
 		try {
 			while(it.hasNext())
@@ -111,7 +110,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputChromBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
-		Iterator<RelevantVariant> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
 
 		try {
 			while(it.hasNext())

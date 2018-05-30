@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
 import org.molgenis.cgd.CGDEntry;
-import org.molgenis.data.annotation.entity.impl.gavin.Judgment;
+import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
 
 import java.util.HashMap;

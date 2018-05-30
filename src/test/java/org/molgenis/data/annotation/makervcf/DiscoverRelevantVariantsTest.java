@@ -1,8 +1,9 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.apache.commons.io.FileUtils;
+import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -31,12 +32,15 @@ public class DiscoverRelevantVariantsTest extends Setup
 	{
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> it = discover.findRelevantVariants();
+		Iterator<GavinRecord> it = discover.findRelevantVariants();
 
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("reason=NM_004562.2(PARK2):c.823C>T (p.Arg275Trp)|PARK2|Pathogenic, classification=Pathogenic"));
+		Judgment expected = new Judgment(Judgment.Classification.Pathogenic,Judgment.Method.genomewide,"PARK2","NM_004562.2(PARK2):c.823C>T (p.Arg275Trp)|PARK2|Pathogenic","ClinVar","Reported pathogenic");
+		assertEquals(it.next().getRelevance().get(0).getJudgment(),expected);
+
 		assertTrue(it.hasNext());
-		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene., classification=Pathogenic"));
+		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(),"Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene.");
+		assertEquals(it.next().getRelevance().get(0).getJudgment().getClassification(),Judgment.Classification.Pathogenic);
 		assertTrue(it.hasNext());
 
 		// multigene, multiallele
@@ -44,8 +48,8 @@ public class DiscoverRelevantVariantsTest extends Setup
 		assertEquals(it.next().getRelevance().get(1).getAllele(), "A");
 		assertEquals(it.next().getRelevance().get(0).getGene(), "ALDH5A1");
 		assertEquals(it.next().getRelevance().get(1).getGene(), "TERC");
-		assertTrue(it.next().getRelevance().get(0).getJudgment().toString().contains("Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene"));
-		assertTrue(it.next().getRelevance().get(1).getJudgment().toString().contains("Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, the variant MAF of 0.0 is less than a MAF of 0.004622819999999994"));
+		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(),"Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene.");
+		assertEquals(it.next().getRelevance().get(1).getJudgment().getReason(),"Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, the variant MAF of 0.0 is less than a MAF of 0.004622819999999994.");
 		assertFalse(it.hasNext());
 	}
 

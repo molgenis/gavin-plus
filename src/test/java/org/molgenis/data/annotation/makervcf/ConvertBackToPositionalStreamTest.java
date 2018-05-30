@@ -4,7 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertBackToPositionalStream;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -36,13 +36,13 @@ public class ConvertBackToPositionalStreamTest extends Setup
 
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
 
-		Iterator<RelevantVariant> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), true).go();
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), true).go();
 
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
 		//	System.out.println(it.next().getVariant().getGenes() + " -> " + it.next().getRelevance() + " at " + it.next().getVariant().getPos());
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getPosition() + "_");
 		}
 
 		//39 is missing, does not contain relevant variants (2x MODIFIER)

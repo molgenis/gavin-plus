@@ -1,32 +1,31 @@
 package org.molgenis.data.annotation.makervcf.genestream.core;
 
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 
 import java.util.*;
 
 /**
- * Created by joeri on 6/29/16.
- * FIXME: any way to clean up 'order' during streaming of results? ie. for any positions that have been written out?
+ * FIXME JvdV: any way to clean up 'order' during streaming of results? ie. for any positions that have been written out?
  */
 public class ConvertBackToPositionalStream {
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     private ArrayList<Integer> order;
     private boolean verbose;
 
-    public ConvertBackToPositionalStream(Iterator<RelevantVariant> relevantVariants, ArrayList<Integer> order, boolean verbose)
+    public ConvertBackToPositionalStream(Iterator<GavinRecord> relevantVariants, ArrayList<Integer> order, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.order = order;
         this.verbose = verbose;
     }
 
-    public Iterator<RelevantVariant> go() {
-        return new Iterator<RelevantVariant>() {
+    public Iterator<GavinRecord> go() {
+        return new Iterator<GavinRecord>() {
 
-            TreeMap<Integer, ArrayList<RelevantVariant>> buffer = new TreeMap<>();
-            Iterator<RelevantVariant> bufferPrinter;
-            RelevantVariant nextResult;
+            TreeMap<Integer, ArrayList<GavinRecord>> buffer = new TreeMap<>();
+            Iterator<GavinRecord> bufferPrinter;
+            GavinRecord nextResult;
             int i = -1;
 
             @Override
@@ -44,8 +43,8 @@ public class ConvertBackToPositionalStream {
                     try {
                         i++;
 
-                        RelevantVariant rv = relevantVariants.next();
-                        int pos = rv.getVariant().getPos();
+                        GavinRecord rv = relevantVariants.next();
+                        int pos = rv.getPosition();
 
                         //position of stream matches real variant position, stable situation
                         //write out any buffered variants in the correct order until this point
@@ -109,15 +108,15 @@ public class ConvertBackToPositionalStream {
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 return nextResult;
             }
         };
     }
 
-    private Iterator<RelevantVariant> getIterator(TreeMap<Integer, ArrayList<RelevantVariant>> buffer)
+    private Iterator<GavinRecord> getIterator(TreeMap<Integer, ArrayList<GavinRecord>> buffer)
     {
-        List<RelevantVariant> variants = new ArrayList<>();
+        List<GavinRecord> variants = new ArrayList<>();
         //keys supposed to be sorted because TreeMap
         for(Integer pos : buffer.keySet())
         {

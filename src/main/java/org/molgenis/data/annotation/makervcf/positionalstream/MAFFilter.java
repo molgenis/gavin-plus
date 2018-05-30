@@ -1,10 +1,8 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
-import org.molgenis.data.vcf.datastructures.Trio;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 
-import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -13,27 +11,26 @@ import java.util.Iterator;
  */
 public class MAFFilter {
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
     double threshold = 0.05;
     boolean verbose;
 
-    public MAFFilter(Iterator<RelevantVariant> relevantVariants, boolean verbose)
+    public MAFFilter(Iterator<GavinRecord> relevantVariants, boolean verbose)
     {
         this.relevantVariants = relevantVariants;
         this.verbose = verbose;
     }
 
-    public Iterator<RelevantVariant> go()
+    public Iterator<GavinRecord> go()
     {
-        return new Iterator<RelevantVariant>(){
+        return new Iterator<GavinRecord>(){
 
-            RelevantVariant nextResult;
+            GavinRecord nextResult;
 
             @Override
             public boolean hasNext() {
-                try {
                     while (relevantVariants.hasNext()) {
-                        RelevantVariant rv = relevantVariants.next();
+                        GavinRecord rv = relevantVariants.next();
 
                         for(Relevance rlv : rv.getRelevance())
                         {
@@ -45,23 +42,16 @@ public class MAFFilter {
                             }
                             else if(verbose)
                             {
-                                if(verbose){ System.out.println("[MAFFilter] Removing variant at " +rv.getVariant().getChr() +":"+rv.getVariant().getPos() + " because it has AF >"+threshold+". ExAC: "+rlv.getAlleleFreq()+", GoNL: "+rlv.getGonlAlleleFreq()+""); }
+                                if(verbose){ System.out.println("[MAFFilter] Removing variant at " +rv.getChromosome() +":"+rv.getPosition() + " because it has AF >"+threshold+". ExAC: "+rlv.getAlleleFreq()+", GoNL: "+rlv.getGonlAlleleFreq()+""); }
                             }
                         }
 
                     }
-
                     return false;
-                }
-                catch(Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 return nextResult;
             }
         };

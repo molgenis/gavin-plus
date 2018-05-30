@@ -1,13 +1,8 @@
 package org.molgenis.data.annotation.makervcf;
 
 import org.apache.commons.io.FileUtils;
-import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.genestream.impl.TrioFilter;
-import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
 import org.molgenis.data.annotation.makervcf.structs.TrioData;
-import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.vcf.datastructures.Trio;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -26,7 +21,7 @@ public class GetTriosFromVCFTest
 
 
 	@BeforeClass
-	public void beforeClass() throws FileNotFoundException, IOException {
+	public void beforeClass() throws IOException {
 		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/GetTriosFromVCFTestFile.vcf");
 		inputVcfFile = new File(FileUtils.getTempDirectory(), "GetTriosFromVCFTestFile.vcf");
 		FileCopyUtils.copy(inputVcf, new FileOutputStream(inputVcfFile));
@@ -37,7 +32,7 @@ public class GetTriosFromVCFTest
 	{
 		TrioData td = TrioFilter.getTrioData(inputVcfFile);
 
-		HashMap<String, Trio> trios = td.getTrios();
+		Map<String, Trio> trios = td.getTrios();
 		Set<String> parents = td.getParents();
 
 		assertEquals(trios.size(), 6);

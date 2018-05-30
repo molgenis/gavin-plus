@@ -3,7 +3,7 @@ package org.molgenis.data.annotation.makervcf;
 import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -12,13 +12,12 @@ import org.testng.annotations.Test;
 import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
- * TODO
+ * TODO JvdV
  * this tests the basics, but not overlapping genes or multiple alleles
  * AssignCompoundHetTest does this to some degree but here we need to do this as well
  */
@@ -45,10 +44,10 @@ public class MatchVariantsToGenotypeAndInheritanceTest extends Setup
 	{
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> disc = discover.findRelevantVariants();
+		Iterator<GavinRecord> disc = discover.findRelevantVariants();
 
 		MatchVariantsToGenotypeAndInheritance m = new MatchVariantsToGenotypeAndInheritance(disc, cgdFile, new HashSet<>(), false);
-		Iterator<RelevantVariant> it = m.go();
+		Iterator<GavinRecord> it = m.go();
 
 		// dominant gene
 		assertTrue(it.hasNext());
