@@ -17,7 +17,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
- * TODO
+ * TODO JvdV
  * this tests the basics, but not overlapping genes or multiple alleles
  * AssignCompoundHetTest does this to some degree but here we need to do this as well
  */

@@ -17,7 +17,7 @@ import java.util.Iterator;
  * <p>
  * False Omission Rate
  * <p>
- * TODO: make gene stream
+ * TODO JvdV: make gene stream
  */
 public class FOR
 {

@@ -115,7 +115,7 @@ public class SplitRlvTool
                                         throw new Exception("RLV did not have " + RVCF.nrOfFields + " subfields but " + multiRlvSplit.length + "! bad data: " + rlvSplit[k]);
                                     }
 
-                                    //todo: check if combination unique?
+                                    //TODO JvdV: check if combination unique?
                                     String alt = multiRlvSplit[0];
                                     String gene = multiRlvSplit[2];
 

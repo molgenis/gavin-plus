@@ -49,7 +49,7 @@ public class Pipeline
 		//if available: use any phasing information to filter out compounds
 		Iterator<GavinRecord> rv6 = new PhasingCompoundCheck(rv5, verbose).go();
 
-		// TODO
+		// TODO JvdV
 		//if available: use any SV data to give weight to carrier/heterozygous variants that may be complemented by a deleterious structural event
 		Iterator<GavinRecord> rv7 = new CombineWithSVcalls(rv6, verbose).go();
 

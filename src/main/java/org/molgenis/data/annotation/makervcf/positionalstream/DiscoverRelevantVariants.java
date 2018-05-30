@@ -13,7 +13,6 @@ import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.annotation.makervcf.util.LabVariants;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
-import org.molgenis.vcf.VcfRecordUtils;
 
 import java.io.File;
 import java.util.*;
@@ -46,7 +45,7 @@ public class DiscoverRelevantVariants
 			this.lab = new LabVariants(labVariants);
 		}
 		this.gavin = new GavinAlgorithm();
-		this.gavinData = new GavinUtils(gavinFile).getGeneToEntry();
+		this.gavinData = GavinUtils.getGeneToEntry(gavinFile);
 		this.hmcs = new HandleMissingCaddScores(mode, caddFile);
 		this.verbose = verbose;
 	}
@@ -181,7 +180,7 @@ public class DiscoverRelevantVariants
 											vcfEntity.getAlt(i), gene) : null;
 									Judgment clinvarJudgment = clinvar.classifyVariant(vcfEntity,
 											vcfEntity.getAlt(i), gene, false);
-									//FIXME: where to get gavin thresholds
+
 									Judgment gavinJudgment = gavin.classifyVariant(impact, cadd,
 											vcfEntity.getExAcAlleleFrequencies(i), gene, gavinData);
 

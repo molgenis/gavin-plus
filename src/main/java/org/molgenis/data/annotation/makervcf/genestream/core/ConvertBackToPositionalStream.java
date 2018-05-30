@@ -5,8 +5,7 @@ import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import java.util.*;
 
 /**
- * Created by joeri on 6/29/16.
- * FIXME: any way to clean up 'order' during streaming of results? ie. for any positions that have been written out?
+ * FIXME JvdV: any way to clean up 'order' during streaming of results? ie. for any positions that have been written out?
  */
 public class ConvertBackToPositionalStream {
 

@@ -69,7 +69,7 @@ public abstract class GeneStream {
                                     }
                                     catch (Exception e)
                                     {
-                                        e.printStackTrace();
+                                        throw new RuntimeException(e);
                                     }
                                 }
                                 // create shallow copy, so that we can add another variant to buffer after we instantiate the iterator
@@ -123,7 +123,7 @@ public abstract class GeneStream {
                             }
                             catch (Exception e)
                             {
-                                e.printStackTrace();
+                                throw new RuntimeException(e);
                             }
                         }
                         resultBatch = new ArrayList<>(variantBuffer).iterator();

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
-import org.molgenis.vcf.VcfRecordUtils;
 
 /**
  * Created by joeri on 6/29/16.
