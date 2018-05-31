@@ -1,35 +1,35 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 
 import java.util.Iterator;
 
 /**
  * Created by joeri on 6/29/16.
  *
- * TODO
+ * TODO JvdV:
  *
  */
 public class ApplyFDRThreshold {
 
-    private Iterator<RelevantVariant> relevantVariants;
+    private Iterator<GavinRecord> relevantVariants;
 
-    public ApplyFDRThreshold(Iterator<RelevantVariant> relevantVariants)
+    public ApplyFDRThreshold(Iterator<GavinRecord> relevantVariants)
     {
         this.relevantVariants = relevantVariants;
     }
 
-    public Iterator<RelevantVariant> go()
+    public Iterator<GavinRecord> go()
     {
-        return new Iterator<RelevantVariant>(){
+        return new Iterator<GavinRecord>(){
 
-            RelevantVariant nextResult;
+            GavinRecord nextResult;
 
             @Override
             public boolean hasNext() {
                 try {
                     while (relevantVariants.hasNext()) {
-                        RelevantVariant rv = relevantVariants.next();
+                        GavinRecord rv = relevantVariants.next();
 
                         //get FDR and possibly apply threshold
                         //at least 'annotate' with FDR, possibly FOR
@@ -48,7 +48,7 @@ public class ApplyFDRThreshold {
             }
 
             @Override
-            public RelevantVariant next() {
+            public GavinRecord next() {
                 return nextResult;
             }
         };

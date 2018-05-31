@@ -2,7 +2,6 @@ package org.molgenis.data.annotation.splitrlv;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.molgenis.data.annotation.mergeback.MergeBackTool;
 
 import java.io.File;
 

@@ -4,7 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.structs.RelevantVariant;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
@@ -42,25 +42,25 @@ public class GeneStreamTest extends Setup
 	public void test() throws Exception
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> reorder = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		Iterator<GavinRecord> reorder = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
 
 		HashMap<String, Integer> observedVariantsPerGene = new HashMap<>();
 
 		GeneStream gsTest = new GeneStream(reorder, false) {
 			@Override
-			public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {
+			public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
 				observedVariantsPerGene.put(gene, variantsPerGene.size());
 			}
 		};
 
-		Iterator<RelevantVariant> it = gsTest.go();
+		Iterator<GavinRecord> it = gsTest.go();
 
 		int nrOfVariants = 0;
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
 			nrOfVariants++;
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getPosition() + "_");
 
 		}
 
@@ -112,19 +112,19 @@ public class GeneStreamTest extends Setup
 	public void test2() throws Exception
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile2, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<RelevantVariant> reorder = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		Iterator<GavinRecord> reorder = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
 
 		GeneStream gsTest = new GeneStream(reorder, false) {
 			@Override
-			public void perGene(String gene, List<RelevantVariant> variantsPerGene) throws Exception {}
+			public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {}
 		};
 
-		Iterator<RelevantVariant> it = gsTest.go();
+		Iterator<GavinRecord> it = gsTest.go();
 		StringBuffer positions = new StringBuffer();
 
 		while(it.hasNext())
 		{
-			positions.append(it.next().getVariant().getPos() + "_");
+			positions.append(it.next().getPosition() + "_");
 
 		}
 		// originally a bug found in ConvertToGeneStreamTest

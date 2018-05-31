@@ -1,15 +1,12 @@
 package org.molgenis.data.annotation.makervcf.util;
 
-import com.google.common.collect.Lists;
-import org.molgenis.data.AttributeMetaData;
-import org.molgenis.data.Entity;
-import org.molgenis.data.annotation.makervcf.structs.VcfEntity;
-import org.molgenis.data.vcf.VcfRepository;
-import org.molgenis.data.vcf.utils.VcfWriterUtils;
+import org.molgenis.calibratecadd.support.GavinUtils;
+import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
+import org.molgenis.vcf.VcfReader;
+import org.molgenis.vcf.VcfRecord;
 
 import java.io.*;
 import java.util.Iterator;
-import java.util.List;
 
 /** 
  * Annotator that adds the output of the CADD webservice to a VCF file.
@@ -62,36 +59,29 @@ public class CaddWebserviceOutputAnnotator
 	
 	public void annotate() throws Exception
 	{
-		VcfRepository vcf = new VcfRepository(vcfToAnnotate, "vcf");
-		List<AttributeMetaData> attributes = Lists.newArrayList(vcf.getEntityMetaData().getAttributes());
-		VcfWriterUtils.writeVcfHeader(vcfToAnnotate, outputVCFWriter, attributes);
-		Iterator<Entity> vcfIterator = vcf.iterator();
+		VcfReader vcfReader = GavinUtils.getVcfReader(vcfToAnnotate);
+		//TODO: VcfWriterUtils.writeVcfHeader(vcfToAnnotate, outputVCFWriter, attributes);
+		Iterator<VcfRecord> vcfIterator = vcfReader.iterator();
 
 		while(vcfIterator.hasNext())
 		{
-			VcfEntity record = new VcfEntity(vcfIterator.next());
-			StringBuffer cadd_scaled = new StringBuffer();
-			for(int altIndex = 0; altIndex < record.getAlts().length; altIndex++)
+			GavinRecord vcfEntity = new GavinRecord(vcfIterator.next());
+			for(int altIndex = 0; altIndex < vcfEntity.getAlts().length; altIndex++)
 			{
-				if(record.getCaddPhredScores(altIndex) == null){
-					Double cadd = hmcs.dealWithCaddScores(record, altIndex);
-					cadd_scaled.append(cadd+",");
-					record.setCaddPhredScore(altIndex, cadd);
+				if(vcfEntity.getCaddPhredScores(altIndex) == null){
+					Double cadd = hmcs.dealWithCaddScores(vcfEntity, altIndex);
+					vcfEntity.setCaddPhredScore(altIndex, cadd);
 					System.out.println("setting missing CADD score " + cadd);
 				}
-				else
-				{
-					cadd_scaled.append(record.getCaddPhredScores(altIndex) + ",");
-				}
 			}
-			cadd_scaled.deleteCharAt(cadd_scaled.length()-1);
-			record.getOrignalEntity().set("CADD_SCALED", cadd_scaled.toString());
-			VcfWriterUtils.writeToVcf(record.getOrignalEntity(), outputVCFWriter);
-			outputVCFWriter.newLine();
+
+			//TODO: need for cadd_scaled? this is a concatenation of the phredScores
+			//TODO: VcfWriterUtils.writeToVcf(record.getOrignalEntity(), outputVCFWriter);
+			//TODO: outputVCFWriter.newLine();
 		}
 
-		outputVCFWriter.flush();
-		outputVCFWriter.close();
+		//TODO: outputVCFWriter.flush();
+		//TODO: outputVCFWriter.close();
 
 		System.out.println("Done!");
 	}
