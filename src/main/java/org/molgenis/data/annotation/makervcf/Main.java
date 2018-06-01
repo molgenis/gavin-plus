@@ -7,6 +7,11 @@ import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import static java.util.Arrays.asList;
 
@@ -107,7 +112,7 @@ public class Main
 
 	public void run(OptionSet options, OptionParser parser) throws Exception
 	{
-		String version = "1.0";
+		String version = VersionUtils.getVersion();
 		String title = "* MOLGENIS GAVIN+ for genome diagnostics, release " + version + "";
 		String titl2 = "* Gene-Aware Variant INterpretation Plus";
 
