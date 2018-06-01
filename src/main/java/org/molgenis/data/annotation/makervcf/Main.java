@@ -7,11 +7,6 @@ import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import static java.util.Arrays.asList;
 
