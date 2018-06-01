@@ -107,7 +107,7 @@ public class Main
 
 	public void run(OptionSet options, OptionParser parser) throws Exception
 	{
-		String version = "1.0";
+		String version = VersionUtils.getVersion();
 		String title = "* MOLGENIS GAVIN+ for genome diagnostics, release " + version + "";
 		String titl2 = "* Gene-Aware Variant INterpretation Plus";
 
