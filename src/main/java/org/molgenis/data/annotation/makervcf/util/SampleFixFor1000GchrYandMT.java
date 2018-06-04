@@ -13,86 +13,90 @@ public class SampleFixFor1000GchrYandMT {
 
     public SampleFixFor1000GchrYandMT() throws Exception {
         File inputVcfFile = new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf");
-        Scanner s = new Scanner(inputVcfFile);
-        File outputVcfFile = new File("/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.samplefix.vcf");
-
-        PrintWriter pw = new PrintWriter(outputVcfFile);
-
-        HashMap<String, Integer> sampleToIndex = new HashMap<>();
-
-        while(s.hasNext())
+        PrintWriter pw;
+        try (Scanner s = new Scanner(inputVcfFile))
         {
-            String line = s.nextLine();
+            File outputVcfFile = new File(
+                    "/Users/joeri/Desktop/1000G_diag_FDR/exomePlus/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.samplefix.vcf");
 
-            //start
-            if(line.startsWith("##"))
+            pw = new PrintWriter(outputVcfFile);
+
+            HashMap<String, Integer> sampleToIndex = new HashMap<>();
+
+            while (s.hasNext())
             {
-                pw.println(line);
-                continue;
-            }
+                String line = s.nextLine();
 
-            //this once
-            if(line.startsWith("#"))
-            {
-
-                // new header
-                StringBuffer sb = new StringBuffer();
-                for(String sample : desiredSamples)
+                //start
+                if (line.startsWith("##"))
                 {
-                    sb.append("\t" + sample);
+                    pw.println(line);
+                    continue;
                 }
-                String newHeader = "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT" + sb.toString();
-                pw.println(newHeader);
-                System.out.println("printed new header: " + newHeader);
 
-                //get sample to index mapping from old header
-                String[] oldHeaderSplit = line.split("\t", -1);
-
-                for(int i = 0; i < oldHeaderSplit.length; i++)
+                //this once
+                if (line.startsWith("#"))
                 {
-                    if(i > 8 )
+
+                    // new header
+                    StringBuffer sb = new StringBuffer();
+                    for (String sample : desiredSamples)
                     {
-                        sampleToIndex.put(oldHeaderSplit[i], i);
+                        sb.append("\t" + sample);
+                    }
+                    String newHeader = "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT" + sb.toString();
+                    pw.println(newHeader);
+                    System.out.println("printed new header: " + newHeader);
+
+                    //get sample to index mapping from old header
+                    String[] oldHeaderSplit = line.split("\t", -1);
+
+                    for (int i = 0; i < oldHeaderSplit.length; i++)
+                    {
+                        if (i > 8)
+                        {
+                            sampleToIndex.put(oldHeaderSplit[i], i);
+                        }
+                    }
+                    System.out.println(
+                            "stored " + sampleToIndex.size() + " sample to index mappings, going to replace with " + desiredSamples.size() + " desired sample name columns");
+                    continue;
+                }
+
+                //then parse the content
+                String[] split = line.split("\t");
+                StringBuffer sb = new StringBuffer();
+
+                //keep first 8 columns and store index to genotype from old VCF
+                HashMap<Integer, String> indexToGenotypeData = new HashMap<>();
+                for (int i = 0; i < split.length; i++)
+                {
+                    if (i < 9)
+                    {
+                        sb.append(split[i] + "\t");
+                    }
+                    else
+                    {
+                        indexToGenotypeData.put(i, split[i]);
                     }
                 }
-                System.out.println("stored "+ sampleToIndex.size() +" sample to index mappings, going to replace with " + desiredSamples.size() + " desired sample name columns");
-                continue;
-            }
 
-            //then parse the content
-            String[] split = line.split("\t");
-            StringBuffer sb = new StringBuffer();
-
-            //keep first 8 columns and store index to genotype from old VCF
-            HashMap<Integer, String> indexToGenotypeData = new HashMap<>();
-           for(int i = 0; i < split.length; i ++)
-           {
-               if(i < 9)
-               {
-                   sb.append(split[i] + "\t");
-               }
-               else
-               {
-                   indexToGenotypeData.put(i, split[i]);
-               }
-           }
-
-
-            //now iterate over the NEW column sample headers and print stuff
-            for(String sampleName : desiredSamples)
-            {
-                if(sampleToIndex.containsKey(sampleName))
+                //now iterate over the NEW column sample headers and print stuff
+                for (String sampleName : desiredSamples)
                 {
-                    sb.append(indexToGenotypeData.get(sampleToIndex.get(sampleName)) + "\t");
+                    if (sampleToIndex.containsKey(sampleName))
+                    {
+                        sb.append(indexToGenotypeData.get(sampleToIndex.get(sampleName)) + "\t");
+                    }
+                    else
+                    {
+                        //todo: '.' depends on the amount of FORMAT fields, assuming one.....
+                        sb.append(".\t");
+                    }
                 }
-                else
-                {
-                    //todo: '.' depends on the amount of FORMAT fields, assuming one.....
-                    sb.append(".\t");
-                }
+                sb.deleteCharAt(sb.length() - 1);
+                pw.println(sb.toString());
             }
-            sb.deleteCharAt(sb.length()-1);
-            pw.println(sb.toString());
         }
 
         pw.flush();

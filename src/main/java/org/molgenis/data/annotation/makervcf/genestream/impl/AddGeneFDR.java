@@ -15,8 +15,6 @@ import java.util.*;
  *
  */
 public class AddGeneFDR extends GeneStream{
-
-    private Iterator<GavinRecord> relevantVariants;
     private boolean verbose;
     private Map<String, Double> affectedFrac;
     private Map<String, Double> carrierFrac;
@@ -28,14 +26,16 @@ public class AddGeneFDR extends GeneStream{
         Map<String, Double> affectedFrac = new HashMap<>();
         Map<String, Double> carrierFrac = new HashMap<>();
 
-        Scanner s = new Scanner(FDRfile);
-        s.nextLine(); //skip header
-        while(s.hasNextLine())
+        try (Scanner s = new Scanner(FDRfile))
         {
-            //"Gene    AffectedAbs     CarrierAbs      AffectedFrac    CarrierFrac"
-            String[] split = s.nextLine().split("\t", -1);
-            affectedFrac.put(split[0], Double.parseDouble(split[3]));
-            carrierFrac.put(split[0], Double.parseDouble(split[4]));
+            s.nextLine(); //skip header
+            while (s.hasNextLine())
+            {
+                //"Gene    AffectedAbs     CarrierAbs      AffectedFrac    CarrierFrac"
+                String[] split = s.nextLine().split("\t", -1);
+                affectedFrac.put(split[0], Double.parseDouble(split[3]));
+                carrierFrac.put(split[0], Double.parseDouble(split[4]));
+            }
         }
         this.affectedFrac = affectedFrac;
         this.carrierFrac = carrierFrac;

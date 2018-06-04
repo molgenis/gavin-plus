@@ -51,11 +51,9 @@ public class GavinUtils
 	{
 		VcfReader reader;
 
-		InputStream inputStream = new FileInputStream(file);
-
 		if (file.getName().endsWith(".gz"))
 		{
-			reader = new VcfReader(new InputStreamReader(new GZIPInputStream(inputStream), Charset.forName("UTF-8")));
+			reader = new VcfReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), Charset.forName("UTF-8")));
 		}
 		else if (file.getName().endsWith(".zip"))
 		{
@@ -69,7 +67,7 @@ public class GavinUtils
 		}
 		else
 		{
-			reader = new VcfReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+			reader = new VcfReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
 		}
 
 		return reader;
