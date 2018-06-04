@@ -4,11 +4,11 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static java.util.Arrays.asList;
 
@@ -276,17 +276,6 @@ public class Main
 		{
 			System.out.println("Structural variation not yet supported!");
 			return;
-			//            File structVar = (File) options.valueOf("sv");
-			//            if (!structVar.exists())
-			//            {
-			//                System.out.println("Structural variation VCF file not found at " + structVar);
-			//                return;
-			//            }
-			//            else if (structVar.isDirectory())
-			//            {
-			//                System.out.println("Structural variation VCF file location is a directory, not a file!");
-			//                return;
-			//            }
 		}
 
 		/**
@@ -295,7 +284,7 @@ public class Main
 		String modeString = (String) options.valueOf(MODE);
 		if (!isValidEnum(Mode.class, modeString))
 		{
-			System.out.println("Mode must be one of the following: " + Mode.values().toString());
+			System.out.println("Mode must be one of the following: " + Arrays.toString(Mode.values()));
 			return;
 		}
 		Mode mode = Mode.valueOf(modeString);
@@ -323,9 +312,7 @@ public class Main
 				}
 			}
 		}
-		else if (mode == Mode.CREATEFILEFORCADD)
-		{
-			if (caddFile.exists())
+		else if (mode == Mode.CREATEFILEFORCADD && caddFile.exists())
 			{
 				if (options.has(REPLACE))
 				{
@@ -338,7 +325,6 @@ public class Main
 							"CADD file already exists, please either enter a different output name or use the '-r' option to overwrite the output file.");
 					return;
 				}
-			}
 		}
 
 		/**
