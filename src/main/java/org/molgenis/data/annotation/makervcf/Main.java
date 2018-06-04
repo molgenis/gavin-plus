@@ -47,7 +47,7 @@ public class Main
 	{
 		OptionParser parser = createOptionParser();
 		OptionSet options = parser.parse(args);
-		new Main().run(options, parser);
+		new Main().run(options, parser, Arrays.toString(args));
 	}
 
 	protected static OptionParser createOptionParser()
@@ -122,7 +122,7 @@ public class Main
 		System.out.println("\n" + StringUtils.repeat("-", title.length()) + "\n");
 	}
 
-	public void run(OptionSet options, OptionParser parser) throws Exception
+	public void run(OptionSet options, OptionParser parser, String cmdString) throws Exception
 	{
 		String version = VersionUtils.getVersion();
 		String title = "* MOLGENIS GAVIN+ for genome diagnostics, release " + version + "";
@@ -340,7 +340,7 @@ public class Main
 		 */
 		System.out.println("Starting..");
 		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile,
-				labVariants);
+				labVariants, version, cmdString);
 		System.out.println("..done!");
 
 	}

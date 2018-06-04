@@ -18,7 +18,7 @@ public class Pipeline
 {
 
 	public void start(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile,
-			HandleMissingCaddScores.Mode mode, File outputVcfFile, File labVariants) throws Exception
+			HandleMissingCaddScores.Mode mode, File outputVcfFile, File labVariants, String version, String cmdString) throws Exception
 	{
 		//get trios and parents if applicable
 		TrioData td = TrioFilter.getTrioData(inputVcfFile);
@@ -62,7 +62,7 @@ public class Pipeline
 		Iterator<GavinRecord> rv10 = new CleanupVariantsWithoutSamples(rv9).go();
 
 		//write Entities output VCF file
-		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile,true);
+		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile,version, cmdString, true);
 
 	}
 }

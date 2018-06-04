@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf;
 
+import org.apache.commons.lang3.StringUtils;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.vcf.VcfReader;
@@ -20,9 +21,11 @@ import java.util.*;
 class WriteToRVCF
 {
 	private static final Logger LOG = LoggerFactory.getLogger(WriteToRVCF.class);
-	void writeRVCF(Iterator<GavinRecord> relevantVariants, File writeTo, File inputVcfFile, boolean writeToDisk) throws Exception
+	void writeRVCF(Iterator<GavinRecord> relevantVariants, File writeTo, File inputVcfFile, String version, String cmdString, boolean writeToDisk) throws Exception
 	{
 		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile);
+		vcfMeta.add("GavinVersion", StringUtils.wrap(version, "\""));
+		vcfMeta.add("GavinCmd", StringUtils.wrap(cmdString, "\""));
 		LOG.debug("[WriteToRVCF] Writing header");
 
 		try (VcfWriter vcfWriter = new VcfWriterFactory().create(writeTo, vcfMeta))
