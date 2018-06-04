@@ -117,9 +117,7 @@ public class RVCF
 				 .replaceAll("\\s", "_");
 	}
 
-	// TODO do not use toString for this but a separate method
-	@Override
-	public String toString()
+	public String getVcfString()
 	{
 		return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getAlleleFreq()) + RVCF_FIELDSEP
 				+ escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getFDR()) + RVCF_FIELDSEP
@@ -382,5 +380,19 @@ public class RVCF
 	public void setVariantGroup(String variantGroup)
 	{
 		this.variantGroup = variantGroup;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "RVCF{" + "allele='" + allele + '\'' + ", alleleFreq='" + alleleFreq + '\'' + ", gene='" + gene + '\''
+				+ ", FDR='" + FDR + '\'' + ", transcript='" + transcript + '\'' + ", phenotype='" + phenotype + '\''
+				+ ", phenotypeInheritance='" + phenotypeInheritance + '\'' + ", phenotypeOnset='" + phenotypeOnset
+				+ '\'' + ", phenotypeDetails='" + phenotypeDetails + '\'' + ", phenotypeGroup='" + phenotypeGroup + '\''
+				+ ", sampleStatus=" + sampleStatus + ", samplePhenotype=" + samplePhenotype + ", sampleGenotype="
+				+ sampleGenotype + ", sampleGroup=" + sampleGroup + ", variantSignificance='" + variantSignificance
+				+ '\'' + ", variantSignificanceSource='" + variantSignificanceSource + '\''
+				+ ", variantSignificanceJustification='" + variantSignificanceJustification + '\''
+				+ ", variantMultiGenic='" + variantMultiGenic + '\'' + ", variantGroup='" + variantGroup + '\'' + '}';
 	}
 }

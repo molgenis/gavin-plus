@@ -50,7 +50,7 @@ public class RlvInfoMapper
 		StringBuilder rvcfListSB = new StringBuilder();
 		for (RVCF rvcf : rvcfList)
 		{
-			rvcfListSB.append(rvcf.toString()).append(',');
+			rvcfListSB.append(rvcf.getVcfString()).append(',');
 		}
 		rvcfListSB.deleteCharAt(rvcfListSB.length() - 1);
 
