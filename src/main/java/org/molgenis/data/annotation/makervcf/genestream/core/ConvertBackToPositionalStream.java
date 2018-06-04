@@ -77,7 +77,7 @@ public class ConvertBackToPositionalStream {
                                 }
 
                                 bufferPrinter = getIterator(buffer);
-                                LOG.debug("[ConvertBackToPositionalStream] Positions aligned again at "+pos+", all values smaller than current pos, so clearning buffer with "+buffer.size()+" elements");
+                                LOG.debug("[ConvertBackToPositionalStream] Positions aligned again at {0}, all values smaller than current pos, so clearning buffer with {1} elements", pos, buffer.size());
                                 buffer = new TreeMap<>();
                                 nextResult = bufferPrinter.next();
                                 return true;
@@ -86,7 +86,7 @@ public class ConvertBackToPositionalStream {
                         }
                         else
                         {
-                            LOG.debug("[ConvertBackToPositionalStream] Adding to buffer " + pos);
+                            LOG.debug("[ConvertBackToPositionalStream] Adding to buffer {}", pos);
                             if(buffer.containsKey(pos)) { buffer.get(pos).add(rv); }
                             else { buffer.put(pos, new ArrayList(Arrays.asList(rv))); }
                         }

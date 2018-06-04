@@ -27,7 +27,22 @@ import static java.util.Arrays.asList;
  */
 public class Main
 {
-	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
+	public static final String INPUT = "input";
+	public static final String OUTPUT = "output";
+	public static final String GAVIN = "gavin";
+	public static final String CLINVAR = "clinvar";
+	public static final String CGD = "cgd";
+	public static final String FDR = "fdr";
+	public static final String CADD = "cadd";
+	public static final String LAB = "lab";
+	public static final String SV = "sv";
+	public static final String MODE = "mode";
+	public static final String VERBOSE = "verbose";
+	public static final String REPLACE = "replace";
+	public static final String HELP = "help";
+	public static final String RESTORE = "restore";
+
 	public static void main(String[] args) throws Exception
 	{
 		OptionParser parser = createOptionParser();
@@ -39,31 +54,31 @@ public class Main
 	{
 		OptionParser parser = new OptionParser();
 
-		parser.acceptsAll(asList("i", "input"), "Input VCF file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("o", "output"), "Output RVCF file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("g", "gavin"), "GAVIN calibration file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("c", "clinvar"), "ClinVar pathogenic VCF file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("d", "cgd"), "CGD file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("f", "fdr"), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("a", "cadd"), "Input/output CADD missing annotations")
+		parser.acceptsAll(asList("i", INPUT), "Input VCF file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("o", OUTPUT), "Output RVCF file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("g", GAVIN), "GAVIN calibration file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("c", CLINVAR), "ClinVar pathogenic VCF file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("d", CGD), "CGD file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("f", FDR), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("a", CADD), "Input/output CADD missing annotations")
 			  .withRequiredArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("l", "lab"), "VCF file with lab specific variant classifications")
+		parser.acceptsAll(asList("l", LAB), "VCF file with lab specific variant classifications")
 			  .withOptionalArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("s", "sv"),
+		parser.acceptsAll(asList("s", SV),
 				"[not available] Structural variation VCF file outputted by Delly, Manta or compatible")
 			  .withOptionalArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("m", "mode"),
+		parser.acceptsAll(asList("m", MODE),
 				"Create or use CADD file for missing annotations, either " + Mode.ANALYSIS.toString() + " or "
 						+ Mode.CREATEFILEFORCADD.toString()).withRequiredArg().ofType(String.class);
-		parser.acceptsAll(asList("v", "verbose"),
+		parser.acceptsAll(asList("v", VERBOSE),
 				"Verbally express what is happening underneath the programmatic hood.");
-		parser.acceptsAll(asList("r", "replace"),
+		parser.acceptsAll(asList("r", REPLACE),
 				"Enables output RVCF and CADD intermediate file override, replacing a file with the same name as the argument for the -o option");
-		parser.acceptsAll(asList("h", "help"), "Prints this help text");
-		parser.acceptsAll(asList("e", "restore"),
+		parser.acceptsAll(asList("h", HELP), "Prints this help text");
+		parser.acceptsAll(asList("e", RESTORE),
 				"[not available] Supporting tool. Combine RVCF results with original VCF.")
 			  .withOptionalArg()
 			  .ofType(File.class);
@@ -120,13 +135,13 @@ public class Main
 
 		System.out.println(appTitle);
 
-		if ((options.has("restore") && options.has("input") && options.has("output")) || (options.has("input")
-				&& options.has("output") && options.has("gavin") && options.has("clinvar") && options.has("cgd")
-				&& options.has("fdr") && options.has("cadd") && options.has("mode")))
+		if ((options.has(RESTORE) && options.has(INPUT) && options.has(OUTPUT)) || (options.has(INPUT)
+				&& options.has(OUTPUT) && options.has(GAVIN) && options.has(CLINVAR) && options.has(CGD)
+				&& options.has(FDR) && options.has(CADD) && options.has(MODE)))
 		{
 			System.out.println("Arguments OK.");
 		}
-		else if (options.has("help"))
+		else if (options.has(HELP))
 		{
 			System.out.println("Help page requested.");
 			printHelp(version, title, parser);
@@ -142,7 +157,7 @@ public class Main
 		/**************
 		 * "Restore mode" where we add back genotypes in an RVCF
 		 *************/
-		if (options.has("restore"))
+		if (options.has(RESTORE))
 		{
 			System.out.println("Restore mode not yet supported!");
 			return;
@@ -155,7 +170,7 @@ public class Main
 		/**
 		 * Input check
 		 */
-		File inputVcfFile = (File) options.valueOf("input");
+		File inputVcfFile = (File) options.valueOf(INPUT);
 		if (!inputVcfFile.exists())
 		{
 			System.out.println("Input VCF file not found at " + inputVcfFile);
@@ -170,10 +185,10 @@ public class Main
 		/**
 		 * Output and replace check
 		 */
-		File outputVCFFile = (File) options.valueOf("output");
+		File outputVCFFile = (File) options.valueOf(OUTPUT);
 		if (outputVCFFile.exists())
 		{
-			if (options.has("replace"))
+			if (options.has(REPLACE))
 			{
 				System.out.println("Override enabled, replacing existing output RVCF file with specified output: "
 						+ outputVCFFile.getAbsolutePath());
@@ -189,7 +204,7 @@ public class Main
 		/**
 		 * Check all kinds of files you need
 		 */
-		File gavinFile = (File) options.valueOf("gavin");
+		File gavinFile = (File) options.valueOf(GAVIN);
 		if (!gavinFile.exists())
 		{
 			System.out.println("GAVIN calibration file not found at " + gavinFile);
@@ -201,7 +216,7 @@ public class Main
 			return;
 		}
 
-		File clinvarFile = (File) options.valueOf("clinvar");
+		File clinvarFile = (File) options.valueOf(CLINVAR);
 		if (!clinvarFile.exists())
 		{
 			System.out.println("ClinVar pathogenic VCF file not found at " + clinvarFile);
@@ -213,7 +228,7 @@ public class Main
 			return;
 		}
 
-		File cgdFile = (File) options.valueOf("cgd");
+		File cgdFile = (File) options.valueOf(CGD);
 		if (!cgdFile.exists())
 		{
 			System.out.println("CGD file not found at " + cgdFile);
@@ -225,7 +240,7 @@ public class Main
 			return;
 		}
 
-		File FDRfile = (File) options.valueOf("fdr");
+		File FDRfile = (File) options.valueOf(FDR);
 		if (!FDRfile.exists())
 		{
 			System.out.println("FDR file not found at " + FDRfile);
@@ -241,9 +256,9 @@ public class Main
 		 * Optional
 		 */
 		File labVariants = null;
-		if (options.has("lab"))
+		if (options.has(LAB))
 		{
-			labVariants = (File) options.valueOf("lab");
+			labVariants = (File) options.valueOf(LAB);
 			if (!labVariants.exists())
 			{
 				System.out.println("VCF file with lab specific variant classifications not found at " + labVariants);
@@ -257,7 +272,7 @@ public class Main
 			}
 		}
 
-		if (options.has("sv"))
+		if (options.has(SV))
 		{
 			System.out.println("Structural variation not yet supported!");
 			return;
@@ -277,7 +292,7 @@ public class Main
 		/**
 		 * Check mode in combination with CADD file and replace
 		 */
-		String modeString = (String) options.valueOf("mode");
+		String modeString = (String) options.valueOf(MODE);
 		if (!isValidEnum(Mode.class, modeString))
 		{
 			System.out.println("Mode must be one of the following: " + Mode.values().toString());
@@ -285,7 +300,7 @@ public class Main
 		}
 		Mode mode = Mode.valueOf(modeString);
 
-		File caddFile = (File) options.valueOf("cadd");
+		File caddFile = (File) options.valueOf(CADD);
 		if (mode == Mode.ANALYSIS)
 		{
 			if (!caddFile.exists())
@@ -312,7 +327,7 @@ public class Main
 		{
 			if (caddFile.exists())
 			{
-				if (options.has("replace"))
+				if (options.has(REPLACE))
 				{
 					System.out.println("Override enabled, replacing existing CADD file with specified output: "
 							+ caddFile.getAbsolutePath());
@@ -329,7 +344,7 @@ public class Main
 		/**
 		 * Verbose
 		 */
-		if (options.has("verbose"))
+		if (options.has(VERBOSE))
 		{
 			setLogLevelToDebug();
 		}

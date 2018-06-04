@@ -46,10 +46,9 @@ public class FixVcfAlleleNotation
 		File in = new File(args[0]);
 		File out = new File(args[1]);
 
-		Scanner s;
 		try (PrintWriter pw = new PrintWriter(out))
 		{
-			s = new Scanner(in);
+			try (Scanner s = new Scanner(in)){
 			String line;
 			while (s.hasNextLine())
 			{
@@ -130,7 +129,7 @@ public class FixVcfAlleleNotation
 					//get replacement base for N from UCSC
 					URL ucsc = new URL(
 							"http://genome.ucsc.edu/cgi-bin/das/hg19/dna?segment=chr" + chr + ":" + pos + "," + pos);
-					BufferedReader getUrlContent = new BufferedReader(new InputStreamReader(ucsc.openStream()));
+					try(BufferedReader getUrlContent = new BufferedReader(new InputStreamReader(ucsc.openStream()))){
 					String urlLine;
 
 					while ((urlLine = getUrlContent.readLine()) != null)
@@ -146,6 +145,7 @@ public class FixVcfAlleleNotation
 
 					//wait a little bit
 					Thread.sleep(100);
+				}
 				}
 
 				//print the fixed notation
@@ -180,8 +180,7 @@ public class FixVcfAlleleNotation
 			pw.flush();
 			pw.close();
 		}
-		
-		s.close();
+		}
 		
 		System.out.println("Done!");
 
