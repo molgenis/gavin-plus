@@ -86,11 +86,11 @@ public class WriteToRVCFTest extends Setup
 	public void test() throws Exception
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile,
-				null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+				null, HandleMissingCaddScores.Mode.ANALYSIS);
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
-				cgdFile, new HashSet<String>(), false).go();
+				cgdFile, new HashSet<String>()).go();
 
-		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, true, false);
+		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, true);
 
 		System.out.println("Going to compare files:\n" + expectedOutputVcfFile.getAbsolutePath() + "\nvs.\n"
 				+ observedOutputVcfFile.getAbsolutePath());

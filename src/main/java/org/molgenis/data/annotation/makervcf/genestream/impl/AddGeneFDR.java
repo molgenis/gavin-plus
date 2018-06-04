@@ -3,6 +3,8 @@ package org.molgenis.data.annotation.makervcf.genestream.impl;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,13 +17,13 @@ import java.util.*;
  *
  */
 public class AddGeneFDR extends GeneStream{
-    private boolean verbose;
+    private static final Logger LOG = LoggerFactory.getLogger(AddGeneFDR.class);
     private Map<String, Double> affectedFrac;
     private Map<String, Double> carrierFrac;
 
 
-    public AddGeneFDR(Iterator<GavinRecord> relevantVariants, File FDRfile, boolean verbose) throws FileNotFoundException {
-        super(relevantVariants, verbose);
+    public AddGeneFDR(Iterator<GavinRecord> relevantVariants, File FDRfile) throws FileNotFoundException {
+        super(relevantVariants);
 
         Map<String, Double> affectedFrac = new HashMap<>();
         Map<String, Double> carrierFrac = new HashMap<>();
@@ -60,9 +62,7 @@ public class AddGeneFDR extends GeneStream{
                 }
                 String fdrInfo = affectedFracForGene+","+carrierFracForGene;
                 rlv.setFDR(fdrInfo);
-                if(verbose){
-                    System.out.println("[AddGeneFDR] Added FDR info '"+fdrInfo+"' to a variant for gene " + gene);
-                }
+                LOG.debug("[AddGeneFDR] Added FDR info '"+fdrInfo+"' to a variant for gene " + gene);
             }
 
         }

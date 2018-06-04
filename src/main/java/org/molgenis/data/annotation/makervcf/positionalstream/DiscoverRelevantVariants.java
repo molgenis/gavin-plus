@@ -13,6 +13,8 @@ import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.annotation.makervcf.util.LabVariants;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
@@ -26,17 +28,16 @@ import java.util.*;
  */
 public class DiscoverRelevantVariants
 {
-
+	private static final Logger LOG = LoggerFactory.getLogger(DiscoverRelevantVariants.class);
 	private VcfReader vcf;
 	private LabVariants lab;
 	private Map<String, GavinEntry> gavinData;
 	private GavinAlgorithm gavin;
 	private HandleMissingCaddScores hmcs;
 	private ClinVar clinvar;
-	private boolean verbose;
 
 	public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, File labVariants,
-			Mode mode, boolean verbose) throws Exception
+			Mode mode) throws Exception
 	{
 		this.vcf = GavinUtils.getVcfReader(vcfFile);
 		this.clinvar = new ClinVar(clinvarFile);
@@ -47,7 +48,6 @@ public class DiscoverRelevantVariants
 		this.gavin = new GavinAlgorithm();
 		this.gavinData = GavinUtils.getGeneToEntry(gavinFile);
 		this.hmcs = new HandleMissingCaddScores(mode, caddFile);
-		this.verbose = verbose;
 	}
 
 	public Iterator<GavinRecord> findRelevantVariants()
@@ -164,11 +164,8 @@ public class DiscoverRelevantVariants
 
 								if (vcfEntity.getGenes().size() == 0)
 								{
-									if (verbose)
-									{
-										System.out.println("[DiscoverRelevantVariants] WARNING: no genes for variant "
+									LOG.debug("[DiscoverRelevantVariants] WARNING: no genes for variant "
 												+ vcfEntity.toString());
-									}
 								}
 								for (String gene : vcfEntity.getGenes())
 								{
@@ -215,11 +212,8 @@ public class DiscoverRelevantVariants
 						{
 							vcfEntity.setRelevances(relevance);
 							nextResult = vcfEntity;
-							if (verbose)
-							{
-								System.out.println("[DiscoverRelevantVariants] Found relevant variant: "
+							LOG.debug("[DiscoverRelevantVariants] Found relevant variant: "
 										+ nextResult.toStringShort());
-							}
 							return true;
 						}
 					}

@@ -43,10 +43,10 @@ public class MatchVariantsToGenotypeAndInheritanceTest extends Setup
 	public void test() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
 		Iterator<GavinRecord> disc = discover.findRelevantVariants();
 
-		MatchVariantsToGenotypeAndInheritance m = new MatchVariantsToGenotypeAndInheritance(disc, cgdFile, new HashSet<>(), false);
+		MatchVariantsToGenotypeAndInheritance m = new MatchVariantsToGenotypeAndInheritance(disc, cgdFile, new HashSet<>());
 		Iterator<GavinRecord> it = m.go();
 
 		// dominant gene

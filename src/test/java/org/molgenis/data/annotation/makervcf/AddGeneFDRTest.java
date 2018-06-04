@@ -45,11 +45,11 @@ public class AddGeneFDRTest extends Setup
 	public void test() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
-		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>()).go();
+		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 
-		Iterator<GavinRecord> it = new AddGeneFDR(gs.go(), fdrFile, false).go();
+		Iterator<GavinRecord> it = new AddGeneFDR(gs.go(), fdrFile).go();
 
 		/*
 		FDR data:

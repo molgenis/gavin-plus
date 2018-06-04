@@ -3,6 +3,8 @@ package org.molgenis.data.annotation.makervcf.genestream.core;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -12,13 +14,12 @@ import java.util.*;
  */
 public abstract class GeneStream {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GeneStream.class);
     private Iterator<GavinRecord> relevantVariants;
-    protected boolean verbose;
 
-    public GeneStream(Iterator<GavinRecord> relevantVariants, boolean verbose)
+    public GeneStream(Iterator<GavinRecord> relevantVariants)
     {
         this.relevantVariants = relevantVariants;
-        this.verbose = verbose;
     }
 
     public Iterator<GavinRecord> go()
@@ -37,7 +38,7 @@ public abstract class GeneStream {
             public boolean hasNext() {
                     if(resultBatch != null && resultBatch.hasNext())
                     {
-                        if(verbose){System.out.println("[GeneStream] Returning subsequent result of gene stream batch");}
+                       LOG.debug("[GeneStream] Returning subsequent result of gene stream batch");
                         nextResult = resultBatch.next();
                         return true;
                     }
@@ -47,22 +48,22 @@ public abstract class GeneStream {
                         {
                             // cleanup of result batch after previously flushed results
                             if (resultBatch != null) {
-                                if (verbose) { System.out.println("[GeneStream] Cleanup by setting result batch to null"); }
+                                LOG.debug("[GeneStream] Cleanup by setting result batch to null");
                                 resultBatch = null;
                             }
 
                             GavinRecord rv = relevantVariants.next();
                             currentGenes = RelevanceUtils.getRelevantGenes(rv.getRelevance());
-                            if (verbose) { System.out.println("[GeneStream] Entering while, looking at a variant in gene " + currentGenes); }
+                        LOG.debug("[GeneStream] Entering while, looking at a variant in gene " + currentGenes);
 
 
                             // if the previously seen genes are fully disjoint from the current genes, start processing per gene and flush buffer
                             if (previousGenes != null && Collections.disjoint(previousGenes, currentGenes)) {
-                                if (verbose) { System.out.println("[GeneStream] Executing the abstract perGene() function on " + previousGenes); }
+                                LOG.debug("[GeneStream] Executing the abstract perGene() function on " + previousGenes);
 
                                 // process per gene in abstract function
                                 for (String gene : variantBufferPerGene.keySet()) {
-                                    if (verbose) { System.out.println("[GeneStream] Processing gene "+gene+" having " + variantBufferPerGene.get(gene).size() + " variants"); }
+                                    LOG.debug("[GeneStream] Processing gene "+gene+" having " + variantBufferPerGene.get(gene).size() + " variants");
                                     try
                                     {
                                         perGene(gene, variantBufferPerGene.get(gene));
@@ -100,7 +101,7 @@ public abstract class GeneStream {
 
                             // if result batch ready, start streaming it out
                             if (resultBatch != null && resultBatch.hasNext()) {
-                                if (verbose) { System.out.println("[GeneStream] Returning first result of gene stream batch"); }
+                                LOG.debug("[GeneStream] Returning first result of gene stream batch");
                                 nextResult = resultBatch.next();
                                 return true;
                             } else {
@@ -114,7 +115,7 @@ public abstract class GeneStream {
                     //process the last remaining data before ending
                     if(variantBuffer.size() > 0)
                     {
-                        if (verbose) { System.out.println("[GeneStream] Buffer has " + variantBuffer.size() + " variants left in " + variantBufferPerGene.keySet().toString()); }
+                        LOG.debug("[GeneStream] Buffer has " + variantBuffer.size() + " variants left in " + variantBufferPerGene.keySet().toString());
                         for(String gene : variantBufferPerGene.keySet())
                         {
                             try
@@ -131,7 +132,7 @@ public abstract class GeneStream {
                         variantBufferPerGene = new HashMap<>();
                         if(resultBatch.hasNext())
                         {
-                            if(verbose){System.out.println("[GeneStream] Returning first of remaining variants");}
+                            LOG.debug("[GeneStream] Returning first of remaining variants");
                             nextResult = resultBatch.next();
                             return true;
                         }

@@ -4,6 +4,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +27,7 @@ import static java.util.Arrays.asList;
  */
 public class Main
 {
-
+	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 	public static void main(String[] args) throws Exception
 	{
 		OptionParser parser = createOptionParser();
@@ -144,40 +146,6 @@ public class Main
 		{
 			System.out.println("Restore mode not yet supported!");
 			return;
-			//
-			//            File inputRVCFFile = (File) options.valueOf("restore");
-			//            if (!inputRVCFFile.exists())
-			//            {
-			//                System.out.println("Input RVCF file not found at " + inputRVCFFile);
-			//                return;
-			//            }
-			//
-			//            File outputRVCFFile = (File) options.valueOf("output");
-			//            if (outputRVCFFile.exists())
-			//            {
-			//                if (options.has("replace"))
-			//                {
-			//                    System.out.println("Override enabled, replacing existing output RVCF file with specified output: "
-			//                            + outputRVCFFile.getAbsolutePath());
-			//                }
-			//                else
-			//                {
-			//                    System.out.println(
-			//                            "Output RVCF file already exists, please either enter a different output name or use the '-r' option to overwrite the output file.");
-			//                    return;
-			//                }
-			//            }
-			//
-			//            boolean verbose = false;
-			//            if(options.has("verbose"))
-			//            {
-			//                verbose = true;
-			//            }
-			//
-			//            System.out.println("Starting RVCF genotype restore..");
-			//            new RvcfGenoRestore(inputRVCFFile, outputRVCFFile, verbose);
-			//            System.out.println("..done!");
-			//            return;
 		}
 
 		/**************
@@ -361,10 +329,9 @@ public class Main
 		/**
 		 * Verbose
 		 */
-		boolean verbose = false;
 		if (options.has("verbose"))
 		{
-			verbose = true;
+			setLogLevelToDebug();
 		}
 
 		/**
@@ -372,7 +339,7 @@ public class Main
 		 */
 		System.out.println("Starting..");
 		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile,
-				labVariants, verbose);
+				labVariants);
 		System.out.println("..done!");
 
 	}
@@ -395,5 +362,16 @@ public class Main
 		{
 			return false;
 		}
+	}
+
+	private static void setLogLevelToDebug()
+	{
+		org.slf4j.Logger logger = LoggerFactory.getLogger("org.molgenis");
+		if (!(logger instanceof ch.qos.logback.classic.Logger))
+		{
+			throw new RuntimeException("Root logger is not a Logback logger");
+		}
+		ch.qos.logback.classic.Logger logbackLogger = (ch.qos.logback.classic.Logger) logger;
+		logbackLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
 	}
 }

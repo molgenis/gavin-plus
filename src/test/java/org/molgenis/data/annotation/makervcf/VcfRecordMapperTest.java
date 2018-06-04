@@ -35,7 +35,7 @@ public class VcfRecordMapperTest
 	public void setUpBeforeMethod()
 	{
 		mockito = mockitoSession().initMocks(this).strictness(STRICT_STUBS).startMocking();
-		vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings, false);
+		vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 	}
 
 	@AfterMethod

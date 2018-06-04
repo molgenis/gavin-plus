@@ -9,6 +9,8 @@ import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
 import org.molgenis.vcf.VcfSample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,11 +26,10 @@ import static org.molgenis.cgd.CGDEntry.generalizedInheritance;
  */
 public class MatchVariantsToGenotypeAndInheritance
 {
-
+	private static final Logger LOG = LoggerFactory.getLogger(MatchVariantsToGenotypeAndInheritance.class);
 	Iterator<GavinRecord> relevantVariants;
 	Map<String, CGDEntry> cgd;
 	int minDepth;
-	boolean verbose;
 	private Set<String> parents;
 
 	public enum status
@@ -70,12 +71,11 @@ public class MatchVariantsToGenotypeAndInheritance
 	}
 
 	public MatchVariantsToGenotypeAndInheritance(Iterator<GavinRecord> relevantVariants, File cgdFile,
-			Set<String> parents, boolean verbose) throws IOException
+			Set<String> parents) throws IOException
 	{
 		this.relevantVariants = relevantVariants;
 		this.cgd = LoadCGD.loadCGD(cgdFile);
 		this.minDepth = 1;
-		this.verbose = verbose;
 		this.parents = parents;
 	}
 
@@ -151,13 +151,10 @@ public class MatchVariantsToGenotypeAndInheritance
 						rlv.setSampleStatus(sampleStatus);
 						rlv.setSampleGenotypes(sampleGenotypes);
 						rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
-						if (verbose)
-						{
-							System.out.println("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: "
+						LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: "
 									+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
 									+ ", plus trio parents with reference alleles: "
 									+ genoMatch.parentsWithReferenceCalls.toString());
-						}
 					}
 				}
 				return rv;

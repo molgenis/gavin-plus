@@ -7,6 +7,8 @@ import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,18 +23,17 @@ import static java.util.stream.Collectors.joining;
  */
 class VcfRecordMapper
 {
+	private static final Logger LOG = LoggerFactory.getLogger(VcfRecordMapper.class);
 	private static final String MISSING_VALUE = ".";
 
 	private final VcfMeta vcfMeta;
 	private final VcfRecordMapperSettings vcfRecordMapperSettings;
-	private final boolean verbose;
 	private final RlvInfoMapper rlvInfoMapper;
 
-	VcfRecordMapper(VcfMeta vcfMeta, VcfRecordMapperSettings vcfRecordMapperSettings, boolean verbose)
+	VcfRecordMapper(VcfMeta vcfMeta, VcfRecordMapperSettings vcfRecordMapperSettings)
 	{
 		this.vcfMeta = requireNonNull(vcfMeta);
 		this.vcfRecordMapperSettings = requireNonNull(vcfRecordMapperSettings);
-		this.verbose = verbose;
 		rlvInfoMapper = new RlvInfoMapper();
 	}
 
@@ -129,20 +130,12 @@ class VcfRecordMapper
 
 	private String getRlv(GavinRecord gavinRecord)
 	{
-		if (verbose)
-		{
-			System.out.println("[MakeRVCFforClinicalVariants] Looking at: " + gavinRecord.toString());
-		}
+		LOG.debug("[MakeRVCFforClinicalVariants] Looking at: " + gavinRecord.toString());
 
 		List<Relevance> relevance = gavinRecord.getRelevance();
 		String rlv = !relevance.isEmpty() ? rlvInfoMapper.map(relevance) : null;
 
-		if (verbose)
-		{
-			System.out.println(
-					"[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: "
-							+ rlv);
-		}
+		LOG.debug("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: " + rlv);
 
 		return rlv;
 	}

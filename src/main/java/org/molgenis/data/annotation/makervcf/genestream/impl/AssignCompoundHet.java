@@ -6,6 +6,8 @@ import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGen
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,9 +19,10 @@ import java.util.Set;
  */
 public class AssignCompoundHet extends GeneStream {
 
-    public AssignCompoundHet(Iterator<GavinRecord> relevantVariants, boolean verbose)
+    private static final Logger LOG = LoggerFactory.getLogger(AssignCompoundHet.class);
+    public AssignCompoundHet(Iterator<GavinRecord> relevantVariants)
     {
-        super(relevantVariants, verbose);
+        super(relevantVariants);
     }
 
     @Override
@@ -40,10 +43,10 @@ public class AssignCompoundHet extends GeneStream {
                 {
                     if(rlv.getSampleStatus().get(sample) == status.HETEROZYGOUS || rlv.getSampleStatus().get(sample) == status.CARRIER)
                     {
-                        if(verbose){System.out.println("[AssignCompoundHet] Gene " + rlv.getGene() + " , sample: " +sample + ", status: " + rlv.getSampleStatus().get(sample));}
+                        LOG.debug("[AssignCompoundHet] Gene " + rlv.getGene() + " , sample: " +sample + ", status: " + rlv.getSampleStatus().get(sample));
                         if( geneAlleleToSeenSamples.get(rlv.getGene(), rlv.getAllele()) != null && ((Set<String>)geneAlleleToSeenSamples.get(rlv.getGene(), rlv.getAllele())).contains(sample) )
                         {
-                            if(verbose){System.out.println("[AssignCompoundHet] Marking as potential compound heterozygous: " + sample);}
+                            LOG.debug("[AssignCompoundHet] Marking as potential compound heterozygous: " + sample);
 
                             if( geneAlleleToMarkedSamples.containsKey(rlv.getGene(), rlv.getAllele()) )
                             {
@@ -87,15 +90,10 @@ public class AssignCompoundHet extends GeneStream {
                     for (String sample : ((Set<String>)geneAlleleToMarkedSamples.get(rlv.getGene(), rlv.getAllele()))) {
                         if (rlv.getSampleStatus().containsKey(sample)) {
                             if (rlv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.status.HETEROZYGOUS) {
-                                if (verbose) {
-                                    System.out.println("[AssignCompoundHet] Reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.HETEROZYGOUS + " to " + MatchVariantsToGenotypeAndInheritance.status.HOMOZYGOUS_COMPOUNDHET);
-                                }
+                                LOG.debug("[AssignCompoundHet] Reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.HETEROZYGOUS + " to " + MatchVariantsToGenotypeAndInheritance.status.HOMOZYGOUS_COMPOUNDHET);
                                 rlv.getSampleStatus().put(sample, MatchVariantsToGenotypeAndInheritance.status.HOMOZYGOUS_COMPOUNDHET);
                             } else if (rlv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.status.CARRIER) {
-                                if (verbose) {
-                                    System.out.println("[AssignCompoundHet] Reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.CARRIER + " to " + MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);
-                                }
-
+                                LOG.debug("[AssignCompoundHet] Reassigning " + sample + " from " + MatchVariantsToGenotypeAndInheritance.status.CARRIER + " to " + MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);
                                 rlv.getSampleStatus().put(sample, MatchVariantsToGenotypeAndInheritance.status.AFFECTED_COMPOUNDHET);
                             }
                         }

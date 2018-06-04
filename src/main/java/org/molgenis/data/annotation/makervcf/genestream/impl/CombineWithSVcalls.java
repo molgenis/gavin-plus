@@ -16,17 +16,13 @@ import java.util.List;
  *
  */
 public class CombineWithSVcalls extends GeneStream{
-
-    private Iterator<GavinRecord> relevantVariants;
-    private boolean verbose;
-
-    public CombineWithSVcalls(Iterator<GavinRecord> relevantVariants, boolean verbose)
+    public CombineWithSVcalls(Iterator<GavinRecord> relevantVariants)
     {
-        super(relevantVariants, verbose);
+        super(relevantVariants);
     }
 
     @Override
-    public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
+    public void perGene(String gene, List<GavinRecord> variantsPerGene){
 
         for(GavinRecord rv: variantsPerGene) {
             for (Relevance rlv : rv.getRelevance()) {

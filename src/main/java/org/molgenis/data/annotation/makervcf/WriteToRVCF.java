@@ -7,6 +7,8 @@ import org.molgenis.vcf.VcfWriter;
 import org.molgenis.vcf.VcfWriterFactory;
 import org.molgenis.vcf.meta.VcfMeta;
 import org.molgenis.vcf.meta.VcfMetaInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,29 +19,23 @@ import java.util.*;
  */
 class WriteToRVCF
 {
-	void writeRVCF(Iterator<GavinRecord> relevantVariants, File writeTo, File inputVcfFile, boolean writeToDisk,
-			boolean verbose) throws Exception
+	private static final Logger LOG = LoggerFactory.getLogger(WriteToRVCF.class);
+	void writeRVCF(Iterator<GavinRecord> relevantVariants, File writeTo, File inputVcfFile, boolean writeToDisk) throws Exception
 	{
 		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile);
-		if (verbose)
-		{
-			System.out.println("[WriteToRVCF] Writing header");
-		}
+		LOG.debug("[WriteToRVCF] Writing header");
 
 		try (VcfWriter vcfWriter = new VcfWriterFactory().create(writeTo, vcfMeta))
 		{
 			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false,
 					false); // TODO create settings based on CLI arguments
-			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings, verbose);
+			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 			while (relevantVariants.hasNext())
 			{
 				GavinRecord gavinRecord = relevantVariants.next();
 				if (writeToDisk)
 				{
-					if (verbose)
-					{
-						System.out.println("[WriteToRVCF] Writing VCF record");
-					}
+					LOG.debug("[WriteToRVCF] Writing VCF record");
 					vcfWriter.write(vcfRecordMapper.map(gavinRecord));
 				}
 			}
