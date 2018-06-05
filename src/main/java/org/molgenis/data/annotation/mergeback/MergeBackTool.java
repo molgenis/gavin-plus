@@ -57,7 +57,7 @@ public class MergeBackTool
 
                 if (inputLine.startsWith("#CHROM"))
                 {
-                    pw.println("##INFO=<ID=" + RVCF.attributeName + ",Number=.,Type=String,Description=\"" + RVCF.attributeMetaData
+                    pw.println("##INFO=<ID=" + RVCF.FIELD_NAME + ",Number=.,Type=String,Description=\"" + RVCF.FIELD_NAME
                             + "\">");
                     pw.println(inputLine);
                     continue;

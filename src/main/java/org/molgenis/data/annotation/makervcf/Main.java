@@ -27,7 +27,6 @@ import static java.util.Arrays.asList;
  */
 public class Main
 {
-
 	public static final String INPUT = "input";
 	public static final String OUTPUT = "output";
 	public static final String GAVIN = "gavin";
@@ -42,6 +41,7 @@ public class Main
 	public static final String REPLACE = "replace";
 	public static final String HELP = "help";
 	public static final String RESTORE = "restore";
+	public static final String SEPARATE_RVCF_FIELD = "separate_fields";
 
 	public static void main(String[] args) throws Exception
 	{
@@ -82,6 +82,7 @@ public class Main
 				"[not available] Supporting tool. Combine RVCF results with original VCF.")
 			  .withOptionalArg()
 			  .ofType(File.class);
+		parser.acceptsAll(asList("q", SEPARATE_RVCF_FIELD), "Create separate INFO fields for every part of the RLV information");
 
 		return parser;
 	}
@@ -335,14 +336,18 @@ public class Main
 			setLogLevelToDebug();
 		}
 
+		boolean isSeparateFields = false;
+		if (options.has(SEPARATE_RVCF_FIELD))
+		{
+			isSeparateFields = true;
+		}
 		/**
 		 * Everything OK, start pipeline
 		 */
 		System.out.println("Starting..");
 		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile,
-				labVariants, version, cmdString);
+				labVariants, version, cmdString, isSeparateFields);
 		System.out.println("..done!");
-
 	}
 
 	/**

@@ -97,7 +97,7 @@ public class SplitRlvTool
                         for (int j = 0; j < infoSplit.length; j++)
                         {
                             // match to RLV
-                            if (infoSplit[j].startsWith(RVCF.attributeName + "="))
+                            if (infoSplit[j].startsWith(RVCF.FIELD_NAME + "="))
                             {
                                 rlvFound = true;
 
@@ -127,7 +127,7 @@ public class SplitRlvTool
                                     }
                                 }
 
-                                sb.append("RLV_PRESENT=TRUE;" + RVCF.attributeName + "=" + infoSplit[j] + ";RLV_ALLELE="
+                                sb.append("RLV_PRESENT=TRUE;" + RVCF.FIELD_NAME + "=" + infoSplit[j] + ";RLV_ALLELE="
                                         + multiRlvSplitConcat[0] + ";RLV_ALLELEFREQ=" + multiRlvSplitConcat[1] + ";RLV_GENE=" + multiRlvSplitConcat[2] + ";RLV_FDR=" + multiRlvSplitConcat[3]
                                         + ";RLV_TRANSCRIPT=" + multiRlvSplitConcat[4] + ";RLV_PHENOTYPE=" + multiRlvSplitConcat[5] + ";RLV_PHENOTYPEINHERITANCE=" + multiRlvSplitConcat[6]
                                         + ";RLV_PHENOTYPEONSET=" + multiRlvSplitConcat[7] + ";RLV_PHENOTYPEDETAILS=" + multiRlvSplitConcat[8] + ";RLV_PHENOTYPEGROUP=" + multiRlvSplitConcat[9]

@@ -37,13 +37,13 @@ class VcfRecordMapper
 		rlvInfoMapper = new RlvInfoMapper();
 	}
 
-	public VcfRecord map(GavinRecord gavinRecord)
+	public VcfRecord map(GavinRecord gavinRecord, boolean isSeparateFields)
 	{
-		List<String> tokens = createTokens(gavinRecord);
+		List<String> tokens = createTokens(gavinRecord, isSeparateFields);
 		return new VcfRecord(vcfMeta, tokens.toArray(new String[0]));
 	}
 
-	private List<String> createTokens(GavinRecord gavinRecord)
+	private List<String> createTokens(GavinRecord gavinRecord, boolean isSeparateFields)
 	{
 		List<String> tokens = new ArrayList<>();
 		tokens.add(gavinRecord.getChromosome());
@@ -67,7 +67,7 @@ class VcfRecordMapper
 		List<String> filterStatus = gavinRecord.getFilterStatus();
 		tokens.add(!filterStatus.isEmpty() ? filterStatus.stream().collect(joining(";")) : MISSING_VALUE);
 
-		tokens.add(createInfoToken(gavinRecord));
+		tokens.add(createInfoToken(gavinRecord, isSeparateFields));
 
 		if (vcfRecordMapperSettings.includeSamples())
 		{
@@ -83,7 +83,7 @@ class VcfRecordMapper
 		return tokens;
 	}
 
-	private String createInfoToken(GavinRecord gavinRecord)
+	private String createInfoToken(GavinRecord gavinRecord, boolean isSeparateFields)
 	{
 		Iterable<VcfInfo> vcfInformations = gavinRecord.getAnnotatedVcfRecord().getInformation();
 
@@ -106,7 +106,7 @@ class VcfRecordMapper
 			{
 				stringBuilder.append(';');
 			}
-			stringBuilder.append("RLV=").append(getRlv(gavinRecord));
+			stringBuilder.append(getRlv(gavinRecord, isSeparateFields));
 		}
 		return stringBuilder.toString();
 	}
@@ -128,12 +128,12 @@ class VcfRecordMapper
 		return stream(sampleTokens).collect(joining(":"));
 	}
 
-	private String getRlv(GavinRecord gavinRecord)
+	private String getRlv(GavinRecord gavinRecord, boolean isSeparateFields)
 	{
 		LOG.debug("[MakeRVCFforClinicalVariants] Looking at: " + gavinRecord.toString());
 
 		List<Relevance> relevance = gavinRecord.getRelevance();
-		String rlv = !relevance.isEmpty() ? rlvInfoMapper.map(relevance) : null;
+		String rlv = rlvInfoMapper.map(relevance,isSeparateFields);
 
 		LOG.debug("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: " + rlv);
 

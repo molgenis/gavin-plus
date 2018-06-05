@@ -18,7 +18,7 @@ public class Pipeline
 {
 
 	public void start(File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile, File caddFile, File FDRfile,
-			HandleMissingCaddScores.Mode mode, File outputVcfFile, File labVariants, String version, String cmdString) throws Exception
+			HandleMissingCaddScores.Mode mode, File outputVcfFile, File labVariants, String version, String cmdString, boolean isSeparateFields) throws Exception
 	{
 		//get trios and parents if applicable
 		TrioData td = TrioFilter.getTrioData(inputVcfFile);
@@ -38,10 +38,10 @@ public class Pipeline
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 		Iterator<GavinRecord> gsi = gs.go();
 
-		//convert heterozygous/carrier status variants to compound heterozygous if they fall within the same gene
+		//convert heterozygous/carrier Status variants to compound heterozygous if they fall within the same gene
 		Iterator<GavinRecord> rv4 = new AssignCompoundHet(gsi).go();
 
-		//if available: use any parental information to filter out variants/status
+		//if available: use any parental information to filter out variants/Status
 		TrioFilter tf = new TrioFilter(rv4, td);
 		Iterator<GavinRecord> rv5 = tf.go();
 
@@ -62,7 +62,7 @@ public class Pipeline
 		Iterator<GavinRecord> rv10 = new CleanupVariantsWithoutSamples(rv9).go();
 
 		//write Entities output VCF file
-		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile,version, cmdString, true);
+		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile,version, cmdString, true, isSeparateFields);
 
 	}
 }

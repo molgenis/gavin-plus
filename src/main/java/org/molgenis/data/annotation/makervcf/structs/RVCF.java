@@ -1,7 +1,8 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
 import com.google.common.base.Splitter;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.Status;
 import org.molgenis.vcf.VcfInfo;
 
 import java.util.HashMap;
@@ -15,24 +16,29 @@ import static java.util.stream.Collectors.toList;
  */
 public class RVCF
 {
+	public static final String RLV_PRESENT = "RLV_PRESENT";
+	public static final String RLV_ALLELE = "RLV_ALLELE";
+	public static final String RLV_ALLELEFREQ = "RLV_ALLELEFREQ";
+	public static final String RLV_GENE = "RLV_GENE";
+	public static final String RLV_FDR = "RLV_FDR";
+	public static final String RLV_TRANSCRIPT = "RLV_TRANSCRIPT";
+	public static final String RLV_PHENOTYPE = "RLV_PHENOTYPE";
+	public static final String RLV_PHENOTYPEINHERITANCE = "RLV_PHENOTYPEINHERITANCE";
+	public static final String RLV_PHENOTYPEONSET = "RLV_PHENOTYPEONSET";
+	public static final String RLV_PHENOTYPEDETAILS = "RLV_PHENOTYPEDETAILS";
+	public static final String RLV_PHENOTYPEGROUP = "RLV_PHENOTYPEGROUP";
+	public static final String RLV_SAMPLESTATUS = "RLV_SAMPLESTATUS";
+	public static final String RLV_SAMPLEPHENOTYPE = "RLV_SAMPLEPHENOTYPE";
+	public static final String RLV_SAMPLEGENOTYPE = "RLV_SAMPLEGENOTYPE";
+	public static final String RLV_SAMPLEGROUP = "RLV_SAMPLEGROUP";
+	public static final String RLV_VARIANTSIGNIFICANCE = "RLV_VARIANTSIGNIFICANCE";
+	public static final String RLV_VARIANTSIGNIFICANCESOURCE = "RLV_VARIANTSIGNIFICANCESOURCE";
+	public static final String RLV_VARIANTSIGNIFICANCEJUSTIFICATION = "RLV_VARIANTSIGNIFICANCEJUSTIFICATION";
+	public static final String RLV_VARIANTCOMPOUNDHET = "RLV_VARIANTCOMPOUNDHET";
+	public static final String RLV_VARIANTGROUP = "RLV_VARIANTGROUP";
+	public static final String FIELD_NAME = "RLV";
 
 	public static int nrOfFields = 19;
-	private static String RVCF_GENEALLELECOMBISEP = ",";
-	private static String RVCF_SAMPLESEP = "/";
-	private static String RVCF_FIELDSEP = "|";
-	private static String RVCF_KEYVALSEP = ":";
-	private static String VCF_INFOFIELDSEP = ";";
-
-	public static String attributeName = "RLV";
-	public static String attributeMetaData =
-			"Allele " + RVCF_FIELDSEP + " AlleleFreq " + RVCF_FIELDSEP + " Gene " + RVCF_FIELDSEP + " FDR "
-					+ RVCF_FIELDSEP + " Transcript " + RVCF_FIELDSEP + " Phenotype " + RVCF_FIELDSEP
-					+ " PhenotypeInheritance " + RVCF_FIELDSEP + " PhenotypeOnset " + RVCF_FIELDSEP
-					+ " PhenotypeDetails " + RVCF_FIELDSEP + " PhenotypeGroup " + RVCF_FIELDSEP + " SampleStatus "
-					+ RVCF_FIELDSEP + " SamplePhenotype " + RVCF_FIELDSEP + " SampleGenotype " + RVCF_FIELDSEP
-					+ " SampleGroup " + RVCF_FIELDSEP + " VariantSignificance " + RVCF_FIELDSEP
-					+ " VariantSignificanceSource " + RVCF_FIELDSEP + " VariantSignificanceJustification "
-					+ RVCF_FIELDSEP + " VariantMultiGenic " + RVCF_FIELDSEP + " VariantGroup";
 
 	String allele;
 	String alleleFreq;
@@ -44,7 +50,7 @@ public class RVCF
 	String phenotypeOnset;
 	String phenotypeDetails;
 	String phenotypeGroup;
-	Map<String, status> sampleStatus;
+	Map<String, Status> sampleStatus;
 	Map<String, String> samplePhenotype;
 	Map<String, String> sampleGenotype;
 	Map<String, String> sampleGroup;
@@ -66,6 +72,37 @@ public class RVCF
 		@SuppressWarnings("unchecked")
 		List<String> rlvValue = (List<String>) obj;
 		return rlvValue.stream().map(RVCF::fromString).collect(toList());
+	}
+
+	public RVCF(){
+		//empty constructor used in the RlvInfoMapper and this classes' "fromString()" method
+	};
+
+	public RVCF(String allele, String alleleFreq, String gene, String FDR, String transcript, String phenotype,
+			String phenotypeInheritance, String phenotypeOnset, String phenotypeDetails, String phenotypeGroup,
+			Map<String, Status> sampleStatus, Map<String, String> samplePhenotype, Map<String, String> sampleGenotype,
+			Map<String, String> sampleGroup, String variantSignificance, String variantSignificanceSource,
+			String variantSignificanceJustification, String variantMultiGenic, String variantGroup)
+	{
+		this.allele = allele;
+		this.alleleFreq = alleleFreq;
+		this.gene = gene;
+		this.FDR = FDR;
+		this.transcript = transcript;
+		this.phenotype = phenotype;
+		this.phenotypeInheritance = phenotypeInheritance;
+		this.phenotypeOnset = phenotypeOnset;
+		this.phenotypeDetails = phenotypeDetails;
+		this.phenotypeGroup = phenotypeGroup;
+		this.sampleStatus = sampleStatus;
+		this.samplePhenotype = samplePhenotype;
+		this.sampleGenotype = sampleGenotype;
+		this.sampleGroup = sampleGroup;
+		this.variantSignificance = variantSignificance;
+		this.variantSignificanceSource = variantSignificanceSource;
+		this.variantSignificanceJustification = variantSignificanceJustification;
+		this.variantMultiGenic = variantMultiGenic;
+		this.variantGroup = variantGroup;
 	}
 
 	public static RVCF fromString(String rvcfEntry)
@@ -92,10 +129,10 @@ public class RVCF
 
 		// 'no-sample' variants where at the same site, another variant does have samples, add empty lists
 		// example: 1	45795040	rs147923905	C	A,G
-		rvcfInstance.setSampleStatusString(split[10].isEmpty() ? new HashMap<>() : Splitter.on(RVCF_SAMPLESEP)
+		rvcfInstance.setSampleStatusString(split[10].isEmpty() ? new HashMap<>() : Splitter.on(RVCFUtils.RVCF_SAMPLESEP)
 																						   .withKeyValueSeparator(":")
 																						   .split(split[10]));
-		rvcfInstance.setSampleGenotype(split[12].isEmpty() ? new HashMap<>() : Splitter.on(RVCF_SAMPLESEP)
+		rvcfInstance.setSampleGenotype(split[12].isEmpty() ? new HashMap<>() : Splitter.on(RVCFUtils.RVCF_SAMPLESEP)
 																					   .withKeyValueSeparator(":")
 																					   .split(split[12]));
 
@@ -106,75 +143,6 @@ public class RVCF
 		rvcfInstance.setVariantGroup(split[18]);
 
 		return rvcfInstance;
-	}
-
-	public String escapeToSafeVCF(String in)
-	{
-		return in.replace(VCF_INFOFIELDSEP, "_")
-				 .replace(RVCF_FIELDSEP, "_")
-				 .replace(RVCF.RVCF_SAMPLESEP, "_")
-				 .replace(RVCF_GENEALLELECOMBISEP, "_")
-				 .replaceAll("\\s", "_");
-	}
-
-	public String getVcfString()
-	{
-		return escapeToSafeVCF(getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(getAlleleFreq()) + RVCF_FIELDSEP
-				+ escapeToSafeVCF(getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(getFDR()) + RVCF_FIELDSEP
-				+ escapeToSafeVCF(getTranscript()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotype()) + RVCF_FIELDSEP
-				+ escapeToSafeVCF(getPhenotypeInheritance()) + RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeOnset())
-				+ RVCF_FIELDSEP + escapeToSafeVCF(getPhenotypeDetails()) + RVCF_FIELDSEP + escapeToSafeVCF(
-				getPhenotypeGroup()) + RVCF_FIELDSEP + printSampleStatus(getSampleStatus()) + RVCF_FIELDSEP
-				+ printSampleList(getSamplePhenotype()) + RVCF_FIELDSEP + printSampleList(getSampleGenotype(), true)
-				+ RVCF_FIELDSEP + printSampleList(getSampleGroup()) + RVCF_FIELDSEP + escapeToSafeVCF(
-				getVariantSignificance()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceSource())
-				+ RVCF_FIELDSEP + escapeToSafeVCF(getVariantSignificanceJustification()) + RVCF_FIELDSEP
-				+ escapeToSafeVCF(getVariantMultiGenic()) + RVCF_FIELDSEP + escapeToSafeVCF(getVariantGroup());
-	}
-
-	/**
-	 * sigh
-	 **/
-	public String printSampleStatus(Map<String, status> samples)
-	{
-		Map<String, String> samplesString = new HashMap<>();
-		for (String sample : samples.keySet())
-		{
-			samplesString.put(sample, samples.get(sample).toString());
-		}
-		return printSampleList(samplesString);
-	}
-
-	private String escapeGenotype(String s)
-	{
-		return s.replace("/", "s").replace("|", "p");
-	}
-
-	private String unEscapeGenotype(String s)
-	{
-		return s.replace("s", "/").replace("p", "|");
-	}
-
-	public String printSampleList(Map<String, String> samples)
-	{
-		return printSampleList(samples, false);
-
-	}
-
-	public String printSampleList(Map<String, String> samples, boolean genotypes)
-	{
-		if (samples.size() == 0)
-		{
-			return "";
-		}
-		StringBuffer sb = new StringBuffer();
-		for (String sample : samples.keySet())
-		{
-			sb.append(escapeToSafeVCF(sample) + RVCF_KEYVALSEP + (genotypes ? escapeGenotype(
-					samples.get(sample)) : escapeToSafeVCF(samples.get(sample))) + RVCF_SAMPLESEP);
-		}
-		sb.deleteCharAt(sb.length() - 1);
-		return sb.toString();
 	}
 
 	public String getFDR()
@@ -279,7 +247,7 @@ public class RVCF
 
 	public Map<String, String> getSampleGenotype()
 	{
-		return sampleGenotype != null ? sampleGenotype : new HashMap<String, String>();
+		return sampleGenotype != null ? sampleGenotype : new HashMap<>();
 	}
 
 	public void setSampleGenotype(Map<String, String> sampleGenotype)
@@ -287,27 +255,27 @@ public class RVCF
 		Map<String, String> sampleGenotypeUnEsc = new HashMap<>();
 		for (String key : sampleGenotype.keySet())
 		{
-			sampleGenotypeUnEsc.put(key, unEscapeGenotype(sampleGenotype.get(key)));
+			sampleGenotypeUnEsc.put(key, RVCFUtils.unEscapeGenotype(sampleGenotype.get(key)));
 		}
 		this.sampleGenotype = sampleGenotypeUnEsc;
 	}
 
-	public Map<String, status> getSampleStatus()
+	public Map<String, Status> getSampleStatus()
 	{
-		return sampleStatus != null ? sampleStatus : new HashMap<String, status>();
+		return sampleStatus != null ? sampleStatus : new HashMap<String, MatchVariantsToGenotypeAndInheritance.Status>();
 	}
 
 	public void setSampleStatusString(Map<String, String> sampleStatus)
 	{
-		Map<String, status> res = new HashMap<>();
+		Map<String, MatchVariantsToGenotypeAndInheritance.Status> res = new HashMap<>();
 		for (String sample : sampleStatus.keySet())
 		{
-			res.put(sample, status.valueOf(sampleStatus.get(sample)));
+			res.put(sample, MatchVariantsToGenotypeAndInheritance.Status.valueOf(sampleStatus.get(sample)));
 		}
 		this.sampleStatus = res;
 	}
 
-	public void setSampleStatus(Map<String, status> sampleStatus)
+	public void setSampleStatus(Map<String, Status> sampleStatus)
 	{
 		this.sampleStatus = sampleStatus;
 	}
