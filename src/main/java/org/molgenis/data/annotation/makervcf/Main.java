@@ -241,13 +241,13 @@ public class Main
 			return;
 		}
 
-		File FDRfile = (File) options.valueOf(FDR);
-		if (!FDRfile.exists())
+		File fdrFile = (File) options.valueOf(FDR);
+		if (!fdrFile.exists())
 		{
-			System.out.println("FDR file not found at " + FDRfile);
+			System.out.println("FDR file not found at " + fdrFile);
 			return;
 		}
-		else if (FDRfile.isDirectory())
+		else if (fdrFile.isDirectory())
 		{
 			System.out.println("FDR file location is a directory, not a file!");
 			return;
@@ -345,7 +345,7 @@ public class Main
 		 * Everything OK, start pipeline
 		 */
 		System.out.println("Starting..");
-		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile,
+		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, fdrFile, mode, outputVCFFile,
 				labVariants, version, cmdString, isSeparateFields);
 		System.out.println("..done!");
 	}

@@ -104,15 +104,15 @@ public class SplitRlvTool
                                 infoSplit[j] = infoSplit[j].substring(4);
                                 String[] rlvSplit = infoSplit[j].split(",", -1);
 
-                                String[] multiRlvSplitConcat = new String[RVCF.nrOfFields];
+                                String[] multiRlvSplitConcat = new String[RVCF.NR_OF_FIELDS];
 
                                 for (int k = 0; k < rlvSplit.length; k++)
                                 {
                                     String[] multiRlvSplit = rlvSplit[k].split("\\|", -1);
 
-                                    if (multiRlvSplit.length != RVCF.nrOfFields)
+                                    if (multiRlvSplit.length != RVCF.NR_OF_FIELDS)
                                     {
-                                        throw new Exception("RLV did not have " + RVCF.nrOfFields + " subfields but " + multiRlvSplit.length + "! bad data: " + rlvSplit[k]);
+                                        throw new Exception("RLV did not have " + RVCF.NR_OF_FIELDS + " subfields but " + multiRlvSplit.length + "! bad data: " + rlvSplit[k]);
                                     }
 
                                     //TODO JvdV: check if combination unique?

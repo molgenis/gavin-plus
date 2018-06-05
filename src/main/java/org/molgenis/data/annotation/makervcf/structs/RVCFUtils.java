@@ -11,12 +11,16 @@ import static org.molgenis.data.annotation.makervcf.structs.RVCF.*;
 
 public class RVCFUtils
 {
-	private static String RVCF_GENEALLELECOMBISEP = ",";
-	public static String RVCF_SAMPLESEP = "/";
-	private static String RVCF_FIELDSEP = "|";
-	private static String RVCF_KEYVALSEP = ":";
-	private static String VCF_INFOFIELDSEP = ";";
+	public static final String RVCF_SAMPLESEP = "/";
 	public static final String EMPTY_VALUE = ".";
+	private static final String RVCF_GENEALLELECOMBISEP = ",";
+	private static final String RVCF_FIELDSEP = "|";
+	private static final String RVCF_KEYVALSEP = ":";
+	private static final String VCF_INFOFIELDSEP = ";";
+
+	private RVCFUtils()
+	{
+	}
 
 	public static String getMergedFieldVcfString(RVCF rvcf)
 	{
@@ -36,7 +40,7 @@ public class RVCFUtils
 	public static Map<String, String> createRvcfInfoFields(RVCF rvcf, Map<String, String> currentValues)
 	{
 		Map<String, String> infoFields = new HashMap<>();
-		RVCFUtils.addOrUpdateInfoField(RLV_PRESENT, "TRUE", currentValues, infoFields);//TODO: why is this not a "FLAG"
+		RVCFUtils.addOrUpdateInfoField(RLV_PRESENT, "TRUE", currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_ALLELE,rvcf.getAllele(), currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_ALLELEFREQ,rvcf.getAlleleFreq(), currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_GENE, rvcf.getGene(), currentValues, infoFields);
@@ -101,9 +105,9 @@ public class RVCFUtils
 	private static String printSampleStatus(Map<String, MatchVariantsToGenotypeAndInheritance.Status> samples)
 	{
 		Map<String, String> samplesString = new HashMap<>();
-		for (String sample : samples.keySet())
+		for (Map.Entry<String, MatchVariantsToGenotypeAndInheritance.Status> sample : samples.entrySet())
 		{
-			samplesString.put(sample, samples.get(sample).toString());
+			samplesString.put(sample.getKey(), sample.getValue().toString());
 		}
 		return printSampleList(samplesString);
 	}
@@ -130,11 +134,11 @@ public class RVCFUtils
 		{
 			return "";
 		}
-		StringBuffer sb = new StringBuffer();
-		for (String sample : samples.keySet())
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<String, String> sample : samples.entrySet())
 		{
-			sb.append(escapeToSafeVCF(sample) + RVCF_KEYVALSEP + (genotypes ? escapeGenotype(
-					samples.get(sample)) : escapeToSafeVCF(samples.get(sample))) + RVCF_SAMPLESEP);
+			sb.append(escapeToSafeVCF(sample.getKey()) + RVCF_KEYVALSEP + (genotypes ? escapeGenotype(
+					sample.getValue()) : escapeToSafeVCF(sample.getValue())) + RVCF_SAMPLESEP);
 		}
 		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();

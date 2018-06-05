@@ -38,7 +38,7 @@ public class RVCF
 	public static final String RLV_VARIANTGROUP = "RLV_VARIANTGROUP";
 	public static final String FIELD_NAME = "RLV";
 
-	public static int nrOfFields = 19;
+	public static final int NR_OF_FIELDS = 19;
 
 	String allele;
 	String alleleFreq;
@@ -76,7 +76,7 @@ public class RVCF
 
 	public RVCF(){
 		//empty constructor used in the RlvInfoMapper and this classes' "fromString()" method
-	};
+	}
 
 	public RVCF(String allele, String alleleFreq, String gene, String FDR, String transcript, String phenotype,
 			String phenotypeInheritance, String phenotypeOnset, String phenotypeDetails, String phenotypeGroup,
@@ -109,10 +109,10 @@ public class RVCF
 	{
 		String[] split = rvcfEntry.split("\\|", -1);
 		RVCF rvcfInstance = new RVCF();
-		if (split.length != nrOfFields)
+		if (split.length != NR_OF_FIELDS)
 		{
 			System.out.println("RVCF parsing failed for " + rvcfEntry);
-			throw new RuntimeException("Splitting RVCF entry on '|' did not yield " + nrOfFields
+			throw new RuntimeException("Splitting RVCF entry on '|' did not yield " + NR_OF_FIELDS
 					+ " fields, invalid format? tried to split: " + rvcfEntry + " but had " + split.length + " fields");
 		}
 		rvcfInstance.setAllele(split[0]);
@@ -253,24 +253,24 @@ public class RVCF
 	public void setSampleGenotype(Map<String, String> sampleGenotype)
 	{
 		Map<String, String> sampleGenotypeUnEsc = new HashMap<>();
-		for (String key : sampleGenotype.keySet())
+		for (Map.Entry<String, String> entry : sampleGenotype.entrySet())
 		{
-			sampleGenotypeUnEsc.put(key, RVCFUtils.unEscapeGenotype(sampleGenotype.get(key)));
+			sampleGenotypeUnEsc.put(entry.getKey(), RVCFUtils.unEscapeGenotype(entry.getValue()));
 		}
 		this.sampleGenotype = sampleGenotypeUnEsc;
 	}
 
 	public Map<String, Status> getSampleStatus()
 	{
-		return sampleStatus != null ? sampleStatus : new HashMap<String, MatchVariantsToGenotypeAndInheritance.Status>();
+		return sampleStatus != null ? sampleStatus : new HashMap<>();
 	}
 
 	public void setSampleStatusString(Map<String, String> sampleStatus)
 	{
 		Map<String, MatchVariantsToGenotypeAndInheritance.Status> res = new HashMap<>();
-		for (String sample : sampleStatus.keySet())
+		for (Map.Entry<String, String> sampleStatusEntry : sampleStatus.entrySet())
 		{
-			res.put(sample, MatchVariantsToGenotypeAndInheritance.Status.valueOf(sampleStatus.get(sample)));
+			res.put(sampleStatusEntry.getKey(), MatchVariantsToGenotypeAndInheritance.Status.valueOf(sampleStatusEntry.getValue()));
 		}
 		this.sampleStatus = res;
 	}

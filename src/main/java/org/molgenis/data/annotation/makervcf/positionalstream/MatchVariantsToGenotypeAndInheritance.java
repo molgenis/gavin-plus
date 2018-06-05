@@ -150,10 +150,12 @@ public class MatchVariantsToGenotypeAndInheritance
 							rlv.setSampleStatus(sampleStatus);
 							rlv.setSampleGenotypes(sampleGenotypes);
 							rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
+							
+							String parentsWithReferenceCalls = genoMatch.parentsWithReferenceCalls.toString();
 							LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: "
 										+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
 										+ ", plus trio parents with reference alleles: "
-										+ genoMatch.parentsWithReferenceCalls.toString());
+										+ parentsWithReferenceCalls);
 						}
 					}
 				}
