@@ -144,17 +144,17 @@ public class MatchVariantsToGenotypeAndInheritance
 							sampleStatus.put(key, nonActingTerminology);
 							sampleGenotypes.put(key, rv.getSampleFieldValue(genoMatch.carriers.get(key), "GT"));
 						}
-					}
 
-					if (!sampleStatus.isEmpty())
-					{
-						rlv.setSampleStatus(sampleStatus);
-						rlv.setSampleGenotypes(sampleGenotypes);
-						rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
-						LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: "
-									+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
-									+ ", plus trio parents with reference alleles: "
-									+ genoMatch.parentsWithReferenceCalls.toString());
+						if (!sampleStatus.isEmpty())
+						{
+							rlv.setSampleStatus(sampleStatus);
+							rlv.setSampleGenotypes(sampleGenotypes);
+							rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
+							LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: "
+										+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
+										+ ", plus trio parents with reference alleles: "
+										+ genoMatch.parentsWithReferenceCalls.toString());
+						}
 					}
 				}
 				return rv;
