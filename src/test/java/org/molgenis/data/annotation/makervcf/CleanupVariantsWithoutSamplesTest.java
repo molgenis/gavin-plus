@@ -50,7 +50,7 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 		CleanupVariantsWithoutSamples cleanup = new CleanupVariantsWithoutSamples(tf.go());
 		Iterator<GavinRecord> it = cleanup.go();
 
-		// we expect 5 records after cleanup, each with status affected
+		// we expect 5 records after cleanup, each with Status affected
 		int count = 0;
 		while(it.hasNext())
 		{

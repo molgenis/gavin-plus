@@ -32,21 +32,21 @@ public class MatchVariantsToGenotypeAndInheritance
 	int minDepth;
 	private Set<String> parents;
 
-	public enum status
+	public enum Status
 	{
 		HETEROZYGOUS, HOMOZYGOUS, AFFECTED, CARRIER, BLOODGROUP, HOMOZYGOUS_COMPOUNDHET, AFFECTED_COMPOUNDHET, HETEROZYGOUS_MULTIHIT;
 
-		public static boolean isCompound(status status)
+		public static boolean isCompound(Status status)
 		{
 			return (status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED_COMPOUNDHET) ? true : false;
 		}
 
-		public static boolean isPresumedCarrier(status status)
+		public static boolean isPresumedCarrier(Status status)
 		{
 			return (status == HETEROZYGOUS || status == HETEROZYGOUS_MULTIHIT || status == CARRIER) ? true : false;
 		}
 
-		public static boolean isPresumedAffected(status status)
+		public static boolean isPresumedAffected(Status status)
 		{
 			return (status == HOMOZYGOUS || status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED
 					|| status == AFFECTED_COMPOUNDHET) ? true : false;
@@ -116,19 +116,19 @@ public class MatchVariantsToGenotypeAndInheritance
 					CGDEntry ce = cgd.get(gene);
 					rlv.setCgdInfo(ce);
 
-					status actingTerminology = status.HOMOZYGOUS;
-					status nonActingTerminology = status.HETEROZYGOUS;
+					Status actingTerminology = Status.HOMOZYGOUS;
+					Status nonActingTerminology = Status.HETEROZYGOUS;
 
 					// regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
 					// females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
 					if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(
 							cgd.get(gene).getGeneralizedInheritance())))
 					{
-						actingTerminology = status.AFFECTED;
-						nonActingTerminology = status.CARRIER;
+						actingTerminology = Status.AFFECTED;
+						nonActingTerminology = Status.CARRIER;
 					}
 
-					Map<String, status> sampleStatus = new HashMap<>();
+					Map<String, Status> sampleStatus = new HashMap<>();
 					Map<String, String> sampleGenotypes = new HashMap<>();
 					GenoMatchSamples genoMatch = (GenoMatchSamples) fullGenoMatch.get(rlv.getGene(), rlv.getAllele());
 
@@ -151,7 +151,7 @@ public class MatchVariantsToGenotypeAndInheritance
 						rlv.setSampleStatus(sampleStatus);
 						rlv.setSampleGenotypes(sampleGenotypes);
 						rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
-						LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: "
+						LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: "
 									+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
 									+ ", plus trio parents with reference alleles: "
 									+ genoMatch.parentsWithReferenceCalls.toString());

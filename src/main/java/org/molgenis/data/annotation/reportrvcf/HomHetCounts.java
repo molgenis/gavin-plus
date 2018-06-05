@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.reportrvcf;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.Status;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.vcf.VcfReader;
@@ -66,7 +66,7 @@ public class HomHetCounts {
 
                 for(String sample : rvcf.getSampleGenotype().keySet())
                 {
-                    if(status.isHomozygous(rvcf.getSampleGenotype().get(sample)))
+                    if(Status.isHomozygous(rvcf.getSampleGenotype().get(sample)))
                     {
                         if(!sampleGeneCombo.contains(gene + "_" + sample))
                         {
