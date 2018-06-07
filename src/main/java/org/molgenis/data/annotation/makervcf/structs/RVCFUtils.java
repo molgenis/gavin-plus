@@ -39,27 +39,28 @@ public class RVCFUtils
 
 	public static Map<String, String> createRvcfInfoFields(RVCF rvcf, Map<String, String> currentValues)
 	{
+		String prefix = "["+rvcf.getAllele() + "|" +rvcf.getGene()+"]";
 		Map<String, String> infoFields = new HashMap<>();
-		RVCFUtils.addOrUpdateInfoField(RLV_PRESENT, "TRUE", currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_ALLELE,rvcf.getAllele(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_ALLELEFREQ,rvcf.getAlleleFreq(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_GENE, rvcf.getGene(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_FDR,rvcf.getFDR(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_TRANSCRIPT,rvcf.getTranscript(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPE,rvcf.getPhenotype(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPEINHERITANCE,rvcf.getPhenotypeInheritance(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPEONSET,rvcf.getPhenotypeOnset(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPEDETAILS,rvcf.getPhenotypeDetails(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPEGROUP,rvcf.getPhenotypeGroup(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_SAMPLESTATUS, RVCFUtils.printSampleStatus(rvcf.getSampleStatus()), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_SAMPLEPHENOTYPE, RVCFUtils.printSampleList(rvcf.getSamplePhenotype()), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_SAMPLEGENOTYPE, RVCFUtils.printSampleList(rvcf.getSampleGenotype()), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_SAMPLEGROUP, RVCFUtils.printSampleList(rvcf.getSampleGroup()), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCE,rvcf.getVariantSignificance(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCESOURCE,rvcf.getVariantSignificanceSource(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCEJUSTIFICATION,rvcf.getVariantSignificanceJustification(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTCOMPOUNDHET,rvcf.getVariantMultiGenic(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTGROUP,rvcf.getVariantGroup(), currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_PRESENT, "TRUE", prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_ALLELE,rvcf.getAllele(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_ALLELEFREQ,rvcf.getAlleleFreq(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_GENE, rvcf.getGene(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_FDR,rvcf.getFDR(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_TRANSCRIPT,rvcf.getTranscript(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPE,rvcf.getPhenotype(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPEINHERITANCE,rvcf.getPhenotypeInheritance(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPEONSET,rvcf.getPhenotypeOnset(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPEDETAILS,rvcf.getPhenotypeDetails(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_PHENOTYPEGROUP,rvcf.getPhenotypeGroup(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_SAMPLESTATUS, RVCFUtils.printSampleStatus(rvcf.getSampleStatus()), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_SAMPLEPHENOTYPE, RVCFUtils.printSampleList(rvcf.getSamplePhenotype()), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_SAMPLEGENOTYPE, RVCFUtils.printSampleList(rvcf.getSampleGenotype()), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_SAMPLEGROUP, RVCFUtils.printSampleList(rvcf.getSampleGroup()), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCE,rvcf.getVariantSignificance(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCESOURCE,rvcf.getVariantSignificanceSource(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCEJUSTIFICATION,rvcf.getVariantSignificanceJustification(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTCOMPOUNDHET,rvcf.getVariantMultiGenic(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTGROUP,rvcf.getVariantGroup(), prefix,currentValues, infoFields);
 		return infoFields;
 	}
 
@@ -72,13 +73,13 @@ public class RVCFUtils
 				 .replaceAll("\\s", "_");
 	}
 
-	private static String addOrUpdateInfoField(String key, String value, Map<String, String> currentValues,
+	private static String addOrUpdateInfoField(String key, String value, String prefix, Map<String, String> currentValues,
 			Map<String, String> infoFields)
 	{
-		return infoFields.put(key,createInfoField(key, value, currentValues.get(key)));
+		return infoFields.put(key,createInfoField(key, value, prefix, currentValues.get(key)));
 	}
 
-	private static String createInfoField(String key, String value, String currentInfoValue)
+	private static String createInfoField(String key, String value, String prefix, String currentInfoValue)
 	{
 		String newInfoValue = "";
 		if(isNullOrEmpty(currentInfoValue)){
@@ -86,7 +87,7 @@ public class RVCFUtils
 				newInfoValue = EMPTY_VALUE;
 			}else
 			{
-				newInfoValue = escapeToSafeVCF(value);
+				newInfoValue = prefix + escapeToSafeVCF(value);
 			}
 		}else{
 			if(value == null)
@@ -94,9 +95,9 @@ public class RVCFUtils
 				value = "";
 			}
 			if(currentInfoValue.equals(EMPTY_VALUE)){
-				newInfoValue = "," + escapeToSafeVCF(value);
+				newInfoValue = "," + prefix + escapeToSafeVCF(value);
 			}else{
-				newInfoValue = currentInfoValue + "," + escapeToSafeVCF(value);
+				newInfoValue = currentInfoValue + "," + prefix + escapeToSafeVCF(value);
 			}
 		}
 		return key + "=" + newInfoValue;
