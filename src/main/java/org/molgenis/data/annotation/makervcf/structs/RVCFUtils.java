@@ -24,7 +24,7 @@ public class RVCFUtils
 
 	public static String getMergedFieldVcfString(RVCF rvcf)
 	{
-		return FIELD_NAME + "=" + escapeToSafeVCF(rvcf.getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getAlleleFreq()) + RVCF_FIELDSEP
+		return escapeToSafeVCF(rvcf.getAllele()) + RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getAlleleFreq()) + RVCF_FIELDSEP
 				+ escapeToSafeVCF(rvcf.getGene()) + RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getFDR()) + RVCF_FIELDSEP
 				+ escapeToSafeVCF(rvcf.getTranscript()) + RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getPhenotype()) + RVCF_FIELDSEP
 				+ escapeToSafeVCF(rvcf.getPhenotypeInheritance()) + RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getPhenotypeOnset())

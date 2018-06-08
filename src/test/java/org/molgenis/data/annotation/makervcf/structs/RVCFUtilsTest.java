@@ -41,7 +41,7 @@ public class RVCFUtilsTest
 	@Test
 	public void testGetMergedFieldVcfString()
 	{
-		assertEquals(RVCFUtils.getMergedFieldVcfString(rvcf1),"RLV=allele|alleleFreq|gene|FDR|transcript||phenotypeInheritance|phenotypeOnset|phenotypeDetails|phenotypeGroup|1:CARRIER/2:AFFECTED|1:pheno1/2:pheno2|1:1p0/2:1p1|1:group1/2:group2|variantSignificance|variantSignificanceSource|variantSignificanceJustification|variantMultiGenic|variantGroup");
+		assertEquals(RVCFUtils.getMergedFieldVcfString(rvcf1),"allele|alleleFreq|gene|FDR|transcript||phenotypeInheritance|phenotypeOnset|phenotypeDetails|phenotypeGroup|1:CARRIER/2:AFFECTED|1:pheno1/2:pheno2|1:1p0/2:1p1|1:group1/2:group2|variantSignificance|variantSignificanceSource|variantSignificanceJustification|variantMultiGenic|variantGroup");
 	}
 
 	@Test
