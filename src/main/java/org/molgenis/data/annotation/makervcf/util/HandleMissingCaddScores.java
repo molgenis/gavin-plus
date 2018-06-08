@@ -3,6 +3,8 @@ package org.molgenis.data.annotation.makervcf.util;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -13,6 +15,7 @@ import java.util.HashMap;
  */
 public class HandleMissingCaddScores
 {
+	private static final Logger LOG = LoggerFactory.getLogger(HandleMissingCaddScores.class);
 
 	public enum Mode
 	{
@@ -74,7 +77,7 @@ public class HandleMissingCaddScores
 					}
 					else
 					{
-						System.out.println(
+						LOG.debug(
 								"[HandleMissingCaddScores] WARNING: CADD score missing for " + record.getChromosome()
 										+ " " + record.getPosition() + " " + record.getRef() + " " + record.getAlt(
 										altIndex) + " ! (even when using trimmed key '" + key + "')");

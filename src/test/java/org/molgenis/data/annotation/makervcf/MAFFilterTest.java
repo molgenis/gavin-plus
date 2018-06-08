@@ -33,9 +33,9 @@ public class MAFFilterTest extends Setup
 	public void testPredictedPathogenic() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 
-		Iterator<GavinRecord> it = new MAFFilter(discover.findRelevantVariants()).go();
+		Iterator<GavinRecord> it = new MAFFilter(discover.findRelevantVariants(), false).go();
 		assertTrue(it.hasNext());
 		assertEquals(0.02, it.next().getRelevance().get(0).getGonlAlleleFreq());
 		assertTrue(it.hasNext());

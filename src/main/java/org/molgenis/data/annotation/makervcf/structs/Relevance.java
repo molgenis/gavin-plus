@@ -14,16 +14,16 @@ import java.util.Set;
  */
 public class Relevance
 {
-    Judgment judgment;
-    String allele;
-    String gene;
-    String FDR;
-    Map<String, Status> sampleStatus;
-    Map<String, String> sampleGenotypes;
-    Set<String> parentsWithReferenceCalls;
-    double alleleFreq;
-    double gonlAlleleFreq;
-    String transcript;
+    private Judgment judgment;
+	private String allele;
+	private String gene;
+	private String FDR;
+	private Map<String, Status> sampleStatus;
+	private Map<String, String> sampleGenotypes;
+	private Set<String> parentsWithReferenceCalls;
+	private double alleleFreq;
+	private double gonlAlleleFreq;
+	private String transcript;
 
     CGDEntry cgdInfo;
 
@@ -107,7 +107,7 @@ public class Relevance
     }
 
     public Map<String, MatchVariantsToGenotypeAndInheritance.Status> getSampleStatus() {
-        return sampleStatus != null ? sampleStatus : new HashMap<String, MatchVariantsToGenotypeAndInheritance.Status>();
+        return sampleStatus != null ? sampleStatus : new HashMap<>();
     }
 
     public void setSampleStatus(Map<String, Status> sampleStatus) {
@@ -117,7 +117,7 @@ public class Relevance
         this.sampleGenotypes = sampleGenotypes;
     }
     public Map<String, String> getSampleGenotypes() {
-        return sampleGenotypes != null ? sampleGenotypes : new HashMap<String, String>();
+        return sampleGenotypes != null ? sampleGenotypes : new HashMap<>();
     }
 
 }

@@ -53,7 +53,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 	@Test
 	public void duplicatePositionTest() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
 		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 		StringBuffer positions = new StringBuffer();
@@ -69,7 +69,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 	@Test
 	public void duplicatePositionBadTest() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
 		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 
@@ -88,7 +88,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 	@Test
 	public void reversePositionTest() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputRevVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputRevVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
 		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 
@@ -108,7 +108,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 	@Test
 	public void chromBadTest() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputChromBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputChromBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
 		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 

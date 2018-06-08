@@ -26,54 +26,61 @@ public class AssignCompoundHet extends GeneStream {
     }
 
     @Override
-    public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception
+    public void perGene(String gene, List<GavinRecord> variantsPerGene)
     {
         MultiKeyMap geneAlleleToSeenSamples = new MultiKeyMap();
         MultiKeyMap geneAlleleToMarkedSamples = new MultiKeyMap();
 
-        for(GavinRecord rv: variantsPerGene)
+        for(GavinRecord gavinRecord: variantsPerGene)
         {
-            for(Relevance rlv : rv.getRelevance())
-            {
-                if(!rlv.getGene().equals(gene))
-                {
-                    continue;
-                }
-                for(String sample: rlv.getSampleStatus().keySet())
-                {
-                    if(rlv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.Status.HETEROZYGOUS || rlv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.Status.CARRIER)
-                    {
-                        LOG.debug("[AssignCompoundHet] Gene " + rlv.getGene() + " , sample: " +sample + ", Status: " + rlv.getSampleStatus().get(sample));
-                        if( geneAlleleToSeenSamples.get(rlv.getGene(), rlv.getAllele()) != null && ((Set<String>)geneAlleleToSeenSamples.get(rlv.getGene(), rlv.getAllele())).contains(sample) )
-                        {
-                            LOG.debug("[AssignCompoundHet] Marking as potential compound heterozygous: " + sample);
+        	if(gavinRecord.isRelevant())
+			{
+				for (Relevance rlv : gavinRecord.getRelevance())
+				{
+					if (!rlv.getGene().equals(gene))
+					{
+						continue;
+					}
+					for (String sample : rlv.getSampleStatus().keySet())
+					{
+						if (rlv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.Status.HETEROZYGOUS
+								|| rlv.getSampleStatus().get(sample) == MatchVariantsToGenotypeAndInheritance.Status.CARRIER)
+						{
+							LOG.debug("[AssignCompoundHet] Gene " + rlv.getGene() + " , sample: " + sample + ", Status: "
+									+ rlv.getSampleStatus().get(sample));
+							if (geneAlleleToSeenSamples.get(rlv.getGene(), rlv.getAllele()) != null
+									&& ((Set<String>) geneAlleleToSeenSamples.get(rlv.getGene(), rlv.getAllele())).contains(sample))
+							{
+								LOG.debug("[AssignCompoundHet] Marking as potential compound heterozygous: " + sample);
 
-                            if( geneAlleleToMarkedSamples.containsKey(rlv.getGene(), rlv.getAllele()) )
-                            {
-                                ((Set<String>)geneAlleleToMarkedSamples.get(rlv.getGene(), rlv.getAllele())).add(sample);
-                            }
-                            else {
-                                Set<String> markedSamples = new HashSet<>();
-                                markedSamples.add(sample);
-                                geneAlleleToMarkedSamples.put(rlv.getGene(), rlv.getAllele(), markedSamples);
-                            }
-                        }
+								if (geneAlleleToMarkedSamples.containsKey(rlv.getGene(), rlv.getAllele()))
+								{
+									((Set<String>) geneAlleleToMarkedSamples.get(rlv.getGene(), rlv.getAllele())).add(
+											sample);
+								}
+								else
+								{
+									Set<String> markedSamples = new HashSet<>();
+									markedSamples.add(sample);
+									geneAlleleToMarkedSamples.put(rlv.getGene(), rlv.getAllele(), markedSamples);
+								}
+							}
 
-                        if( geneAlleleToSeenSamples.containsKey(rlv.getGene(), rlv.getAllele()) )
-                        {
-                            ((Set<String>)geneAlleleToSeenSamples.get(rlv.getGene(), rlv.getAllele())).add(sample);
-                        }
-                        else {
-                            Set<String> seenSamples = new HashSet<>();
-                            seenSamples.add(sample);
-                            geneAlleleToSeenSamples.put(rlv.getGene(), rlv.getAllele(), seenSamples);
-                        }
-                    }
+							if (geneAlleleToSeenSamples.containsKey(rlv.getGene(), rlv.getAllele()))
+							{
+								((Set<String>) geneAlleleToSeenSamples.get(rlv.getGene(), rlv.getAllele())).add(sample);
+							}
+							else
+							{
+								Set<String> seenSamples = new HashSet<>();
+								seenSamples.add(sample);
+								geneAlleleToSeenSamples.put(rlv.getGene(), rlv.getAllele(), seenSamples);
+							}
+						}
 
-
-                }
-            }
-
+					}
+				}
+			}
         }
 
         //iterate again and update marked samples

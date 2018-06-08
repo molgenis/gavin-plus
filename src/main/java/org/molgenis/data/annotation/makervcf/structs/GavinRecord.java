@@ -7,12 +7,14 @@ import org.molgenis.vcf.VcfRecordUtils;
 import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
+import static java.util.Objects.requireNonNull;
 
 public class GavinRecord
 {
@@ -26,13 +28,13 @@ public class GavinRecord
 
 	public GavinRecord(VcfRecord record)
 	{
-		this(record, null);
+		this(record, Collections.emptyList());
 	}
 
 	public GavinRecord(VcfRecord record, List<Relevance> relevances)
 	{
 		this.annotatedVcfRecord = new AnnotatedVcfRecord(record);
-		this.relevances = relevances;
+		this.relevances = requireNonNull(relevances);
 
 		this.genes = annotatedVcfRecord.getGenesFromAnn();
 		this.caddPhredScores = annotatedVcfRecord.getCaddPhredScores();
@@ -45,7 +47,11 @@ public class GavinRecord
 
 	public void setRelevances(List<Relevance> relevances)
 	{
-		this.relevances = relevances;
+		this.relevances = requireNonNull(relevances);
+	}
+
+	public boolean isRelevant(){
+		return !relevances.isEmpty();
 	}
 
 	public Double getCaddPhredScores(int i)
