@@ -27,8 +27,9 @@ import static org.molgenis.cgd.CGDEntry.generalizedInheritance;
 public class MatchVariantsToGenotypeAndInheritance
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MatchVariantsToGenotypeAndInheritance.class);
-	Iterator<GavinRecord> relevantVariants;
+	Iterator<GavinRecord> gavinRecords;
 	Map<String, CGDEntry> cgd;
+
 	int minDepth;
 	private Set<String> parents;
 
@@ -70,10 +71,10 @@ public class MatchVariantsToGenotypeAndInheritance
 		}
 	}
 
-	public MatchVariantsToGenotypeAndInheritance(Iterator<GavinRecord> relevantVariants, File cgdFile,
+	public MatchVariantsToGenotypeAndInheritance(Iterator<GavinRecord> gavinRecords, File cgdFile,
 			Set<String> parents) throws IOException
 	{
-		this.relevantVariants = relevantVariants;
+		this.gavinRecords = gavinRecords;
 		this.cgd = LoadCGD.loadCGD(cgdFile);
 		this.minDepth = 1;
 		this.parents = parents;
@@ -88,78 +89,79 @@ public class MatchVariantsToGenotypeAndInheritance
 			@Override
 			public boolean hasNext()
 			{
-				return relevantVariants.hasNext();
+				return gavinRecords.hasNext();
 			}
 
 			@Override
 			public GavinRecord next()
 			{
-
-				GavinRecord rv = relevantVariants.next();
-
-				//key: gene, alt allele
-				MultiKeyMap fullGenoMatch = null;
-				try
+				GavinRecord gavinRecord = gavinRecords.next();
+				if(gavinRecord.isRelevant())
 				{
-					fullGenoMatch = findMatchingSamples(rv);
-				}
-				catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
-
-				for (Relevance rlv : rv.getRelevance())
-				{
-
-					String gene = rlv.getGene();
-
-					CGDEntry ce = cgd.get(gene);
-					rlv.setCgdInfo(ce);
-
-					Status actingTerminology = Status.HOMOZYGOUS;
-					Status nonActingTerminology = Status.HETEROZYGOUS;
-
-					// regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
-					// females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
-					if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(
-							cgd.get(gene).getGeneralizedInheritance())))
+					//key: gene, alt allele
+					MultiKeyMap fullGenoMatch = null;
+					try
 					{
-						actingTerminology = Status.AFFECTED;
-						nonActingTerminology = Status.CARRIER;
+						fullGenoMatch = findMatchingSamples(gavinRecord);
+					}
+					catch (Exception e)
+					{
+						throw new RuntimeException(e);
 					}
 
-					Map<String, Status> sampleStatus = new HashMap<>();
-					Map<String, String> sampleGenotypes = new HashMap<>();
-					GenoMatchSamples genoMatch = (GenoMatchSamples) fullGenoMatch.get(rlv.getGene(), rlv.getAllele());
-
-					if (genoMatch != null)
+					for (Relevance rlv : gavinRecord.getRelevance())
 					{
-						for (String key : genoMatch.affected.keySet())
+
+						String gene = rlv.getGene();
+
+						CGDEntry ce = cgd.get(gene);
+						rlv.setCgdInfo(ce);
+
+						Status actingTerminology = Status.HOMOZYGOUS;
+						Status nonActingTerminology = Status.HETEROZYGOUS;
+
+						// regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
+						// females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
+						if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(cgd.get(gene).getGeneralizedInheritance())))
 						{
-							sampleStatus.put(key, actingTerminology);
-							sampleGenotypes.put(key, rv.getSampleFieldValue(genoMatch.affected.get(key), "GT"));
-						}
-						for (String key : genoMatch.carriers.keySet())
-						{
-							sampleStatus.put(key, nonActingTerminology);
-							sampleGenotypes.put(key, rv.getSampleFieldValue(genoMatch.carriers.get(key), "GT"));
+							actingTerminology = Status.AFFECTED;
+							nonActingTerminology = Status.CARRIER;
 						}
 
-						if (!sampleStatus.isEmpty())
+						Map<String, Status> sampleStatus = new HashMap<>();
+						Map<String, String> sampleGenotypes = new HashMap<>();
+						GenoMatchSamples genoMatch = (GenoMatchSamples) fullGenoMatch.get(rlv.getGene(), rlv.getAllele());
+
+						if (genoMatch != null)
 						{
-							rlv.setSampleStatus(sampleStatus);
-							rlv.setSampleGenotypes(sampleGenotypes);
-							rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
-							
-							String parentsWithReferenceCalls = genoMatch.parentsWithReferenceCalls.toString();
-							LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: "
+							for (String key : genoMatch.affected.keySet())
+							{
+								sampleStatus.put(key, actingTerminology);
+								sampleGenotypes.put(key,
+										gavinRecord.getSampleFieldValue(genoMatch.affected.get(key), "GT"));
+							}
+							for (String key : genoMatch.carriers.keySet())
+							{
+								sampleStatus.put(key, nonActingTerminology);
+								sampleGenotypes.put(key,
+										gavinRecord.getSampleFieldValue(genoMatch.carriers.get(key), "GT"));
+							}
+
+							if (!sampleStatus.isEmpty())
+							{
+								rlv.setSampleStatus(sampleStatus);
+								rlv.setSampleGenotypes(sampleGenotypes);
+								rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
+
+								String parentsWithReferenceCalls = genoMatch.parentsWithReferenceCalls.toString();
+								LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: "
 										+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
-										+ ", plus trio parents with reference alleles: "
-										+ parentsWithReferenceCalls);
+										+ ", plus trio parents with reference alleles: " + parentsWithReferenceCalls);
+							}
 						}
 					}
 				}
-				return rv;
+				return gavinRecord;
 			}
 		};
 	}

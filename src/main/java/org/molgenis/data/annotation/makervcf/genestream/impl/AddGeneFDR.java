@@ -45,28 +45,26 @@ public class AddGeneFDR extends GeneStream{
     }
 
     @Override
-    public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
-
+    public void perGene(String gene, List<GavinRecord> gavinRecords) {
 
         Double affectedFracForGene = this.affectedFrac.get(gene);
         Double carrierFracForGene = this.carrierFrac.get(gene);
 
-
-        for(GavinRecord rv : variantsPerGene)
+        for(GavinRecord gavinRecord : gavinRecords)
         {
-            for(Relevance rlv : rv.getRelevance())
+            if(gavinRecord.isRelevant())
             {
-                if(!rlv.getGene().equals(gene))
+                for (Relevance rlv : gavinRecord.getRelevance())
                 {
-                    continue;
+                    if (!rlv.getGene().equals(gene))
+                    {
+                        continue;
+                    }
+                    String fdrInfo = affectedFracForGene + "," + carrierFracForGene;
+                    rlv.setFDR(fdrInfo);
+                    LOG.debug("[AddGeneFDR] Added FDR info '" + fdrInfo + "' to a variant for gene " + gene);
                 }
-                String fdrInfo = affectedFracForGene+","+carrierFracForGene;
-                rlv.setFDR(fdrInfo);
-                LOG.debug("[AddGeneFDR] Added FDR info '"+fdrInfo+"' to a variant for gene " + gene);
             }
-
         }
     }
-
-
 }

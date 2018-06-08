@@ -15,12 +15,12 @@ import java.util.*;
 public class ConvertToGeneStream
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ConvertToGeneStream.class);
-	private Iterator<GavinRecord> relevantVariants;
+	private Iterator<GavinRecord> gavinRecordIterator;
 	private ArrayList<Integer> positionalOrder;
 
-	public ConvertToGeneStream(Iterator<GavinRecord> relevantVariants)
+	public ConvertToGeneStream(Iterator<GavinRecord> gavinRecordIterator)
 	{
-		this.relevantVariants = relevantVariants;
+		this.gavinRecordIterator = gavinRecordIterator;
 		this.positionalOrder = new ArrayList<>();
 	}
 
@@ -65,7 +65,7 @@ public class ConvertToGeneStream
 				}
 				else
 				{
-					while (relevantVariants.hasNext())
+					while (gavinRecordIterator.hasNext())
 					{
 
 						if (resultBatches != null)
@@ -103,32 +103,42 @@ public class ConvertToGeneStream
 						}
 
 						// get variant, store position, and get underlying genes
-						GavinRecord rv = relevantVariants.next();
-						int pos = rv.getPosition();
+						GavinRecord gavinRecord = gavinRecordIterator.next();
+						int pos = gavinRecord.getPosition();
 						positionalOrder.add(pos);
-						Set<String> underlyingGenesForCurrentVariant = rv.getGenes();
+						Set<String> underlyingGenesForCurrentVariant = gavinRecord.getGenes();
 
-						LOG.debug("[ConvertToGeneStream] Assessing next variant: " + rv.toStringShort());
+						LOG.debug("[ConvertToGeneStream] Assessing next variant: " + gavinRecord.toStringShort());
 
 						// put genes and variants in a map, grouping all variants per gene
 						for (String gene : underlyingGenesForCurrentVariant)
 						{
 							//variants are only outputted for a certain gene if they are also thought to be relevant for that gene
-							for (Relevance rlv : rv.getRelevance())
+							if(gavinRecord.isRelevant())
 							{
-								if (rlv.getGene().equals(gene))
+								for (Relevance rlv : gavinRecord.getRelevance())
 								{
-									List<GavinRecord> variants = variantBuffer.get(gene);
-									if (variants == null)
+									if (rlv.getGene().equals(gene))
 									{
-										variants = new ArrayList<>();
+										List<GavinRecord> variants = variantBuffer.get(gene);
+										if (variants == null)
+										{
+											variants = new ArrayList<>();
+										}
+										variantBuffer.put(gene, variants);
+										variants.add(gavinRecord);
+										LOG.debug("[ConvertToGeneStream] Adding variant for matching relevant gene " + gene);
+										break;
 									}
-									variantBuffer.put(gene, variants);
-									variants.add(rv);
-									LOG.debug("[ConvertToGeneStream] Adding variant for matching relevant gene "
-														+ gene);
-									break;
 								}
+							}else{
+								List<GavinRecord> variants = variantBuffer.get(gene);
+								if (variants == null)
+								{
+									variants = new ArrayList<>();
+								}
+								variants.add(gavinRecord);
+								variantBuffer.put(gene, variants);
 							}
 
 						}

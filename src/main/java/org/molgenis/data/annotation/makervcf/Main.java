@@ -3,6 +3,7 @@ package org.molgenis.data.annotation.makervcf;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
+import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,7 @@ public class Main
 	public static final String HELP = "help";
 	public static final String RESTORE = "restore";
 	public static final String SEPARATE_RVCF_FIELD = "separate_fields";
+	public static final String KEEP_ALL_VARIANTS = "keep_all_variants";
 
 	public static void main(String[] args) throws Exception
 	{
@@ -83,6 +85,7 @@ public class Main
 			  .withOptionalArg()
 			  .ofType(File.class);
 		parser.acceptsAll(asList("q", SEPARATE_RVCF_FIELD), "Create separate INFO fields for every part of the RLV information");
+		parser.acceptsAll(asList("k", KEEP_ALL_VARIANTS), "Do not filter the non relevant variants, return all variants from the input");
 
 		return parser;
 	}
@@ -341,12 +344,20 @@ public class Main
 		{
 			isSeparateFields = true;
 		}
+
+		boolean keepAllVariants = false;
+		if (options.has(KEEP_ALL_VARIANTS))
+		{
+			keepAllVariants = true;
+		}
 		/**
 		 * Everything OK, start pipeline
 		 */
 		System.out.println("Starting..");
-		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, fdrFile, mode, outputVCFFile,
-				labVariants, version, cmdString, isSeparateFields);
+		Pipeline pipeline = new Pipeline( version,  cmdString,  isSeparateFields,  keepAllVariants,
+		 mode,  inputVcfFile,  gavinFile,  clinvarFile,  cgdFile,
+			 caddFile,  fdrFile,  outputVCFFile,  labVariants);
+		pipeline.start();
 		System.out.println("..done!");
 	}
 
