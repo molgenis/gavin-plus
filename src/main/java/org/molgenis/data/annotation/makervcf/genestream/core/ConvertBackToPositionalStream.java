@@ -14,9 +14,9 @@ public class ConvertBackToPositionalStream
 
 	private static final Logger LOG = LoggerFactory.getLogger(ConvertBackToPositionalStream.class);
 	private Iterator<GavinRecord> gavinRecordIterator;
-	private ArrayList<Integer> order;
+	private List<Integer> order;
 
-	public ConvertBackToPositionalStream(Iterator<GavinRecord> gavinRecordIterator, ArrayList<Integer> order)
+	public ConvertBackToPositionalStream(Iterator<GavinRecord> gavinRecordIterator, List<Integer> order)
 	{
 		this.gavinRecordIterator = gavinRecordIterator;
 		this.order = order;
@@ -58,8 +58,7 @@ public class ConvertBackToPositionalStream
 							{
 								if (buffer.size() == 0)
 								{
-									LOG.debug("[ConvertBackToPositionalStream] Buffer empty, returning current element "
-											+ pos);
+									LOG.debug("[ConvertBackToPositionalStream] Buffer empty, returning current element {}",pos);
 									nextResult = gavinRecord;
 									return true;
 								}
@@ -72,11 +71,11 @@ public class ConvertBackToPositionalStream
 									}
 									else
 									{
-										buffer.put(pos, new ArrayList(Arrays.asList(gavinRecord)));
+										buffer.put(pos, new ArrayList(Collections.singletonList(gavinRecord)));
 									}
 
 									LOG.debug(
-											"[ConvertBackToPositionalStream] Buffer size > 0, adding to buffer " + pos);
+											"[ConvertBackToPositionalStream] Buffer size > 0, adding to buffer {}",pos);
 
 									// check if all positions are present up to the current one
 									// to prevent problem: we see 20, 23, 22, 21 where alignment at 20 and 22, and we output wrongly 20, 23, 22, 21 because we haven't seen 21 yet
@@ -91,7 +90,7 @@ public class ConvertBackToPositionalStream
 
 									bufferPrinter = getIterator(buffer);
 									LOG.debug(
-											"[ConvertBackToPositionalStream] Positions aligned again at {0}, all values smaller than current pos, so clearning buffer with {1} elements",
+											"[ConvertBackToPositionalStream] Positions aligned again at {}, all values smaller than current pos, so clearning buffer with {} elements",
 											pos, buffer.size());
 									buffer = new TreeMap<>();
 									nextResult = bufferPrinter.next();
@@ -108,7 +107,7 @@ public class ConvertBackToPositionalStream
 								}
 								else
 								{
-									buffer.put(pos, new ArrayList(Arrays.asList(gavinRecord)));
+									buffer.put(pos, new ArrayList(Collections.singletonList(gavinRecord)));
 								}
 							}
 					}
@@ -119,7 +118,7 @@ public class ConvertBackToPositionalStream
 				}
 
 				bufferPrinter = getIterator(buffer);
-				if (bufferPrinter != null && bufferPrinter.hasNext())
+				if (bufferPrinter.hasNext())
 				{
 					LOG.debug("[ConvertBackToPositionalStream] Clearing last elements from buffer");
 					buffer = new TreeMap<>();
@@ -142,9 +141,9 @@ public class ConvertBackToPositionalStream
 	{
 		List<GavinRecord> variants = new ArrayList<>();
 		//keys supposed to be sorted because TreeMap
-		for (Integer pos : buffer.keySet())
+		for (Map.Entry<Integer,ArrayList<GavinRecord>> entry : buffer.entrySet())
 		{
-			variants.addAll(buffer.get(pos));
+			variants.addAll(entry.getValue());
 		}
 		return variants.iterator();
 	}

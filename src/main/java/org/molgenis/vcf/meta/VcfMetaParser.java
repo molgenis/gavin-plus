@@ -68,7 +68,7 @@ public class VcfMetaParser
 	}
 
 	private Map<String, String> parseMetaLine(String line) {
-		Map<String, String> properties = new LinkedHashMap<String, String>();
+		Map<String, String> properties = new LinkedHashMap<>();
 		
 		// header block starts with < and ends with >
 		boolean inHeaderBlock = false;
@@ -77,9 +77,9 @@ public class VcfMetaParser
 		// header is divided in key and value using '='
 		boolean inKey = true;
 		// to store a key while parsing
-		String key = "";
+		StringBuilder key = new StringBuilder();
 		// to store a value while parsing
-		String value = "";
+		StringBuilder value = new StringBuilder();
 
 		final int nrChars = line.length();
 		for (int i = 0; i < nrChars; ++i)
@@ -105,9 +105,9 @@ public class VcfMetaParser
 					if (inQuotes)
 					{
 						inQuotes = false;
-						properties.put(key, value);
-						key = "";
-						value = "";
+						properties.put(key.toString(), value.toString());
+						key = new StringBuilder();
+						value = new StringBuilder();
 						inKey = true;
 					}
 					else
@@ -116,17 +116,17 @@ public class VcfMetaParser
 				// close the key/value pair
 				else if (!inQuotes && !inKey && (',' == c || '>' == c))
 				{
-					properties.put(key, value);
-					key = "";
-					value = "";
+					properties.put(key.toString(), value.toString());
+					key = new StringBuilder();
+					value = new StringBuilder();
 					inKey = true;
 				}
 				// otherwise just add key/value char
 				else
 				{
-					if (inKey) key += c;
+					if (inKey) key.append(c);
 					else
-						value += c;
+						value.append(c);
 				}
 			}
 		}

@@ -62,13 +62,13 @@ public class PhasingCompoundCheck extends GeneStream
 		LOG.debug("[PhasingCompoundCheck] Encountered gene: {}" + gene);
 
 		// e.g. the 0 in 0|1
-		Set<String> leftHaploSamples = new HashSet<String>();
+		Set<String> leftHaploSamples = new HashSet<>();
 
 		// e.g. the 1 in 0|1
-		Set<String> rightHaploSamples = new HashSet<String>();
+		Set<String> rightHaploSamples = new HashSet<>();
 
 		// samples with 1+ variants unphased, cannot call fake comphet on them
-		Set<String> samplesWithUnphasedVariants = new HashSet<String>();
+		Set<String> samplesWithUnphasedVariants = new HashSet<>();
 
 		for (GavinRecord gavinRecord : variantsPerGene)
 		{

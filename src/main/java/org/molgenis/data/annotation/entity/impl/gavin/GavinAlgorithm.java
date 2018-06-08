@@ -36,8 +36,12 @@ public class GavinAlgorithm
 	 */
 	public Judgment classifyVariant(Impact impact, Double caddScaled, Double exacMAF, String gene,
 			Map<String, GavinEntry> geneToEntry) {
-		Double pathoMAFThreshold, meanPathogenicCADDScore, meanPopulationCADDScore, spec95thPerCADDThreshold, sens95thPerCADDThreshold = null;
-		Category category = null;
+		Double pathoMAFThreshold;
+		Double meanPathogenicCADDScore;
+		Double meanPopulationCADDScore;
+		Double spec95thPerCADDThreshold;
+		Double sens95thPerCADDThreshold;
+		Category category;
 
 			//get data from map, for reuse in GAVIN-related tools other than the annotator
 			if (!geneToEntry.containsKey(gene))
@@ -47,17 +51,17 @@ public class GavinAlgorithm
 			}
 			else
 			{
-				pathoMAFThreshold = geneToEntry.get(gene).PathoMAFThreshold != null ?
-						geneToEntry.get(gene).PathoMAFThreshold * extraSensitivityFactor * 2 : null;
-				meanPathogenicCADDScore = geneToEntry.get(gene).MeanPathogenicCADDScore != null ?
-						geneToEntry.get(gene).MeanPathogenicCADDScore - extraSensitivityFactor : null;
-				meanPopulationCADDScore = geneToEntry.get(gene).MeanPopulationCADDScore != null ?
-						geneToEntry.get(gene).MeanPopulationCADDScore - extraSensitivityFactor : null;
-				spec95thPerCADDThreshold = geneToEntry.get(gene).Spec95thPerCADDThreshold != null ?
-						geneToEntry.get(gene).Spec95thPerCADDThreshold - extraSensitivityFactor : null;
-				sens95thPerCADDThreshold = geneToEntry.get(gene).Sens95thPerCADDThreshold != null ?
-						geneToEntry.get(gene).Sens95thPerCADDThreshold - extraSensitivityFactor : null;
-				category = geneToEntry.get(gene).category;
+				pathoMAFThreshold = geneToEntry.get(gene).getPathoMAFThreshold() != null ?
+						geneToEntry.get(gene).getPathoMAFThreshold() * extraSensitivityFactor * 2 : null;
+				meanPathogenicCADDScore = geneToEntry.get(gene).getMeanPathogenicCADDScore() != null ?
+						geneToEntry.get(gene).getMeanPathogenicCADDScore() - extraSensitivityFactor : null;
+				meanPopulationCADDScore = geneToEntry.get(gene).getMeanPopulationCADDScore() != null ?
+						geneToEntry.get(gene).getMeanPopulationCADDScore() - extraSensitivityFactor : null;
+				spec95thPerCADDThreshold = geneToEntry.get(gene).getSpec95thPerCADDThreshold() != null ?
+						geneToEntry.get(gene).getSpec95thPerCADDThreshold() - extraSensitivityFactor : null;
+				sens95thPerCADDThreshold = geneToEntry.get(gene).getSens95thPerCADDThreshold() != null ?
+						geneToEntry.get(gene).getSens95thPerCADDThreshold() - extraSensitivityFactor : null;
+				category = geneToEntry.get(gene).getCategory();
 		}
 
 		// CADD score based classification, calibrated
@@ -79,10 +83,7 @@ public class GavinAlgorithm
 								"Variant CADD score of " + caddScaled + " is less than " + meanPopulationCADDScore
 										+ " in a gene for which CADD scores are informative.",null,null);
 					}
-					else
-					{
-						//this rule does not classify apparently, just continue onto the next rules
-					}
+					//else: this rule does not classify apparently, just continue onto the next rules
 					break;
 				case C3:
 				case C4:
@@ -99,10 +100,7 @@ public class GavinAlgorithm
 								"Variant CADD score of " + caddScaled + " is less than " + sens95thPerCADDThreshold
 										+ " for this gene.",null,null);
 					}
-					else
-					{
-						//this rule does not classify apparently, just continue onto the next rules
-					}
+					//else: this rule does not classify apparently, just continue onto the next rules
 					break;
 			}
 		}

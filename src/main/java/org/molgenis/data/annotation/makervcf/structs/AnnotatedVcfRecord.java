@@ -4,6 +4,8 @@ import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -18,6 +20,8 @@ import static java.util.Collections.emptySet;
  */
 public class AnnotatedVcfRecord extends VcfRecord
 {
+	private static final Logger LOG = LoggerFactory.getLogger(AnnotatedVcfRecord.class);
+
 	private static final String EXAC_AF = "EXAC_AF";
 	private static final String GO_NL_AF = "GoNL_AF";
 	private static final String CLSF = "CLSF";
@@ -116,8 +120,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		String findAnn = getAnn(ann, gene, allele);
 		if (findAnn == null)
 		{
-			System.out.println(
-					"WARNING: failed to get impact for gene '" + gene + "', allele '" + allele + "' in " + ann);
+			LOG.warn("failed to get impact for gene '{}', allele '{}' in {}", gene, allele, ann);
 			return null;
 		}
 		else
@@ -135,16 +138,14 @@ public class AnnotatedVcfRecord extends VcfRecord
 		String findAnn = getAnn(ann, gene, allele);
 		if (findAnn == null)
 		{
-			System.out.println(
-					"WARNING: failed to get impact for gene '" + gene + "', allele '" + allele + "' in " + ann);
+			LOG.warn("failed to get impact for gene '" + gene + "', allele '" + allele + "' in " + ann);
 			return null;
 		}
 		else
 		{
 			//from the right one, get the impact
 			String[] fields = findAnn.split("\\|", -1);
-			String transcript = fields[6];
-			return transcript;
+			return fields[6];//fields[6] == transcript
 		}
 	}
 
@@ -155,19 +156,16 @@ public class AnnotatedVcfRecord extends VcfRecord
 		{
 			String[] fields = oneAnn.split("\\|", -1);
 			String geneFromAnn = fields[3];
-			if (!gene.equals(geneFromAnn))
+			if (gene.equals(geneFromAnn))
 			{
-				continue;
+				String alleleFromAnn = fields[0];
+				if (allele.equals(alleleFromAnn))
+				{
+					return oneAnn;
+				}
 			}
-			String alleleFromAnn = fields[0];
-			if (!allele.equals(alleleFromAnn))
-			{
-				continue;
-			}
-			return oneAnn;
 		}
-		System.out.println(
-				"WARNING: annotation could not be found for " + gene + ", allele=" + allele + ", ann=" + ann);
+		LOG.warn("annotation could not be found for " + gene + ", allele=" + allele + ", ann=" + ann);
 		return null;
 	}
 }

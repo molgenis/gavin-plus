@@ -42,8 +42,8 @@ public class GavinUtils
 			{
 				line = s.nextLine();
 
-				GavinEntry e = new GavinEntry(line);
-				geneToEntry.put(e.gene, e);
+				GavinEntry gavinEntry = new GavinEntry(line);
+				geneToEntry.put(gavinEntry.getGene(), gavinEntry);
 			}
 		}
 		catch (Exception e)

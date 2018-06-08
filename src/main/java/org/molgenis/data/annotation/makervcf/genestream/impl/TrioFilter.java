@@ -107,7 +107,6 @@ public class TrioFilter extends GeneStream
 							LOG.debug("[TrioFilter] Sample is parent! dropping");
 
 							samplesToRemove.add(sample);
-							continue;
 						}
 						// is a child, check if relevant genotype
 						else if (trios.containsKey(sample))
@@ -156,8 +155,8 @@ public class TrioFilter extends GeneStream
 									+ (motherReference ? "REFERENCE" : motherGeno) + ", dad: "
 									+ (fatherReference ? "REFERENCE" : fatherGeno));
 
-							/**
-							 * cases where child shares a genotype with 1 or both parents, thus removing this not relevant sample
+							/*
+							  cases where child shares a genotype with 1 or both parents, thus removing this not relevant sample
 							 */
 							if (childHomoOrHemizygous && (fatherHomoOrHemizygous || motherHomoOrHemizygous))
 							{

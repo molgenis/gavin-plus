@@ -291,7 +291,7 @@ public class RVCF
 
 	public Map<String, String> getSamplePhenotype()
 	{
-		return samplePhenotype != null ? samplePhenotype : new HashMap<String, String>();
+		return samplePhenotype != null ? samplePhenotype : new HashMap<>();
 	}
 
 	public void setSamplePhenotype(Map<String, String> samplePhenotype)
@@ -301,7 +301,7 @@ public class RVCF
 
 	public Map<String, String> getSampleGroup()
 	{
-		return sampleGroup != null ? sampleGroup : new HashMap<String, String>();
+		return sampleGroup != null ? sampleGroup : new HashMap<>();
 	}
 
 	public void setSampleGroup(Map<String, String> sampleGroup)

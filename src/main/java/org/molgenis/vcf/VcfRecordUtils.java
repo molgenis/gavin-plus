@@ -135,7 +135,7 @@ public class VcfRecordUtils
 			{
 				if (split.length != nrOfAlts)
 				{
-					throw new RuntimeException(String.format("Split length %s of string '%s' not equal to alt allele split length %s for record '%s'",fieldName,split.length,fieldValue,nrOfAlts, vcfRecord.toString()));
+					throw new RuntimeException(String.format("Split length %s of string '%s' not equal to alt allele split length %s for record '%s'",split.length,fieldValue,nrOfAlts, vcfRecord.toString()));
 				}
 				for (int i = 0; i < split.length; i++)
 				{

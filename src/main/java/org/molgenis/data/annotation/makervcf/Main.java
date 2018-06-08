@@ -3,7 +3,6 @@ package org.molgenis.data.annotation.makervcf;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
-import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.slf4j.LoggerFactory;
 
@@ -158,21 +157,21 @@ public class Main
 			return;
 		}
 
-		/**************
-		 * "Restore mode" where we add back genotypes in an RVCF
-		 *************/
+		/*************
+		 "Restore mode" where we add back genotypes in an RVCF
+		 */
 		if (options.has(RESTORE))
 		{
 			System.out.println("Restore mode not yet supported!");
 			return;
 		}
 
-		/**************
-		 * Regular mode
-		 *************/
+		/*************
+		 Regular mode
+		 */
 
-		/**
-		 * Input check
+		/*
+		  Input check
 		 */
 		File inputVcfFile = (File) options.valueOf(INPUT);
 		if (!inputVcfFile.exists())
@@ -186,8 +185,8 @@ public class Main
 			return;
 		}
 
-		/**
-		 * Output and replace check
+		/*
+		  Output and replace check
 		 */
 		File outputVCFFile = (File) options.valueOf(OUTPUT);
 		if (outputVCFFile.exists())
@@ -205,8 +204,8 @@ public class Main
 			}
 		}
 
-		/**
-		 * Check all kinds of files you need
+		/*
+		  Check all kinds of files you need
 		 */
 		File gavinFile = (File) options.valueOf(GAVIN);
 		if (!gavinFile.exists())
@@ -256,8 +255,8 @@ public class Main
 			return;
 		}
 
-		/**
-		 * Optional
+		/*
+		  Optional
 		 */
 		File labVariants = null;
 		if (options.has(LAB))
@@ -282,8 +281,8 @@ public class Main
 			return;
 		}
 
-		/**
-		 * Check mode in combination with CADD file and replace
+		/*
+		  Check mode in combination with CADD file and replace
 		 */
 		String modeString = (String) options.valueOf(MODE);
 		if (!isValidEnum(Mode.class, modeString))
@@ -331,8 +330,8 @@ public class Main
 				}
 		}
 
-		/**
-		 * Verbose
+		/*
+		  Verbose
 		 */
 		if (options.has(VERBOSE))
 		{
@@ -350,8 +349,8 @@ public class Main
 		{
 			keepAllVariants = true;
 		}
-		/**
-		 * Everything OK, start pipeline
+		/*
+		  Everything OK, start pipeline
 		 */
 		System.out.println("Starting..");
 		Pipeline pipeline = new Pipeline( version,  cmdString,  isSeparateFields,  keepAllVariants,

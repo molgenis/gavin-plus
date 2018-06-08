@@ -55,8 +55,8 @@ public class SplitRlvMain
             return;
         }
 
-        /**
-         * Input check
+        /*
+          Input check
          */
         File inputVcfFile = (File) options.valueOf("input");
         if (!inputVcfFile.exists())

@@ -51,8 +51,8 @@ public class MergeBackMain
             return;
         }
 
-        /**
-         * Input check
+        /*
+          Input check
          */
         File inputVcfFile = (File) options.valueOf("input");
         if (!inputVcfFile.exists())
@@ -77,8 +77,8 @@ public class MergeBackMain
             return;
         }
 
-        /**
-         * Output and replace check
+        /*
+          Output and replace check
          */
         File outputVCFFile = (File) options.valueOf("output");
         if (outputVCFFile.exists())
@@ -96,8 +96,8 @@ public class MergeBackMain
             }
         }
 
-        /**
-         * Everything OK, start pipeline
+        /*
+          Everything OK, start pipeline
          */
         System.out.println("Starting..");
         new MergeBackTool().start(inputVcfFile, rvcfFile, outputVCFFile);

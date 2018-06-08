@@ -98,9 +98,6 @@ public class FixVcfAlleleNotation
 				if (!(ref.startsWith("N") && alt.startsWith("N")))
 				{
 					// could mean we DID fix the notation, so dont quit yet!
-					//				System.out.println("no reason to adjust variant " + chr + ":"+pos+" " + ref + "/" + alt + " because there is no N");
-					//				pw.println(line);
-					//				continue;
 				}
 				else if (ref.startsWith("N") && alt.startsWith("N"))
 				{
@@ -155,17 +152,17 @@ public class FixVcfAlleleNotation
 					if (i == 1)
 					{
 						//update the pos if trimmed
-						fixedLine.append(pos + "\t");
+						fixedLine.append(pos).append("\t");
 					}
 					else if (i == 3 || i == 4)
 					{
 						String fixedNotation =
 								i == 3 ? ref.replace("N", replacementRefBase) : alt.replace("N", replacementRefBase);
-						fixedLine.append(fixedNotation + "\t");
+						fixedLine.append(fixedNotation).append("\t");
 					}
 					else
 					{
-						fixedLine.append(split[i] + "\t");
+						fixedLine.append(split[i]).append("\t");
 					}
 				}
 

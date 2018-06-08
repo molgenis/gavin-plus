@@ -99,7 +99,7 @@ public class MatchVariantsToGenotypeAndInheritance
 				if(gavinRecord.isRelevant())
 				{
 					//key: gene, alt allele
-					MultiKeyMap fullGenoMatch = null;
+					MultiKeyMap fullGenoMatch;
 					try
 					{
 						fullGenoMatch = findMatchingSamples(gavinRecord);

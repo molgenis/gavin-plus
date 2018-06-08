@@ -20,9 +20,9 @@ public class LoadCADDWebserviceOutput
 		try (Scanner cadd = new Scanner(caddFile))
 		{
 
-			caddScores = new HashMap<String, Double>();
+			caddScores = new HashMap<>();
 
-			String line = null;
+			String line;
 			while (cadd.hasNextLine())
 			{
 				line = cadd.nextLine();

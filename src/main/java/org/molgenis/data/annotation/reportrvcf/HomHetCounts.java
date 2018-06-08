@@ -47,28 +47,27 @@ public class HomHetCounts {
         //make sure we only count every sample once per gene
         Set<String> sampleGeneCombo = new HashSet<>();
 
-        Iterator<VcfRecord> vcfIterator = vcf.iterator();
-        while(vcfIterator.hasNext())
+        for (VcfRecord aVcf : vcf)
         {
 
-            AnnotatedVcfRecord record = new AnnotatedVcfRecord(vcfIterator.next());
+            AnnotatedVcfRecord record = new AnnotatedVcfRecord(aVcf);
 
-            for(RVCF rvcf : record.getRvcf())
+            for (RVCF rvcf : record.getRvcf())
             {
 
-            String gene = rvcf.getGene();
+                String gene = rvcf.getGene();
 
-            if(!geneToHom.containsKey(gene))
-            {
-                geneToHom.put(gene, 0);
-                geneToHet.put(gene, 0);
-            }
-
-                for(String sample : rvcf.getSampleGenotype().keySet())
+                if (!geneToHom.containsKey(gene))
                 {
-                    if(Status.isHomozygous(rvcf.getSampleGenotype().get(sample)))
+                    geneToHom.put(gene, 0);
+                    geneToHet.put(gene, 0);
+                }
+
+                for (String sample : rvcf.getSampleGenotype().keySet())
+                {
+                    if (Status.isHomozygous(rvcf.getSampleGenotype().get(sample)))
                     {
-                        if(!sampleGeneCombo.contains(gene + "_" + sample))
+                        if (!sampleGeneCombo.contains(gene + "_" + sample))
                         {
                             int count = geneToHom.get(gene);
                             geneToHom.put(gene, count + 1);
@@ -77,7 +76,7 @@ public class HomHetCounts {
 
                     }
 
-                    if(!sampleGeneCombo.contains(gene + "_" + sample))
+                    if (!sampleGeneCombo.contains(gene + "_" + sample))
                     {
                         int count = geneToHet.get(gene);
                         geneToHet.put(gene, count + 1);

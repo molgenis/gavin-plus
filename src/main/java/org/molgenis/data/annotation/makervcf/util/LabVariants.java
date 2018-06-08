@@ -57,22 +57,22 @@ public class LabVariants {
             }
             String labVariantInfo = posRefAltToLabVariant.get(key).getClsf();
 
-            if (labVariantInfo.equals("P") || labVariantInfo.equals("LP"))
-            {
-                return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, labVariantInfo,"Lab variant","Reported pathogenic");
-            }
-            else if(labVariantInfo.equals("V"))
-            {
-                return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide, gene, labVariantInfo,"Lab variant","Reported VUS");
-            }
-            else if (labVariantInfo.equals("B") || labVariantInfo.equals("LB"))
-            {
-                return new Judgment(Judgment.Classification.Benign, Judgment.Method.genomewide, gene, labVariantInfo,"Lab variant","Reported benign");
-            }
-            else
-            {
-                throw new Exception("lab variant hit is not B, LB, V, LP or P: " + labVariantInfo);
-            }
+			switch (labVariantInfo)
+			{
+				case "P":
+				case "LP":
+					return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene,
+							labVariantInfo, "Lab variant", "Reported pathogenic");
+				case "V":
+					return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide, gene, labVariantInfo,
+							"Lab variant", "Reported VUS");
+				case "B":
+				case "LB":
+					return new Judgment(Judgment.Classification.Benign, Judgment.Method.genomewide, gene,
+							labVariantInfo, "Lab variant", "Reported benign");
+				default:
+					throw new Exception("lab variant hit is not B, LB, V, LP or P: " + labVariantInfo);
+			}
         }
         return null;
     }

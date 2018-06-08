@@ -8,6 +8,8 @@ import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,8 +21,7 @@ import java.util.Map;
  */
 public class ClinVar
 {
-
-	//  /Users/joeri/github/clinvar.5.5.16/clinvar.patho.fix.5.5.16.vcf.gz
+	private static final Logger LOG = LoggerFactory.getLogger(ClinVar.class);
 
 	private Map<String, AnnotatedVcfRecord> posRefAltToClinVar;
 
@@ -36,11 +37,6 @@ public class ClinVar
 			for (String alt : VcfRecordUtils.getAlts(record))
 			{
 				String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(VcfRecordUtils.getRef(record), alt, "_");
-
-				//                if(!(record.getRef() + "_" + alt).equals(trimmedRefAlt))
-				//                {
-				//                    System.out.println("trimmed " + (record.getRef() + "_" + alt) + " to " + trimmedRefAlt);
-				//                }
 
 				String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
 				posRefAltToClinVar.put(key, record);
@@ -68,12 +64,11 @@ public class ClinVar
 				{
 					if (overrideGeneWithClinvarGene)
 					{
-						//            System.out.println("Processing MT data? Reporting variant under under '" + clinvarGene + "'.");
 						gene = clinvarGene;
 					}
 					else
 					{
-						//               System.out.println("WARNING: genes did not match: " + clinvarGene + " vs " + gene + ". Reporting under '" + gene + "' while preserving ClinVar data '" + clinvarInfo + "'.");
+						LOG.debug("genes did not match: " + clinvarGene + " vs " + gene + ". Reporting under '" + gene + "' while preserving ClinVar data '" + clinvarInfo + "'.");
 
 					}
 				}
@@ -84,10 +79,7 @@ public class ClinVar
 			{
 				throw new Exception("clinvar hit is not pathogenic: " + clinvarInfo);
 			}
-
 		}
-
-		return null;
-		//return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide, gene, "not in clinvar pathogenic list");
+		return null;//TODO JvdV: return VOUS?
 	}
 }

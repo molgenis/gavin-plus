@@ -77,13 +77,13 @@ public class VcfMeta
 
 	public void addAltMeta(VcfMetaAlt vcfMetaAlt)
 	{
-		if (vcfMetaAlts == null) vcfMetaAlts = new LinkedHashMap<String, VcfMetaAlt>();
+		if (vcfMetaAlts == null) vcfMetaAlts = new LinkedHashMap<>();
 		vcfMetaAlts.put(vcfMetaAlt.getId(), vcfMetaAlt);
 	}
 
 	public Iterable<VcfMetaAlt> getAltMeta()
 	{
-		return vcfMetaAlts != null ? vcfMetaAlts.values() : Collections.<VcfMetaAlt>emptyList();
+		return vcfMetaAlts != null ? vcfMetaAlts.values() : Collections.emptyList();
 	}
 
 	public VcfMetaAlt getAltMeta(String id)
@@ -93,13 +93,13 @@ public class VcfMeta
 
 	public void addContigMeta(VcfMetaContig vcfMetaContig)
 	{
-		if (vcfMetaContigs == null) vcfMetaContigs = new LinkedHashMap<String, VcfMetaContig>();
+		if (vcfMetaContigs == null) vcfMetaContigs = new LinkedHashMap<>();
 		vcfMetaContigs.put(vcfMetaContig.getId(), vcfMetaContig);
 	}
 
 	public Iterable<VcfMetaContig> getContigMeta()
 	{
-		return vcfMetaContigs != null ? vcfMetaContigs.values() : Collections.<VcfMetaContig>emptyList();
+		return vcfMetaContigs != null ? vcfMetaContigs.values() : Collections.emptyList();
 	}
 
 	public VcfMetaContig getContigMeta(String id)
@@ -109,7 +109,7 @@ public class VcfMeta
 
 	public void addFilterMeta(VcfMetaFilter vcfMetaFilter)
 	{
-		if (vcfMetaFilters == null) vcfMetaFilters = new LinkedHashMap<String, VcfMetaFilter>();
+		if (vcfMetaFilters == null) vcfMetaFilters = new LinkedHashMap<>();
 		vcfMetaFilters.put(vcfMetaFilter.getId(), vcfMetaFilter);
 	}
 
@@ -125,7 +125,7 @@ public class VcfMeta
 
 	public void addFormatMeta(VcfMetaFormat vcfMetaFormat)
 	{
-		if (vcfMetaFormats == null) vcfMetaFormats = new LinkedHashMap<String, VcfMetaFormat>();
+		if (vcfMetaFormats == null) vcfMetaFormats = new LinkedHashMap<>();
 		vcfMetaFormats.put(vcfMetaFormat.getId(), vcfMetaFormat);
 	}
 
@@ -141,7 +141,7 @@ public class VcfMeta
 
 	public void addInfoMeta(VcfMetaInfo vcfMetaInfo)
 	{
-		if (vcfMetaInfos == null) vcfMetaInfos = new LinkedHashMap<String, VcfMetaInfo>();
+		if (vcfMetaInfos == null) vcfMetaInfos = new LinkedHashMap<>();
 		vcfMetaInfos.put(vcfMetaInfo.getId(), vcfMetaInfo);
 	}
 
@@ -157,7 +157,7 @@ public class VcfMeta
 
 	public void addPedigreeMeta(VcfMetaPedigree vcfMetaPedigree)
 	{
-		if (vcfMetaPedigrees == null) vcfMetaPedigrees = new ArrayList<VcfMetaPedigree>();
+		if (vcfMetaPedigrees == null) vcfMetaPedigrees = new ArrayList<>();
 		vcfMetaPedigrees.add(vcfMetaPedigree);
 	}
 
@@ -173,7 +173,7 @@ public class VcfMeta
 
 	public void addSampleMeta(VcfMetaSample vcfMetaSample)
 	{
-		if (vcfMetaSamples == null) vcfMetaSamples = new LinkedHashMap<String, VcfMetaSample>();
+		if (vcfMetaSamples == null) vcfMetaSamples = new LinkedHashMap<>();
 		vcfMetaSamples.put(vcfMetaSample.getId(), vcfMetaSample);
 	}
 

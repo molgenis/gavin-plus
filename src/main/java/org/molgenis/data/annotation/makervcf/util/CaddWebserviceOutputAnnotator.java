@@ -6,7 +6,6 @@ import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
 
 import java.io.*;
-import java.util.Iterator;
 
 /** 
  * Annotator that adds the output of the CADD webservice to a VCF file.
@@ -61,14 +60,14 @@ public class CaddWebserviceOutputAnnotator
 	{
 		VcfReader vcfReader = GavinUtils.getVcfReader(vcfToAnnotate);
 		//TODO: VcfWriterUtils.writeVcfHeader(vcfToAnnotate, outputVCFWriter, attributes);
-		Iterator<VcfRecord> vcfIterator = vcfReader.iterator();
 
-		while(vcfIterator.hasNext())
+		for (VcfRecord aVcfReader : vcfReader)
 		{
-			GavinRecord vcfEntity = new GavinRecord(vcfIterator.next());
-			for(int altIndex = 0; altIndex < vcfEntity.getAlts().length; altIndex++)
+			GavinRecord vcfEntity = new GavinRecord(aVcfReader);
+			for (int altIndex = 0; altIndex < vcfEntity.getAlts().length; altIndex++)
 			{
-				if(vcfEntity.getCaddPhredScores(altIndex) == null){
+				if (vcfEntity.getCaddPhredScores(altIndex) == null)
+				{
 					Double cadd = hmcs.dealWithCaddScores(vcfEntity, altIndex);
 					vcfEntity.setCaddPhredScore(altIndex, cadd);
 					System.out.println("setting missing CADD score " + cadd);

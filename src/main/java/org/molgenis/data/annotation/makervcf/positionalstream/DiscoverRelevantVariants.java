@@ -122,8 +122,8 @@ public class DiscoverRelevantVariants
 
 						List<Relevance> relevance = new ArrayList<>();
 
-						/**
-						 * Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
+						/*
+						  Iterate over alternatives, if applicable multi allelic example: 1:1148100-1148100
 						 */
 						for (int i = 0; i < gavinRecord.getAlts().length; i++)
 						{
@@ -165,7 +165,7 @@ public class DiscoverRelevantVariants
 							else
 							{
 
-								if (gavinRecord.getGenes().size() == 0)
+								if (gavinRecord.getGenes().isEmpty())
 								{
 									LOG.debug("[DiscoverRelevantVariants] WARNING: no genes for variant "
 											+ gavinRecord.toString());
@@ -212,12 +212,11 @@ public class DiscoverRelevantVariants
 							}
 						}
 
-						if (relevance.size() > 0)
+						if (!relevance.isEmpty())
 						{
 							gavinRecord.setRelevances(relevance);
 							nextResult = gavinRecord;
-							LOG.debug(
-									"[DiscoverRelevantVariants] Found relevant variant: " + nextResult.toStringShort());
+							LOG.debug("[DiscoverRelevantVariants] Found relevant variant: {}",nextResult.toStringShort());
 							return true;
 						}
 						else if (keepAllVariants)

@@ -81,7 +81,7 @@ public class RVCFUtils
 
 	private static String createInfoField(String key, String value, String prefix, String currentInfoValue)
 	{
-		String newInfoValue = "";
+		String newInfoValue;
 		if(isNullOrEmpty(currentInfoValue)){
 			if(Strings.isNullOrEmpty(value)){
 				newInfoValue = EMPTY_VALUE;
@@ -138,8 +138,10 @@ public class RVCFUtils
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, String> sample : samples.entrySet())
 		{
-			sb.append(escapeToSafeVCF(sample.getKey()) + RVCF_KEYVALSEP + (genotypes ? escapeGenotype(
-					sample.getValue()) : escapeToSafeVCF(sample.getValue())) + RVCF_SAMPLESEP);
+			sb.append(escapeToSafeVCF(sample.getKey()))
+			  .append(RVCF_KEYVALSEP)
+			  .append(genotypes ? escapeGenotype(sample.getValue()) : escapeToSafeVCF(sample.getValue()))
+			  .append(RVCF_SAMPLESEP);
 		}
 		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();

@@ -11,7 +11,6 @@ import org.molgenis.vcf.VcfRecordUtils;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -26,23 +25,20 @@ public class MergeBackTool
 
         // put RVCF file in memory
         VcfReader vcfReader = GavinUtils.getVcfReader(rvcfFile);
-        Iterator<VcfRecord> vcfIterator = vcfReader.iterator();
-        while(vcfIterator.hasNext())
+        for (VcfRecord aVcfReader : vcfReader)
         {
-            AnnotatedVcfRecord record = new AnnotatedVcfRecord(vcfIterator.next());
-            chrPosRefAltToRLV.put(record.getChromosome() + "_" + record.getPosition() + "_" + VcfRecordUtils.getRef(
-					record) + "_" + VcfRecordUtils.getAlt(record), record.getRvcf().stream().map(RVCFUtils::getMergedFieldVcfString).collect(Collectors.joining(",")));
+            AnnotatedVcfRecord record = new AnnotatedVcfRecord(aVcfReader);
+            chrPosRefAltToRLV.put(
+                    record.getChromosome() + "_" + record.getPosition() + "_" + VcfRecordUtils.getRef(record) + "_"
+                            + VcfRecordUtils.getAlt(record),
+                    record.getRvcf().stream().map(RVCFUtils::getMergedFieldVcfString).collect(Collectors.joining(",")));
         }
 
         System.out.println("chrPosRefAltToRLV = " + chrPosRefAltToRLV);
 
         // iterate over input and write output
-        Scanner inputScanner = null;
-        PrintWriter pw = null;
-        try
+        try (Scanner inputScanner = new Scanner(inputVcfFile); PrintWriter pw = new PrintWriter(outputVCFFile))
         {
-            inputScanner = new Scanner(inputVcfFile);
-            pw = new PrintWriter(outputVCFFile);
             String inputLine;
 
             int nrOfRlvMapped = 0;
@@ -58,8 +54,9 @@ public class MergeBackTool
 
                 if (inputLine.startsWith("#CHROM"))
                 {
-                    pw.println("##INFO=<ID=" + RVCF.FIELD_NAME + ",Number=.,Type=String,Description=\"" + RVCF.DESCRIPTION
-                            + "\">");
+                    pw.println(
+                            "##INFO=<ID=" + RVCF.FIELD_NAME + ",Number=.,Type=String,Description=\"" + RVCF.DESCRIPTION
+                                    + "\">");
                     pw.println(inputLine);
                     continue;
                 }
@@ -75,7 +72,7 @@ public class MergeBackTool
                 {
                     String rlv = chrPosRefAltToRLV.get(key);
 
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
 
                     for (int i = 0; i < split.length; i++)
                     {
@@ -85,11 +82,11 @@ public class MergeBackTool
                             if (split[i].equals("."))
                             {
                                 //replace "." with the RLV content
-                                sb.append("RLV=" + rlv + "\t");
+                                sb.append("RLV=").append(rlv).append("\t");
                             }
                             else if (split[i].length() > 1 && split[i].endsWith(";"))
                             {
-                                sb.append(split[i] + "RLV=" + rlv + "\t");
+                                sb.append(split[i]).append("RLV=").append(rlv).append("\t");
                             }
                             else if (split[i].length() > 1)
                             {
@@ -116,18 +113,17 @@ public class MergeBackTool
 
             pw.flush();
 
-        if(chrPosRefAltToRLV.size() != nrOfRlvMapped)
-        {
-            throw new Exception("We have " + chrPosRefAltToRLV.size() + " variants of relevance but only added " + nrOfRlvMapped + " back to original VCF file!");
-        }
-        else
-        {
-            System.out.println("We added " + chrPosRefAltToRLV.size() + " variants of relevance back to the original VCF file!");
-        }
-        }finally
-        {
-            inputScanner.close();
-            pw.close();
+            if (chrPosRefAltToRLV.size() != nrOfRlvMapped)
+            {
+                throw new Exception(
+                        "We have " + chrPosRefAltToRLV.size() + " variants of relevance but only added " + nrOfRlvMapped
+                                + " back to original VCF file!");
+            }
+            else
+            {
+                System.out.println("We added " + chrPosRefAltToRLV.size()
+                        + " variants of relevance back to the original VCF file!");
+            }
         }
     }
 }

@@ -120,11 +120,9 @@ public abstract class GeneStream
 								nextResult = resultBatch.next();
 								return true;
 							}
-							else
-							{
-								//nothing to return for this gene after perGene(previousGene, variantsForGene)
-								//so we go straight to cleanup in the next iteration
-							}
+							//else: nothing to return for this gene after perGene(previousGene, variantsForGene)
+							//so we go straight to cleanup in the next iteration
+
 						}else{
 							if(!isFilterNonRelevant)
 							{
