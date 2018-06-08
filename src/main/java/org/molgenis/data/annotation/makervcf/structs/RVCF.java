@@ -39,6 +39,15 @@ public class RVCF
 	public static final String FIELD_NAME = "RLV";
 
 	public static final int NR_OF_FIELDS = 19;
+	private static final String RVCF_FIELDSEP = "|";
+	public static final String DESCRIPTION = "Allele " + RVCF_FIELDSEP + " AlleleFreq " + RVCF_FIELDSEP + " Gene " + RVCF_FIELDSEP + " FDR "
+				+ RVCF_FIELDSEP + " Transcript " + RVCF_FIELDSEP + " Phenotype " + RVCF_FIELDSEP
+				+ " PhenotypeInheritance " + RVCF_FIELDSEP + " PhenotypeOnset " + RVCF_FIELDSEP
+				+ " PhenotypeDetails " + RVCF_FIELDSEP + " PhenotypeGroup " + RVCF_FIELDSEP + " SampleStatus "
+				+ RVCF_FIELDSEP + " SamplePhenotype " + RVCF_FIELDSEP + " SampleGenotype " + RVCF_FIELDSEP
+				+ " SampleGroup " + RVCF_FIELDSEP + " VariantSignificance " + RVCF_FIELDSEP
+				+ " VariantSignificanceSource " + RVCF_FIELDSEP + " VariantSignificanceJustification "
+				+ RVCF_FIELDSEP + " VariantMultiGenic " + RVCF_FIELDSEP + " VariantGroup";
 
 	String allele;
 	String alleleFreq;

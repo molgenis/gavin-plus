@@ -3,6 +3,7 @@ package org.molgenis.data.annotation.mergeback;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
+import org.molgenis.data.annotation.makervcf.structs.RVCFUtils;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
@@ -30,7 +31,7 @@ public class MergeBackTool
         {
             AnnotatedVcfRecord record = new AnnotatedVcfRecord(vcfIterator.next());
             chrPosRefAltToRLV.put(record.getChromosome() + "_" + record.getPosition() + "_" + VcfRecordUtils.getRef(
-					record) + "_" + VcfRecordUtils.getAlt(record), record.getRvcf().stream().map(Object::toString).collect(Collectors.joining(",")));
+					record) + "_" + VcfRecordUtils.getAlt(record), record.getRvcf().stream().map(RVCFUtils::getMergedFieldVcfString).collect(Collectors.joining(",")));
         }
 
         System.out.println("chrPosRefAltToRLV = " + chrPosRefAltToRLV);
@@ -57,7 +58,7 @@ public class MergeBackTool
 
                 if (inputLine.startsWith("#CHROM"))
                 {
-                    pw.println("##INFO=<ID=" + RVCF.FIELD_NAME + ",Number=.,Type=String,Description=\"" + RVCF.FIELD_NAME
+                    pw.println("##INFO=<ID=" + RVCF.FIELD_NAME + ",Number=.,Type=String,Description=\"" + RVCF.DESCRIPTION
                             + "\">");
                     pw.println(inputLine);
                     continue;

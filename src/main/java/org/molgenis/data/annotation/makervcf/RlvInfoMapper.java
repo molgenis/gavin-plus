@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.FIELD_NAME;
 import static org.molgenis.data.annotation.makervcf.structs.RVCFUtils.createRvcfInfoFields;
 
 /**
@@ -73,7 +74,7 @@ public class RlvInfoMapper
 				{
 					rvcfStringList.add(RVCFUtils.getMergedFieldVcfString(rvcf));
 				}
-				infoField = Strings.join(rvcfStringList, ",");
+				infoField = FIELD_NAME + "=" + Strings.join(rvcfStringList, ",");
 			}
 		}
 		else{
