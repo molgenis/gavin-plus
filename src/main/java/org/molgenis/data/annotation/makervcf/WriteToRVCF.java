@@ -23,9 +23,9 @@ class WriteToRVCF
 	public static final String STRING = "String";
 
 	void writeRVCF(Iterator<GavinRecord> gavinRecords, File writeTo, File inputVcfFile, String version,
-			String cmdString, boolean writeToDisk, boolean isSeparateFields) throws Exception
+			String cmdString, boolean writeToDisk, boolean splitRlvField) throws Exception
 	{
-		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile, isSeparateFields);
+		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile, splitRlvField);
 		vcfMeta.add("GavinVersion", StringUtils.wrap(version, "\""));
 		vcfMeta.add("GavinCmd", StringUtils.wrap(cmdString, "\""));
 		LOG.debug("[WriteToRVCF] Writing header");
@@ -33,7 +33,7 @@ class WriteToRVCF
 		try (VcfWriter vcfWriter = new VcfWriterFactory().create(writeTo, vcfMeta))
 		{
 			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false,
-					false); // TODO create settings based on CLI arguments
+					false, splitRlvField); // TODO create settings based on CLI arguments
 			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 			while (gavinRecords.hasNext())
 			{
@@ -41,13 +41,13 @@ class WriteToRVCF
 				if (writeToDisk)
 				{
 					LOG.debug("[WriteToRVCF] Writing VCF record");
-					vcfWriter.write(vcfRecordMapper.map(gavinRecord, isSeparateFields));
+					vcfWriter.write(vcfRecordMapper.map(gavinRecord));
 				}
 			}
 		}
 	}
 
-	private VcfMeta createRvcfMeta(File inputVcfFile, boolean isSeparateFields) throws IOException
+	private VcfMeta createRvcfMeta(File inputVcfFile, boolean splitRlvField) throws IOException
 	{
 		VcfMeta vcfMeta;
 		try (VcfReader vcfReader = GavinUtils.getVcfReader(inputVcfFile))
@@ -57,7 +57,7 @@ class WriteToRVCF
 		vcfMeta.setColNames(Arrays.copyOfRange(vcfMeta.getColNames(), 0, VcfMeta.COL_FORMAT_IDX));
 		vcfMeta.setVcfMetaSamples(Collections.emptyMap());
 
-		if (!isSeparateFields)
+		if (!splitRlvField)
 		{
 			addInfoField(vcfMeta, "RLV", ".", STRING,
 					"Allele | AlleleFreq | Gene | FDR | Transcript | Phenotype | PhenotypeInheritance | PhenotypeOnset | PhenotypeDetails | PhenotypeGroup | SampleStatus | SamplePhenotype | SampleGenotype | SampleGroup | VariantSignificance | VariantSignificanceSource | VariantSignificanceJustification | VariantCompoundHet | VariantGroup");

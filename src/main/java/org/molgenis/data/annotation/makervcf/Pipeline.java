@@ -18,7 +18,7 @@ public class Pipeline
 {
 	private final String version;
 	private final String cmdString;
-	private final boolean isSeparateFields;
+	private final boolean splitRlvField;
 	private final boolean keepAllVariants;
 	private final HandleMissingCaddScores.Mode mode;
 
@@ -31,13 +31,13 @@ public class Pipeline
 	private final File outputVcfFile;
 	private final File labVariants;
 
-	public Pipeline(String version, String cmdString, boolean isSeparateFields, boolean keepAllVariants,
+	public Pipeline(String version, String cmdString, boolean splitRlvField, boolean keepAllVariants,
 			HandleMissingCaddScores.Mode mode, File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile,
 			File caddFile, File FDRfile, File outputVcfFile, File labVariants)
 	{
 		this.version = version;
 		this.cmdString = cmdString;
-		this.isSeparateFields = isSeparateFields;
+		this.splitRlvField = splitRlvField;
 		this.keepAllVariants = keepAllVariants;
 		this.mode = mode;
 		this.inputVcfFile = inputVcfFile;
@@ -93,7 +93,7 @@ public class Pipeline
 		Iterator<GavinRecord> rv10 = new CleanupVariantsWithoutSamples(rv9, keepAllVariants).go();
 
 		//write Entities output VCF file
-		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile, version, cmdString, true, isSeparateFields);
+		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile,version, cmdString, true, splitRlvField);
 
 	}
 }
