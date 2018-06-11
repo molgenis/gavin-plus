@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.data.annotation.makervcf.structs.RVCF.*;
@@ -16,7 +15,6 @@ import static org.testng.Assert.*;
 public class RVCFUtilsTest
 {
 	private RVCF rvcf1;
-	private RVCF rvcf2;
 
 	@BeforeMethod
 	public void setUp(){
@@ -48,53 +46,53 @@ public class RVCFUtilsTest
 	public void testCreateRvcfInfoFields()
 	{
 		Map<String, String> expected = new HashMap<>();
-		expected.put(RLV_PRESENT, "RLV_PRESENT=[allele|gene]TRUE");
-		expected.put(RLV_ALLELE, "RLV_ALLELE=[allele|gene]allele");
-		expected.put(RLV_ALLELEFREQ, "RLV_ALLELEFREQ=[allele|gene]alleleFreq");
-		expected.put(RLV_GENE, "RLV_GENE=[allele|gene]gene");
-		expected.put(RLV_FDR, "RLV_FDR=[allele|gene]FDR");
-		expected.put(RLV_TRANSCRIPT, "RLV_TRANSCRIPT=[allele|gene]transcript");
-		expected.put(RLV_PHENOTYPE, "RLV_PHENOTYPE=.");
-		expected.put(RLV_PHENOTYPEINHERITANCE, "RLV_PHENOTYPEINHERITANCE=[allele|gene]phenotypeInheritance");
-		expected.put(RLV_PHENOTYPEONSET, "RLV_PHENOTYPEONSET=[allele|gene]phenotypeOnset");
-		expected.put(RLV_PHENOTYPEDETAILS, "RLV_PHENOTYPEDETAILS=[allele|gene]phenotypeDetails");
-		expected.put(RLV_PHENOTYPEGROUP, "RLV_PHENOTYPEGROUP=[allele|gene]phenotypeGroup");
-		expected.put(RLV_SAMPLESTATUS, "RLV_SAMPLESTATUS=[allele|gene]1:CARRIER_2:AFFECTED");
-		expected.put(RLV_SAMPLEPHENOTYPE, "RLV_SAMPLEPHENOTYPE=[allele|gene]1:pheno1_2:pheno2");
-		expected.put(RLV_SAMPLEGENOTYPE, "RLV_SAMPLEGENOTYPE=[allele|gene]1:1_0_2:1_1");
-		expected.put(RLV_SAMPLEGROUP, "RLV_SAMPLEGROUP=[allele|gene]1:group1_2:group2");
-		expected.put(RLV_VARIANTSIGNIFICANCE, "RLV_VARIANTSIGNIFICANCE=[allele|gene]variantSignificance");
-		expected.put(RLV_VARIANTSIGNIFICANCESOURCE, "RLV_VARIANTSIGNIFICANCESOURCE=[allele|gene]variantSignificanceSource");
-		expected.put(RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "RLV_VARIANTSIGNIFICANCEJUSTIFICATION=[allele|gene]variantSignificanceJustification");
-		expected.put(RLV_VARIANTCOMPOUNDHET, "RLV_VARIANTCOMPOUNDHET=[allele|gene]variantMultiGenic");
-		expected.put(RLV_VARIANTGROUP, "RLV_VARIANTGROUP=[allele|gene]variantGroup");
+		expected.put(RLV_PRESENT, "[allele|gene]TRUE");
+		expected.put(RLV_ALLELE, "[allele|gene]allele");
+		expected.put(RLV_ALLELEFREQ, "[allele|gene]alleleFreq");
+		expected.put(RLV_GENE, "[allele|gene]gene");
+		expected.put(RLV_FDR, "[allele|gene]FDR");
+		expected.put(RLV_TRANSCRIPT, "[allele|gene]transcript");
+		expected.put(RLV_PHENOTYPE, ".");
+		expected.put(RLV_PHENOTYPEINHERITANCE, "[allele|gene]phenotypeInheritance");
+		expected.put(RLV_PHENOTYPEONSET, "[allele|gene]phenotypeOnset");
+		expected.put(RLV_PHENOTYPEDETAILS, "[allele|gene]phenotypeDetails");
+		expected.put(RLV_PHENOTYPEGROUP, "[allele|gene]phenotypeGroup");
+		expected.put(RLV_SAMPLESTATUS, "[allele|gene]1:CARRIER_2:AFFECTED");
+		expected.put(RLV_SAMPLEPHENOTYPE, "[allele|gene]1:pheno1_2:pheno2");
+		expected.put(RLV_SAMPLEGENOTYPE, "[allele|gene]1:1_0_2:1_1");
+		expected.put(RLV_SAMPLEGROUP, "[allele|gene]1:group1_2:group2");
+		expected.put(RLV_VARIANTSIGNIFICANCE, "[allele|gene]variantSignificance");
+		expected.put(RLV_VARIANTSIGNIFICANCESOURCE, "[allele|gene]variantSignificanceSource");
+		expected.put(RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "[allele|gene]variantSignificanceJustification");
+		expected.put(RLV_VARIANTCOMPOUNDHET, "[allele|gene]variantMultiGenic");
+		expected.put(RLV_VARIANTGROUP, "[allele|gene]variantGroup");
 
-		assertEquals(RVCFUtils.createRvcfInfoFields(rvcf1, Collections.emptyMap()),expected);
+		assertEquals(RVCFUtils.createRvcfValues(rvcf1, Collections.emptyMap()),expected);
 	}
 	@Test
 	public void testCreateRvcfInfoFieldsExistingValues()
 	{
 		Map<String, String> expected = new HashMap<>();
-		expected.put(RLV_PRESENT, "RLV_PRESENT=PRESENT,[allele|gene]TRUE");
-		expected.put(RLV_ALLELE, "RLV_ALLELE=ALLELE,[allele|gene]allele");
-		expected.put(RLV_ALLELEFREQ, "RLV_ALLELEFREQ=ALLELEFREQ,[allele|gene]alleleFreq");
-		expected.put(RLV_GENE, "RLV_GENE=GENE,[allele|gene]gene");
-		expected.put(RLV_FDR, "RLV_FDR=,[allele|gene]FDR");
-		expected.put(RLV_TRANSCRIPT, "RLV_TRANSCRIPT=TRANSCRIPT,[allele|gene]transcript");
-		expected.put(RLV_PHENOTYPE, "RLV_PHENOTYPE=PHENOTYPE,[allele|gene]");
-		expected.put(RLV_PHENOTYPEINHERITANCE, "RLV_PHENOTYPEINHERITANCE=PHENOTYPEINHERITANCE,[allele|gene]phenotypeInheritance");
-		expected.put(RLV_PHENOTYPEONSET, "RLV_PHENOTYPEONSET=PHENOTYPEONSET,[allele|gene]phenotypeOnset");
-		expected.put(RLV_PHENOTYPEDETAILS, "RLV_PHENOTYPEDETAILS=PHENOTYPEDETAILS,[allele|gene]phenotypeDetails");
-		expected.put(RLV_PHENOTYPEGROUP, "RLV_PHENOTYPEGROUP=PHENOTYPEGROUP,[allele|gene]phenotypeGroup");
-		expected.put(RLV_SAMPLESTATUS, "RLV_SAMPLESTATUS=SAMPLESTATUS,[allele|gene]1:CARRIER_2:AFFECTED");
-		expected.put(RLV_SAMPLEPHENOTYPE, "RLV_SAMPLEPHENOTYPE=SAMPLEPHENOTYPE,[allele|gene]1:pheno1_2:pheno2");
-		expected.put(RLV_SAMPLEGENOTYPE, "RLV_SAMPLEGENOTYPE=SAMPLEGENOTYPE,[allele|gene]1:1_0_2:1_1");
-		expected.put(RLV_SAMPLEGROUP, "RLV_SAMPLEGROUP=SAMPLEGROUP,[allele|gene]1:group1_2:group2");
-		expected.put(RLV_VARIANTSIGNIFICANCE, "RLV_VARIANTSIGNIFICANCE=VARIANTSIGNIFICANCE,[allele|gene]variantSignificance");
-		expected.put(RLV_VARIANTSIGNIFICANCESOURCE, "RLV_VARIANTSIGNIFICANCESOURCE=VARIANTSIGNIFICANCESOURCE,[allele|gene]variantSignificanceSource");
-		expected.put(RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "RLV_VARIANTSIGNIFICANCEJUSTIFICATION=VARIANTSIGNIFICANCEJUSTIFICATION,[allele|gene]variantSignificanceJustification");
-		expected.put(RLV_VARIANTCOMPOUNDHET, "RLV_VARIANTCOMPOUNDHET=VARIANTCOMPOUNDHET,[allele|gene]variantMultiGenic");
-		expected.put(RLV_VARIANTGROUP, "RLV_VARIANTGROUP=VARIANTGROUP,[allele|gene]variantGroup");
+		expected.put(RLV_PRESENT, "PRESENT,[allele|gene]TRUE");
+		expected.put(RLV_ALLELE, "ALLELE,[allele|gene]allele");
+		expected.put(RLV_ALLELEFREQ, "ALLELEFREQ,[allele|gene]alleleFreq");
+		expected.put(RLV_GENE, "GENE,[allele|gene]gene");
+		expected.put(RLV_FDR, ",[allele|gene]FDR");
+		expected.put(RLV_TRANSCRIPT, "TRANSCRIPT,[allele|gene]transcript");
+		expected.put(RLV_PHENOTYPE, "PHENOTYPE,");
+		expected.put(RLV_PHENOTYPEINHERITANCE, "PHENOTYPEINHERITANCE,[allele|gene]phenotypeInheritance");
+		expected.put(RLV_PHENOTYPEONSET, "PHENOTYPEONSET,[allele|gene]phenotypeOnset");
+		expected.put(RLV_PHENOTYPEDETAILS, "PHENOTYPEDETAILS,[allele|gene]phenotypeDetails");
+		expected.put(RLV_PHENOTYPEGROUP, "PHENOTYPEGROUP,[allele|gene]phenotypeGroup");
+		expected.put(RLV_SAMPLESTATUS, "SAMPLESTATUS,[allele|gene]1:CARRIER_2:AFFECTED");
+		expected.put(RLV_SAMPLEPHENOTYPE, "SAMPLEPHENOTYPE,[allele|gene]1:pheno1_2:pheno2");
+		expected.put(RLV_SAMPLEGENOTYPE, "SAMPLEGENOTYPE,[allele|gene]1:1_0_2:1_1");
+		expected.put(RLV_SAMPLEGROUP, "SAMPLEGROUP,[allele|gene]1:group1_2:group2");
+		expected.put(RLV_VARIANTSIGNIFICANCE, "VARIANTSIGNIFICANCE,[allele|gene]variantSignificance");
+		expected.put(RLV_VARIANTSIGNIFICANCESOURCE, "VARIANTSIGNIFICANCESOURCE,[allele|gene]variantSignificanceSource");
+		expected.put(RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "VARIANTSIGNIFICANCEJUSTIFICATION,[allele|gene]variantSignificanceJustification");
+		expected.put(RLV_VARIANTCOMPOUNDHET, "VARIANTCOMPOUNDHET,[allele|gene]variantMultiGenic");
+		expected.put(RLV_VARIANTGROUP, "VARIANTGROUP,[allele|gene]variantGroup");
 
 		Map<String, String> existing = new HashMap<>();
 		existing.put(RLV_PRESENT, "PRESENT");
@@ -118,7 +116,7 @@ public class RVCFUtilsTest
 		existing.put(RLV_VARIANTCOMPOUNDHET, "VARIANTCOMPOUNDHET");
 		existing.put(RLV_VARIANTGROUP, "VARIANTGROUP");
 
-		assertEquals(RVCFUtils.createRvcfInfoFields(rvcf1, existing),expected);
+		assertEquals(RVCFUtils.createRvcfValues(rvcf1, existing),expected);
 	}
 
 }

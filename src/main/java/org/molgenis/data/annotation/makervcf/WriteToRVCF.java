@@ -23,16 +23,16 @@ class WriteToRVCF
 	public static final String STRING = "String";
 
 	void writeRVCF(Iterator<GavinRecord> gavinRecords, File writeTo, File inputVcfFile, String version,
-			String cmdString, boolean writeToDisk, boolean isSeparateFields, boolean includeSamples) throws Exception
+			String cmdString, boolean writeToDisk, boolean splitRlvField, boolean includeSamples) throws Exception
 	{
-		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile, isSeparateFields, includeSamples);
+		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile, splitRlvField, includeSamples);
 		vcfMeta.add("GavinVersion", StringUtils.wrap(version, "\""));
 		vcfMeta.add("GavinCmd", StringUtils.wrap(cmdString, "\""));
 		LOG.debug("[WriteToRVCF] Writing header");
 
 		try (VcfWriter vcfWriter = new VcfWriterFactory().create(writeTo, vcfMeta))
 		{
-			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(includeSamples);
+			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(includeSamples, splitRlvField);
 			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 			while (gavinRecords.hasNext())
 			{
@@ -40,7 +40,7 @@ class WriteToRVCF
 				if (writeToDisk)
 				{
 					LOG.debug("[WriteToRVCF] Writing VCF record");
-					vcfWriter.write(vcfRecordMapper.map(gavinRecord, isSeparateFields));
+					vcfWriter.write(vcfRecordMapper.map(gavinRecord));
 				}
 			}
 		}
