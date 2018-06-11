@@ -124,7 +124,6 @@ public class VcfRecordMapperTest
 	@Test
 	public void testMapNoInfo()
 	{
-		vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 		GavinRecord gavinRecord = createMock(true, true, true, true, true, false);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
