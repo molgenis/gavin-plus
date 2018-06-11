@@ -350,12 +350,11 @@ public class Main
 		{
 			keepAllVariants = true;
 		}
+
 		/**
 		 * Everything OK, start pipeline
 		 */
 		System.out.println("Starting..");
-		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, fdrFile, mode, outputVCFFile,
-				labVariants, version, cmdString, splitRlvField);
 		Pipeline pipeline = new Pipeline( version,  cmdString,  splitRlvField,  keepAllVariants,
 		 mode,  inputVcfFile,  gavinFile,  clinvarFile,  cgdFile,
 			 caddFile,  fdrFile,  outputVCFFile,  labVariants);
