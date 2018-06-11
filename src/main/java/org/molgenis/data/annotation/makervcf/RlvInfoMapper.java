@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.molgenis.data.annotation.makervcf.structs.RVCF.FIELD_NAME;
-import static org.molgenis.data.annotation.makervcf.structs.RVCFUtils.createRvcfInfoFields;
+import static org.molgenis.data.annotation.makervcf.structs.RVCFUtils.createRvcfValues;
 
 /**
  * Maps {@link org.molgenis.data.annotation.makervcf.structs.Relevance} list to RLV field value.
@@ -60,12 +60,16 @@ public class RlvInfoMapper
 
 			if (splitRlvField)
 			{
-				Map<String, String> rvcfInfoFields = new HashMap<>();
+				Map<String, String> rvcfValues = new HashMap<>();
 				for (RVCF rvcf : rvcfList)
 				{
-					rvcfInfoFields = createRvcfInfoFields(rvcf, rvcfInfoFields);
+					rvcfValues = createRvcfValues(rvcf, rvcfValues);
 				}
-				infoField = Strings.join(rvcfInfoFields.values(), ";");
+				List<String> rlvInfoFields = new ArrayList<>();
+				for(Map.Entry<String,String> entry : rvcfValues.entrySet()){
+					rlvInfoFields.add(entry.getKey() +"="+ entry.getValue());
+				}
+				infoField = Strings.join(rlvInfoFields, ";");
 			}
 			else
 			{

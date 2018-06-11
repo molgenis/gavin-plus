@@ -37,7 +37,7 @@ public class RVCFUtils
 				+ escapeToSafeVCF(rvcf.getVariantMultiGenic()) + RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getVariantGroup());
 	}
 
-	public static Map<String, String> createRvcfInfoFields(RVCF rvcf, Map<String, String> currentValues)
+	public static Map<String, String> createRvcfValues(RVCF rvcf, Map<String, String> currentValues)
 	{
 		String prefix = "["+rvcf.getAllele() + "|" +rvcf.getGene()+"]";
 		Map<String, String> infoFields = new HashMap<>();
@@ -73,13 +73,13 @@ public class RVCFUtils
 				 .replaceAll("\\s", "_");
 	}
 
-	private static String addOrUpdateInfoField(String key, String value, String prefix, Map<String, String> currentValues,
+	private static void addOrUpdateInfoField(String key, String value, String prefix, Map<String, String> currentValues,
 			Map<String, String> infoFields)
 	{
-		return infoFields.put(key,createInfoField(key, value, prefix, currentValues.get(key)));
+		infoFields.put(key,createInfoField(value, prefix, currentValues.get(key)));
 	}
 
-	private static String createInfoField(String key, String value, String prefix, String currentInfoValue)
+	private static String createInfoField(String value, String prefix, String currentInfoValue)
 	{
 		String newInfoValue = "";
 		if(isNullOrEmpty(currentInfoValue)){
@@ -94,13 +94,21 @@ public class RVCFUtils
 			{
 				value = "";
 			}
-			if(currentInfoValue.equals(EMPTY_VALUE)){
+			if(currentInfoValue.equals(EMPTY_VALUE) && value.isEmpty()){
+				newInfoValue = EMPTY_VALUE;
+			}
+			else if(currentInfoValue.equals(EMPTY_VALUE) && !value.isEmpty()){
 				newInfoValue = "," + prefix + escapeToSafeVCF(value);
-			}else{
+			}
+			else if(!currentInfoValue.equals(EMPTY_VALUE) && !value.isEmpty()){
 				newInfoValue = currentInfoValue + "," + prefix + escapeToSafeVCF(value);
 			}
+			else if(!currentInfoValue.equals(EMPTY_VALUE) && value.isEmpty()){
+				newInfoValue = currentInfoValue + ",";
+			}
+
 		}
-		return key + "=" + newInfoValue;
+		return newInfoValue;
 	}
 
 	private static String printSampleStatus(Map<String, MatchVariantsToGenotypeAndInheritance.Status> samples)
