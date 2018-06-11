@@ -40,7 +40,7 @@ public class Main
 	public static final String REPLACE = "replace";
 	public static final String HELP = "help";
 	public static final String RESTORE = "restore";
-	public static final String SEPARATE_RVCF_FIELD = "separate_fields";
+	public static final String SPLIT_RLV_FIELD = "separate_fields";
 	public static final String KEEP_ALL_VARIANTS = "keep_all_variants";
 	public static final String INCLUDE_SAMPLES = "include_samples";
 
@@ -79,9 +79,9 @@ public class Main
 				"[not available] Supporting tool. Combine RVCF results with original VCF.")
 			  .withOptionalArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("q", SEPARATE_RVCF_FIELD), "Create separate INFO fields for every part of the RLV information");
 		parser.acceptsAll(asList("k", KEEP_ALL_VARIANTS), "Do not filter the non relevant variants, return all variants from the input");
 		parser.acceptsAll(asList("s", INCLUDE_SAMPLES), "Include samples is output");
+		parser.acceptsAll(asList("q", SPLIT_RLV_FIELD), "Create separate INFO fields for every part of the RLV information");
 
 		return parser;
 	}
@@ -329,10 +329,10 @@ public class Main
 			setLogLevelToDebug();
 		}
 
-		boolean isSeparateFields = false;
-		if (options.has(SEPARATE_RVCF_FIELD))
+		boolean splitRlvField = false;
+		if (options.has(SPLIT_RLV_FIELD))
 		{
-			isSeparateFields = true;
+			splitRlvField = true;
 		}
 
 		boolean keepAllVariants = false;
@@ -351,7 +351,7 @@ public class Main
 		  Everything OK, start pipeline
 		 */
 		System.out.println("Starting..");
-		Pipeline pipeline = new Pipeline( version,  cmdString,  isSeparateFields,  keepAllVariants,
+		Pipeline pipeline = new Pipeline( version,  cmdString,  splitRlvField,  keepAllVariants,
 		 mode,  inputVcfFile,  gavinFile,  clinvarFile,  cgdFile,
 			 caddFile,  fdrFile,  outputVCFFile,  labVariants, includeSamples);
 		pipeline.start();
