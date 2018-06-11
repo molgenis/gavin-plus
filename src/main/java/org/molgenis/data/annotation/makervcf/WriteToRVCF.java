@@ -23,17 +23,16 @@ class WriteToRVCF
 	public static final String STRING = "String";
 
 	void writeRVCF(Iterator<GavinRecord> gavinRecords, File writeTo, File inputVcfFile, String version,
-			String cmdString, boolean writeToDisk, boolean isSeparateFields) throws Exception
+			String cmdString, boolean writeToDisk, boolean isSeparateFields, boolean includeSamples) throws Exception
 	{
-		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile, isSeparateFields);
+		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile, isSeparateFields, includeSamples);
 		vcfMeta.add("GavinVersion", StringUtils.wrap(version, "\""));
 		vcfMeta.add("GavinCmd", StringUtils.wrap(cmdString, "\""));
 		LOG.debug("[WriteToRVCF] Writing header");
 
 		try (VcfWriter vcfWriter = new VcfWriterFactory().create(writeTo, vcfMeta))
 		{
-			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false,
-					false); // TODO create settings based on CLI arguments
+			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(includeSamples);
 			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 			while (gavinRecords.hasNext())
 			{
@@ -47,7 +46,7 @@ class WriteToRVCF
 		}
 	}
 
-	private VcfMeta createRvcfMeta(File inputVcfFile, boolean isSeparateFields) throws IOException
+	private VcfMeta createRvcfMeta(File inputVcfFile, boolean isSeparateFields, boolean includeSamples) throws IOException
 	{
 		VcfMeta vcfMeta;
 		try (VcfReader vcfReader = GavinUtils.getVcfReader(inputVcfFile))
@@ -55,8 +54,10 @@ class WriteToRVCF
 			vcfMeta = vcfReader.getVcfMeta();
 		}
 		vcfMeta.setColNames(Arrays.copyOfRange(vcfMeta.getColNames(), 0, VcfMeta.COL_FORMAT_IDX));
-		vcfMeta.setVcfMetaSamples(Collections.emptyMap());
-
+		if(!includeSamples)
+		{
+			vcfMeta.setVcfMetaSamples(Collections.emptyMap());
+		}
 		if (!isSeparateFields)
 		{
 			addInfoField(vcfMeta, "RLV", ".", STRING,

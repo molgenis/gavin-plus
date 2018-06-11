@@ -90,7 +90,7 @@ public class WriteToRVCFTest extends Setup
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
 
-		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test","command",true, false);
+		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test","command",true, false, false);
 
 		System.out.println("Going to compare files:\n" + expectedOutputVcfFile.getAbsolutePath() + "\nvs.\n"
 				+ observedOutputVcfFile.getAbsolutePath());

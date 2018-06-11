@@ -35,7 +35,6 @@ public class Main
 	public static final String FDR = "fdr";
 	public static final String CADD = "cadd";
 	public static final String LAB = "lab";
-	public static final String SV = "sv";
 	public static final String MODE = "mode";
 	public static final String VERBOSE = "verbose";
 	public static final String REPLACE = "replace";
@@ -43,6 +42,7 @@ public class Main
 	public static final String RESTORE = "restore";
 	public static final String SEPARATE_RVCF_FIELD = "separate_fields";
 	public static final String KEEP_ALL_VARIANTS = "keep_all_variants";
+	public static final String INCLUDE_SAMPLES = "include_samples";
 
 	public static void main(String[] args) throws Exception
 	{
@@ -67,10 +67,6 @@ public class Main
 		parser.acceptsAll(asList("l", LAB), "VCF file with lab specific variant classifications")
 			  .withOptionalArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("s", SV),
-				"[not available] Structural variation VCF file outputted by Delly, Manta or compatible")
-			  .withOptionalArg()
-			  .ofType(File.class);
 		parser.acceptsAll(asList("m", MODE),
 				"Create or use CADD file for missing annotations, either " + Mode.ANALYSIS.toString() + " or "
 						+ Mode.CREATEFILEFORCADD.toString()).withRequiredArg().ofType(String.class);
@@ -85,6 +81,7 @@ public class Main
 			  .ofType(File.class);
 		parser.acceptsAll(asList("q", SEPARATE_RVCF_FIELD), "Create separate INFO fields for every part of the RLV information");
 		parser.acceptsAll(asList("k", KEEP_ALL_VARIANTS), "Do not filter the non relevant variants, return all variants from the input");
+		parser.acceptsAll(asList("s", INCLUDE_SAMPLES), "Include samples is output");
 
 		return parser;
 	}
@@ -275,12 +272,6 @@ public class Main
 			}
 		}
 
-		if (options.has(SV))
-		{
-			System.out.println("Structural variation not yet supported!");
-			return;
-		}
-
 		/*
 		  Check mode in combination with CADD file and replace
 		 */
@@ -349,13 +340,20 @@ public class Main
 		{
 			keepAllVariants = true;
 		}
+
+		boolean includeSamples = false;
+		if (options.has(INCLUDE_SAMPLES))
+		{
+			includeSamples = true;
+		}
+
 		/*
 		  Everything OK, start pipeline
 		 */
 		System.out.println("Starting..");
 		Pipeline pipeline = new Pipeline( version,  cmdString,  isSeparateFields,  keepAllVariants,
 		 mode,  inputVcfFile,  gavinFile,  clinvarFile,  cgdFile,
-			 caddFile,  fdrFile,  outputVCFFile,  labVariants);
+			 caddFile,  fdrFile,  outputVCFFile,  labVariants, includeSamples);
 		pipeline.start();
 		System.out.println("..done!");
 	}
