@@ -20,7 +20,7 @@ public class RlvInfoMapper
 {
 	private String infoField;
 
-	public String map(List<Relevance> relevanceList, boolean isSeparateFields)
+	public String map(List<Relevance> relevanceList, boolean splitRlvField)
 	{
 		if(!relevanceList.isEmpty())
 		{
@@ -58,7 +58,7 @@ public class RlvInfoMapper
 				rvcfList.add(rvcf);
 			}
 
-			if (isSeparateFields)
+			if (splitRlvField)
 			{
 				Map<String, String> rvcfInfoFields = new HashMap<>();
 				for (RVCF rvcf : rvcfList)
@@ -78,7 +78,7 @@ public class RlvInfoMapper
 			}
 		}
 		else{
-			if (isSeparateFields)
+			if (splitRlvField)
 			{
 				infoField = RVCF.RLV_PRESENT + "=" + "FALSE";
 			}

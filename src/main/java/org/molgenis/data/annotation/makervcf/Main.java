@@ -41,7 +41,7 @@ public class Main
 	public static final String REPLACE = "replace";
 	public static final String HELP = "help";
 	public static final String RESTORE = "restore";
-	public static final String SEPARATE_RVCF_FIELD = "separate_fields";
+	public static final String SPLIT_RLV_FIELD = "separate_fields";
 
 	public static void main(String[] args) throws Exception
 	{
@@ -82,7 +82,7 @@ public class Main
 				"[not available] Supporting tool. Combine RVCF results with original VCF.")
 			  .withOptionalArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("q", SEPARATE_RVCF_FIELD), "Create separate INFO fields for every part of the RLV information");
+		parser.acceptsAll(asList("q", SPLIT_RLV_FIELD), "Create separate INFO fields for every part of the RLV information");
 
 		return parser;
 	}
@@ -336,17 +336,17 @@ public class Main
 			setLogLevelToDebug();
 		}
 
-		boolean isSeparateFields = false;
-		if (options.has(SEPARATE_RVCF_FIELD))
+		boolean splitRlvField = false;
+		if (options.has(SPLIT_RLV_FIELD))
 		{
-			isSeparateFields = true;
+			splitRlvField = true;
 		}
 		/**
 		 * Everything OK, start pipeline
 		 */
 		System.out.println("Starting..");
 		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, fdrFile, mode, outputVCFFile,
-				labVariants, version, cmdString, isSeparateFields);
+				labVariants, version, cmdString, splitRlvField);
 		System.out.println("..done!");
 	}
 
