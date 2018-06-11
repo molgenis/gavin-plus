@@ -86,7 +86,7 @@ public class WriteToRVCFTest extends Setup
 	public void test() throws Exception
 	{
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile,
-				null, HandleMissingCaddScores.Mode.ANALYSIS);
+				null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
 
