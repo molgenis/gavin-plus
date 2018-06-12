@@ -12,7 +12,7 @@ import static org.molgenis.data.annotation.makervcf.structs.RVCF.*;
 public class RVCFUtils
 {
 	public static final String RVCF_SAMPLESEP = "/";
-	public static final String EMPTY_VALUE = ".";
+	public static final String EMPTY_VALUE = ".";//Note: this conflicts with the splitRlvTool missing values are "NA"
 	private static final String RVCF_GENEALLELECOMBISEP = ",";
 	private static final String RVCF_FIELDSEP = "|";
 	private static final String RVCF_KEYVALSEP = ":";
@@ -84,29 +84,17 @@ public class RVCFUtils
 		String newInfoValue = "";
 		if(isNullOrEmpty(currentInfoValue)){
 			if(Strings.isNullOrEmpty(value)){
-				newInfoValue = EMPTY_VALUE;
+				newInfoValue = prefix + EMPTY_VALUE;
 			}else
 			{
 				newInfoValue = prefix + escapeToSafeVCF(value);
 			}
 		}else{
-			if(value == null)
+			if(isNullOrEmpty(value))
 			{
-				value = "";
+				value = EMPTY_VALUE;
 			}
-			if(currentInfoValue.equals(EMPTY_VALUE) && value.isEmpty()){
-				newInfoValue = EMPTY_VALUE;
-			}
-			else if(currentInfoValue.equals(EMPTY_VALUE) && !value.isEmpty()){
-				newInfoValue = "," + prefix + escapeToSafeVCF(value);
-			}
-			else if(!currentInfoValue.equals(EMPTY_VALUE) && !value.isEmpty()){
-				newInfoValue = currentInfoValue + "," + prefix + escapeToSafeVCF(value);
-			}
-			else if(!currentInfoValue.equals(EMPTY_VALUE) && value.isEmpty()){
-				newInfoValue = currentInfoValue + ",";
-			}
-
+			newInfoValue = currentInfoValue + "," + prefix + escapeToSafeVCF(value);
 		}
 		return newInfoValue;
 	}
