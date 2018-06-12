@@ -52,7 +52,7 @@ public class RVCFUtilsTest
 		expected.put(RLV_GENE, "[allele|gene]gene");
 		expected.put(RLV_FDR, "[allele|gene]FDR");
 		expected.put(RLV_TRANSCRIPT, "[allele|gene]transcript");
-		expected.put(RLV_PHENOTYPE, ".");
+		expected.put(RLV_PHENOTYPE, "[allele|gene].");
 		expected.put(RLV_PHENOTYPEINHERITANCE, "[allele|gene]phenotypeInheritance");
 		expected.put(RLV_PHENOTYPEONSET, "[allele|gene]phenotypeOnset");
 		expected.put(RLV_PHENOTYPEDETAILS, "[allele|gene]phenotypeDetails");
@@ -77,9 +77,9 @@ public class RVCFUtilsTest
 		expected.put(RLV_ALLELE, "ALLELE,[allele|gene]allele");
 		expected.put(RLV_ALLELEFREQ, "ALLELEFREQ,[allele|gene]alleleFreq");
 		expected.put(RLV_GENE, "GENE,[allele|gene]gene");
-		expected.put(RLV_FDR, ",[allele|gene]FDR");
+		expected.put(RLV_FDR, ".,[allele|gene]FDR");
 		expected.put(RLV_TRANSCRIPT, "TRANSCRIPT,[allele|gene]transcript");
-		expected.put(RLV_PHENOTYPE, "PHENOTYPE,");
+		expected.put(RLV_PHENOTYPE, "PHENOTYPE,[allele|gene].");
 		expected.put(RLV_PHENOTYPEINHERITANCE, "PHENOTYPEINHERITANCE,[allele|gene]phenotypeInheritance");
 		expected.put(RLV_PHENOTYPEONSET, "PHENOTYPEONSET,[allele|gene]phenotypeOnset");
 		expected.put(RLV_PHENOTYPEDETAILS, "PHENOTYPEDETAILS,[allele|gene]phenotypeDetails");
