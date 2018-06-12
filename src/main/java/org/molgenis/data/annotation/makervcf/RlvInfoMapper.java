@@ -31,7 +31,7 @@ public class RlvInfoMapper
 				rvcf.setAllele(rlv.getAllele());
 				rvcf.setAlleleFreq(String.valueOf(rlv.getAlleleFreq()));
 				Optional<String> transcript = rlv.getTranscript();
-				rvcf.setTranscript(transcript.isPresent() ? transcript.get() : "");
+				rvcf.setTranscript(transcript.orElse(""));
 
 				if (rlv.getCgdInfo() != null)
 				{
