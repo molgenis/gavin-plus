@@ -47,7 +47,7 @@ public class HandleMissingCaddScores
 
 	public Double dealWithCaddScores(GavinRecord record, int altIndex) throws Exception
 	{
-		if (record.getCaddPhredScores(altIndex) == null)
+		if (record.getCaddPhredScore(altIndex) == null)
 		{
 			if (mode.equals(Mode.CREATEFILEFORCADD))
 			{
@@ -64,7 +64,7 @@ public class HandleMissingCaddScores
 						+ record.getAlt(altIndex);
 				if (this.caddScores.containsKey(key))
 				{
-					return this.caddScores.get(key);
+					record.setCaddPhredScore(altIndex, this.caddScores.get(key));
 				}
 				else
 				{
@@ -90,9 +90,8 @@ public class HandleMissingCaddScores
 				throw new Exception("Mode unknown: " + mode);
 			}
 		}
-		else
-		{
-			return record.getCaddPhredScores(altIndex);
-		}
+
+		return record.getCaddPhredScore(altIndex);
+
 	}
 }

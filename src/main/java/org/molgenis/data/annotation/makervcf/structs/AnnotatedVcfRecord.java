@@ -28,7 +28,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 	private static final String ANN = "ANN";
 	private static final String RLV = "RLV";
 	private static final String CLINVAR = "CLINVAR";
-	private static final String CADD_SCALED = "CADD_SCALED";
+	public static final String CADD_SCALED = "CADD_SCALED";
 
 	public AnnotatedVcfRecord(VcfRecord record)
 	{

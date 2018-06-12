@@ -1,5 +1,7 @@
 package org.molgenis.data.annotation.makervcf;
 
+import com.google.common.collect.Lists;
+import joptsimple.internal.Strings;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
@@ -11,12 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord.CADD_SCALED;
 
 /**
  * Maps {@link GavinRecord} to {@link VcfRecord}.
@@ -96,10 +102,23 @@ class VcfRecordMapper
 		StringBuilder stringBuilder = new StringBuilder();
 		if (hasInformation)
 		{
-			stringBuilder.append(StreamSupport.stream(vcfInformations.spliterator(), false)
+			//process all info fields except CADD_SCALED, we might have added values there so we process it seperately
+			stringBuilder.append(StreamSupport.stream(vcfInformations.spliterator(), false).filter(vcfInfo -> !vcfInfo.getKey().equals(CADD_SCALED))
 											  .map(this::createInfoTokenPart)
 											  .collect(joining(";")));
 		}
+
+		Double[] caddScores = gavinRecord.getCaddPhredScores();
+		if(caddScores != null && caddScores.length > 0){
+			List<String> caddScoresList = Arrays.stream(caddScores)
+											  .map(score -> caddToString(score))
+											  .collect(toList());
+			if(!caddScoresList.isEmpty())
+			{
+				stringBuilder.append(";").append(createInfoTokenPart(CADD_SCALED, Strings.join(caddScoresList, ",")));
+			}
+		}
+
 		if (!gavinRecord.getRelevance().isEmpty())
 		{
 			if (stringBuilder.length() > 0)
@@ -111,9 +130,26 @@ class VcfRecordMapper
 		return stringBuilder.toString();
 	}
 
+	private String caddToString(Double score)
+	{
+		String stringValue;
+		if(score!=null)
+		{
+			stringValue = Double.toString(score);
+		}else{
+			stringValue = ".";
+		}
+		return stringValue;
+	}
+
 	private String createInfoTokenPart(VcfInfo vcfInfo)
 	{
-		return vcfInfo.getKey() + '=' + vcfInfo.getValRaw();
+		return createInfoTokenPart(vcfInfo.getKey(),vcfInfo.getValRaw());
+	}
+
+	private String createInfoTokenPart(String key, String value)
+	{
+		return key + '=' + value;
 	}
 
 	private String createFormatToken(AnnotatedVcfRecord vcfEntity)

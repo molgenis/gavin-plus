@@ -54,9 +54,14 @@ public class GavinRecord
 		return !relevances.isEmpty();
 	}
 
-	public Double getCaddPhredScores(int i)
+	public Double getCaddPhredScore(int i)
 	{
 		return caddPhredScores[i];
+	}
+
+	public Double[] getCaddPhredScores()
+	{
+		return caddPhredScores;
 	}
 
 	public void setCaddPhredScore(int i, Double phredScore)
