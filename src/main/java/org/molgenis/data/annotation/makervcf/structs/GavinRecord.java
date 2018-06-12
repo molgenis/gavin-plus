@@ -2,6 +2,7 @@ package org.molgenis.data.annotation.makervcf.structs;
 
 import org.apache.commons.lang3.StringUtils;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
+import org.molgenis.data.vcf.datastructures.Sample;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
 import org.molgenis.vcf.VcfSample;
@@ -11,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -95,31 +98,9 @@ public class GavinRecord
 				+ VcfRecordUtils.getRef(annotatedVcfRecord) + " " + VcfRecordUtils.getAltString(annotatedVcfRecord);
 	}
 
-	/**
-	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
-	 */
-	@Deprecated
-	public String getSampleFieldValue(VcfSample vcfSample, String field)
+	public Stream<Sample> getSamples()
 	{
-		return VcfRecordUtils.getSampleFieldValue(annotatedVcfRecord, vcfSample, field);
-	}
-
-	/**
-	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
-	 */
-	@Deprecated
-	public Iterable<VcfSample> getSamples()
-	{
-		return annotatedVcfRecord.getSamples();
-	}
-
-	/**
-	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
-	 */
-	@Deprecated
-	public VcfMeta getVcfMeta()
-	{
-		return annotatedVcfRecord.getVcfMeta();
+		return VcfRecordUtils.toSamples(annotatedVcfRecord);
 	}
 
 	public int getAltAlleleIndex(String alt)

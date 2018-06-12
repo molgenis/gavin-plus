@@ -8,7 +8,7 @@ import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
-import org.molgenis.vcf.VcfSample;
+import org.molgenis.data.vcf.datastructures.Sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,14 +137,12 @@ public class MatchVariantsToGenotypeAndInheritance
 							for (String key : genoMatch.affected.keySet())
 							{
 								sampleStatus.put(key, actingTerminology);
-								sampleGenotypes.put(key,
-										gavinRecord.getSampleFieldValue(genoMatch.affected.get(key), "GT"));
+								sampleGenotypes.put(key,genoMatch.affected.get(key).getGenotype().get());
 							}
 							for (String key : genoMatch.carriers.keySet())
 							{
 								sampleStatus.put(key, nonActingTerminology);
-								sampleGenotypes.put(key,
-										gavinRecord.getSampleFieldValue(genoMatch.carriers.get(key), "GT"));
+								sampleGenotypes.put(key,genoMatch.carriers.get(key).getGenotype().get());
 							}
 
 							if (!sampleStatus.isEmpty())
@@ -169,7 +167,7 @@ public class MatchVariantsToGenotypeAndInheritance
 	/**
 	 *
 	 */
-	public MultiKeyMap findMatchingSamples(GavinRecord record) throws Exception
+	public MultiKeyMap findMatchingSamples(GavinRecord record)
 	{
 		Set<String> alts = RelevanceUtils.getRelevantAlts(record.getRelevance());
 		Set<String> genes = RelevanceUtils.getRelevantGenes(record.getRelevance());
@@ -178,26 +176,24 @@ public class MatchVariantsToGenotypeAndInheritance
 
 		Set<String> parentsWithReferenceCalls = new HashSet<>();
 
-		Iterator<VcfSample> samples = record.getSamples().iterator();
+		Iterator<Sample> samples = record.getSamples().iterator();
 		int sampleIndex = -1;
 		while (samples.hasNext())
 		{
-			sampleIndex++;
-			VcfSample sample = samples.next().createClone();
+			Sample sample = samples.next();
 
-			if (record.getSampleFieldValue(sample, "GT") == null)
+			if (!sample.getGenotype().isPresent())
 			{
 				continue;
 			}
 
-			String genotype = record.getSampleFieldValue(sample, "GT");
-			String sampleName = record.getVcfMeta().getSampleName(sampleIndex);
+			String genotype = sample.getGenotype().get();
+			String sampleName = sample.getId();
 
 			// quality filter: we want depth X or more, if available
-			if (record.getSampleFieldValue(sample, "DP") != null)
+			if (sample.getDepth().isPresent())
 			{
-				int depthOfCoverage = Integer.parseInt(record.getSampleFieldValue(sample, "DP"));
-				if (depthOfCoverage < minDepth)
+				if (sample.getDepth().get() < minDepth)
 				{
 					continue;
 				}
@@ -227,8 +223,8 @@ public class MatchVariantsToGenotypeAndInheritance
 				//and each gene
 				for (String gene : genes)
 				{
-					HashMap<String, VcfSample> carriers = new HashMap<>();
-					HashMap<String, VcfSample> affected = new HashMap<>();
+					HashMap<String, Sample> carriers = new HashMap<>();
+					HashMap<String, Sample> affected = new HashMap<>();
 
 					CGDEntry ce = cgd.get(gene);
 					generalizedInheritance inheritance =
@@ -278,7 +274,7 @@ public class MatchVariantsToGenotypeAndInheritance
 					}
 					else
 					{
-						throw new Exception("inheritance unknown: " + inheritance);
+						throw new RuntimeException("inheritance unknown: " + inheritance);
 					}
 
 					//FIXME: set directly above with put instead of via putAll afterwards?

@@ -2,13 +2,18 @@ package org.molgenis.vcf;
 
 import joptsimple.internal.Strings;
 import org.apache.commons.lang.StringUtils;
+import org.molgenis.data.vcf.datastructures.Sample;
 import org.molgenis.genotype.Allele;
+import org.molgenis.vcf.meta.VcfMeta;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.joining;
 
@@ -135,7 +140,9 @@ public class VcfRecordUtils
 			{
 				if (split.length != nrOfAlts)
 				{
-					throw new RuntimeException(String.format("Split length %s of string '%s' not equal to alt allele split length %s for record '%s'",split.length,fieldValue,nrOfAlts, vcfRecord.toString()));
+					throw new RuntimeException(String.format(
+							"Split length %s of string '%s' not equal to alt allele split length %s for record '%s'",
+							split.length, fieldValue, nrOfAlts, vcfRecord.toString()));
 				}
 				for (int i = 0; i < split.length; i++)
 				{
@@ -180,5 +187,20 @@ public class VcfRecordUtils
 			}
 		}
 		return result;
+	}
+
+	public static Stream<Sample> toSamples(VcfRecord vcfRecord)
+	{
+		AtomicInteger counter = new AtomicInteger(0);
+		VcfMeta vcfMeta = vcfRecord.getVcfMeta();
+		return StreamSupport.stream(vcfRecord.getSamples().spliterator(), false).map(vcfSample ->
+		{
+			String sampleName = vcfMeta.getSampleName(counter.getAndIncrement());
+			String genoType = getSampleFieldValue(vcfRecord, vcfSample, "GT");
+			String doubleString = getSampleFieldValue(vcfRecord, vcfSample, "DP");
+			Double depth = doubleString != null ? Double.parseDouble(doubleString) : null;
+
+			return new Sample(sampleName, genoType, depth);
+		});
 	}
 }

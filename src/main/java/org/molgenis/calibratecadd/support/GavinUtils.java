@@ -134,9 +134,9 @@ public class GavinUtils
 						"Expected Child, Mother or Father, but found: " + element + " in line " + line);
 			}
 		}
-		Sample child = childID != null ? new Sample(childID) : null;
-		Sample mother = motherID != null ? new Sample(motherID) : null;
-		Sample father = fatherID != null ? new Sample(fatherID) : null;
+		Sample child = childID != null ? new Sample(childID,null,null) : null;
+		Sample mother = motherID != null ? new Sample(motherID,null,null) : null;
+		Sample father = fatherID != null ? new Sample(fatherID,null,null) : null;
 
 		result.put(childID, new Trio(child, mother, father));
 	}

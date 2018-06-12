@@ -1,31 +1,20 @@
 package org.molgenis.data.vcf.datastructures;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.molgenis.vcf.VcfRecord;
+import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
 
 public class Sample
 {
-	String id;
+	private final String id;
+	private final Optional<String> genotype;
+	private final Optional<Double> depth;
 
-	VcfRecord genotype;
-
-	public Sample()
+	public Sample(String id, String genotype, Double depth)
 	{
-		super();
-	}
-
-	public Sample(String id)
-	{
-		super();
-		this.id = id;
-	}
-
-	public Sample(String id, VcfRecord genotype)
-	{
-		super();
-		this.id = id;
-		this.genotype = genotype;
+		this.id = requireNonNull(id);
+		this.genotype = Optional.ofNullable(genotype);
+		this.depth = Optional.ofNullable(depth);
 	}
 
 	public String getId()
@@ -33,60 +22,13 @@ public class Sample
 		return id;
 	}
 
-	public void setId(String id)
-	{
-		this.id = id;
-	}
-
-	public VcfRecord getGenotype()
+	public Optional<String> getGenotype()
 	{
 		return genotype;
 	}
 
-	public void setGenotype(VcfRecord genotype)
+	public Optional<Double> getDepth()
 	{
-		this.genotype = genotype;
+		return depth;
 	}
-
-	@Override
-	public int hashCode()
-	{
-		return new HashCodeBuilder(17, 31).append(id).toHashCode();
-	}
-
-	/**
-	 * Allows compare with String or Sample object
-	 */
-	public boolean equalsSampleOrString(Object obj)
-	{
-		if (obj instanceof String)
-		{
-			return new EqualsBuilder().append(id, obj.toString()).isEquals();
-		}
-		if (!(obj instanceof Sample)) return false;
-		if (obj == this) return true;
-		Sample rhs = (Sample) obj;
-		return new EqualsBuilder().append(id, rhs.id).isEquals();
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (!(o instanceof Sample)) return false;
-
-		Sample sample = (Sample) o;
-
-		if (genotype != null ? !genotype.equals(sample.genotype) : sample.genotype != null) return false;
-		if (id != null ? !id.equals(sample.id) : sample.id != null) return false;
-
-		return true;
-	}
-
-	@Override
-	public String toString()
-	{
-		return "Sample [id=" + id + ", genotype=" + genotype + "]";
-	}
-
 }

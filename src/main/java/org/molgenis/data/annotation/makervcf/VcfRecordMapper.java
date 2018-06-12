@@ -79,7 +79,7 @@ class VcfRecordMapper
 		{
 
 			AnnotatedVcfRecord annotatedVcfRecord = gavinRecord.getAnnotatedVcfRecord();
-			Iterable<VcfSample> vcfSamples = gavinRecord.getSamples();
+			Iterable<VcfSample> vcfSamples = annotatedVcfRecord.getSamples();
 			if (vcfSamples.iterator().hasNext())
 			{
 				tokens.add(createFormatToken(annotatedVcfRecord));
