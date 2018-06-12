@@ -61,7 +61,8 @@ public class ClinVar
 			if (clinVar.isPresent())
 			{
 				String clinvarInfo = clinVar.get();
-				if (clinvarInfo.contains("athogenic"))
+				//FIXME: is this check robust enough?
+				if (StringUtils.containsIgnoreCase(clinvarInfo,"pathogenic"))
 				{
 					String clinvarGene = clinvarInfo.split("\\|", -1)[1];
 					if (!clinvarGene.equalsIgnoreCase(gene))
