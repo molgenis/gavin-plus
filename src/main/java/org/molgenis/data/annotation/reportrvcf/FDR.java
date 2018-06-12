@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.reportrvcf;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.vcf.VcfReader;
@@ -72,7 +72,7 @@ public class FDR {
 
                 for(String sample : rvcf.getSampleStatus().keySet())
                 {
-                    if(status.isPresumedAffected(rvcf.getSampleStatus().get(sample)))
+                    if(MatchVariantsToGenotypeAndInheritance.Status.isPresumedAffected(rvcf.getSampleStatus().get(sample)))
                     {
                         if(!sampleGeneCombo.contains(gene + "_" + sample))
                         {
@@ -82,7 +82,7 @@ public class FDR {
                         }
 
                     }
-                    else if(status.isPresumedCarrier(rvcf.getSampleStatus().get(sample)))
+                    else if(MatchVariantsToGenotypeAndInheritance.Status.isPresumedCarrier(rvcf.getSampleStatus().get(sample)))
                     {
                         if(!sampleGeneCombo.contains(gene + "_" + sample))
                         {
@@ -92,7 +92,7 @@ public class FDR {
                         }
                     }
                     else{
-                        throw new Exception("ERROR: Unknown sample status: " +rvcf.getSampleStatus().get(sample));
+                        throw new Exception("ERROR: Unknown sample Status: " +rvcf.getSampleStatus().get(sample));
                     }
                 }
             }

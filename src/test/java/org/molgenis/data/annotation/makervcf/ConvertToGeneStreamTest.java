@@ -40,8 +40,8 @@ public class ConvertToGeneStreamTest extends Setup
 	@Test
 	public void test() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile1, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> it = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile1, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		Iterator<GavinRecord> it = new ConvertToGeneStream(discover.findRelevantVariants()).go();
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
@@ -62,8 +62,8 @@ public class ConvertToGeneStreamTest extends Setup
 	@Test
 	public void test2() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile2, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> it = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile2, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		Iterator<GavinRecord> it = new ConvertToGeneStream(discover.findRelevantVariants()).go();
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{

@@ -10,13 +10,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by joeri on 6/29/16.
  *
  * detects fake compounds when affected alleles are all from 1 parent
- * if not, update status to 'FALSE_COMPOUND' or something, in case we want to TODO
+ * if not, update Status to 'FALSE_COMPOUND' or something, in case we want to TODO
  *
  * assumptions:
  * 2+ heterozygous/carrier variants per sample
@@ -47,16 +48,17 @@ import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGen
  */
 public class PhasingCompoundCheck extends GeneStream{
 
-    public PhasingCompoundCheck(Iterator<GavinRecord> relevantVariants, boolean verbose)
+    private static final Logger LOG = LoggerFactory.getLogger(PhasingCompoundCheck.class);
+    public PhasingCompoundCheck(Iterator<GavinRecord> relevantVariants)
     {
-        super(relevantVariants, verbose);
+        super(relevantVariants);
     }
 
     @Override
     public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
 
 
-        if(verbose){System.out.println("[PhasingCompoundCheck] Encountered gene: " + gene);}
+        LOG.debug("[PhasingCompoundCheck] Encountered gene: " + gene);
 
         // e.g. the 0 in 0|1
         Set<String> leftHaploSamples = new HashSet<String>();
@@ -82,10 +84,10 @@ public class PhasingCompoundCheck extends GeneStream{
                     {
                         continue;
                     }
-                    if(MatchVariantsToGenotypeAndInheritance.status.isCompound(rlv.getSampleStatus().get(sample)))
+                    if(MatchVariantsToGenotypeAndInheritance.Status.isCompound(rlv.getSampleStatus().get(sample)))
                     {
                         String geno = rlv.getSampleGenotypes().get(sample);
-                        if(verbose){System.out.println("[PhasingCompoundCheck] Sample "+sample+" has a "+rlv.getSampleStatus().get(sample)+" genotype " + geno);}
+                        LOG.debug("[PhasingCompoundCheck] Sample "+sample+" has a "+rlv.getSampleStatus().get(sample)+" genotype " + geno);
                         if(geno.length() != 3)
                         {
                             throw new Exception("genotype length != 3");
@@ -95,7 +97,7 @@ public class PhasingCompoundCheck extends GeneStream{
                         if(geno.charAt(1) == '/')
                         {
                             samplesWithUnphasedVariants.add(sample);
-                            if(verbose){System.out.println("[PhasingCompoundCheck] Sample unphased, excluded");}
+                            LOG.debug("[PhasingCompoundCheck] Sample unphased, excluded");
                         }
                         else if(geno.charAt(0) == affectedIndex && geno.charAt(1) == '|' && geno.charAt(2) != affectedIndex)
                         {
@@ -116,8 +118,8 @@ public class PhasingCompoundCheck extends GeneStream{
 
 
 
-        if(verbose){System.out.println("[PhasingCompoundCheck] 'Left-hand' haplotype samples: " + leftHaploSamples.toString());
-        System.out.println("[PhasingCompoundCheck] 'Right-hand' haplotype samples: " + rightHaploSamples.toString());}
+        LOG.debug("[PhasingCompoundCheck] 'Left-hand' haplotype samples: " + leftHaploSamples.toString());
+        LOG.debug("[PhasingCompoundCheck] 'Right-hand' haplotype samples: " + rightHaploSamples.toString());
        // leftHaploSamples.retainAll(rightHaploSamples);
       //  System.out.println("true compounds: " + leftHaploSamples.toString());
 
@@ -132,7 +134,7 @@ public class PhasingCompoundCheck extends GeneStream{
                 union.remove(inA);
             }
         }
-        if(verbose){System.out.println("[PhasingCompoundCheck] False compounds with only left-hand or right-hand haplotypes: " + union.toString());}
+        LOG.debug("[PhasingCompoundCheck] False compounds with only left-hand or right-hand haplotypes: " + union.toString());
 
 
         for(GavinRecord rv : variantsPerGene)
@@ -145,10 +147,11 @@ public class PhasingCompoundCheck extends GeneStream{
                 }
                 for(String sample : rlv.getSampleStatus().keySet())
                 {
-                    if(union.contains(sample) && !samplesWithUnphasedVariants.contains(sample) && status.isCompound(rlv.getSampleStatus().get(sample)))
+                    if(union.contains(sample) && !samplesWithUnphasedVariants.contains(sample) && MatchVariantsToGenotypeAndInheritance.Status
+                            .isCompound(rlv.getSampleStatus().get(sample)))
                     {
-                        if(verbose){System.out.println("[PhasingCompoundCheck] Going to update sample "+sample+" from "+rlv.getSampleStatus().get(sample)+" to " + status.HETEROZYGOUS_MULTIHIT);}
-                        rlv.getSampleStatus().put(sample, status.HETEROZYGOUS_MULTIHIT);
+                        LOG.debug("[PhasingCompoundCheck] Going to update sample "+sample+" from "+rlv.getSampleStatus().get(sample)+" to " + MatchVariantsToGenotypeAndInheritance.Status.HETEROZYGOUS_MULTIHIT);
+                        rlv.getSampleStatus().put(sample, MatchVariantsToGenotypeAndInheritance.Status.HETEROZYGOUS_MULTIHIT);
                     }
                 }
             }

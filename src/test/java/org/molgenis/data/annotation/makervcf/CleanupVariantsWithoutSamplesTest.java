@@ -41,16 +41,16 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 	@Test
 	public void test() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
-		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>()).go();
+		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 		Iterator<GavinRecord> gsi = gs.go();
 		TrioData td = TrioFilter.getTrioData(inputVcfFile);
-		TrioFilter tf = new TrioFilter(gsi, td, false);
-		CleanupVariantsWithoutSamples cleanup = new CleanupVariantsWithoutSamples(tf.go(), false);
+		TrioFilter tf = new TrioFilter(gsi, td);
+		CleanupVariantsWithoutSamples cleanup = new CleanupVariantsWithoutSamples(tf.go());
 		Iterator<GavinRecord> it = cleanup.go();
 
-		// we expect 5 records after cleanup, each with status affected
+		// we expect 5 records after cleanup, each with Status affected
 		int count = 0;
 		while(it.hasNext())
 		{

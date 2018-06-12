@@ -9,6 +9,8 @@ import org.molgenis.data.annotation.makervcf.structs.GenoMatchSamples;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
 import org.molgenis.vcf.VcfSample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,28 +26,27 @@ import static org.molgenis.cgd.CGDEntry.generalizedInheritance;
  */
 public class MatchVariantsToGenotypeAndInheritance
 {
-
+	private static final Logger LOG = LoggerFactory.getLogger(MatchVariantsToGenotypeAndInheritance.class);
 	Iterator<GavinRecord> relevantVariants;
 	Map<String, CGDEntry> cgd;
 	int minDepth;
-	boolean verbose;
 	private Set<String> parents;
 
-	public enum status
+	public enum Status
 	{
 		HETEROZYGOUS, HOMOZYGOUS, AFFECTED, CARRIER, BLOODGROUP, HOMOZYGOUS_COMPOUNDHET, AFFECTED_COMPOUNDHET, HETEROZYGOUS_MULTIHIT;
 
-		public static boolean isCompound(status status)
+		public static boolean isCompound(Status status)
 		{
 			return (status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED_COMPOUNDHET) ? true : false;
 		}
 
-		public static boolean isPresumedCarrier(status status)
+		public static boolean isPresumedCarrier(Status status)
 		{
 			return (status == HETEROZYGOUS || status == HETEROZYGOUS_MULTIHIT || status == CARRIER) ? true : false;
 		}
 
-		public static boolean isPresumedAffected(status status)
+		public static boolean isPresumedAffected(Status status)
 		{
 			return (status == HOMOZYGOUS || status == HOMOZYGOUS_COMPOUNDHET || status == AFFECTED
 					|| status == AFFECTED_COMPOUNDHET) ? true : false;
@@ -70,12 +71,11 @@ public class MatchVariantsToGenotypeAndInheritance
 	}
 
 	public MatchVariantsToGenotypeAndInheritance(Iterator<GavinRecord> relevantVariants, File cgdFile,
-			Set<String> parents, boolean verbose) throws IOException
+			Set<String> parents) throws IOException
 	{
 		this.relevantVariants = relevantVariants;
 		this.cgd = LoadCGD.loadCGD(cgdFile);
 		this.minDepth = 1;
-		this.verbose = verbose;
 		this.parents = parents;
 	}
 
@@ -116,19 +116,19 @@ public class MatchVariantsToGenotypeAndInheritance
 					CGDEntry ce = cgd.get(gene);
 					rlv.setCgdInfo(ce);
 
-					status actingTerminology = status.HOMOZYGOUS;
-					status nonActingTerminology = status.HETEROZYGOUS;
+					Status actingTerminology = Status.HOMOZYGOUS;
+					Status nonActingTerminology = Status.HETEROZYGOUS;
 
 					// regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
 					// females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
 					if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(
 							cgd.get(gene).getGeneralizedInheritance())))
 					{
-						actingTerminology = status.AFFECTED;
-						nonActingTerminology = status.CARRIER;
+						actingTerminology = Status.AFFECTED;
+						nonActingTerminology = Status.CARRIER;
 					}
 
-					Map<String, status> sampleStatus = new HashMap<>();
+					Map<String, Status> sampleStatus = new HashMap<>();
 					Map<String, String> sampleGenotypes = new HashMap<>();
 					GenoMatchSamples genoMatch = (GenoMatchSamples) fullGenoMatch.get(rlv.getGene(), rlv.getAllele());
 
@@ -144,19 +144,18 @@ public class MatchVariantsToGenotypeAndInheritance
 							sampleStatus.put(key, nonActingTerminology);
 							sampleGenotypes.put(key, rv.getSampleFieldValue(genoMatch.carriers.get(key), "GT"));
 						}
-					}
 
-					if (!sampleStatus.isEmpty())
-					{
-						rlv.setSampleStatus(sampleStatus);
-						rlv.setSampleGenotypes(sampleGenotypes);
-						rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
-						if (verbose)
+						if (!sampleStatus.isEmpty())
 						{
-							System.out.println("[MatchVariantsToGenotypeAndInheritance] Assigned sample status: "
-									+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
-									+ ", plus trio parents with reference alleles: "
-									+ genoMatch.parentsWithReferenceCalls.toString());
+							rlv.setSampleStatus(sampleStatus);
+							rlv.setSampleGenotypes(sampleGenotypes);
+							rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
+							
+							String parentsWithReferenceCalls = genoMatch.parentsWithReferenceCalls.toString();
+							LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: "
+										+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
+										+ ", plus trio parents with reference alleles: "
+										+ parentsWithReferenceCalls);
 						}
 					}
 				}

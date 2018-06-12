@@ -2,7 +2,8 @@ package org.molgenis.data.annotation.makervcf.structs;
 
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.Status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class Relevance
     String allele;
     String gene;
     String FDR;
-    Map<String, status> sampleStatus;
+    Map<String, Status> sampleStatus;
     Map<String, String> sampleGenotypes;
     Set<String> parentsWithReferenceCalls;
     double alleleFreq;
@@ -105,11 +106,11 @@ public class Relevance
         this.cgdInfo = cgdInfo;
     }
 
-    public Map<String, status> getSampleStatus() {
-        return sampleStatus != null ? sampleStatus : new HashMap<String, status>();
+    public Map<String, MatchVariantsToGenotypeAndInheritance.Status> getSampleStatus() {
+        return sampleStatus != null ? sampleStatus : new HashMap<String, MatchVariantsToGenotypeAndInheritance.Status>();
     }
 
-    public void setSampleStatus(Map<String, status> sampleStatus) {
+    public void setSampleStatus(Map<String, Status> sampleStatus) {
         this.sampleStatus = sampleStatus;
     }
     public void setSampleGenotypes(Map<String, String> sampleGenotypes) {

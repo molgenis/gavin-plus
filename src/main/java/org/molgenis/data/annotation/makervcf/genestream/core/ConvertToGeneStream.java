@@ -2,6 +2,8 @@ package org.molgenis.data.annotation.makervcf.genestream.core;
 
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -12,16 +14,14 @@ import java.util.*;
  */
 public class ConvertToGeneStream
 {
-
+	private static final Logger LOG = LoggerFactory.getLogger(ConvertToGeneStream.class);
 	private Iterator<GavinRecord> relevantVariants;
 	private ArrayList<Integer> positionalOrder;
-	private boolean verbose;
 
-	public ConvertToGeneStream(Iterator<GavinRecord> relevantVariants, boolean verbose)
+	public ConvertToGeneStream(Iterator<GavinRecord> relevantVariants)
 	{
 		this.relevantVariants = relevantVariants;
 		this.positionalOrder = new ArrayList<>();
-		this.verbose = verbose;
 	}
 
 	public ArrayList<Integer> getPositionalOrder()
@@ -58,11 +58,8 @@ public class ConvertToGeneStream
 				GavinRecord nextFromResultBatches = getNextFromResultBatches(resultBatches, positionCheck);
 				if (nextFromResultBatches != null)
 				{
-					if (verbose)
-					{
-						System.out.println("[ConvertToGeneStream] Flushing next variant: "
+					LOG.debug("[ConvertToGeneStream] Flushing next variant: "
 								+ nextFromResultBatches.toStringShort());
-					}
 					nextResult = nextFromResultBatches;
 					return true;
 				}
@@ -73,11 +70,8 @@ public class ConvertToGeneStream
 
 						if (resultBatches != null)
 						{
-							if (verbose)
-							{
-								System.out.println("[ConvertToGeneStream] Flush complete, cleanup of genes: "
+							LOG.debug("[ConvertToGeneStream] Flush complete, cleanup of genes: "
 										+ resultBatches.keySet());
-							}
 
 							// we remove variants from the variantBuffer (by position) that were already written out for another gene before
 							// of course we also delete the variants for the genes that were written out
@@ -114,10 +108,7 @@ public class ConvertToGeneStream
 						positionalOrder.add(pos);
 						Set<String> underlyingGenesForCurrentVariant = rv.getGenes();
 
-						if (verbose)
-						{
-							System.out.println("[ConvertToGeneStream] Assessing next variant: " + rv.toStringShort());
-						}
+						LOG.debug("[ConvertToGeneStream] Assessing next variant: " + rv.toStringShort());
 
 						// put genes and variants in a map, grouping all variants per gene
 						for (String gene : underlyingGenesForCurrentVariant)
@@ -134,12 +125,8 @@ public class ConvertToGeneStream
 									}
 									variantBuffer.put(gene, variants);
 									variants.add(rv);
-									if (verbose)
-									{
-										System.out.println(
-												"[ConvertToGeneStream] Adding variant for matching relevant gene "
+									LOG.debug("[ConvertToGeneStream] Adding variant for matching relevant gene "
 														+ gene);
-									}
 									break;
 								}
 							}
@@ -156,12 +143,9 @@ public class ConvertToGeneStream
 							if (!underlyingGenesForCurrentVariant.contains(gene) && variantBuffer.get(gene) != null
 									&& variantBuffer.get(gene).size() > 0)
 							{
-								if (verbose)
-								{
-									System.out.println("[ConvertToGeneStream] Gene " + gene
+								LOG.debug("[ConvertToGeneStream] Gene " + gene
 											+ " ended, creating result batch. Putting " + variantBuffer.get(gene).size()
 											+ " variants in output batch");
-								}
 								List<GavinRecord> variants = variantBuffer.get(gene);
 								resultBatches.put(gene, variants.iterator());
 							}
@@ -175,11 +159,8 @@ public class ConvertToGeneStream
 						if (!resultBatches.isEmpty())
 						{
 							nextResult = getNextFromResultBatches(resultBatches, positionCheck);
-							if (verbose)
-							{
-								System.out.println("[ConvertToGeneStream] Flushing first variant of result batch: "
+							LOG.debug("[ConvertToGeneStream] Flushing first variant of result batch: "
 										+ nextResult.toStringShort());
-							}
 							return true;
 						}
 						else
@@ -204,11 +185,8 @@ public class ConvertToGeneStream
 						nextResult = getNextFromResultBatches(resultBatches, positionCheck);
 						if (nextResult != null)
 						{
-							if (verbose)
-							{
-								System.out.println("[ConvertToGeneStream] Flushing first of remaining variants: "
+							LOG.debug("[ConvertToGeneStream] Flushing first of remaining variants: "
 										+ nextResult.toStringShort());
-							}
 							return true;
 						}
 					}
@@ -246,11 +224,8 @@ public class ConvertToGeneStream
 				GavinRecord next = resultBatches.get(gene).next();
 				if (!positionAltsAlreadyReturned.contains(next.getChrPosRefAlt()))
 				{
-					if (verbose)
-					{
-						System.out.println("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned
+					LOG.debug("[ConvertToGeneStream] Positions seen " + positionAltsAlreadyReturned
 								+ " does not contain " + next.getChrPosRefAlt() + ", so we output it");
-					}
 					positionAltsAlreadyReturned.add(next.getChrPosRefAlt());
 					return next;
 				}

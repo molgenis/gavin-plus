@@ -7,6 +7,8 @@ import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.vcf.datastructures.Trio;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
@@ -27,23 +29,17 @@ import java.util.*;
  */
 public class TrioFilter extends GeneStream
 {
+	private static final Logger LOG = LoggerFactory.getLogger(TrioFilter.class);
 	private Map<String, Trio> trios;
 	private Set<String> parents;
 
-	public TrioFilter(Iterator<GavinRecord> relevantVariants, TrioData td, boolean verbose) throws Exception
+	public TrioFilter(Iterator<GavinRecord> relevantVariants, TrioData td) throws Exception
 	{
-		super(relevantVariants, verbose);
+		super(relevantVariants);
 		this.trios = td.getTrios();
 		this.parents = td.getParents();
-		if (verbose)
-		{
-			System.out.println("[TrioFilter] Trios: " + trios.toString());
-		}
-		if (verbose)
-		{
-			System.out.println("[TrioFilter] Parents: " + parents.toString());
-		}
-
+		LOG.debug("[TrioFilter] Trios: " + trios.toString());
+		LOG.debug("[TrioFilter] Parents: " + parents.toString());
 	}
 
 	public static TrioData getTrioData(File inputVcfFile) throws Exception
@@ -81,10 +77,7 @@ public class TrioFilter extends GeneStream
 	public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception
 	{
 
-		if (verbose)
-		{
-			System.out.println("[TrioFilter] Encountered gene: " + gene);
-		}
+		LOG.debug("[TrioFilter] Encountered gene: " + gene);
 
 		for (GavinRecord rv : variantsPerGene)
 		{
@@ -96,10 +89,7 @@ public class TrioFilter extends GeneStream
 					continue;
 				}
 
-				if (verbose)
-				{
-					System.out.println("[TrioFilter] Encountered variant: " + rlv.toString());
-				}
+				LOG.debug("[TrioFilter] Encountered variant: " + rlv.toString());
 
 				Set<String> samplesToRemove = new HashSet<>();
 				char affectedIndex = Character.forDigit(rv.getAltIndex(rlv.getAllele()), 10);
@@ -107,19 +97,13 @@ public class TrioFilter extends GeneStream
 				for (String sample : rlv.getSampleStatus().keySet())
 				{
 
-					if (verbose)
-					{
-						System.out.println("[TrioFilter] Encountered sample: " + sample);
-					}
+					LOG.debug("[TrioFilter] Encountered sample: " + sample);
 
 					boolean isParent = parents.contains(sample);
 
 					if (isParent)
 					{
-						if (verbose)
-						{
-							System.out.println("[TrioFilter] Sample is parent! dropping");
-						}
+						LOG.debug("[TrioFilter] Sample is parent! dropping");
 
 						samplesToRemove.add(sample);
 						continue;
@@ -174,24 +158,18 @@ public class TrioFilter extends GeneStream
 						boolean motherReference = rlv.getParentsWithReferenceCalls().contains(momId) ? true : false;
 						;
 
-						if (verbose)
-						{
-							System.out.println("[TrioFilter] Child " + sample + " has genotype " + childGeno + " mom: "
+						LOG.debug("[TrioFilter] Child " + sample + " has genotype " + childGeno + " mom: "
 									+ (motherReference ? "REFERENCE" : motherGeno) + ", dad: "
 									+ (fatherReference ? "REFERENCE" : fatherGeno));
-						}
 
 						/**
 						 * cases where child shares a genotype with 1 or both parents, thus removing this not relevant sample
 						 */
 						if (childHomoOrHemizygous && (fatherHomoOrHemizygous || motherHomoOrHemizygous))
 						{
-							if (verbose)
-							{
-								System.out.println("[TrioFilter] Child " + sample + " homozygous genotype " + childGeno
+							LOG.debug("[TrioFilter] Child " + sample + " homozygous genotype " + childGeno
 										+ " with at least 1 homozygous parent, mom: " + motherGeno + ", dad: "
 										+ fatherGeno);
-							}
 							samplesToRemove.add(sample);
 							continue;
 
@@ -199,13 +177,9 @@ public class TrioFilter extends GeneStream
 						else if (childHeterozygous && (fatherHeterozygous || motherHeterozygous
 								|| fatherHomoOrHemizygous || motherHomoOrHemizygous))
 						{
-							if (verbose)
-							{
-								System.out.println(
-										"[TrioFilter] Child " + sample + " heterozygous genotype " + childGeno
+							LOG.debug("[TrioFilter] Child " + sample + " heterozygous genotype " + childGeno
 												+ " with at least 1 heterozygous parent, mom: " + motherGeno + ", dad: "
 												+ fatherGeno);
-							}
 							samplesToRemove.add(sample);
 							continue;
 						}
@@ -242,25 +216,19 @@ public class TrioFilter extends GeneStream
 						if (childHomoOrHemizygous && ((motherHeterozygous && fatherReference) || (fatherHeterozygous
 								&& motherReference) || (fatherReference && motherReference)))
 						{
-							if (verbose)
-							{
-								System.out.println("[TrioFilter] De novo homozygous variant for child " + sample
+							LOG.debug("[TrioFilter] De novo homozygous variant for child " + sample
 										+ " heterozygous genotype " + childGeno + ", mom: "
 										+ (motherReference ? "REFERENCE" : motherGeno) + ", dad: "
 										+ (fatherReference ? "REFERENCE" : fatherGeno));
-							}
 							//right now, don't do anything special with the knowledge that this is (suspected) de novo variant
 							continue;
 						}
 						else if (childHeterozygous && fatherReference && motherReference)
 						{
-							if (verbose)
-							{
-								System.out.println("[TrioFilter] De novo heterozygous variant for child " + sample
+							LOG.debug("[TrioFilter] De novo heterozygous variant for child " + sample
 										+ " heterozygous genotype " + childGeno + ", mom: "
 										+ (motherReference ? "REFERENCE" : motherGeno) + ", dad: "
 										+ (fatherReference ? "REFERENCE" : fatherGeno));
-							}
 							//right now, don't do anything special with the knowledge that this is (suspected) de novo variant
 							continue;
 						}
@@ -273,20 +241,13 @@ public class TrioFilter extends GeneStream
 					}
 					else
 					{
-						if (verbose)
-						{
-							System.out.println("[TrioFilter] Sample not part of a trio: " + sample + ", ignoring");
-						}
-
+						LOG.debug("[TrioFilter] Sample not part of a trio: " + sample + ", ignoring");
 					}
 				}
 
 				for (String sample : samplesToRemove)
 				{
-					if (verbose)
-					{
-						System.out.println("[TrioFilter] Removing sample: " + sample);
-					}
+					LOG.debug("[TrioFilter] Removing sample: " + sample);
 					rlv.getSampleStatus().remove(sample);
 					rlv.getSampleGenotypes().remove(sample);
 				}

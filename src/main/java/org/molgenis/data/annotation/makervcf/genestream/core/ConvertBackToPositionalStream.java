@@ -1,6 +1,8 @@
 package org.molgenis.data.annotation.makervcf.genestream.core;
 
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -9,15 +11,14 @@ import java.util.*;
  */
 public class ConvertBackToPositionalStream {
 
+	private static final Logger LOG = LoggerFactory.getLogger(ConvertBackToPositionalStream.class);
     private Iterator<GavinRecord> relevantVariants;
     private ArrayList<Integer> order;
-    private boolean verbose;
 
-    public ConvertBackToPositionalStream(Iterator<GavinRecord> relevantVariants, ArrayList<Integer> order, boolean verbose)
+    public ConvertBackToPositionalStream(Iterator<GavinRecord> relevantVariants, ArrayList<Integer> order)
     {
         this.relevantVariants = relevantVariants;
         this.order = order;
-        this.verbose = verbose;
     }
 
     public Iterator<GavinRecord> go() {
@@ -33,7 +34,7 @@ public class ConvertBackToPositionalStream {
 
                 if(bufferPrinter != null && bufferPrinter.hasNext())
                 {
-                    if(verbose){ System.out.println("[ConvertBackToPositionalStream] Returning next element in the buffer"); }
+                    LOG.debug("[ConvertBackToPositionalStream] Returning next element in the buffer");
                     nextResult = bufferPrinter.next();
                     return true;
                 }
@@ -52,7 +53,7 @@ public class ConvertBackToPositionalStream {
                         {
                             if(buffer.size() == 0)
                             {
-                                if(verbose){ System.out.println("[ConvertBackToPositionalStream] Buffer empty, returning current element " + pos); }
+                                LOG.debug("[ConvertBackToPositionalStream] Buffer empty, returning current element " + pos);
                                 nextResult = rv;
                                 return true;
                             }
@@ -62,7 +63,7 @@ public class ConvertBackToPositionalStream {
                                 if(buffer.containsKey(pos)) { buffer.get(pos).add(rv); }
                                 else { buffer.put(pos, new ArrayList(Arrays.asList(rv))); }
 
-                                if(verbose){ System.out.println("[ConvertBackToPositionalStream] Buffer size > 0, adding to buffer " + pos); }
+                                LOG.debug("[ConvertBackToPositionalStream] Buffer size > 0, adding to buffer " + pos);
 
                                 // check if all positions are present up to the current one
                                 // to prevent problem: we see 20, 23, 22, 21 where alignment at 20 and 22, and we output wrongly 20, 23, 22, 21 because we haven't seen 21 yet
@@ -76,7 +77,7 @@ public class ConvertBackToPositionalStream {
                                 }
 
                                 bufferPrinter = getIterator(buffer);
-                                if(verbose){ System.out.println("[ConvertBackToPositionalStream] Positions aligned again at "+pos+", all values smaller than current pos, so clearning buffer with "+buffer.size()+" elements");}
+                                LOG.debug("[ConvertBackToPositionalStream] Positions aligned again at {0}, all values smaller than current pos, so clearning buffer with {1} elements", pos, buffer.size());
                                 buffer = new TreeMap<>();
                                 nextResult = bufferPrinter.next();
                                 return true;
@@ -85,7 +86,7 @@ public class ConvertBackToPositionalStream {
                         }
                         else
                         {
-                            if(verbose){ System.out.println("[ConvertBackToPositionalStream] Adding to buffer " + pos); }
+                            LOG.debug("[ConvertBackToPositionalStream] Adding to buffer {}", pos);
                             if(buffer.containsKey(pos)) { buffer.get(pos).add(rv); }
                             else { buffer.put(pos, new ArrayList(Arrays.asList(rv))); }
                         }
@@ -98,7 +99,7 @@ public class ConvertBackToPositionalStream {
                 bufferPrinter = getIterator(buffer);
                 if(bufferPrinter != null && bufferPrinter.hasNext())
                 {
-                    if(verbose){ System.out.println("[ConvertBackToPositionalStream] Clearing last elements from buffer");}
+                    LOG.debug("[ConvertBackToPositionalStream] Clearing last elements from buffer");
                     buffer = new TreeMap<>();
                     nextResult = bufferPrinter.next();
                     return true;

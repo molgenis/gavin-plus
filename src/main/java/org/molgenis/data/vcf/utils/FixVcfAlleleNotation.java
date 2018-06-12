@@ -45,132 +45,142 @@ public class FixVcfAlleleNotation
 	{
 		File in = new File(args[0]);
 		File out = new File(args[1]);
-		
-		PrintWriter pw = new PrintWriter(out);
-		Scanner s = new Scanner(in);
-		String line;
-		while(s.hasNextLine())
+
+		try (PrintWriter pw = new PrintWriter(out))
 		{
-			//write out header untouched
-			line = s.nextLine();
-			if(line.startsWith("#")){
-				pw.println(line);
-				continue;
-			}
-			String[] split = line.split("\t");
-			
-			String chr = split[0];
-			String pos = split[1];
-			String ref = split[3];
-			String alt = split[4];
+			try (Scanner s = new Scanner(in)){
+			String line;
+			while (s.hasNextLine())
+			{
+				//write out header untouched
+				line = s.nextLine();
+				if (line.startsWith("#"))
+				{
+					pw.println(line);
+					continue;
+				}
+				String[] split = line.split("\t");
 
-			if(alt.contains(",")) { throw new Exception("multiple alt alleles not supported, stopping at line: " + line); }
-			
-			//first check if ref or alt need trimming. it does not matter that there may be an N.
-			String[] trimmedRefAlt = backTrimRefAlt(ref, alt, "_").split("_");
-			if(!ref.equals(trimmedRefAlt[0]) || !alt.equals(trimmedRefAlt[1]))
-			{
-				System.out.println("back-trimming ref/alt, from " + ref + "/" + alt + " to " + trimmedRefAlt[0] + "/" + trimmedRefAlt[1]);
-				ref = trimmedRefAlt[0];
-				alt =  trimmedRefAlt[1];
-			}
+				String chr = split[0];
+				String pos = split[1];
+				String ref = split[3];
+				String alt = split[4];
 
-			//front trim, trickier
-			String[] frontTrimmedRefAlt = frontTrimRefAlt(ref, alt, "_").split("_");
-			int posDiff = ref.length() - frontTrimmedRefAlt[0].length();
-			if(!ref.equals(frontTrimmedRefAlt[0]) || !alt.equals(frontTrimmedRefAlt[1]))
-			{
-				System.out.println("front-trimming ref/alt, from " + ref + "/" + alt + " to " + frontTrimmedRefAlt[0] + "/" + frontTrimmedRefAlt[1] + ", position update needed!");
-				ref = frontTrimmedRefAlt[0];
-				alt =  frontTrimmedRefAlt[1];
-				pos = Integer.parseInt(pos)+posDiff + ""; //shift position if ref base has 'moved'
-			}
-			
-			boolean queryUCSC = false;
-			//if not both start with N, we expect neither to start with N (see example)
-			if(!(ref.startsWith("N") && alt.startsWith("N")))
-			{
-				// could mean we DID fix the notation, so dont quit yet!
-//				System.out.println("no reason to adjust variant " + chr + ":"+pos+" " + ref + "/" + alt + " because there is no N");
-//				pw.println(line);
-//				continue;
-			}
-			else if(ref.startsWith("N") && alt.startsWith("N"))
-			{
-				System.out.println("need to adjust variant " + chr + ":pos " + ref + "/" + alt + " because there is an N");
-				int refNOccurence = org.springframework.util.StringUtils.countOccurrencesOf(ref, "N");
-				int altNOccurence = org.springframework.util.StringUtils.countOccurrencesOf(alt, "N");
-				if(refNOccurence != 1 || altNOccurence != 1)
+				if (alt.contains(","))
+				{
+					throw new Exception("multiple alt alleles not supported, stopping at line: " + line);
+				}
+
+				//first check if ref or alt need trimming. it does not matter that there may be an N.
+				String[] trimmedRefAlt = backTrimRefAlt(ref, alt, "_").split("_");
+				if (!ref.equals(trimmedRefAlt[0]) || !alt.equals(trimmedRefAlt[1]))
+				{
+					System.out.println(
+							"back-trimming ref/alt, from " + ref + "/" + alt + " to " + trimmedRefAlt[0] + "/" + trimmedRefAlt[1]);
+					ref = trimmedRefAlt[0];
+					alt = trimmedRefAlt[1];
+				}
+
+				//front trim, trickier
+				String[] frontTrimmedRefAlt = frontTrimRefAlt(ref, alt, "_").split("_");
+				int posDiff = ref.length() - frontTrimmedRefAlt[0].length();
+				if (!ref.equals(frontTrimmedRefAlt[0]) || !alt.equals(frontTrimmedRefAlt[1]))
+				{
+					System.out.println(
+							"front-trimming ref/alt, from " + ref + "/" + alt + " to " + frontTrimmedRefAlt[0] + "/" + frontTrimmedRefAlt[1] + ", position update needed!");
+					ref = frontTrimmedRefAlt[0];
+					alt = frontTrimmedRefAlt[1];
+					pos = Integer.parseInt(pos) + posDiff + ""; //shift position if ref base has 'moved'
+				}
+
+				boolean queryUCSC = false;
+				//if not both start with N, we expect neither to start with N (see example)
+				if (!(ref.startsWith("N") && alt.startsWith("N")))
+				{
+					// could mean we DID fix the notation, so dont quit yet!
+					//				System.out.println("no reason to adjust variant " + chr + ":"+pos+" " + ref + "/" + alt + " because there is no N");
+					//				pw.println(line);
+					//				continue;
+				}
+				else if (ref.startsWith("N") && alt.startsWith("N"))
+				{
+					System.out.println("need to adjust variant " + chr + ":pos " + ref + "/" + alt + " because there is an N");
+					int refNOccurence = org.springframework.util.StringUtils.countOccurrencesOf(ref, "N");
+					int altNOccurence = org.springframework.util.StringUtils.countOccurrencesOf(alt, "N");
+					if (refNOccurence != 1 || altNOccurence != 1)
+					{
+						s.close();
+						pw.close();
+						throw new Exception("expecting 'N' occurence == 1 for " + ref + " and " + alt);
+					}
+					queryUCSC = true;
+				}
+				//sanity check
+				else
 				{
 					s.close();
 					pw.close();
-					throw new Exception("expecting 'N' occurence == 1 for " + ref + " and " + alt);
+					throw new Exception("either ref " + ref + " or alt " + alt + " starts with N, not expected this");
 				}
-				queryUCSC = true;
-			}
-			//sanity check
-			else
-			{
-				s.close();
-				pw.close();
-				throw new Exception("either ref "+ref+" or alt "+alt+" starts with N, not expected this");
-			}
-			
-			String replacementRefBase = "if you see this, we did not get a replacement base while we needed one!";
-			if(queryUCSC)
-			{
-				//get replacement base for N from UCSC
-				URL ucsc = new URL("http://genome.ucsc.edu/cgi-bin/das/hg19/dna?segment=chr"+chr+":"+pos+","+pos);
-				BufferedReader getUrlContent = new BufferedReader(new InputStreamReader(ucsc.openStream()));
-				String urlLine;
-				
-				while ((urlLine = getUrlContent.readLine()) != null)
+
+				String replacementRefBase = "if you see this, we did not get a replacement base while we needed one!";
+				if (queryUCSC)
 				{
-					//the base ('g', 'c', 'a', 't') is on line of its own, so length == 1
-					if(urlLine.length() == 1)
+					//get replacement base for N from UCSC
+					URL ucsc = new URL(
+							"http://genome.ucsc.edu/cgi-bin/das/hg19/dna?segment=chr" + chr + ":" + pos + "," + pos);
+					try(BufferedReader getUrlContent = new BufferedReader(new InputStreamReader(ucsc.openStream()))){
+					String urlLine;
+
+					while ((urlLine = getUrlContent.readLine()) != null)
 					{
-						replacementRefBase = urlLine.toUpperCase();
-						System.out.println("we found replacement base for N = " + replacementRefBase);
+						//the base ('g', 'c', 'a', 't') is on line of its own, so length == 1
+						if (urlLine.length() == 1)
+						{
+							replacementRefBase = urlLine.toUpperCase();
+							System.out.println("we found replacement base for N = " + replacementRefBase);
+						}
+					}
+					getUrlContent.close();
+
+					//wait a little bit
+					Thread.sleep(100);
+				}
+				}
+
+				//print the fixed notation
+				StringBuffer fixedLine = new StringBuffer();
+				for (int i = 0; i < split.length; i++)
+				{
+					if (i == 1)
+					{
+						//update the pos if trimmed
+						fixedLine.append(pos + "\t");
+					}
+					else if (i == 3 || i == 4)
+					{
+						String fixedNotation =
+								i == 3 ? ref.replace("N", replacementRefBase) : alt.replace("N", replacementRefBase);
+						fixedLine.append(fixedNotation + "\t");
+					}
+					else
+					{
+						fixedLine.append(split[i] + "\t");
 					}
 				}
-				getUrlContent.close();
-				
-				//wait a little bit
-				Thread.sleep(100);
-			}
 
-			//print the fixed notation
-			StringBuffer fixedLine = new StringBuffer();
-			for(int i = 0; i < split.length; i ++)
-			{
-				if(i == 1)
-				{
-					//update the pos if trimmed
-					fixedLine.append(pos + "\t");
-				}
-				else if(i == 3 || i == 4)
-				{
-					String fixedNotation = i == 3 ? ref.replace("N", replacementRefBase) : alt.replace("N", replacementRefBase);
-					fixedLine.append(fixedNotation + "\t");
-				}
-				else
-				{
-					fixedLine.append(split[i] + "\t");
-				}
+				//remove trailing \t
+				fixedLine.deleteCharAt(fixedLine.length() - 1);
+
+				//print & flush
+				pw.println(fixedLine);
+				pw.flush();
+
 			}
-			
-			//remove trailing \t
-			fixedLine.deleteCharAt(fixedLine.length()-1);
-			
-			//print & flush
-			pw.println(fixedLine);
 			pw.flush();
-			
+			pw.close();
 		}
-		pw.flush();
-		pw.close();
-		
-		s.close();
+		}
 		
 		System.out.println("Done!");
 

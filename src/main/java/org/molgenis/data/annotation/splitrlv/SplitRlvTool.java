@@ -97,22 +97,22 @@ public class SplitRlvTool
                         for (int j = 0; j < infoSplit.length; j++)
                         {
                             // match to RLV
-                            if (infoSplit[j].startsWith(RVCF.attributeName + "="))
+                            if (infoSplit[j].startsWith(RVCF.FIELD_NAME + "="))
                             {
                                 rlvFound = true;
 
                                 infoSplit[j] = infoSplit[j].substring(4);
                                 String[] rlvSplit = infoSplit[j].split(",", -1);
 
-                                String[] multiRlvSplitConcat = new String[RVCF.nrOfFields];
+                                String[] multiRlvSplitConcat = new String[RVCF.NR_OF_FIELDS];
 
                                 for (int k = 0; k < rlvSplit.length; k++)
                                 {
                                     String[] multiRlvSplit = rlvSplit[k].split("\\|", -1);
 
-                                    if (multiRlvSplit.length != RVCF.nrOfFields)
+                                    if (multiRlvSplit.length != RVCF.NR_OF_FIELDS)
                                     {
-                                        throw new Exception("RLV did not have " + RVCF.nrOfFields + " subfields but " + multiRlvSplit.length + "! bad data: " + rlvSplit[k]);
+                                        throw new Exception("RLV did not have " + RVCF.NR_OF_FIELDS + " subfields but " + multiRlvSplit.length + "! bad data: " + rlvSplit[k]);
                                     }
 
                                     //TODO JvdV: check if combination unique?
@@ -127,7 +127,7 @@ public class SplitRlvTool
                                     }
                                 }
 
-                                sb.append("RLV_PRESENT=TRUE;" + RVCF.attributeName + "=" + infoSplit[j] + ";RLV_ALLELE="
+                                sb.append("RLV_PRESENT=TRUE;" + RVCF.FIELD_NAME + "=" + infoSplit[j] + ";RLV_ALLELE="
                                         + multiRlvSplitConcat[0] + ";RLV_ALLELEFREQ=" + multiRlvSplitConcat[1] + ";RLV_GENE=" + multiRlvSplitConcat[2] + ";RLV_FDR=" + multiRlvSplitConcat[3]
                                         + ";RLV_TRANSCRIPT=" + multiRlvSplitConcat[4] + ";RLV_PHENOTYPE=" + multiRlvSplitConcat[5] + ";RLV_PHENOTYPEINHERITANCE=" + multiRlvSplitConcat[6]
                                         + ";RLV_PHENOTYPEONSET=" + multiRlvSplitConcat[7] + ";RLV_PHENOTYPEDETAILS=" + multiRlvSplitConcat[8] + ";RLV_PHENOTYPEGROUP=" + multiRlvSplitConcat[9]

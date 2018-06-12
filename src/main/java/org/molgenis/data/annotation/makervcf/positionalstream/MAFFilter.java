@@ -2,6 +2,8 @@ package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
@@ -10,15 +12,13 @@ import java.util.Iterator;
  *
  */
 public class MAFFilter {
-
+    private static final Logger LOG = LoggerFactory.getLogger(MAFFilter.class);
     private Iterator<GavinRecord> relevantVariants;
     double threshold = 0.05;
-    boolean verbose;
 
-    public MAFFilter(Iterator<GavinRecord> relevantVariants, boolean verbose)
+    public MAFFilter(Iterator<GavinRecord> relevantVariants)
     {
         this.relevantVariants = relevantVariants;
-        this.verbose = verbose;
     }
 
     public Iterator<GavinRecord> go()
@@ -40,10 +40,7 @@ public class MAFFilter {
                                 nextResult = rv;
                                 return true;
                             }
-                            else if(verbose)
-                            {
-                                if(verbose){ System.out.println("[MAFFilter] Removing variant at " +rv.getChromosome() +":"+rv.getPosition() + " because it has AF >"+threshold+". ExAC: "+rlv.getAlleleFreq()+", GoNL: "+rlv.getGonlAlleleFreq()+""); }
-                            }
+                            LOG.debug("[MAFFilter] Removing variant at " +rv.getChromosome() +":"+rv.getPosition() + " because it has AF >"+threshold+". ExAC: "+rlv.getAlleleFreq()+", GoNL: "+rlv.getGonlAlleleFreq()+"");
                         }
 
                     }

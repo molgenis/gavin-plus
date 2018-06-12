@@ -3,6 +3,8 @@ package org.molgenis.data.annotation.makervcf.genestream.impl;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,27 +17,27 @@ import java.util.*;
  *
  */
 public class AddGeneFDR extends GeneStream{
-
-    private Iterator<GavinRecord> relevantVariants;
-    private boolean verbose;
+    private static final Logger LOG = LoggerFactory.getLogger(AddGeneFDR.class);
     private Map<String, Double> affectedFrac;
     private Map<String, Double> carrierFrac;
 
 
-    public AddGeneFDR(Iterator<GavinRecord> relevantVariants, File FDRfile, boolean verbose) throws FileNotFoundException {
-        super(relevantVariants, verbose);
+    public AddGeneFDR(Iterator<GavinRecord> relevantVariants, File FDRfile) throws FileNotFoundException {
+        super(relevantVariants);
 
         Map<String, Double> affectedFrac = new HashMap<>();
         Map<String, Double> carrierFrac = new HashMap<>();
 
-        Scanner s = new Scanner(FDRfile);
-        s.nextLine(); //skip header
-        while(s.hasNextLine())
+        try (Scanner s = new Scanner(FDRfile))
         {
-            //"Gene    AffectedAbs     CarrierAbs      AffectedFrac    CarrierFrac"
-            String[] split = s.nextLine().split("\t", -1);
-            affectedFrac.put(split[0], Double.parseDouble(split[3]));
-            carrierFrac.put(split[0], Double.parseDouble(split[4]));
+            s.nextLine(); //skip header
+            while (s.hasNextLine())
+            {
+                //"Gene    AffectedAbs     CarrierAbs      AffectedFrac    CarrierFrac"
+                String[] split = s.nextLine().split("\t", -1);
+                affectedFrac.put(split[0], Double.parseDouble(split[3]));
+                carrierFrac.put(split[0], Double.parseDouble(split[4]));
+            }
         }
         this.affectedFrac = affectedFrac;
         this.carrierFrac = carrierFrac;
@@ -60,9 +62,7 @@ public class AddGeneFDR extends GeneStream{
                 }
                 String fdrInfo = affectedFracForGene+","+carrierFracForGene;
                 rlv.setFDR(fdrInfo);
-                if(verbose){
-                    System.out.println("[AddGeneFDR] Added FDR info '"+fdrInfo+"' to a variant for gene " + gene);
-                }
+                LOG.debug("[AddGeneFDR] Added FDR info '"+fdrInfo+"' to a variant for gene " + gene);
             }
 
         }

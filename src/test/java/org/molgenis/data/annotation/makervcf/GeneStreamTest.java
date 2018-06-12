@@ -41,12 +41,12 @@ public class GeneStreamTest extends Setup
 	@Test
 	public void test() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> reorder = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		Iterator<GavinRecord> reorder = new ConvertToGeneStream(discover.findRelevantVariants()).go();
 
 		HashMap<String, Integer> observedVariantsPerGene = new HashMap<>();
 
-		GeneStream gsTest = new GeneStream(reorder, false) {
+		GeneStream gsTest = new GeneStream(reorder) {
 			@Override
 			public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
 				observedVariantsPerGene.put(gene, variantsPerGene.size());
@@ -111,10 +111,10 @@ public class GeneStreamTest extends Setup
 	@Test
 	public void test2() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile2, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> reorder = new ConvertToGeneStream(discover.findRelevantVariants(), false).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile2, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		Iterator<GavinRecord> reorder = new ConvertToGeneStream(discover.findRelevantVariants()).go();
 
-		GeneStream gsTest = new GeneStream(reorder, false) {
+		GeneStream gsTest = new GeneStream(reorder) {
 			@Override
 			public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {}
 		};

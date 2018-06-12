@@ -40,12 +40,12 @@ public class AssignCompoundHetTest extends Setup
 	public void test() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
-		ConvertToGeneStream gs = new ConvertToGeneStream(match, true);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
+		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>()).go();
+		ConvertToGeneStream gs = new ConvertToGeneStream(match);
 		Iterator<GavinRecord> gsi = gs.go();
 
-		Iterator<GavinRecord> it = new AssignCompoundHet(gsi, true).go();
+		Iterator<GavinRecord> it = new AssignCompoundHet(gsi).go();
 
 
 		// AIMP1

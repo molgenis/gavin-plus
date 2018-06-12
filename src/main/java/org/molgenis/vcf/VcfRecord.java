@@ -91,7 +91,7 @@ public class VcfRecord
 	
 	/**
 	 * 
-	 * @return filter status or null if filter status is set to the missign value
+	 * @return filter Status or null if filter Status is set to the missign value
 	 */
 	public String getFilterStatus() {
 		String filterStatus = tokens[VcfMeta.COL_FILTER_IDX];

@@ -31,7 +31,7 @@ public class DiscoverRelevantVariantsTest extends Setup
 	public void testPredictedPathogenic() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS);
 		Iterator<GavinRecord> it = discover.findRelevantVariants();
 
 		assertTrue(it.hasNext());

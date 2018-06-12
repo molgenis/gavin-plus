@@ -2,6 +2,8 @@ package org.molgenis.data.annotation.makervcf.positionalstream;
 
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
@@ -11,13 +13,12 @@ import java.util.Iterator;
  */
 public class CleanupVariantsWithoutSamples {
 
+	private static final Logger LOG = LoggerFactory.getLogger(CleanupVariantsWithoutSamples.class);
     private Iterator<GavinRecord> relevantVariants;
-    private boolean verbose;
 
-    public CleanupVariantsWithoutSamples(Iterator<GavinRecord> relevantVariants, boolean verbose)
+    public CleanupVariantsWithoutSamples(Iterator<GavinRecord> relevantVariants)
     {
         this.relevantVariants = relevantVariants;
-        this.verbose = verbose;
     }
 
     public Iterator<GavinRecord> go()
@@ -32,9 +33,7 @@ public class CleanupVariantsWithoutSamples {
                     while (relevantVariants.hasNext()) {
                         GavinRecord rv = relevantVariants.next();
 
-                        if(verbose) {
-                            System.out.println("[CleanupVariantsWithoutSamples] Looking at: " + rv.toString());
-                        }
+                       LOG.debug("[CleanupVariantsWithoutSamples] Looking at: " + rv.toString());
 
                         for(Relevance rlv : rv.getRelevance())
                         {
@@ -49,10 +48,9 @@ public class CleanupVariantsWithoutSamples {
                                 nextResult = rv;
                                 return true;
                             }
-                            else if(verbose)
-                            {
-                                if(verbose) { System.out.println("[CleanupVariantsWithoutSamples] Removing variant at " +rv.getChromosome() +":"+rv.getPosition() + " because it has 0 samples left"); }
-                            }
+
+                            LOG.debug("[CleanupVariantsWithoutSamples] Removing variant at " +rv.getChromosome() +":"+rv.getPosition() + " because it has 0 samples left");
+
                         }
 
 
