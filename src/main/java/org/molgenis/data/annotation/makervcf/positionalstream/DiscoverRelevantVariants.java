@@ -155,7 +155,7 @@ public class DiscoverRelevantVariants
 																.equals(Judgment.Classification.Pathogenic))
 								{
 									gavinRecord.setGenes(judgment.getGene());
-									relevance.add(new Relevance(gavinRecord.getAlt(i), clinvarJudgment.getGene(),
+									relevance.add(new Relevance(gavinRecord.getAlt(i), Optional.of(clinvarJudgment.getGene()),
 											gavinRecord.getExAcAlleleFrequencies(i),
 											gavinRecord.getGoNlAlleleFrequencies(i), clinvarJudgment.getGene(),
 											clinvarJudgment));
@@ -172,8 +172,8 @@ public class DiscoverRelevantVariants
 								}
 								for (String gene : gavinRecord.getGenes())
 								{
-									Impact impact = gavinRecord.getImpact(i, gene);
-									String transcript = gavinRecord.getTranscript(i, gene);
+									Optional<Impact> impact = gavinRecord.getImpact(i, gene);
+									Optional<String> transcript = gavinRecord.getTranscript(i, gene);
 
 									Judgment judgment = null;
 									Judgment labJudgment =

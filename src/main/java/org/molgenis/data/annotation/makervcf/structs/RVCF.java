@@ -206,7 +206,7 @@ public class RVCF
 
 	public String getTranscript()
 	{
-		return transcript != null ? transcript : "";
+		return transcript;
 	}
 
 	public void setTranscript(String transcript)

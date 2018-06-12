@@ -211,12 +211,12 @@ public class GavinRecord
 		return annotatedVcfRecord.getGoNlAlleleFrequencies(i);
 	}
 
-	public Impact getImpact(int i, String gene)
+	public Optional<Impact> getImpact(int i, String gene)
 	{
 		return annotatedVcfRecord.getImpact(i, gene);
 	}
 
-	public String getTranscript(int i, String gene)
+	public Optional<String> getTranscript(int i, String gene)
 	{
 		return annotatedVcfRecord.getTranscript(i, gene);
 	}

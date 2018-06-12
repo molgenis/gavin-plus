@@ -5,10 +5,7 @@ import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.RVCFUtils;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.molgenis.data.annotation.makervcf.structs.RVCF.FIELD_NAME;
 import static org.molgenis.data.annotation.makervcf.structs.RVCFUtils.createRvcfValues;
@@ -33,7 +30,8 @@ public class RlvInfoMapper
 				rvcf.setFDR(rlv.getFDR());
 				rvcf.setAllele(rlv.getAllele());
 				rvcf.setAlleleFreq(String.valueOf(rlv.getAlleleFreq()));
-				rvcf.setTranscript(rlv.getTranscript());
+				Optional<String> transcript = rlv.getTranscript();
+				rvcf.setTranscript(transcript.isPresent() ? transcript.get() : "");
 
 				if (rlv.getCgdInfo() != null)
 				{

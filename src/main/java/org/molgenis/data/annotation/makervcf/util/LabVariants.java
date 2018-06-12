@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by joeri on 6/1/16.
@@ -51,11 +52,14 @@ public class LabVariants {
             // CLSF=P;
             // CLSF=V;
             // CLSF=LB;
-            if(posRefAltToLabVariant.get(key).getClsf() == null)
+			Optional<String> clsf = posRefAltToLabVariant.get(key).getClsf();
+            if(!clsf.isPresent())
             {
                 throw new Exception("No CLSF field for lab variant at " + key);
             }
-            String labVariantInfo = posRefAltToLabVariant.get(key).getClsf();
+			//Optional value always present due to check above.
+            String labVariantInfo = clsf.get();
+
 
 			switch (labVariantInfo)
 			{

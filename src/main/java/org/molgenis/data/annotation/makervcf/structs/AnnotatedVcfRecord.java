@@ -7,12 +7,12 @@ import org.molgenis.vcf.VcfRecordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
 /**
@@ -47,11 +47,10 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return alleleFrequencies[i] != null ? alleleFrequencies[i] : 0;
 	}
 
-	// TODO return Optional.empty() instead of empty String
-	public String getClsf()
+	public Optional<String> getClsf()
 	{
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(CLSF, this);
-		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal()).orElse("");
+		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal());
 	}
 
 	Set<String> getGenesFromAnn()
@@ -73,30 +72,24 @@ public class AnnotatedVcfRecord extends VcfRecord
 		}).orElse(emptySet());
 	}
 
-	// TODO return Optional<Impact> instead of Impact
-	@Nullable
-	Impact getImpact(int i, String gene)
+	Optional<Impact> getImpact(int i, String gene)
 	{
 		String allele = VcfRecordUtils.getAltsAsStringArray(this)[i];
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(ANN, this);
-		return optionalVcfInfo.map(vcfInfo -> getImpact(vcfInfo.getValRaw(), gene, allele)).orElse(null);
+		return optionalVcfInfo.map(vcfInfo -> getImpact(vcfInfo.getValRaw(), gene, allele));
 	}
 
-	// TODO return Optional<String> instead of String
-	@Nullable
-	String getTranscript(int i, String gene)
+	Optional<String> getTranscript(int i, String gene)
 	{
 		String allele = VcfRecordUtils.getAltsAsStringArray(this)[i];
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(ANN, this);
-		return optionalVcfInfo.map(vcfInfo -> getTranscript(vcfInfo.getValRaw(), gene, allele)).orElse(null);
+		return optionalVcfInfo.map(vcfInfo -> getTranscript(vcfInfo.getValRaw(), gene, allele));
 	}
 
-	// TODO return empty list instead of null
-	@Nullable
 	public List<RVCF> getRvcf()
 	{
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(RLV, this);
-		return optionalVcfInfo.map(RVCF::fromVcfInfo).orElse(null);
+		return optionalVcfInfo.map(RVCF::fromVcfInfo).orElse(emptyList());
 	}
 
 	/**
@@ -107,11 +100,10 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return VcfRecordUtils.getAltAlleleOrderedDoubleField(this, CADD_SCALED);
 	}
 
-	@Nullable
-	public String getClinvar()
+	public Optional<String> getClinvar()
 	{
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(CLINVAR, this);
-		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal()).orElse(null);
+		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal());
 	}
 
 	private static Impact getImpact(String ann, String gene, String allele)

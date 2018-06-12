@@ -7,6 +7,7 @@ import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGen
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -23,11 +24,11 @@ public class Relevance
 	private Set<String> parentsWithReferenceCalls;
 	private double alleleFreq;
 	private double gonlAlleleFreq;
-	private String transcript;
+	private Optional<String> transcript;
 
     CGDEntry cgdInfo;
 
-    public Relevance(String allele, String transcript, double alleleFreq, double gonlAlleleFreq, String gene, Judgment judgment)
+    public Relevance(String allele, Optional<String> transcript, double alleleFreq, double gonlAlleleFreq, String gene, Judgment judgment)
     {
         this.allele = allele;
         this.transcript = transcript;
@@ -69,8 +70,8 @@ public class Relevance
         return gonlAlleleFreq;
     }
 
-    public String getTranscript() {
-        return transcript != null ? transcript : "";
+    public Optional<String> getTranscript() {
+        return transcript;
     }
 
     public Judgment getJudgment() {

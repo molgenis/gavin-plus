@@ -5,6 +5,7 @@ import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Benign;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Pathogenic;
@@ -34,7 +35,7 @@ public class GavinAlgorithm
 	 * @param geneToEntry
 	 * @return
 	 */
-	public Judgment classifyVariant(Impact impact, Double caddScaled, Double exacMAF, String gene,
+	public Judgment classifyVariant(Optional<Impact> impact, Double caddScaled, Double exacMAF, String gene,
 			Map<String, GavinEntry> geneToEntry) {
 		Double pathoMAFThreshold;
 		Double meanPathogenicCADDScore;
@@ -117,26 +118,26 @@ public class GavinAlgorithm
 		// Impact based classification, calibrated
 		if (impact != null)
 		{
-			if (category == I1 && impact == HIGH)
+			if (category == I1 && (impact.isPresent() && (impact.get() == HIGH)))
 			{
 				return new Judgment(Pathogenic, calibrated, gene,
 						"Variant is of high impact, while there are no known high impact variants in the population. Also, "
 								+ mafReason,null,null);
 			}
-			else if (category == I2 && (impact == MODERATE || impact == HIGH))
+			else if (category == I2 && (impact.isPresent() && (impact.get() == MODERATE || impact.get() == HIGH)))
 			{
 
 				return new Judgment(Pathogenic, calibrated, gene,
 						"Variant is of high/moderate impact, while there are no known high/moderate impact variants in the population. Also, "
 								+ mafReason,null,null);
 			}
-			else if (category == I3 && (impact == LOW || impact == MODERATE || impact == HIGH))
+			else if (category == I3 && (impact.isPresent() && (impact.get() == LOW || impact.get() == MODERATE || impact.get() == HIGH)))
 			{
 				return new Judgment(Pathogenic, calibrated, gene,
 						"Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, "
 								+ mafReason,null,null);
 			}
-			else if (impact == MODIFIER)
+			else if (impact.isPresent() && impact.get() == MODIFIER)
 			{
 				return new Judgment(Benign, calibrated, gene,
 						"Variant is of 'modifier' impact, and therefore unlikely to be pathogenic. However, " + mafReason,null,null);
@@ -154,7 +155,7 @@ public class GavinAlgorithm
 	 * @param gene
 	 * @return
 	 */
-	public Judgment genomewideClassifyVariant(Impact impact, Double caddScaled, Double exacMAF, String gene) {
+	public Judgment genomewideClassifyVariant(Optional<Impact> impact, Double caddScaled, Double exacMAF, String gene) {
 
 		exacMAF = exacMAF != null ? exacMAF : 0;
 
@@ -163,7 +164,7 @@ public class GavinAlgorithm
 			return new Judgment(Benign, genomewide, gene,
 					"Variant MAF of " + exacMAF + " is not rare enough to generally be considered pathogenic.",null,null);
 		}
-		if (impact == MODIFIER)
+		if (impact.isPresent() && impact.get() == MODIFIER)
 		{
 			return new Judgment(Benign, genomewide, gene,
 					"Variant is of 'modifier' impact, and therefore unlikely to be pathogenic.",null,null);
