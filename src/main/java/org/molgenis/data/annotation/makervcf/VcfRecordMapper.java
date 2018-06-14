@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord.CADD_SCALED;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_PRESENT;
 
 /**
  * Maps {@link GavinRecord} to {@link VcfRecord}.
@@ -94,49 +95,57 @@ class VcfRecordMapper
 		Iterable<VcfInfo> vcfInformations = gavinRecord.getAnnotatedVcfRecord().getInformation();
 
 		boolean hasInformation = vcfInformations.iterator().hasNext();
-		if (!hasInformation && gavinRecord.getRelevance().isEmpty())
-		{
-			return MISSING_VALUE;
-		}
 
 		StringBuilder stringBuilder = new StringBuilder();
+
 		if (hasInformation)
 		{
 			//process all info fields except CADD_SCALED, we might have added values there so we process it seperately
-			stringBuilder.append(StreamSupport.stream(vcfInformations.spliterator(), false).filter(vcfInfo -> !vcfInfo.getKey().equals(CADD_SCALED))
+			stringBuilder.append(StreamSupport.stream(vcfInformations.spliterator(), false)
+											  .filter(vcfInfo -> !vcfInfo.getKey().equals(CADD_SCALED))
 											  .map(this::createInfoTokenPart)
 											  .collect(joining(";")));
-		}
 
-		Double[] caddScores = gavinRecord.getCaddPhredScores();
-		if(caddScores != null && caddScores.length > 0){
-			List<String> caddScoresList = Arrays.stream(caddScores)
-											  .map(score -> caddToString(score))
-											  .collect(toList());
-			if(!caddScoresList.isEmpty())
+			Double[] caddScores = gavinRecord.getCaddPhredScores();
+			if (caddScores != null && caddScores.length > 0)
 			{
-				stringBuilder.append(";").append(createInfoTokenPart(CADD_SCALED, Strings.join(caddScoresList, ",")));
+				List<String> caddScoresList = Arrays.stream(caddScores)
+													.map(score -> caddToString(score))
+													.collect(toList());
+				if (!caddScoresList.isEmpty())
+				{
+					stringBuilder.append(";")
+								 .append(createInfoTokenPart(CADD_SCALED, Strings.join(caddScoresList, ",")));
+				}
 			}
 		}
 
+		if (stringBuilder.length() > 0)
+		{
+			stringBuilder.append(';');
+		}
 		if (!gavinRecord.getRelevance().isEmpty())
 		{
-			if (stringBuilder.length() > 0)
-			{
-				stringBuilder.append(';');
-			}
 			stringBuilder.append(getRlv(gavinRecord, splitRlvField));
 		}
+		else
+		{
+
+			stringBuilder.append(createInfoTokenPart(RLV_PRESENT, "FALSE"));
+		}
+
 		return stringBuilder.toString();
 	}
 
 	private String caddToString(Double score)
 	{
 		String stringValue;
-		if(score!=null)
+		if (score != null)
 		{
 			stringValue = Double.toString(score);
-		}else{
+		}
+		else
+		{
 			stringValue = ".";
 		}
 		return stringValue;
@@ -144,7 +153,7 @@ class VcfRecordMapper
 
 	private String createInfoTokenPart(VcfInfo vcfInfo)
 	{
-		return createInfoTokenPart(vcfInfo.getKey(),vcfInfo.getValRaw());
+		return createInfoTokenPart(vcfInfo.getKey(), vcfInfo.getValRaw());
 	}
 
 	private String createInfoTokenPart(String key, String value)
@@ -169,9 +178,10 @@ class VcfRecordMapper
 		LOG.debug("[MakeRVCFforClinicalVariants] Looking at: " + gavinRecord.toString());
 
 		List<Relevance> relevance = gavinRecord.getRelevance();
-		String rlv = rlvInfoMapper.map(relevance,splitRlvField);
+		String rlv = rlvInfoMapper.map(relevance, splitRlvField);
 
-		LOG.debug("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: " + rlv);
+		LOG.debug(
+				"[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: " + rlv);
 
 		return rlv;
 	}

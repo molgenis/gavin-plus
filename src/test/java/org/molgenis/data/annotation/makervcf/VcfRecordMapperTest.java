@@ -132,7 +132,7 @@ public class VcfRecordMapperTest
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", "q10;s50",
-						"key0=val0;key1=val1" }));
+						"key0=val0;key1=val1;RLV_PRESENT=FALSE" }));
 	}
 
 	@Test
@@ -154,7 +154,7 @@ public class VcfRecordMapperTest
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
 		assertEquals(mappedVcfRecord, new VcfRecord(vcfMeta,
 				new String[] { "1", "123", "rs6054257;rs6040355", "GTC", "G,GTCT", "123.45", "q10;s50",
-						"." }));
+						"RLV_PRESENT=FALSE" }));
 	}
 
 	private GavinRecord createMock(boolean includeIdentifiers, boolean includeAlt, boolean includeQuality,
