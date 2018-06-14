@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by joeri on 6/29/16.
@@ -39,7 +40,7 @@ public class FOR
 		falseOM.go();
 	}
 
-	public FOR(File originalVcfFile, File rvcfFile, File genesFORoutput) throws Exception
+	public FOR(File originalVcfFile, File rvcfFile, File genesFORoutput)
 	{
 		this.originalVcfFile = originalVcfFile;
 		this.rvcfFile = rvcfFile;
@@ -55,7 +56,7 @@ public class FOR
 		VcfReader vcf = GavinUtils.getVcfReader(originalVcfFile);
 		Iterator<VcfRecord> originalVcfIterator = vcf.iterator();
 
-		HashMap<String, String> variantToGene = new HashMap<String, String>(); //e.g. 10_126092389_G_A -> OAT, 10_126097170_C_T -> OAT
+		HashMap<String, String> variantToGene = new HashMap<>(); //e.g. 10_126092389_G_A -> OAT, 10_126097170_C_T -> OAT
 		while (originalVcfIterator.hasNext())
 		{
 			GavinRecord record = new GavinRecord(originalVcfIterator.next());
@@ -84,10 +85,10 @@ public class FOR
 
 		System.out.println("pathogenic variants, size BEFORE removing detected variants: " + variantToGene.size());
 
-		HashMap<String, Integer> countPerGeneExpected = new HashMap<String, Integer>();
-		for (String variant : variantToGene.keySet())
+		HashMap<String, Integer> countPerGeneExpected = new HashMap<>();
+		for (Map.Entry<String,String> variantEntry : variantToGene.entrySet())
 		{
-			String gene = variantToGene.get(variant);
+			String gene = variantEntry.getValue();
 			if (countPerGeneExpected.containsKey(gene))
 			{
 				countPerGeneExpected.put(gene, countPerGeneExpected.get(gene) + 1);
@@ -102,12 +103,10 @@ public class FOR
 
 		VcfReader rvcf = GavinUtils.getVcfReader(rvcfFile);
 
-		Iterator<VcfRecord> rvcfIterator = rvcf.iterator();
-
 		//remove variants seen in in RVCF
-		while (rvcfIterator.hasNext())
+		for (VcfRecord aRvcf : rvcf)
 		{
-			AnnotatedVcfRecord record = new AnnotatedVcfRecord(rvcfIterator.next());
+			AnnotatedVcfRecord record = new AnnotatedVcfRecord(aRvcf);
 			String key = record.getChromosome() + "_" + record.getPosition() + "_" + VcfRecordUtils.getRef(record) + "_"
 					+ VcfRecordUtils.getAlt(record);
 			variantToGene.remove(key);
@@ -115,7 +114,7 @@ public class FOR
 
 		System.out.println("pathogenic variants, size AFTER removing detected variants: " + variantToGene.size());
 
-		HashMap<String, Integer> countPerGeneLeftover = new HashMap<String, Integer>();
+		HashMap<String, Integer> countPerGeneLeftover = new HashMap<>();
 
 		for (String variant : variantToGene.keySet())
 		{
@@ -146,7 +145,7 @@ public class FOR
 			}
 			int exp = countPerGeneExpected.get(gene);
 			int obs = (countPerGeneExpected.get(gene) - subtract);
-			pw.println(gene + "\t" + exp + "\t" + obs + "\t" + ((1.0 - ((double) obs / (double) exp))));
+			pw.println(gene + "\t" + exp + "\t" + obs + "\t" + (1.0 - ((double) obs / (double) exp)));
 		}
 		pw.flush();
 		pw.close();

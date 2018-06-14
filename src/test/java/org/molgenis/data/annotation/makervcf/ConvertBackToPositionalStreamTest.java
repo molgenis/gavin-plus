@@ -34,9 +34,9 @@ public class ConvertBackToPositionalStreamTest extends Setup
 
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 
-		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
+		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
 
-		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), true).go();
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())

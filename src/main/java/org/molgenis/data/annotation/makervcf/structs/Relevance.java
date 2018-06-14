@@ -2,10 +2,12 @@ package org.molgenis.data.annotation.makervcf.structs;
 
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.Status;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -13,20 +15,20 @@ import java.util.Set;
  */
 public class Relevance
 {
-    Judgment judgment;
-    String allele;
-    String gene;
-    String FDR;
-    Map<String, status> sampleStatus;
-    Map<String, String> sampleGenotypes;
-    Set<String> parentsWithReferenceCalls;
-    double alleleFreq;
-    double gonlAlleleFreq;
-    String transcript;
+    private Judgment judgment;
+	private String allele;
+	private String gene;
+	private String FDR;
+	private Map<String, Status> sampleStatus;
+	private Map<String, String> sampleGenotypes;
+	private Set<String> parentsWithReferenceCalls;
+	private double alleleFreq;
+	private double gonlAlleleFreq;
+	private Optional<String> transcript;
 
     CGDEntry cgdInfo;
 
-    public Relevance(String allele, String transcript, double alleleFreq, double gonlAlleleFreq, String gene, Judgment judgment)
+    public Relevance(String allele, Optional<String> transcript, double alleleFreq, double gonlAlleleFreq, String gene, Judgment judgment)
     {
         this.allele = allele;
         this.transcript = transcript;
@@ -68,8 +70,8 @@ public class Relevance
         return gonlAlleleFreq;
     }
 
-    public String getTranscript() {
-        return transcript != null ? transcript : "";
+    public Optional<String> getTranscript() {
+        return transcript;
     }
 
     public Judgment getJudgment() {
@@ -105,18 +107,18 @@ public class Relevance
         this.cgdInfo = cgdInfo;
     }
 
-    public Map<String, status> getSampleStatus() {
-        return sampleStatus != null ? sampleStatus : new HashMap<String, status>();
+    public Map<String, MatchVariantsToGenotypeAndInheritance.Status> getSampleStatus() {
+        return sampleStatus != null ? sampleStatus : new HashMap<>();
     }
 
-    public void setSampleStatus(Map<String, status> sampleStatus) {
+    public void setSampleStatus(Map<String, Status> sampleStatus) {
         this.sampleStatus = sampleStatus;
     }
     public void setSampleGenotypes(Map<String, String> sampleGenotypes) {
         this.sampleGenotypes = sampleGenotypes;
     }
     public Map<String, String> getSampleGenotypes() {
-        return sampleGenotypes != null ? sampleGenotypes : new HashMap<String, String>();
+        return sampleGenotypes != null ? sampleGenotypes : new HashMap<>();
     }
 
 }

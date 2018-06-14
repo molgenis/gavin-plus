@@ -2,17 +2,22 @@ package org.molgenis.data.annotation.makervcf.structs;
 
 import org.apache.commons.lang3.StringUtils;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
+import org.molgenis.data.vcf.datastructures.Sample;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
 import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
+import static java.util.Objects.requireNonNull;
 
 public class GavinRecord
 {
@@ -26,13 +31,13 @@ public class GavinRecord
 
 	public GavinRecord(VcfRecord record)
 	{
-		this(record, null);
+		this(record, Collections.emptyList());
 	}
 
 	public GavinRecord(VcfRecord record, List<Relevance> relevances)
 	{
 		this.annotatedVcfRecord = new AnnotatedVcfRecord(record);
-		this.relevances = relevances;
+		this.relevances = requireNonNull(relevances);
 
 		this.genes = annotatedVcfRecord.getGenesFromAnn();
 		this.caddPhredScores = annotatedVcfRecord.getCaddPhredScores();
@@ -45,12 +50,21 @@ public class GavinRecord
 
 	public void setRelevances(List<Relevance> relevances)
 	{
-		this.relevances = relevances;
+		this.relevances = requireNonNull(relevances);
 	}
 
-	public Double getCaddPhredScores(int i)
+	public boolean isRelevant(){
+		return !relevances.isEmpty();
+	}
+
+	public Double getCaddPhredScore(int i)
 	{
 		return caddPhredScores[i];
+	}
+
+	public Double[] getCaddPhredScores()
+	{
+		return caddPhredScores;
 	}
 
 	public void setCaddPhredScore(int i, Double phredScore)
@@ -84,31 +98,9 @@ public class GavinRecord
 				+ VcfRecordUtils.getRef(annotatedVcfRecord) + " " + VcfRecordUtils.getAltString(annotatedVcfRecord);
 	}
 
-	/**
-	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
-	 */
-	@Deprecated
-	public String getSampleFieldValue(VcfSample vcfSample, String field)
+	public Stream<Sample> getSamples()
 	{
-		return VcfRecordUtils.getSampleFieldValue(annotatedVcfRecord, vcfSample, field);
-	}
-
-	/**
-	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
-	 */
-	@Deprecated
-	public Iterable<VcfSample> getSamples()
-	{
-		return annotatedVcfRecord.getSamples();
-	}
-
-	/**
-	 * @deprecated TODO refactor such that this method does not expose VcfReader data structures
-	 */
-	@Deprecated
-	public VcfMeta getVcfMeta()
-	{
-		return annotatedVcfRecord.getVcfMeta();
+		return VcfRecordUtils.toSamples(annotatedVcfRecord);
 	}
 
 	public int getAltAlleleIndex(String alt)
@@ -200,12 +192,12 @@ public class GavinRecord
 		return annotatedVcfRecord.getGoNlAlleleFrequencies(i);
 	}
 
-	public Impact getImpact(int i, String gene)
+	public Optional<Impact> getImpact(int i, String gene)
 	{
 		return annotatedVcfRecord.getImpact(i, gene);
 	}
 
-	public String getTranscript(int i, String gene)
+	public Optional<String> getTranscript(int i, String gene)
 	{
 		return annotatedVcfRecord.getTranscript(i, gene);
 	}

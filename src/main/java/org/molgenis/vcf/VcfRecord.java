@@ -72,7 +72,7 @@ public class VcfRecord
 			if(alternateBasesStr == null || alternateBasesStr.length() == 0 || alternateBasesStr.equals(MISSING_VALUE)) {
 				cachedAlternateAlleles = Collections.emptyList();
 			} else {
-				cachedAlternateAlleles = new ArrayList<Allele>(1);
+				cachedAlternateAlleles = new ArrayList<>(1);
 				for(String altAllele : StringUtils.split(alternateBasesStr, ',')){
 					cachedAlternateAlleles.add(Allele.create(altAllele));
 				}
@@ -91,7 +91,7 @@ public class VcfRecord
 	
 	/**
 	 * 
-	 * @return filter status or null if filter status is set to the missign value
+	 * @return filter Status or null if filter Status is set to the missign value
 	 */
 	public String getFilterStatus() {
 		String filterStatus = tokens[VcfMeta.COL_FILTER_IDX];
@@ -100,47 +100,40 @@ public class VcfRecord
 	
 	public Iterable<VcfInfo> getInformation() {
 		//Do new string to prevent the whole token array is saved
-		final String[] infoTokens = StringUtils.split(new String(tokens[VcfMeta.COL_INFO_IDX]), ';');
-		return new Iterable<VcfInfo>() {
-			
+		final String[] infoTokens = StringUtils.split(tokens[VcfMeta.COL_INFO_IDX], ';');
+		return () -> new Iterator<VcfInfo>(){
+			private final VcfInfo recycableVcfInfo = new VcfInfo(vcfMeta);
+			private int nrToken = 0;
+
 			@Override
-			public Iterator<VcfInfo> iterator()
+			public boolean hasNext()
 			{
-				return new Iterator<VcfInfo>(){
-					private final VcfInfo recycableVcfInfo = new VcfInfo(vcfMeta);
-					private int nrToken = 0; 
-					
-					@Override
-					public boolean hasNext()
-					{
-						return nrToken < infoTokens.length;
-					}
-
-					@Override
-					public VcfInfo next()
-					{
-						String infoToken = infoTokens[nrToken++];
-						int idx = infoToken.indexOf('=');
-						String key = idx != -1 ? infoToken.substring(0, idx) : infoToken;
-						String val = idx != -1 ? infoToken.substring(idx + 1) : null;
-						recycableVcfInfo.reset(key, val);
-						return recycableVcfInfo;
-					}
-
-					@Override
-					public void remove()
-					{
-						throw new UnsupportedOperationException();
-					}};
+				return nrToken < infoTokens.length;
 			}
-		};
+
+			@Override
+			public VcfInfo next()
+			{
+				String infoToken = infoTokens[nrToken++];
+				int idx = infoToken.indexOf('=');
+				String key = idx != -1 ? infoToken.substring(0, idx) : infoToken;
+				String val = idx != -1 ? infoToken.substring(idx + 1) : null;
+				recycableVcfInfo.reset(key, val);
+				return recycableVcfInfo;
+			}
+
+			@Override
+			public void remove()
+			{
+				throw new UnsupportedOperationException();
+			}};
 	}
 	
 	public String[] getFormat() {
 		if(cachedSampleDataTypes == null) {
 			//Do new string to prevent the whole token array is saved
 			if(tokens.length > 8){
-				cachedSampleDataTypes = StringUtils.split(new String(tokens[VcfMeta.COL_FORMAT_IDX]), ':'); 
+				cachedSampleDataTypes = StringUtils.split(tokens[VcfMeta.COL_FORMAT_IDX], ':');
 			} else {
 				cachedSampleDataTypes = new String[0];
 			}
@@ -163,38 +156,31 @@ public class VcfRecord
 	
 	public Iterable<VcfSample> getSamples() {
 		final VcfRecord vcfRecord = this;
-		return new Iterable<VcfSample>() {
+		return () -> new Iterator<VcfSample>(){
+			private final VcfSample recycableVcfSample = new VcfSample(vcfRecord);
+
+			private final int nrSamples = getNrSamples();
+			private int nrSample = 0;
 
 			@Override
-			public Iterator<VcfSample> iterator()
+			public boolean hasNext()
 			{
-				return new Iterator<VcfSample>(){
-					private final VcfSample recycableVcfSample = new VcfSample(vcfRecord);
-					
-					private final int nrSamples = getNrSamples();
-					private int nrSample = 0;
-					
-					@Override
-					public boolean hasNext()
-					{
-						return nrSample < nrSamples;
-					}
-
-					@Override
-					public VcfSample next()
-					{
-						recycableVcfSample.reset(StringUtils.split(tokens[VcfMeta.COL_FORMAT_IDX + 1 + nrSample], ':'));
-						++nrSample;
-						return recycableVcfSample;
-					}
-
-					@Override
-					public void remove()
-					{
-						throw new UnsupportedOperationException();
-					}};
+				return nrSample < nrSamples;
 			}
-		};
+
+			@Override
+			public VcfSample next()
+			{
+				recycableVcfSample.reset(StringUtils.split(tokens[VcfMeta.COL_FORMAT_IDX + 1 + nrSample], ':'));
+				++nrSample;
+				return recycableVcfSample;
+			}
+
+			@Override
+			public void remove()
+			{
+				throw new UnsupportedOperationException();
+			}};
 	}
 
 	public VcfMeta getVcfMeta()

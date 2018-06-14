@@ -47,7 +47,7 @@ public class VcfSample
 		String genotype = tokens[0];
 		
 		// parse phasing
-		List<Boolean> phasings = new ArrayList<Boolean>(1);
+		List<Boolean> phasings = new ArrayList<>(1);
 		final int nrChars = genotype.length();
 		for (int i = 0; i < nrChars; ++i){
 			switch(genotype.charAt(i)) {
@@ -75,7 +75,7 @@ public class VcfSample
 			List<Allele> alternateAlleles = vcfRecord.getAlternateAlleles();
 			
 			// performance optimization for the common case that a sample consists of two alleles
-			cachedAlleles = new ArrayList<Allele>(2);
+			cachedAlleles = new ArrayList<>(2);
 			final int nrGenotypeChars = genotype.length();
 			for (int j = 0, start = 0; j < nrGenotypeChars; ++j)
 			{

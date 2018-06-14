@@ -45,11 +45,11 @@ public class AddGeneFDRTest extends Setup
 	public void test() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
-		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>()).go();
+		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 
-		Iterator<GavinRecord> it = new AddGeneFDR(gs.go(), fdrFile, false).go();
+		Iterator<GavinRecord> it = new AddGeneFDR(gs.go(), fdrFile).go();
 
 		/*
 		FDR data:
@@ -71,6 +71,9 @@ public class AddGeneFDRTest extends Setup
 
 		assertTrue(it.hasNext());
 		assertEquals(it.next().getRelevance().get(0).getFDR(), "0.004792332268370607,0.0");
+
+		assertTrue(it.hasNext());//non relevant variant
+		assertTrue(it.hasNext());//non relevant variant
 
 		assertTrue(it.hasNext());
 		assertEquals(it.next().getRelevance().get(0).getFDR(), "0.012779552715654952,0.0");

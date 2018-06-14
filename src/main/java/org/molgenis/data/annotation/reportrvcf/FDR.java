@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.reportrvcf;
 
 import org.molgenis.calibratecadd.support.GavinUtils;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance.status;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.vcf.VcfReader;
@@ -28,13 +28,13 @@ public class FDR {
     private PrintWriter pw;
     int nrOfSamples;
 
-
-    public static String HEADER = "Gene" + "\t" + "AffectedAbs" + "\t" + "CarrierAbs" + "\t" + "AffectedFrac" + "\t" + "CarrierFrac";
+    public static final String HEADER = "Gene" + "\t" + "AffectedAbs" + "\t" + "CarrierAbs" + "\t" + "AffectedFrac" + "\t" + "CarrierFrac";
 
     public static void main(String[] args) throws Exception {
-        FDR fdr = new FDR(new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/ALL.chr1to22plusXYMT_RVCF_r1.0.vcf"),
-                new File("/Users/joeri/Desktop/GAVIN-APP/1000G_diag_FDR/exomePlus/FDR_r1.0.tsv"),
-                2504);
+        String mtRvcfFileName = args[0];
+        String fdrFileName = args[1];
+        FDR fdr = new FDR(new File(mtRvcfFileName),
+                new File(fdrFileName), 2504);
         fdr.go();
     }
 
@@ -53,28 +53,29 @@ public class FDR {
         //make sure we only count every sample once per gene
         Set<String> sampleGeneCombo = new HashSet<>();
 
-        Iterator<VcfRecord> vcfIterator = vcf.iterator();
-        while(vcfIterator.hasNext())
+        for (VcfRecord aVcf : vcf)
         {
 
-            AnnotatedVcfRecord record = new AnnotatedVcfRecord(vcfIterator.next());
+            AnnotatedVcfRecord record = new AnnotatedVcfRecord(aVcf);
 
             //TODO JvdV: check implications of this being a loop now instead of 1 rvcf
-            for(RVCF rvcf : record.getRvcf()){
-
-            String gene = rvcf.getGene();
-
-            if(!geneToAffected.containsKey(gene))
+            for (RVCF rvcf : record.getRvcf())
             {
-                geneToAffected.put(gene, 0);
-                geneToCarrier.put(gene, 0);
-            }
 
-                for(String sample : rvcf.getSampleStatus().keySet())
+                String gene = rvcf.getGene();
+
+                if (!geneToAffected.containsKey(gene))
                 {
-                    if(status.isPresumedAffected(rvcf.getSampleStatus().get(sample)))
+                    geneToAffected.put(gene, 0);
+                    geneToCarrier.put(gene, 0);
+                }
+
+                for (String sample : rvcf.getSampleStatus().keySet())
+                {
+                    if (MatchVariantsToGenotypeAndInheritance.Status.isPresumedAffected(
+                            rvcf.getSampleStatus().get(sample)))
                     {
-                        if(!sampleGeneCombo.contains(gene + "_" + sample))
+                        if (!sampleGeneCombo.contains(gene + "_" + sample))
                         {
                             int count = geneToAffected.get(gene);
                             geneToAffected.put(gene, count + 1);
@@ -82,28 +83,30 @@ public class FDR {
                         }
 
                     }
-                    else if(status.isPresumedCarrier(rvcf.getSampleStatus().get(sample)))
+                    else if (MatchVariantsToGenotypeAndInheritance.Status.isPresumedCarrier(
+                            rvcf.getSampleStatus().get(sample)))
                     {
-                        if(!sampleGeneCombo.contains(gene + "_" + sample))
+                        if (!sampleGeneCombo.contains(gene + "_" + sample))
                         {
                             int count = geneToCarrier.get(gene);
                             geneToCarrier.put(gene, count + 1);
                             sampleGeneCombo.add(gene + "_" + sample);
                         }
                     }
-                    else{
-                        throw new Exception("ERROR: Unknown sample status: " +rvcf.getSampleStatus().get(sample));
+                    else
+                    {
+                        throw new Exception("ERROR: Unknown sample Status: " + rvcf.getSampleStatus().get(sample));
                     }
                 }
             }
 
-
         }
 
         pw.println(HEADER);
-        for(String gene : geneToAffected.keySet())
+        for(Map.Entry<String,Integer> geneToAffectedEntry : geneToAffected.entrySet())
         {
-            pw.println(gene + "\t" + geneToAffected.get(gene) + "\t" + geneToCarrier.get(gene)+ "\t" + (((double)geneToAffected.get(gene))/((double)nrOfSamples)) + "\t" + (((double)geneToCarrier.get(gene))/((double)nrOfSamples)));
+            String gene = geneToAffectedEntry.getKey();
+            pw.println(gene + "\t" + geneToAffectedEntry.getValue() + "\t" + geneToCarrier.get(gene)+ "\t" + (((double)geneToAffectedEntry.getValue())/((double)nrOfSamples)) + "\t" + (((double)geneToCarrier.get(gene))/((double)nrOfSamples)));
         }
 
         pw.flush();

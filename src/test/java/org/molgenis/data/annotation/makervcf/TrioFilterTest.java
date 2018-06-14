@@ -40,12 +40,12 @@ public class TrioFilterTest extends Setup
 	public void test() throws Exception
 	{
 		TrioData td = TrioFilter.getTrioData(inputVcfFile);
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, td.getParents(), false).go();
-		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, td.getParents()).go();
+		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 		Iterator<GavinRecord> gsi = gs.go();
 
-		TrioFilter tf = new TrioFilter(gsi, td, false);
+		TrioFilter tf = new TrioFilter(gsi, td);
 		Iterator<GavinRecord> it = tf.go();
 
 		// heterozygous child, 1 heterozygous parent
