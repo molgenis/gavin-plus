@@ -1,7 +1,6 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
 import org.molgenis.data.vcf.datastructures.Sample;
-import org.molgenis.vcf.VcfSample;
 
 import java.util.HashMap;
 import java.util.Set;

@@ -116,28 +116,28 @@ public class GavinAlgorithm
 		String mafReason = "the variant MAF of " + exacMAF + " is less than a MAF of " + pathoMAFThreshold + ".";
 
 		// Impact based classification, calibrated
-		if (impact != null)
+		if (impact.isPresent())
 		{
-			if (category == I1 && (impact.isPresent() && (impact.get() == HIGH)))
+			if (category == I1 && (impact.get() == HIGH))
 			{
 				return new Judgment(Pathogenic, calibrated, gene,
 						"Variant is of high impact, while there are no known high impact variants in the population. Also, "
 								+ mafReason,null,null);
 			}
-			else if (category == I2 && (impact.isPresent() && (impact.get() == MODERATE || impact.get() == HIGH)))
+			else if (category == I2 && (impact.get() == MODERATE || impact.get() == HIGH))
 			{
 
 				return new Judgment(Pathogenic, calibrated, gene,
 						"Variant is of high/moderate impact, while there are no known high/moderate impact variants in the population. Also, "
 								+ mafReason,null,null);
 			}
-			else if (category == I3 && (impact.isPresent() && (impact.get() == LOW || impact.get() == MODERATE || impact.get() == HIGH)))
+			else if (category == I3 && (impact.get() == LOW || impact.get() == MODERATE || impact.get() == HIGH))
 			{
 				return new Judgment(Pathogenic, calibrated, gene,
 						"Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, "
 								+ mafReason,null,null);
 			}
-			else if (impact.isPresent() && impact.get() == MODIFIER)
+			else if (impact.get() == MODIFIER)
 			{
 				return new Judgment(Benign, calibrated, gene,
 						"Variant is of 'modifier' impact, and therefore unlikely to be pathogenic. However, " + mafReason,null,null);
