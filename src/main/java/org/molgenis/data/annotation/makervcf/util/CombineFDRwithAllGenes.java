@@ -59,7 +59,7 @@ public class CombineFDRwithAllGenes {
         }
         fdrScanner.close();
 
-        LOG.info("read FDR data for " + geneToLine.size() + " genes");
+        LOG.info("read FDR data for {} genes", geneToLine.size());
 
         PrintWriter pw = new PrintWriter(outputFDR);
 
@@ -83,7 +83,7 @@ public class CombineFDRwithAllGenes {
             for(String key : geneToLine.keySet())
             {
                 pw.println(geneToLine.get(key));
-                LOG.info("leftover gene: " + key);
+                LOG.info("leftover gene: {}", key);
 
             }
         }

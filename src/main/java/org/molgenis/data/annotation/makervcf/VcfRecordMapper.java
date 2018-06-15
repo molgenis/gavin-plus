@@ -1,6 +1,5 @@
 package org.molgenis.data.annotation.makervcf;
 
-import com.google.common.collect.Lists;
 import joptsimple.internal.Strings;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
@@ -17,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
@@ -109,8 +107,7 @@ class VcfRecordMapper
 			Double[] caddScores = gavinRecord.getCaddPhredScores();
 			if (caddScores != null && caddScores.length > 0)
 			{
-				List<String> caddScoresList = Arrays.stream(caddScores)
-													.map(score -> caddToString(score))
+				List<String> caddScoresList = Arrays.stream(caddScores).map(this::caddToString)
 													.collect(toList());
 				if (!caddScoresList.isEmpty())
 				{
@@ -175,13 +172,13 @@ class VcfRecordMapper
 
 	private String getRlv(GavinRecord gavinRecord, boolean splitRlvField)
 	{
-		LOG.debug("[MakeRVCFforClinicalVariants] Looking at: " + gavinRecord.toString());
+		LOG.debug("[MakeRVCFforClinicalVariants] Looking at: {}", gavinRecord);
 
 		List<Relevance> relevance = gavinRecord.getRelevance();
 		String rlv = rlvInfoMapper.map(relevance, splitRlvField);
 
-		LOG.debug(
-				"[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: " + rlv);
+		LOG.debug("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: {}",
+				rlv);
 
 		return rlv;
 	}

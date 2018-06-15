@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,15 +17,18 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class GavinUtils
 {
 	private static final Logger LOG = LoggerFactory.getLogger(GavinUtils.class);
 
 	private static final String HEADER_PREFIX = "##";
 	private static final String PEDIGREE = "##PEDIGREE";
-	public static final String UTF_8 = "UTF-8";
 
-	private GavinUtils(){}
+	private GavinUtils()
+	{
+	}
 
 	public static Map<String, GavinEntry> getGeneToEntry(File gavin)
 	{
@@ -59,8 +60,7 @@ public class GavinUtils
 
 		if (file.getName().endsWith(".gz"))
 		{
-			reader = new VcfReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), Charset.forName(
-					UTF_8)));
+			reader = new VcfReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), UTF_8));
 		}
 		else if (file.getName().endsWith(".zip"))
 		{
@@ -68,13 +68,13 @@ public class GavinUtils
 			{
 				Enumeration<? extends ZipEntry> e = zipFile.entries();
 				ZipEntry entry = e.nextElement();
-				reader = new VcfReader(new InputStreamReader(new GZIPInputStream(zipFile.getInputStream(entry)),
-						Charset.forName(UTF_8)));
+				reader = new VcfReader(
+						new InputStreamReader(new GZIPInputStream(zipFile.getInputStream(entry)), UTF_8));
 			}
 		}
 		else
 		{
-			reader = new VcfReader(new InputStreamReader(new FileInputStream(file), Charset.forName(UTF_8)));
+			reader = new VcfReader(new InputStreamReader(new FileInputStream(file), UTF_8));
 		}
 
 		return reader;
@@ -106,7 +106,7 @@ public class GavinUtils
 
 	private static void parsePedigree(HashMap<String, Trio> result, String line)
 	{
-		LOG.info("Pedigree data line: " + line);
+		LOG.info("Pedigree data line: {}", line);
 
 		String childID = null;
 		String motherID = null;
@@ -134,9 +134,9 @@ public class GavinUtils
 						"Expected Child, Mother or Father, but found: " + element + " in line " + line);
 			}
 		}
-		Sample child = childID != null ? new Sample(childID,null,null) : null;
-		Sample mother = motherID != null ? new Sample(motherID,null,null) : null;
-		Sample father = fatherID != null ? new Sample(fatherID,null,null) : null;
+		Sample child = childID != null ? new Sample(childID, null, null) : null;
+		Sample mother = motherID != null ? new Sample(motherID, null, null) : null;
+		Sample father = fatherID != null ? new Sample(fatherID, null, null) : null;
 
 		result.put(childID, new Trio(child, mother, father));
 	}
@@ -148,6 +148,6 @@ public class GavinUtils
 		{
 			inputStream = new BlockCompressedInputStream(inputStream);
 		}
-		return new Scanner(inputStream, StandardCharsets.UTF_8.name());
+		return new Scanner(inputStream, UTF_8.name());
 	}
 }

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by joeri on 6/1/16.
@@ -24,7 +24,7 @@ public class HandleMissingCaddScores
 
 	private Mode mode;
 	private PrintWriter pw;
-	private HashMap<String, Double> caddScores;
+	private Map<String, Double> caddScores;
 
 	public HandleMissingCaddScores(Mode mode, File caddFile) throws Exception
 	{
@@ -78,9 +78,9 @@ public class HandleMissingCaddScores
 					else
 					{
 						LOG.debug(
-								"[HandleMissingCaddScores] WARNING: CADD score missing for " + record.getChromosome()
-										+ " " + record.getPosition() + " " + record.getRef() + " " + record.getAlt(
-										altIndex) + " ! (even when using trimmed key '" + key + "')");
+								"[HandleMissingCaddScores] WARNING: CADD score missing for {} {} {} {} ! (even when using trimmed key '{}')",
+								record.getChromosome(), record.getPosition(), record.getRef(), record.getAlt(altIndex),
+								key);
 						return null;
 					}
 				}

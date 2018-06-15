@@ -155,7 +155,7 @@ public class DiscoverRelevantVariants
 																.equals(Judgment.Classification.Pathogenic))
 								{
 									gavinRecord.setGenes(judgment.getGene());
-									relevance.add(new Relevance(gavinRecord.getAlt(i), Optional.of(clinvarJudgment.getGene()),
+									relevance.add(new Relevance(gavinRecord.getAlt(i), clinvarJudgment.getGene(),
 											gavinRecord.getExAcAlleleFrequencies(i),
 											gavinRecord.getGoNlAlleleFrequencies(i), clinvarJudgment.getGene(),
 											clinvarJudgment));
@@ -167,8 +167,8 @@ public class DiscoverRelevantVariants
 
 								if (gavinRecord.getGenes().isEmpty())
 								{
-									LOG.debug("[DiscoverRelevantVariants] WARNING: no genes for variant "
-											+ gavinRecord.toString());
+									LOG.debug("[DiscoverRelevantVariants] WARNING: no genes for variant {}",
+											gavinRecord);
 								}
 								for (String gene : gavinRecord.getGenes())
 								{
@@ -182,7 +182,7 @@ public class DiscoverRelevantVariants
 									Judgment clinvarJudgment = clinvar.classifyVariant(gavinRecord,
 											gavinRecord.getAlt(i), gene, false);
 
-									Judgment gavinJudgment = gavin.classifyVariant(impact, cadd,
+									Judgment gavinJudgment = gavin.classifyVariant(impact.orElse(null), cadd,
 											gavinRecord.getExAcAlleleFrequencies(i), gene, gavinData);
 
 									if (labJudgment != null
@@ -204,7 +204,7 @@ public class DiscoverRelevantVariants
 									if (judgment != null
 											&& judgment.getClassification() == Judgment.Classification.Pathogenic)
 									{
-										relevance.add(new Relevance(gavinRecord.getAlt(i), transcript,
+										relevance.add(new Relevance(gavinRecord.getAlt(i), transcript.orElse(null),
 												gavinRecord.getExAcAlleleFrequencies(i),
 												gavinRecord.getGoNlAlleleFrequencies(i), gene, judgment));
 									}
@@ -216,7 +216,8 @@ public class DiscoverRelevantVariants
 						{
 							gavinRecord.setRelevances(relevance);
 							nextResult = gavinRecord;
-							LOG.debug("[DiscoverRelevantVariants] Found relevant variant: {}",nextResult.toStringShort());
+							LOG.debug("[DiscoverRelevantVariants] Found relevant variant: {}",
+									nextResult.toStringShort());
 							return true;
 						}
 						else if (keepAllVariants)

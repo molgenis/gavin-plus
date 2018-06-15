@@ -73,8 +73,9 @@ public class ClinVar
 						}
 						else
 						{
-							LOG.debug("genes did not match: " + clinvarGene + " vs " + gene + ". Reporting under '" + gene
-									+ "' while preserving ClinVar data '" + clinvarInfo + "'.");
+							LOG.debug(
+									"genes did not match: {} vs {}. Reporting under '{}' while preserving ClinVar data '{}'.",
+									clinvarGene, gene, gene, clinvarInfo);
 
 						}
 					}

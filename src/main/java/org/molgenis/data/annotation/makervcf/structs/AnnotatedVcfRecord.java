@@ -130,7 +130,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		String findAnn = getAnn(ann, gene, allele);
 		if (findAnn == null)
 		{
-			LOG.warn("failed to get impact for gene '" + gene + "', allele '" + allele + "' in " + ann);
+			LOG.warn("failed to get impact for gene '{}', allele '{}' in {}", gene, allele, ann);
 			return null;
 		}
 		else
@@ -157,7 +157,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 				}
 			}
 		}
-		LOG.warn("annotation could not be found for " + gene + ", allele=" + allele + ", ann=" + ann);
+		LOG.warn("annotation could not be found for {}, allele={}, ann={}", gene, allele, ann);
 		return null;
 	}
 }

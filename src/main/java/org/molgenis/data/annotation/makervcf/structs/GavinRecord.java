@@ -5,15 +5,11 @@ import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.vcf.datastructures.Sample;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
-import org.molgenis.vcf.VcfSample;
-import org.molgenis.vcf.meta.VcfMeta;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -31,7 +27,7 @@ public class GavinRecord
 
 	public GavinRecord(VcfRecord record)
 	{
-		this(record, Collections.emptyList());
+		this(record, emptyList());
 	}
 
 	public GavinRecord(VcfRecord record, List<Relevance> relevances)
@@ -53,7 +49,8 @@ public class GavinRecord
 		this.relevances = requireNonNull(relevances);
 	}
 
-	public boolean isRelevant(){
+	public boolean isRelevant()
+	{
 		return !relevances.isEmpty();
 	}
 

@@ -71,8 +71,8 @@ public class MatchVariantsToGenotypeAndInheritance
 		}
 	}
 
-	public MatchVariantsToGenotypeAndInheritance(Iterator<GavinRecord> gavinRecords, File cgdFile,
-			Set<String> parents) throws IOException
+	public MatchVariantsToGenotypeAndInheritance(Iterator<GavinRecord> gavinRecords, File cgdFile, Set<String> parents)
+			throws IOException
 	{
 		this.gavinRecords = gavinRecords;
 		this.cgd = LoadCGD.loadCGD(cgdFile);
@@ -96,7 +96,7 @@ public class MatchVariantsToGenotypeAndInheritance
 			public GavinRecord next()
 			{
 				GavinRecord gavinRecord = gavinRecords.next();
-				if(gavinRecord.isRelevant())
+				if (gavinRecord.isRelevant())
 				{
 					//key: gene, alt allele
 					MultiKeyMap fullGenoMatch;
@@ -122,7 +122,8 @@ public class MatchVariantsToGenotypeAndInheritance
 
 						// regular inheritance types, recessive and/or dominant or some type, we use affected/carrier because we know how the inheritance acts
 						// females can be X-linked carriers, though since X is inactivated, they might be (partly) affected
-						if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(cgd.get(gene).getGeneralizedInheritance())))
+						if (cgd.containsKey(gene) && (generalizedInheritance.hasKnownInheritance(
+								cgd.get(gene).getGeneralizedInheritance())))
 						{
 							actingTerminology = Status.AFFECTED;
 							nonActingTerminology = Status.CARRIER;
@@ -130,19 +131,20 @@ public class MatchVariantsToGenotypeAndInheritance
 
 						Map<String, Status> sampleStatus = new HashMap<>();
 						Map<String, String> sampleGenotypes = new HashMap<>();
-						GenoMatchSamples genoMatch = (GenoMatchSamples) fullGenoMatch.get(rlv.getGene(), rlv.getAllele());
+						GenoMatchSamples genoMatch = (GenoMatchSamples) fullGenoMatch.get(rlv.getGene(),
+								rlv.getAllele());
 
 						if (genoMatch != null)
 						{
 							for (String key : genoMatch.affected.keySet())
 							{
 								sampleStatus.put(key, actingTerminology);
-								sampleGenotypes.put(key,genoMatch.affected.get(key).getGenotype().get());
+								sampleGenotypes.put(key, genoMatch.affected.get(key).getGenotype().get());
 							}
 							for (String key : genoMatch.carriers.keySet())
 							{
 								sampleStatus.put(key, nonActingTerminology);
-								sampleGenotypes.put(key,genoMatch.carriers.get(key).getGenotype().get());
+								sampleGenotypes.put(key, genoMatch.carriers.get(key).getGenotype().get());
 							}
 
 							if (!sampleStatus.isEmpty())
@@ -152,9 +154,9 @@ public class MatchVariantsToGenotypeAndInheritance
 								rlv.setParentsWithReferenceCalls(genoMatch.parentsWithReferenceCalls);
 
 								String parentsWithReferenceCalls = genoMatch.parentsWithReferenceCalls.toString();
-								LOG.debug("[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: "
-										+ sampleStatus.toString() + ", having genotypes: " + sampleGenotypes
-										+ ", plus trio parents with reference alleles: " + parentsWithReferenceCalls);
+								LOG.debug(
+										"[MatchVariantsToGenotypeAndInheritance] Assigned sample Status: {}, having genotypes: {}, plus trio parents with reference alleles: {}",
+										sampleStatus, sampleGenotypes, parentsWithReferenceCalls);
 							}
 						}
 					}

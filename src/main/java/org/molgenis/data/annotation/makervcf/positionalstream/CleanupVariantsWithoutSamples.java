@@ -42,7 +42,7 @@ public class CleanupVariantsWithoutSamples
 						if (gavinRecord.isRelevant())
 						{
 
-							LOG.debug("[CleanupVariantsWithoutSamples] Looking at: " + gavinRecord.toString());
+							LOG.debug("[CleanupVariantsWithoutSamples] Looking at: {}", gavinRecord);
 
 							for (Relevance rlv : gavinRecord.getRelevance())
 							{
@@ -68,9 +68,9 @@ public class CleanupVariantsWithoutSamples
 									}
 								}
 								//FIXME update this line to new situation
-								LOG.debug("[CleanupVariantsWithoutSamples] Removing variant at "
-										+ gavinRecord.getChromosome() + ":" + gavinRecord.getPosition()
-										+ " because it has 0 samples left");
+								LOG.debug(
+										"[CleanupVariantsWithoutSamples] Removing variant at {}:{} because it has 0 samples left",
+										gavinRecord.getChromosome(), gavinRecord.getPosition());
 							}
 						}
 						else

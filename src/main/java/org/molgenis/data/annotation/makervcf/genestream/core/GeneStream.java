@@ -13,7 +13,6 @@ import java.util.*;
  */
 public abstract class GeneStream
 {
-
 	private static final Logger LOG = LoggerFactory.getLogger(GeneStream.class);
 	private Iterator<GavinRecord> gavinRecordIterator;
 	private boolean isFilterNonRelevant;

@@ -125,7 +125,9 @@ public class ConvertToGeneStream
 										break;
 									}
 								}
-							}else{
+							}
+							else
+							{
 								List<GavinRecord> variants = variantBuffer.get(gene);
 								if (variants == null)
 								{

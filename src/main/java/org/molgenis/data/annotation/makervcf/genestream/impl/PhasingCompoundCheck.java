@@ -1,17 +1,16 @@
 package org.molgenis.data.annotation.makervcf.genestream.impl;
 
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by joeri on 6/29/16.
@@ -59,7 +58,7 @@ public class PhasingCompoundCheck extends GeneStream
 	public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception
 	{
 
-		LOG.debug("[PhasingCompoundCheck] Encountered gene: {}" + gene);
+		LOG.debug("[PhasingCompoundCheck] Encountered gene: {}", gene);
 
 		// e.g. the 0 in 0|1
 		Set<String> leftHaploSamples = new HashSet<>();
@@ -90,9 +89,8 @@ public class PhasingCompoundCheck extends GeneStream
 						if (MatchVariantsToGenotypeAndInheritance.Status.isCompound(rlv.getSampleStatus().get(sample)))
 						{
 							String geno = rlv.getSampleGenotypes().get(sample);
-							LOG.debug("[PhasingCompoundCheck] Sample " + sample + " has a " + rlv.getSampleStatus()
-																								 .get(sample)
-									+ " genotype " + geno);
+							LOG.debug("[PhasingCompoundCheck] Sample {} has a {} genotype {}", sample,
+									rlv.getSampleStatus().get(sample), geno);
 							if (geno.length() != 3)
 							{
 								throw new Exception("genotype length != 3");
@@ -127,8 +125,8 @@ public class PhasingCompoundCheck extends GeneStream
 			}
 		}
 
-		LOG.debug("[PhasingCompoundCheck] 'Left-hand' haplotype samples: " + leftHaploSamples.toString());
-		LOG.debug("[PhasingCompoundCheck] 'Right-hand' haplotype samples: " + rightHaploSamples.toString());
+		LOG.debug("[PhasingCompoundCheck] 'Left-hand' haplotype samples: {}", leftHaploSamples);
+		LOG.debug("[PhasingCompoundCheck] 'Right-hand' haplotype samples: {}", rightHaploSamples);
 		//TODO JvdV leftHaploSamples.retainAll(rightHaploSamples);
 
 		Set<String> union = new HashSet(leftHaploSamples);
@@ -142,8 +140,7 @@ public class PhasingCompoundCheck extends GeneStream
 				union.remove(inA);
 			}
 		}
-		LOG.debug("[PhasingCompoundCheck] False compounds with only left-hand or right-hand haplotypes: "
-				+ union.toString());
+		LOG.debug("[PhasingCompoundCheck] False compounds with only left-hand or right-hand haplotypes: {}", union);
 
 		for (GavinRecord gavinRecord : variantsPerGene)
 		{
@@ -161,9 +158,9 @@ public class PhasingCompoundCheck extends GeneStream
 								&& MatchVariantsToGenotypeAndInheritance.Status.isCompound(
 								rlv.getSampleStatus().get(sample)))
 						{
-							LOG.debug("[PhasingCompoundCheck] Going to update sample " + sample + " from "
-									+ rlv.getSampleStatus().get(sample) + " to "
-									+ MatchVariantsToGenotypeAndInheritance.Status.HETEROZYGOUS_MULTIHIT);
+							LOG.debug("[PhasingCompoundCheck] Going to update sample {} from {} to {}", sample,
+									rlv.getSampleStatus().get(sample),
+									MatchVariantsToGenotypeAndInheritance.Status.HETEROZYGOUS_MULTIHIT);
 							rlv.getSampleStatus()
 							   .put(sample, MatchVariantsToGenotypeAndInheritance.Status.HETEROZYGOUS_MULTIHIT);
 						}
