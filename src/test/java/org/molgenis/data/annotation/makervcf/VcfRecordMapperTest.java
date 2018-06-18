@@ -216,10 +216,10 @@ public class VcfRecordMapperTest
 
 		if (includeRlv)
 		{
-			Relevance relevance0 = new Relevance("A", Optional.of("transcript0"), 0.1, 2.3, "gene0",
+			Relevance relevance0 = new Relevance("A", "transcript0", 0.1, 2.3, "gene0",
 					new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.calibrated, "gene0",
 							"my reason #0", "source0", "type0"));
-			Relevance relevance1 = new Relevance("G", Optional.of("transcript1"), 3.4, 5.6, "gene1",
+			Relevance relevance1 = new Relevance("G", "transcript1", 3.4, 5.6, "gene1",
 					new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.calibrated, "gene1",
 							"my reason #1", "source1", "type1"));
 			when(gavinRecord.getRelevance()).thenReturn(asList(relevance0, relevance1));
