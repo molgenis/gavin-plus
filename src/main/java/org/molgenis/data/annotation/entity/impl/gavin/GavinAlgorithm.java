@@ -125,7 +125,7 @@ public class GavinAlgorithm
 						"Variant is of high impact, while there are no known high impact variants in the population. Also, "
 								+ mafReason, null, null);
 			}
-			else if (category == I2 && impact == MODERATE || impact == HIGH)
+			else if (category == I2 && (impact == MODERATE || impact == HIGH))
 			{
 
 				return new Judgment(Pathogenic, calibrated, gene,
