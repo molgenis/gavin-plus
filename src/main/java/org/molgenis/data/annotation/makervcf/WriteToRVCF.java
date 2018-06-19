@@ -53,9 +53,9 @@ class WriteToRVCF
 		{
 			vcfMeta = vcfReader.getVcfMeta();
 		}
-		vcfMeta.setColNames(Arrays.copyOfRange(vcfMeta.getColNames(), 0, VcfMeta.COL_FORMAT_IDX));
 		if(!includeSamples)
 		{
+			vcfMeta.setColNames(Arrays.copyOfRange(vcfMeta.getColNames(), 0, VcfMeta.COL_FORMAT_IDX));
 			vcfMeta.setVcfMetaSamples(Collections.emptyMap());
 		}
 		if (!isSeparateFields)
