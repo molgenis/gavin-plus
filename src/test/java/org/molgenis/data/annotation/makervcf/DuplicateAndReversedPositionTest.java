@@ -81,7 +81,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 		}
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
-			assertEquals(ex.getMessage(), "java.lang.Exception: Chrom-pos-ref-alt combination seen twice: 1_2_G_T. This is not allowed. Please check your VCF file.");
+			assertEquals(ex.getMessage(), "Chrom-pos-ref-alt combination seen twice: 1_2_G_T. This is not allowed. Please check your VCF file.");
 		}
 	}
 
@@ -101,7 +101,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 		}
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
-			assertEquals(ex.getMessage(), "java.lang.Exception: Site position 1 before 6 on the same chromosome (3) not allowed. Please sort your VCF file.");
+			assertEquals(ex.getMessage(), "Site position 1 before 6 on the same chromosome (3) not allowed. Please sort your VCF file.");
 		}
 	}
 
@@ -121,7 +121,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 		}
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
-			assertEquals(ex.getMessage(), "java.lang.Exception: Chromosome 1 was interrupted by other chromosomes. Please sort your VCF file.");
+			assertEquals(ex.getMessage(), "Chromosome 1 was interrupted by other chromosomes. Please sort your VCF file.");
 		}
 	}
 

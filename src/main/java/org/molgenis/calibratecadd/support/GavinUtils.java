@@ -18,6 +18,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.CADD_INDEX;
+import static org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.PATHO_MAF_INDEX;
 
 public class GavinUtils
 {
@@ -25,6 +27,7 @@ public class GavinUtils
 
 	private static final String HEADER_PREFIX = "##";
 	private static final String PEDIGREE = "##PEDIGREE";
+	public static final String DEFAULT_KEY = "DEFAULT";
 
 	private GavinUtils()
 	{
@@ -42,9 +45,16 @@ public class GavinUtils
 			while (s.hasNextLine())
 			{
 				line = s.nextLine();
-
-				GavinEntry gavinEntry = new GavinEntry(line);
-				geneToEntry.put(gavinEntry.getGene(), gavinEntry);
+				if (line.startsWith(DEFAULT_KEY))
+				{
+					GavinEntry gavinEntry = new GavinEntry("",GavinEntry.Category.DEFAULT,"",-1L,-1L,getValueFromLine(line, PATHO_MAF_INDEX),getValueFromLine(line, CADD_INDEX));
+					geneToEntry.put(DEFAULT_KEY, gavinEntry);
+				}
+				else
+				{
+					GavinEntry gavinEntry = new GavinEntry(line);
+					geneToEntry.put(gavinEntry.getGene(), gavinEntry);
+				}
 			}
 		}
 		catch (Exception e)
@@ -52,6 +62,12 @@ public class GavinUtils
 			throw new RuntimeException(e);
 		}
 		return geneToEntry;
+	}
+
+	private static Double getValueFromLine(String line, int index)
+	{
+		String[] split = line.split("\t");
+		return split[index].isEmpty() ? null : Double.parseDouble(split[index]);
 	}
 
 	public static VcfReader getVcfReader(File file) throws IOException

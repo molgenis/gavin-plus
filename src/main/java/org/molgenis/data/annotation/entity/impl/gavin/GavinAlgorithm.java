@@ -7,6 +7,7 @@ import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+import static org.molgenis.calibratecadd.support.GavinUtils.DEFAULT_KEY;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Benign;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Pathogenic;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Method.calibrated;
@@ -16,10 +17,6 @@ import static org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category
 
 public class GavinAlgorithm
 {
-	//this is the MAF threshold as calculated in r0.3 of the calibration data
-	public static final double GENOMEWIDE_MAF_THRESHOLD = 0.003456145;
-	public static final int GENOMEWIDE_CADD_THRESHOLD = 15;
-
 	// sensitivity is more important than specificity, so we can adjust this parameter to globally adjust the thresholds
 	// in r0.2, at a setting of 1, ie. default behaviour, GAVIN is 87% sensitive and 82% specific
 	// in r0.2, at a setting of 5, a more sensitive setting, GAVIN is 91% sensitive and 77% specific
@@ -45,11 +42,15 @@ public class GavinAlgorithm
 		Double sens95thPerCADDThreshold;
 		Category category;
 
+		GavinEntry defaults = geneToEntry.get(DEFAULT_KEY);
+		if(defaults == null){
+//			throw new RuntimeException("Missing default values for MAF Threshold and CADD threshold in gavinfile.");
+		}
 		//get data from map, for reuse in GAVIN-related tools other than the annotator
 		if (!geneToEntry.containsKey(gene))
 		{
 			//if we have no data for this gene, immediately fall back to the genomewide method
-			return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene);
+			return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene, defaults);
 		}
 		else
 		{
@@ -147,7 +148,7 @@ public class GavinAlgorithm
 		}
 
 		//if everything so far has failed, we can still fall back to the genome-wide method
-		return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene);
+		return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene, defaults);
 	}
 
 	/**
@@ -157,12 +158,14 @@ public class GavinAlgorithm
 	 * @param gene
 	 * @return
 	 */
-	public Judgment genomewideClassifyVariant(@Nullable Impact impact, Double caddScaled, Double exacMAF, String gene)
+	public Judgment genomewideClassifyVariant(@Nullable Impact impact, Double caddScaled, Double exacMAF, String gene, GavinEntry defaults)
 	{
 
 		exacMAF = exacMAF != null ? exacMAF : 0;
+		double caddThreshold = defaults.getSpec95thPerCADDThreshold();
+		double mafThreshold = defaults.getPathoMAFThreshold();
 
-		if (exacMAF > GENOMEWIDE_MAF_THRESHOLD)
+		if (exacMAF > mafThreshold)
 		{
 			return new Judgment(Benign, genomewide, gene,
 					"Variant MAF of " + exacMAF + " is not rare enough to generally be considered pathogenic.", null,
@@ -175,17 +178,17 @@ public class GavinAlgorithm
 		}
 		else
 		{
-			if (caddScaled != null && caddScaled > GENOMEWIDE_CADD_THRESHOLD)
+			if (caddScaled != null && caddScaled > caddThreshold)
 			{
 				return new Judgment(Pathogenic, genomewide, gene, "Variant MAF of " + exacMAF
 						+ " is rare enough to be potentially pathogenic and its CADD score of " + caddScaled
-						+ " is greater than a global threshold of " + GENOMEWIDE_CADD_THRESHOLD + ".", null, null);
+						+ " is greater than a global threshold of " + caddThreshold + ".", null, null);
 			}
-			else if (caddScaled != null && caddScaled <= GENOMEWIDE_CADD_THRESHOLD)
+			else if (caddScaled != null && caddScaled <= caddThreshold)
 			{
 				return new Judgment(Benign, genomewide, gene,
 						"Variant CADD score of " + caddScaled + " is less than a global threshold of "
-								+ GENOMEWIDE_CADD_THRESHOLD + ", although the variant MAF of " + exacMAF
+								+ caddThreshold + ", although the variant MAF of " + exacMAF
 								+ " is rare enough to be potentially pathogenic.", null, null);
 			}
 			else
