@@ -44,7 +44,7 @@ public class GavinAlgorithm
 
 		GavinEntry defaults = geneToEntry.get(DEFAULT_KEY);
 		if(defaults == null){
-//			throw new RuntimeException("Missing default values for MAF Threshold and CADD threshold in gavinfile.");
+			throw new RuntimeException("Missing default values for MAF Threshold and CADD threshold in gavinfile.");
 		}
 		//get data from map, for reuse in GAVIN-related tools other than the annotator
 		if (!geneToEntry.containsKey(gene))
