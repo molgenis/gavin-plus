@@ -37,26 +37,15 @@ public class GavinEntry
 
 	public enum Category
 	{
-		N1, N2, T1, T2, I1, I2, I3, C1, C2, C3, C4, C5, Cx, DEFAULT
+		N1, N2, T1, T2, I1, I2, I3, C1, C2, C3, C4, C5, Cx
 	}
 
-	public GavinEntry(String gene, Category cat, String chromosome, Long start, Long end, Double pathoMAF, Double cadd)
-	{
-		this.gene = gene;
-		this.category = cat;
-		this.chromosome = chromosome;
-		this.start = start;
-		this.end = end;
-		this.pathoMAFThreshold = pathoMAF;
-		this.spec95thPerCADDThreshold = cadd;
-	}
-
-	public GavinEntry(String lineFromFile) throws Exception
+	public GavinEntry(String lineFromFile)
 	{
 		String[] split = lineFromFile.split("\t", -1);
 		if (split.length != 30)
 		{
-			throw new Exception("not 30 elements, have " + split.length + " at line " + lineFromFile);
+			throw new RuntimeException("not 30 elements, have " + split.length + " at line " + lineFromFile);
 		}
 
 		this.gene = split[0];

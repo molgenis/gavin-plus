@@ -3,11 +3,11 @@ package org.molgenis.data.annotation.entity.impl.gavin;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category;
+import org.molgenis.data.annotation.makervcf.structs.GavinCalibrations;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import static org.molgenis.calibratecadd.support.GavinUtils.DEFAULT_KEY;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Benign;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Pathogenic;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Method.calibrated;
@@ -29,11 +29,11 @@ public class GavinAlgorithm
 	 * @param caddScaled
 	 * @param exacMAF
 	 * @param gene
-	 * @param geneToEntry
+	 * @param gavinCalibrations
 	 * @return
 	 */
 	public Judgment classifyVariant(Impact impact, Double caddScaled, Double exacMAF, String gene,
-			Map<String, GavinEntry> geneToEntry)
+			GavinCalibrations gavinCalibrations)
 	{
 		Double pathoMAFThreshold;
 		Double meanPathogenicCADDScore;
@@ -41,16 +41,13 @@ public class GavinAlgorithm
 		Double spec95thPerCADDThreshold;
 		Double sens95thPerCADDThreshold;
 		Category category;
+		Map<String, GavinEntry> geneToEntry = gavinCalibrations.getGavinEntries();
 
-		GavinEntry defaults = geneToEntry.get(DEFAULT_KEY);
-		if(defaults == null){
-			throw new RuntimeException("Missing default values for MAF Threshold and CADD threshold in gavinfile.");
-		}
 		//get data from map, for reuse in GAVIN-related tools other than the annotator
 		if (!geneToEntry.containsKey(gene))
 		{
 			//if we have no data for this gene, immediately fall back to the genomewide method
-			return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene, defaults);
+			return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene, gavinCalibrations);
 		}
 		else
 		{
@@ -148,7 +145,7 @@ public class GavinAlgorithm
 		}
 
 		//if everything so far has failed, we can still fall back to the genome-wide method
-		return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene, defaults);
+		return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene, gavinCalibrations);
 	}
 
 	/**
@@ -158,12 +155,12 @@ public class GavinAlgorithm
 	 * @param gene
 	 * @return
 	 */
-	public Judgment genomewideClassifyVariant(@Nullable Impact impact, Double caddScaled, Double exacMAF, String gene, GavinEntry defaults)
+	public Judgment genomewideClassifyVariant(@Nullable Impact impact, Double caddScaled, Double exacMAF, String gene,
+			GavinCalibrations gavinCalibrations)
 	{
-
 		exacMAF = exacMAF != null ? exacMAF : 0;
-		double caddThreshold = defaults.getSpec95thPerCADDThreshold();
-		double mafThreshold = defaults.getPathoMAFThreshold();
+		double caddThreshold = gavinCalibrations.getGenomewideCaddThreshold();
+		double mafThreshold = gavinCalibrations.getGenomewideMafThreshold();
 
 		if (exacMAF > mafThreshold)
 		{

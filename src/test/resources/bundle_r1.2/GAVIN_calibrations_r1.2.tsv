@@ -1,5 +1,6 @@
-Gene	Category	Chr	Start	End	NrOfPopulationVariants	NrOfPathogenicVariants	NrOfOverlappingVariants	NrOfFilteredPopVariants	PathoMAFThreshold	PopImpactHighPerc	PopImpactModeratePerc	PopImpactLowPerc	PopImpactModifierPerc	PathoImpactHighPerc	PathoImpactModeratePerc	PathoImpactLowPerc	PathoImpactModifierPerc	PopImpactHighEq	PopImpactModerateEq	PopImpactLowEq	PopImpactModifierEq	NrOfCADDScoredPopulationVars	NrOfCADDScoredPathogenicVars	MeanPopulationCADDScore	MeanPathogenicCADDScore	MeanDifference	UTestPvalue	Sens95thPerCADDThreshold	Spec95thPerCADDThreshold
-DEFAULT									0.003456145																				15
+##CADD_THRESHOLD=15
+##MAF_THRESHOLD=0.003456145
+#Gene	Category	Chr	Start	End	NrOfPopulationVariants	NrOfPathogenicVariants	NrOfOverlappingVariants	NrOfFilteredPopVariants	PathoMAFThreshold	PopImpactHighPerc	PopImpactModeratePerc	PopImpactLowPerc	PopImpactModifierPerc	PathoImpactHighPerc	PathoImpactModeratePerc	PathoImpactLowPerc	PathoImpactModifierPerc	PopImpactHighEq	PopImpactModerateEq	PopImpactLowEq	PopImpactModifierEq	NrOfCADDScoredPopulationVars	NrOfCADDScoredPathogenicVars	MeanPopulationCADDScore	MeanPathogenicCADDScore	MeanDifference	UTestPvalue	Sens95thPerCADDThreshold	Spec95thPerCADDThreshold
 NUP107	C4	12	69084426	69129214					8.236E-6													47	5	28.05	27.59	-0.45	0.7327741156787284	20.27	36.70
 TFRC	N1	3	195802110	195802310																									
 IFT172	C2	2	27667270	27708398					4.53025E-5													182	15	22.41	28.15	5.73	0.04063557744402202	7.90	40.00
