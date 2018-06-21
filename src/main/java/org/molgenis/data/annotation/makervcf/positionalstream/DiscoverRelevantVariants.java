@@ -4,7 +4,7 @@ import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinAlgorithm;
-import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry;
+import org.molgenis.data.annotation.makervcf.structs.GavinCalibrations;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.data.annotation.makervcf.util.ClinVar;
@@ -31,7 +31,7 @@ public class DiscoverRelevantVariants
 	private static final Logger LOG = LoggerFactory.getLogger(DiscoverRelevantVariants.class);
 	private VcfReader vcf;
 	private LabVariants lab;
-	private Map<String, GavinEntry> gavinData;
+	private GavinCalibrations gavinCalibrations;
 	private GavinAlgorithm gavin;
 	private HandleMissingCaddScores hmcs;
 	private ClinVar clinvar;
@@ -48,7 +48,7 @@ public class DiscoverRelevantVariants
 			this.lab = new LabVariants(labVariants);
 		}
 		this.gavin = new GavinAlgorithm();
-		this.gavinData = GavinUtils.getGeneToEntry(gavinFile);
+		this.gavinCalibrations = GavinUtils.getGeneToEntry(gavinFile);
 		this.hmcs = new HandleMissingCaddScores(mode, caddFile);
 	}
 
@@ -78,8 +78,6 @@ public class DiscoverRelevantVariants
 			{
 				while (vcfIterator.hasNext())
 				{
-					try
-					{
 						GavinRecord gavinRecord = new GavinRecord(vcfIterator.next());
 
 						pos = gavinRecord.getPosition();
@@ -90,7 +88,7 @@ public class DiscoverRelevantVariants
 						if (previousPos != -1 && previousChrom != null && pos < previousPos && previousChrom.equals(
 								chrom))
 						{
-							throw new Exception(
+							throw new RuntimeException(
 									"Site position " + pos + " before " + previousPos + " on the same chromosome ("
 											+ chrom + ") not allowed. Please sort your VCF file.");
 						}
@@ -98,7 +96,7 @@ public class DiscoverRelevantVariants
 						// check: same chrom+pos+ref+alt combinations not allowed
 						if (previouschrPosRefAlt != null && previouschrPosRefAlt.equals(chrPosRefAlt))
 						{
-							throw new Exception("Chrom-pos-ref-alt combination seen twice: " + chrPosRefAlt
+							throw new RuntimeException("Chrom-pos-ref-alt combination seen twice: " + chrPosRefAlt
 									+ ". This is not allowed. Please check your VCF file.");
 						}
 
@@ -110,7 +108,7 @@ public class DiscoverRelevantVariants
 						}
 						if (chromosomesSeenBefore.contains(chrom))
 						{
-							throw new Exception("Chromosome " + chrom
+							throw new RuntimeException("Chromosome " + chrom
 									+ " was interrupted by other chromosomes. Please sort your VCF file.");
 
 						}
@@ -127,18 +125,41 @@ public class DiscoverRelevantVariants
 						 */
 						for (int i = 0; i < gavinRecord.getAlts().length; i++)
 						{
-							Double cadd = hmcs.dealWithCaddScores(gavinRecord, i);
+							Double cadd = null;
+							try
+							{
+								cadd = hmcs.dealWithCaddScores(gavinRecord, i);
+							}
+							catch (Exception e)
+							{
+								throw new RuntimeException(e);
+							}
 
 							//if mitochondrial, we have less tools / data, can't do much, just match to clinvar
 							if (gavinRecord.getChromosome().equals("MT") || gavinRecord.getChromosome().equals("M")
 									|| gavinRecord.getChromosome().equals("mtDNA"))
 							{
 								Judgment judgment = null;
-								Judgment labJudgment =
-										lab != null ? lab.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
-												"MT") : null;
-								Judgment clinvarJudgment = clinvar.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
-										"MT", true);
+								Judgment labJudgment = null;
+								try
+								{
+									labJudgment = lab != null ? lab.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
+											"MT") : null;
+								}
+								catch (Exception e)
+								{
+									throw new RuntimeException(e);
+								}
+								Judgment clinvarJudgment = null;
+								try
+								{
+									clinvarJudgment = clinvar.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
+											"MT", true);
+								}
+								catch (Exception e)
+								{
+									throw new RuntimeException(e);
+								}
 
 								if (labJudgment != null
 										&& labJudgment.getClassification() == Judgment.Classification.Pathogenic)
@@ -176,14 +197,29 @@ public class DiscoverRelevantVariants
 									Optional<String> transcript = gavinRecord.getTranscript(i, gene);
 
 									Judgment judgment = null;
-									Judgment labJudgment =
-											lab != null ? lab.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
-													gene) : null;
-									Judgment clinvarJudgment = clinvar.classifyVariant(gavinRecord,
-											gavinRecord.getAlt(i), gene, false);
+									Judgment labJudgment = null;
+									try
+									{
+										labJudgment = lab != null ? lab.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
+												gene) : null;
+									}
+									catch (Exception e)
+									{
+										throw new RuntimeException(e);
+									}
+									Judgment clinvarJudgment = null;
+									try
+									{
+										clinvarJudgment = clinvar.classifyVariant(gavinRecord,
+												gavinRecord.getAlt(i), gene, false);
+									}
+									catch (Exception e)
+									{
+										throw new RuntimeException(e);
+									}
 
 									Judgment gavinJudgment = gavin.classifyVariant(impact.orElse(null), cadd,
-											gavinRecord.getExAcAlleleFrequencies(i), gene, gavinData);
+											gavinRecord.getExAcAlleleFrequencies(i), gene, gavinCalibrations);
 
 									if (labJudgment != null
 											&& labJudgment.getClassification() == Judgment.Classification.Pathogenic)
@@ -225,11 +261,6 @@ public class DiscoverRelevantVariants
 							nextResult = gavinRecord;
 							return true;
 						}
-					}
-					catch (Exception e)
-					{
-						throw new RuntimeException(e);
-					}
 				}
 				return false;
 			}

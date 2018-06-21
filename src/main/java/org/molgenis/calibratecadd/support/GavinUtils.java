@@ -2,6 +2,7 @@ package org.molgenis.calibratecadd.support;
 
 import net.sf.samtools.util.BlockCompressedInputStream;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry;
+import org.molgenis.data.annotation.makervcf.structs.GavinCalibrations;
 import org.molgenis.data.vcf.datastructures.Sample;
 import org.molgenis.data.vcf.datastructures.Trio;
 import org.molgenis.vcf.VcfReader;
@@ -25,33 +26,66 @@ public class GavinUtils
 
 	private static final String HEADER_PREFIX = "##";
 	private static final String PEDIGREE = "##PEDIGREE";
+	private static final String CADD_THRESHOLD_KEY = "##CADD_THRESHOLD";
+	private static final String MAF_THRESHOLD_KEY = "##MAF_THRESHOLD";
+	private static final String CALIBRATIONS_HEADER_PREFIX = "#Gene";
 
 	private GavinUtils()
 	{
 	}
 
-	public static Map<String, GavinEntry> getGeneToEntry(File gavin)
+	public static GavinCalibrations getGeneToEntry(File gavin)
 	{
 		HashMap<String, GavinEntry> geneToEntry = new HashMap<>();
+		double caddThreshold = -1;
+		double mafThreshold = -1;
+
 		try (Scanner s = new Scanner(gavin))
 		{
-			//skip header
-			s.nextLine();
-
 			String line;
 			while (s.hasNextLine())
 			{
 				line = s.nextLine();
-
-				GavinEntry gavinEntry = new GavinEntry(line);
-				geneToEntry.put(gavinEntry.getGene(), gavinEntry);
+				if (line.startsWith(CADD_THRESHOLD_KEY))
+				{
+					caddThreshold = getHeaderValue(line);
+				}
+				else if (line.startsWith(MAF_THRESHOLD_KEY))
+				{
+					mafThreshold = getHeaderValue(line);
+				}
+				else if (!line.startsWith(CALIBRATIONS_HEADER_PREFIX))
+				{
+					if (caddThreshold == -1 || mafThreshold == -1)
+					{
+						throw new RuntimeException("Gavin calibrations file is missing CADD and/or MAF default values");
+					}
+					GavinEntry gavinEntry = new GavinEntry(line);
+					geneToEntry.put(gavinEntry.getGene(), gavinEntry);
+				}
 			}
 		}
-		catch (Exception e)
+		catch (FileNotFoundException e)
 		{
-			throw new RuntimeException(e);
+			throw new RuntimeException("An error occurred while reading the GAVIN calibrations file");
 		}
-		return geneToEntry;
+		return GavinCalibrations.create(caddThreshold, mafThreshold, geneToEntry);
+	}
+
+	private static Double getHeaderValue(String line)
+	{
+		String[] split = line.split("=");
+		Double value;
+		String stringValue = split[1];
+		try
+		{
+			value = stringValue.isEmpty() ? null : Double.parseDouble(stringValue);
+		}
+		catch (NumberFormatException e)
+		{
+			throw new RuntimeException(String.format("Unable to parse value %s to a double.", stringValue), e);
+		}
+		return value;
 	}
 
 	public static VcfReader getVcfReader(File file) throws IOException

@@ -2,6 +2,8 @@ package org.molgenis.data.annotation.entity.impl.gavin;
 
 public class GavinEntry
 {
+	public static final int PATHO_MAF_INDEX = 9;
+	public static final int CADD_INDEX = 29;
 	private final String gene;
 	private final Category category;
 	private final String chromosome;
@@ -38,22 +40,12 @@ public class GavinEntry
 		N1, N2, T1, T2, I1, I2, I3, C1, C2, C3, C4, C5, Cx
 	}
 
-	public GavinEntry(String gene, Category cat, String chrom, long leftMostPos, long rightMostPos, Double pathoMAF)
-	{
-		this.gene = gene;
-		this.category = cat;
-		this.chromosome = chrom;
-		this.start = leftMostPos;
-		this.end = rightMostPos;
-		this.pathoMAFThreshold = pathoMAF;
-	}
-
-	public GavinEntry(String lineFromFile) throws Exception
+	public GavinEntry(String lineFromFile)
 	{
 		String[] split = lineFromFile.split("\t", -1);
 		if (split.length != 30)
 		{
-			throw new Exception("not 30 elements, have " + split.length + " at line " + lineFromFile);
+			throw new RuntimeException("not 30 elements, have " + split.length + " at line " + lineFromFile);
 		}
 
 		this.gene = split[0];
@@ -65,7 +57,7 @@ public class GavinEntry
 		this.nrOfPathogenicVariants = split[6].isEmpty() ? null : Integer.valueOf(split[6]);
 		this.nrOfOverlappingVariants = split[7].isEmpty() ? null : Integer.valueOf(split[7]);
 		this.nrOfFilteredPopVariants = split[8].isEmpty() ? null : Integer.valueOf(split[8]);
-		this.pathoMAFThreshold = split[9].isEmpty() ? null : Double.parseDouble(split[9]);
+		this.pathoMAFThreshold = split[PATHO_MAF_INDEX].isEmpty() ? null : Double.parseDouble(split[PATHO_MAF_INDEX]);
 
 		this.popImpactHighPerc = split[10].isEmpty() ? null : Double.parseDouble(split[10]);
 		this.popImpactModeratePerc = split[11].isEmpty() ? null : Double.parseDouble(split[11]);
@@ -90,7 +82,7 @@ public class GavinEntry
 		this.meanDifference = split[26].isEmpty() ? null : Double.parseDouble(split[26]);
 		this.uTestPvalue = split[27].isEmpty() ? null : Double.parseDouble(split[27]);
 		this.sens95thPerCADDThreshold = split[28].isEmpty() ? null : Double.parseDouble(split[28]);
-		this.spec95thPerCADDThreshold = split[29].isEmpty() ? null : Double.parseDouble(split[29]);
+		this.spec95thPerCADDThreshold = split[CADD_INDEX].isEmpty() ? null : Double.parseDouble(split[CADD_INDEX]);
 	}
 
 	public String getGene()
