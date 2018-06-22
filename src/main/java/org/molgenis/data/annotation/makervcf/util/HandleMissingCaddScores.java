@@ -77,8 +77,8 @@ public class HandleMissingCaddScores
 					}
 					else
 					{
-						LOG.debug(
-								"[HandleMissingCaddScores] WARNING: CADD score missing for {} {} {} {} ! (even when using trimmed key '{}')",
+						LOG.warn(
+								"[HandleMissingCaddScores] CADD score missing for {} {} {} {} ! (even when using trimmed key '{}')",
 								record.getChromosome(), record.getPosition(), record.getRef(), record.getAlt(altIndex),
 								key);
 						return null;
