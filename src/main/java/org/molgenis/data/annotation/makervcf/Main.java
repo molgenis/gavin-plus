@@ -4,6 +4,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -27,6 +28,8 @@ import static java.util.Arrays.asList;
  */
 public class Main
 {
+	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
 	public static final String INPUT = "input";
 	public static final String OUTPUT = "output";
 	public static final String GAVIN = "gavin";
@@ -350,12 +353,12 @@ public class Main
 		/*
 		  Everything OK, start pipeline
 		 */
-		System.out.println("Starting..");
+		LOG.info("Starting..");
 		Pipeline pipeline = new Pipeline( version,  cmdString,  splitRlvField,  keepAllVariants,
 		 mode,  inputVcfFile,  gavinFile,  clinvarFile,  cgdFile,
 			 caddFile,  fdrFile,  outputVCFFile,  labVariants, includeSamples);
 		pipeline.start();
-		System.out.println("..done!");
+		LOG.info("..done!");
 	}
 
 	/**
