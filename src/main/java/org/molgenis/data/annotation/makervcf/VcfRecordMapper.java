@@ -82,7 +82,7 @@ class VcfRecordMapper
 			if (vcfSamples.iterator().hasNext())
 			{
 				tokens.add(createFormatToken(annotatedVcfRecord));
-				vcfSamples.forEach(vcfSample -> tokens.add(createSampleToken(vcfSample)));
+				tokens.addAll(Arrays.asList(annotatedVcfRecord.getSampleTokens()));
 			}
 		}
 		return tokens;
