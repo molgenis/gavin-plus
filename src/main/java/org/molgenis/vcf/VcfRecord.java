@@ -1,14 +1,10 @@
 package org.molgenis.vcf;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.molgenis.genotype.Allele;
 import org.molgenis.vcf.meta.VcfMeta;
+
+import java.util.*;
 
 public class VcfRecord
 {
@@ -181,6 +177,12 @@ public class VcfRecord
 			{
 				throw new UnsupportedOperationException();
 			}};
+	}
+
+	public String[] getSampleTokens()
+	{
+		int firstSample = VcfMeta.COL_FORMAT_IDX + 1;
+		return Arrays.copyOfRange(tokens, firstSample, firstSample + getNrSamples());
 	}
 
 	public VcfMeta getVcfMeta()
