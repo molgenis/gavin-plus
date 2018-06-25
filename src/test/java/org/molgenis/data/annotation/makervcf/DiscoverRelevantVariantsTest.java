@@ -39,7 +39,7 @@ public class DiscoverRelevantVariantsTest extends Setup
 		assertEquals(it.next().getRelevance().get(0).getJudgment(),expected);
 
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(),"Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene.");
+		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(),"Variant CADD score of 32.0 is greater than 30.4 for this gene.");
 		assertEquals(it.next().getRelevance().get(0).getJudgment().getClassification(),Judgment.Classification.Pathogenic);
 		assertTrue(it.hasNext());
 
@@ -48,8 +48,8 @@ public class DiscoverRelevantVariantsTest extends Setup
 		assertEquals(it.next().getRelevance().get(1).getAllele(), "A");
 		assertEquals(it.next().getRelevance().get(0).getGene(), "ALDH5A1");
 		assertEquals(it.next().getRelevance().get(1).getGene(), "TERC");
-		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(),"Variant CADD score of 32.0 is greater than 30.700000000000003 for this gene.");
-		assertEquals(it.next().getRelevance().get(1).getJudgment().getReason(),"Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, the variant MAF of 0.0 is less than a MAF of 0.004622819999999994.");
+		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(),"Variant CADD score of 32.0 is greater than 30.4 for this gene.");
+		assertEquals(it.next().getRelevance().get(1).getJudgment().getReason(),"Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, the variant MAF of 0.0 is less than a MAF of 0.005591579999999973.");
 		assertFalse(it.hasNext());
 	}
 

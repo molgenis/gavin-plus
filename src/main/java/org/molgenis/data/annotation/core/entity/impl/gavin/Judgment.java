@@ -17,12 +17,12 @@ public class Judgment
 		calibrated, genomewide
 	}
 
-	public Classification classification;
-	public Method confidence;
-	public String gene;
-	public String reason;
-	public String source;
-	public String type;
+	private Classification classification;
+	private Method confidence;
+	private String gene;
+	private String reason;
+	private String source;
+	private String type;
 
 	public Judgment(Classification classification, Method confidence, String gene, String reason, String source,
 			String type)

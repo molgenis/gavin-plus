@@ -3,16 +3,19 @@ package org.molgenis.data.annotation.makervcf.util;
 import org.molgenis.calibratecadd.support.LoadCADDWebserviceOutput;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.vcf.utils.FixVcfAlleleNotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by joeri on 6/1/16.
  */
 public class HandleMissingCaddScores
 {
+	private static final Logger LOG = LoggerFactory.getLogger(HandleMissingCaddScores.class);
 
 	public enum Mode
 	{
@@ -21,7 +24,7 @@ public class HandleMissingCaddScores
 
 	private Mode mode;
 	private PrintWriter pw;
-	private HashMap<String, Double> caddScores;
+	private Map<String, Double> caddScores;
 
 	public HandleMissingCaddScores(Mode mode, File caddFile) throws Exception
 	{
@@ -44,7 +47,7 @@ public class HandleMissingCaddScores
 
 	public Double dealWithCaddScores(GavinRecord record, int altIndex) throws Exception
 	{
-		if (record.getCaddPhredScores(altIndex) == null)
+		if (record.getCaddPhredScore(altIndex) == null)
 		{
 			if (mode.equals(Mode.CREATEFILEFORCADD))
 			{
@@ -61,7 +64,7 @@ public class HandleMissingCaddScores
 						+ record.getAlt(altIndex);
 				if (this.caddScores.containsKey(key))
 				{
-					return this.caddScores.get(key);
+					record.setCaddPhredScore(altIndex, this.caddScores.get(key));
 				}
 				else
 				{
@@ -74,10 +77,10 @@ public class HandleMissingCaddScores
 					}
 					else
 					{
-						System.out.println(
-								"[HandleMissingCaddScores] WARNING: CADD score missing for " + record.getChromosome()
-										+ " " + record.getPosition() + " " + record.getRef() + " " + record.getAlt(
-										altIndex) + " ! (even when using trimmed key '" + key + "')");
+						LOG.warn(
+								"[HandleMissingCaddScores] CADD score missing for {} {} {} {} ! (even when using trimmed key '{}')",
+								record.getChromosome(), record.getPosition(), record.getRef(), record.getAlt(altIndex),
+								key);
 						return null;
 					}
 				}
@@ -87,9 +90,8 @@ public class HandleMissingCaddScores
 				throw new Exception("Mode unknown: " + mode);
 			}
 		}
-		else
-		{
-			return record.getCaddPhredScores(altIndex);
-		}
+
+		return record.getCaddPhredScore(altIndex);
+
 	}
 }

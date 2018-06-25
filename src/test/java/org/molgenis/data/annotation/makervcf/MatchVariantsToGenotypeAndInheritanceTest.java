@@ -46,7 +46,7 @@ public class MatchVariantsToGenotypeAndInheritanceTest extends Setup
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		Iterator<GavinRecord> disc = discover.findRelevantVariants();
 
-		MatchVariantsToGenotypeAndInheritance m = new MatchVariantsToGenotypeAndInheritance(disc, cgdFile, new HashSet<>(), false);
+		MatchVariantsToGenotypeAndInheritance m = new MatchVariantsToGenotypeAndInheritance(disc, cgdFile, new HashSet<>());
 		Iterator<GavinRecord> it = m.go();
 
 		// dominant gene

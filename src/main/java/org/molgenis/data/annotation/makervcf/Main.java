@@ -4,9 +4,12 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static java.util.Arrays.asList;
 
@@ -25,46 +28,63 @@ import static java.util.Arrays.asList;
  */
 public class Main
 {
+	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
+	public static final String INPUT = "input";
+	public static final String OUTPUT = "output";
+	public static final String GAVIN = "gavin";
+	public static final String CLINVAR = "clinvar";
+	public static final String CGD = "cgd";
+	public static final String FDR = "fdr";
+	public static final String CADD = "cadd";
+	public static final String LAB = "lab";
+	public static final String MODE = "mode";
+	public static final String VERBOSE = "verbose";
+	public static final String REPLACE = "replace";
+	public static final String HELP = "help";
+	public static final String RESTORE = "restore";
+	public static final String SPLIT_RLV_FIELD = "separate_fields";
+	public static final String KEEP_ALL_VARIANTS = "keep_all_variants";
+	public static final String INCLUDE_SAMPLES = "include_samples";
 
 	public static void main(String[] args) throws Exception
 	{
 		OptionParser parser = createOptionParser();
 		OptionSet options = parser.parse(args);
-		new Main().run(options, parser);
+		new Main().run(options, parser, Arrays.toString(args));
 	}
 
 	protected static OptionParser createOptionParser()
 	{
 		OptionParser parser = new OptionParser();
 
-		parser.acceptsAll(asList("i", "input"), "Input VCF file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("o", "output"), "Output RVCF file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("g", "gavin"), "GAVIN calibration file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("c", "clinvar"), "ClinVar pathogenic VCF file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("d", "cgd"), "CGD file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("f", "fdr"), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("a", "cadd"), "Input/output CADD missing annotations")
+		parser.acceptsAll(asList("i", INPUT), "Input VCF file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("o", OUTPUT), "Output RVCF file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("g", GAVIN), "GAVIN calibration file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("c", CLINVAR), "ClinVar pathogenic VCF file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("d", CGD), "CGD file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("f", FDR), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("a", CADD), "Input/output CADD missing annotations")
 			  .withRequiredArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("l", "lab"), "VCF file with lab specific variant classifications")
+		parser.acceptsAll(asList("l", LAB), "VCF file with lab specific variant classifications")
 			  .withOptionalArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("s", "sv"),
-				"[not available] Structural variation VCF file outputted by Delly, Manta or compatible")
-			  .withOptionalArg()
-			  .ofType(File.class);
-		parser.acceptsAll(asList("m", "mode"),
+		parser.acceptsAll(asList("m", MODE),
 				"Create or use CADD file for missing annotations, either " + Mode.ANALYSIS.toString() + " or "
 						+ Mode.CREATEFILEFORCADD.toString()).withRequiredArg().ofType(String.class);
-		parser.acceptsAll(asList("v", "verbose"),
+		parser.acceptsAll(asList("v", VERBOSE),
 				"Verbally express what is happening underneath the programmatic hood.");
-		parser.acceptsAll(asList("r", "replace"),
+		parser.acceptsAll(asList("r", REPLACE),
 				"Enables output RVCF and CADD intermediate file override, replacing a file with the same name as the argument for the -o option");
-		parser.acceptsAll(asList("h", "help"), "Prints this help text");
-		parser.acceptsAll(asList("e", "restore"),
+		parser.acceptsAll(asList("h", HELP), "Prints this help text");
+		parser.acceptsAll(asList("e", RESTORE),
 				"[not available] Supporting tool. Combine RVCF results with original VCF.")
 			  .withOptionalArg()
 			  .ofType(File.class);
+		parser.acceptsAll(asList("k", KEEP_ALL_VARIANTS), "Do not filter the non relevant variants, return all variants from the input");
+		parser.acceptsAll(asList("s", INCLUDE_SAMPLES), "Include samples is output");
+		parser.acceptsAll(asList("q", SPLIT_RLV_FIELD), "Create separate INFO fields for every part of the RLV information");
 
 		return parser;
 	}
@@ -105,7 +125,7 @@ public class Main
 		System.out.println("\n" + StringUtils.repeat("-", title.length()) + "\n");
 	}
 
-	public void run(OptionSet options, OptionParser parser) throws Exception
+	public void run(OptionSet options, OptionParser parser, String cmdString) throws Exception
 	{
 		String version = VersionUtils.getVersion();
 		String title = "* MOLGENIS GAVIN+ for genome diagnostics, release " + version + "";
@@ -118,13 +138,13 @@ public class Main
 
 		System.out.println(appTitle);
 
-		if ((options.has("restore") && options.has("input") && options.has("output")) || (options.has("input")
-				&& options.has("output") && options.has("gavin") && options.has("clinvar") && options.has("cgd")
-				&& options.has("fdr") && options.has("cadd") && options.has("mode")))
+		if ((options.has(RESTORE) && options.has(INPUT) && options.has(OUTPUT)) || (options.has(INPUT)
+				&& options.has(OUTPUT) && options.has(GAVIN) && options.has(CLINVAR) && options.has(CGD)
+				&& options.has(FDR) && options.has(CADD) && options.has(MODE)))
 		{
 			System.out.println("Arguments OK.");
 		}
-		else if (options.has("help"))
+		else if (options.has(HELP))
 		{
 			System.out.println("Help page requested.");
 			printHelp(version, title, parser);
@@ -137,57 +157,23 @@ public class Main
 			return;
 		}
 
-		/**************
-		 * "Restore mode" where we add back genotypes in an RVCF
-		 *************/
-		if (options.has("restore"))
+		/*************
+		 "Restore mode" where we add back genotypes in an RVCF
+		 */
+		if (options.has(RESTORE))
 		{
 			System.out.println("Restore mode not yet supported!");
 			return;
-			//
-			//            File inputRVCFFile = (File) options.valueOf("restore");
-			//            if (!inputRVCFFile.exists())
-			//            {
-			//                System.out.println("Input RVCF file not found at " + inputRVCFFile);
-			//                return;
-			//            }
-			//
-			//            File outputRVCFFile = (File) options.valueOf("output");
-			//            if (outputRVCFFile.exists())
-			//            {
-			//                if (options.has("replace"))
-			//                {
-			//                    System.out.println("Override enabled, replacing existing output RVCF file with specified output: "
-			//                            + outputRVCFFile.getAbsolutePath());
-			//                }
-			//                else
-			//                {
-			//                    System.out.println(
-			//                            "Output RVCF file already exists, please either enter a different output name or use the '-r' option to overwrite the output file.");
-			//                    return;
-			//                }
-			//            }
-			//
-			//            boolean verbose = false;
-			//            if(options.has("verbose"))
-			//            {
-			//                verbose = true;
-			//            }
-			//
-			//            System.out.println("Starting RVCF genotype restore..");
-			//            new RvcfGenoRestore(inputRVCFFile, outputRVCFFile, verbose);
-			//            System.out.println("..done!");
-			//            return;
 		}
 
-		/**************
-		 * Regular mode
-		 *************/
-
-		/**
-		 * Input check
+		/*************
+		 Regular mode
 		 */
-		File inputVcfFile = (File) options.valueOf("input");
+
+		/*
+		  Input check
+		 */
+		File inputVcfFile = (File) options.valueOf(INPUT);
 		if (!inputVcfFile.exists())
 		{
 			System.out.println("Input VCF file not found at " + inputVcfFile);
@@ -199,13 +185,13 @@ public class Main
 			return;
 		}
 
-		/**
-		 * Output and replace check
+		/*
+		  Output and replace check
 		 */
-		File outputVCFFile = (File) options.valueOf("output");
+		File outputVCFFile = (File) options.valueOf(OUTPUT);
 		if (outputVCFFile.exists())
 		{
-			if (options.has("replace"))
+			if (options.has(REPLACE))
 			{
 				System.out.println("Override enabled, replacing existing output RVCF file with specified output: "
 						+ outputVCFFile.getAbsolutePath());
@@ -218,10 +204,10 @@ public class Main
 			}
 		}
 
-		/**
-		 * Check all kinds of files you need
+		/*
+		  Check all kinds of files you need
 		 */
-		File gavinFile = (File) options.valueOf("gavin");
+		File gavinFile = (File) options.valueOf(GAVIN);
 		if (!gavinFile.exists())
 		{
 			System.out.println("GAVIN calibration file not found at " + gavinFile);
@@ -233,7 +219,7 @@ public class Main
 			return;
 		}
 
-		File clinvarFile = (File) options.valueOf("clinvar");
+		File clinvarFile = (File) options.valueOf(CLINVAR);
 		if (!clinvarFile.exists())
 		{
 			System.out.println("ClinVar pathogenic VCF file not found at " + clinvarFile);
@@ -245,7 +231,7 @@ public class Main
 			return;
 		}
 
-		File cgdFile = (File) options.valueOf("cgd");
+		File cgdFile = (File) options.valueOf(CGD);
 		if (!cgdFile.exists())
 		{
 			System.out.println("CGD file not found at " + cgdFile);
@@ -257,25 +243,25 @@ public class Main
 			return;
 		}
 
-		File FDRfile = (File) options.valueOf("fdr");
-		if (!FDRfile.exists())
+		File fdrFile = (File) options.valueOf(FDR);
+		if (!fdrFile.exists())
 		{
-			System.out.println("FDR file not found at " + FDRfile);
+			System.out.println("FDR file not found at " + fdrFile);
 			return;
 		}
-		else if (FDRfile.isDirectory())
+		else if (fdrFile.isDirectory())
 		{
 			System.out.println("FDR file location is a directory, not a file!");
 			return;
 		}
 
-		/**
-		 * Optional
+		/*
+		  Optional
 		 */
 		File labVariants = null;
-		if (options.has("lab"))
+		if (options.has(LAB))
 		{
-			labVariants = (File) options.valueOf("lab");
+			labVariants = (File) options.valueOf(LAB);
 			if (!labVariants.exists())
 			{
 				System.out.println("VCF file with lab specific variant classifications not found at " + labVariants);
@@ -289,35 +275,18 @@ public class Main
 			}
 		}
 
-		if (options.has("sv"))
-		{
-			System.out.println("Structural variation not yet supported!");
-			return;
-			//            File structVar = (File) options.valueOf("sv");
-			//            if (!structVar.exists())
-			//            {
-			//                System.out.println("Structural variation VCF file not found at " + structVar);
-			//                return;
-			//            }
-			//            else if (structVar.isDirectory())
-			//            {
-			//                System.out.println("Structural variation VCF file location is a directory, not a file!");
-			//                return;
-			//            }
-		}
-
-		/**
-		 * Check mode in combination with CADD file and replace
+		/*
+		  Check mode in combination with CADD file and replace
 		 */
-		String modeString = (String) options.valueOf("mode");
+		String modeString = (String) options.valueOf(MODE);
 		if (!isValidEnum(Mode.class, modeString))
 		{
-			System.out.println("Mode must be one of the following: " + Mode.values().toString());
+			System.out.println("Mode must be one of the following: " + Arrays.toString(Mode.values()));
 			return;
 		}
 		Mode mode = Mode.valueOf(modeString);
 
-		File caddFile = (File) options.valueOf("cadd");
+		File caddFile = (File) options.valueOf(CADD);
 		if (mode == Mode.ANALYSIS)
 		{
 			if (!caddFile.exists())
@@ -340,11 +309,9 @@ public class Main
 				}
 			}
 		}
-		else if (mode == Mode.CREATEFILEFORCADD)
-		{
-			if (caddFile.exists())
+		else if (mode == Mode.CREATEFILEFORCADD && caddFile.exists())
 			{
-				if (options.has("replace"))
+				if (options.has(REPLACE))
 				{
 					System.out.println("Override enabled, replacing existing CADD file with specified output: "
 							+ caddFile.getAbsolutePath());
@@ -355,26 +322,43 @@ public class Main
 							"CADD file already exists, please either enter a different output name or use the '-r' option to overwrite the output file.");
 					return;
 				}
-			}
 		}
 
-		/**
-		 * Verbose
+		/*
+		  Verbose
 		 */
-		boolean verbose = false;
-		if (options.has("verbose"))
+		if (options.has(VERBOSE))
 		{
-			verbose = true;
+			setLogLevelToDebug();
 		}
 
-		/**
-		 * Everything OK, start pipeline
-		 */
-		System.out.println("Starting..");
-		new Pipeline().start(inputVcfFile, gavinFile, clinvarFile, cgdFile, caddFile, FDRfile, mode, outputVCFFile,
-				labVariants, verbose);
-		System.out.println("..done!");
+		boolean splitRlvField = false;
+		if (options.has(SPLIT_RLV_FIELD))
+		{
+			splitRlvField = true;
+		}
 
+		boolean keepAllVariants = false;
+		if (options.has(KEEP_ALL_VARIANTS))
+		{
+			keepAllVariants = true;
+		}
+
+		boolean includeSamples = false;
+		if (options.has(INCLUDE_SAMPLES))
+		{
+			includeSamples = true;
+		}
+
+		/*
+		  Everything OK, start pipeline
+		 */
+		LOG.info("Starting..");
+		Pipeline pipeline = new Pipeline( version,  cmdString,  splitRlvField,  keepAllVariants,
+		 mode,  inputVcfFile,  gavinFile,  clinvarFile,  cgdFile,
+			 caddFile,  fdrFile,  outputVCFFile,  labVariants, includeSamples);
+		pipeline.start();
+		LOG.info("..done!");
 	}
 
 	/**
@@ -395,5 +379,16 @@ public class Main
 		{
 			return false;
 		}
+	}
+
+	private static void setLogLevelToDebug()
+	{
+		org.slf4j.Logger logger = LoggerFactory.getLogger("org.molgenis");
+		if (!(logger instanceof ch.qos.logback.classic.Logger))
+		{
+			throw new RuntimeException("Root logger is not a Logback logger");
+		}
+		ch.qos.logback.classic.Logger logbackLogger = (ch.qos.logback.classic.Logger) logger;
+		logbackLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
 	}
 }

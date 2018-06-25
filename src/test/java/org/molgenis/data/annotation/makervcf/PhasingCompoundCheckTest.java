@@ -41,13 +41,13 @@ public class PhasingCompoundCheckTest extends Setup
 	public void test() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>(), false).go();
-		ConvertToGeneStream gs = new ConvertToGeneStream(rv3, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>()).go();
+		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 		Iterator<GavinRecord> gsi = gs.go();
-		Iterator<GavinRecord> assignCompHet = new AssignCompoundHet(gsi, false).go();
+		Iterator<GavinRecord> assignCompHet = new AssignCompoundHet(gsi).go();
 
-		Iterator<GavinRecord> it = new PhasingCompoundCheck(assignCompHet, true).go();
+		Iterator<GavinRecord> it = new PhasingCompoundCheck(assignCompHet).go();
 
 		// AIMP1
 		assertTrue(it.hasNext());
