@@ -231,12 +231,12 @@ public class VcfRecordMapperTest
 
 		if (includeSamples)
 		{
-			when(annotatedVcfRecord.getFormat()).thenReturn(new String[]{"GT","DP"});
 			VcfSample sample0 = mock(VcfSample.class);
-			when(sample0.getTokens()).thenReturn(new String[]{"0|1","1"});
 			VcfSample sample1 = mock(VcfSample.class);
-			when(sample1.getTokens()).thenReturn(new String[]{"1|1","2"});
 			when(annotatedVcfRecord.getSamples()).thenReturn(asList(sample0, sample1));
+
+			when(annotatedVcfRecord.getFormat()).thenReturn(new String[]{"GT","DP"});
+			when(annotatedVcfRecord.getSampleTokens()).thenReturn(new String[] { "0|1:1", "1|1:2" });
 		}
 		return gavinRecord;
 	}
