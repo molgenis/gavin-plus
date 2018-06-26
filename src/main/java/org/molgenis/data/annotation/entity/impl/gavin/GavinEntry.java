@@ -37,7 +37,7 @@ public class GavinEntry
 
 	public enum Category
 	{
-		N1, N2, T1, T2, I1, I2, I3, C1, C2, C3, C4, C5, Cx
+		N1, N2, N3, T1, T2, I1, I2, I3, C1, C2, C3, C4, C5, Cx
 	}
 
 	public GavinEntry(String lineFromFile)
