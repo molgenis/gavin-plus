@@ -4,13 +4,15 @@ import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
 /**
@@ -18,13 +20,15 @@ import static java.util.Collections.emptySet;
  */
 public class AnnotatedVcfRecord extends VcfRecord
 {
+	private static final Logger LOG = LoggerFactory.getLogger(AnnotatedVcfRecord.class);
+
 	private static final String EXAC_AF = "EXAC_AF";
 	private static final String GO_NL_AF = "GoNL_AF";
 	private static final String CLSF = "CLSF";
 	private static final String ANN = "ANN";
 	private static final String RLV = "RLV";
 	private static final String CLINVAR = "CLINVAR";
-	private static final String CADD_SCALED = "CADD_SCALED";
+	public static final String CADD_SCALED = "CADD_SCALED";
 
 	public AnnotatedVcfRecord(VcfRecord record)
 	{
@@ -43,11 +47,10 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return alleleFrequencies[i] != null ? alleleFrequencies[i] : 0;
 	}
 
-	// TODO return Optional.empty() instead of empty String
-	public String getClsf()
+	public Optional<String> getClsf()
 	{
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(CLSF, this);
-		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal()).orElse("");
+		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal());
 	}
 
 	Set<String> getGenesFromAnn()
@@ -69,30 +72,24 @@ public class AnnotatedVcfRecord extends VcfRecord
 		}).orElse(emptySet());
 	}
 
-	// TODO return Optional<Impact> instead of Impact
-	@Nullable
-	Impact getImpact(int i, String gene)
+	Optional<Impact> getImpact(int i, String gene)
 	{
 		String allele = VcfRecordUtils.getAltsAsStringArray(this)[i];
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(ANN, this);
-		return optionalVcfInfo.map(vcfInfo -> getImpact(vcfInfo.getValRaw(), gene, allele)).orElse(null);
+		return optionalVcfInfo.map(vcfInfo -> getImpact(vcfInfo.getValRaw(), gene, allele));
 	}
 
-	// TODO return Optional<String> instead of String
-	@Nullable
-	String getTranscript(int i, String gene)
+	Optional<String> getTranscript(int i, String gene)
 	{
 		String allele = VcfRecordUtils.getAltsAsStringArray(this)[i];
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(ANN, this);
-		return optionalVcfInfo.map(vcfInfo -> getTranscript(vcfInfo.getValRaw(), gene, allele)).orElse(null);
+		return optionalVcfInfo.map(vcfInfo -> getTranscript(vcfInfo.getValRaw(), gene, allele));
 	}
 
-	// TODO return empty list instead of null
-	@Nullable
 	public List<RVCF> getRvcf()
 	{
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(RLV, this);
-		return optionalVcfInfo.map(RVCF::fromVcfInfo).orElse(null);
+		return optionalVcfInfo.map(RVCF::fromVcfInfo).orElse(emptyList());
 	}
 
 	/**
@@ -103,11 +100,10 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return VcfRecordUtils.getAltAlleleOrderedDoubleField(this, CADD_SCALED);
 	}
 
-	@Nullable
-	public String getClinvar()
+	public Optional<String> getClinvar()
 	{
 		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(CLINVAR, this);
-		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal()).orElse(null);
+		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal());
 	}
 
 	private static Impact getImpact(String ann, String gene, String allele)
@@ -116,8 +112,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 		String findAnn = getAnn(ann, gene, allele);
 		if (findAnn == null)
 		{
-			System.out.println(
-					"WARNING: failed to get impact for gene '" + gene + "', allele '" + allele + "' in " + ann);
+			LOG.warn("failed to get impact for gene '{}', allele '{}' in {}", gene, allele, ann);
 			return null;
 		}
 		else
@@ -135,16 +130,14 @@ public class AnnotatedVcfRecord extends VcfRecord
 		String findAnn = getAnn(ann, gene, allele);
 		if (findAnn == null)
 		{
-			System.out.println(
-					"WARNING: failed to get impact for gene '" + gene + "', allele '" + allele + "' in " + ann);
+			LOG.warn("failed to get impact for gene '{}', allele '{}' in {}", gene, allele, ann);
 			return null;
 		}
 		else
 		{
 			//from the right one, get the impact
 			String[] fields = findAnn.split("\\|", -1);
-			String transcript = fields[6];
-			return transcript;
+			return fields[6];//fields[6] == transcript
 		}
 	}
 
@@ -155,19 +148,16 @@ public class AnnotatedVcfRecord extends VcfRecord
 		{
 			String[] fields = oneAnn.split("\\|", -1);
 			String geneFromAnn = fields[3];
-			if (!gene.equals(geneFromAnn))
+			if (gene.equals(geneFromAnn))
 			{
-				continue;
+				String alleleFromAnn = fields[0];
+				if (allele.equals(alleleFromAnn))
+				{
+					return oneAnn;
+				}
 			}
-			String alleleFromAnn = fields[0];
-			if (!allele.equals(alleleFromAnn))
-			{
-				continue;
-			}
-			return oneAnn;
 		}
-		System.out.println(
-				"WARNING: annotation could not be found for " + gene + ", allele=" + allele + ", ann=" + ann);
+		LOG.warn("annotation could not be found for {}, allele={}, ann={}", gene, allele, ann);
 		return null;
 	}
 }

@@ -83,16 +83,16 @@ public class VcfInfo
 					{
 						return Collections.<Character>emptyList();
 					}
-					List<Character> valList = new ArrayList<Character>(valTokens.length);
+					List<Character> valList = new ArrayList<>(valTokens.length);
 					for (String valToken : valTokens)
 					{
-						valList.add(Character.valueOf(valToken.charAt(0)));
+						valList.add(valToken.charAt(0));
 					}
 					return valList;
 				}
 				else
 				{
-					return Character.valueOf(val.charAt(0));
+					return val.charAt(0);
 				}
 			case FLAG:
 				return null;
@@ -104,7 +104,7 @@ public class VcfInfo
 					{
 						return Collections.<Float>emptyList();
 					}
-					List<Float> valList = new ArrayList<Float>(valTokens.length);
+					List<Float> valList = new ArrayList<>(valTokens.length);
 					for (String valToken : valTokens)
 					{
 						if (valToken.equals("."))
@@ -158,7 +158,7 @@ public class VcfInfo
 					{
 						return Collections.<Integer>emptyList();
 					}
-					List<Integer> valList = new ArrayList<Integer>(valTokens.length);
+					List<Integer> valList = new ArrayList<>(valTokens.length);
 					for (String valToken : valTokens)
 					{
 						if (valToken.equals("."))

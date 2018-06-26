@@ -1,20 +1,19 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import org.molgenis.vcf.VcfSample;
+import org.molgenis.data.vcf.datastructures.Sample;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by joeri on 7/17/16.
  */
 public class GenoMatchSamples {
-    public HashMap<String, VcfSample> carriers;
-    public HashMap<String, VcfSample> affected;
+    public Map<String, Sample> carriers;
+    public Map<String, Sample> affected;
     public Set<String> parentsWithReferenceCalls;
 
-
-    public GenoMatchSamples(HashMap<String, VcfSample> carriers, HashMap<String, VcfSample> affected)
+    public GenoMatchSamples(Map<String, Sample> carriers, Map<String, Sample> affected)
     {
         this.carriers = carriers;
         this.affected = affected;

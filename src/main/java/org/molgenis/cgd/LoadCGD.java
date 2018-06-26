@@ -1,10 +1,11 @@
 package org.molgenis.cgd;
 
-import java.io.*;
-import java.util.*;
-import java.util.zip.GZIPInputStream;
-
 import org.molgenis.cgd.CGDEntry.generalizedInheritance;
+
+import java.io.*;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.zip.GZIPInputStream;
 
 public class LoadCGD {
 
@@ -44,8 +45,7 @@ public class LoadCGD {
 		Reader decoder = new InputStreamReader(gzipStream, "UTF-8");
 		BufferedReader buffered = new BufferedReader(decoder);
 
-		//HashMap<String, CGDEntry> cgd = new HashMap<String, CGDEntry>();
-		Map<String, CGDEntry> cgd =  new TreeMap<String, CGDEntry>(String.CASE_INSENSITIVE_ORDER);
+		Map<String, CGDEntry> cgd = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		buffered.lines().forEach(line -> {
 

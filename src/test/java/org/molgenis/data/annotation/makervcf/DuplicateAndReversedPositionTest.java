@@ -53,9 +53,9 @@ public class DuplicateAndReversedPositionTest extends Setup
 	@Test
 	public void duplicatePositionTest() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
-		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 		StringBuffer positions = new StringBuffer();
 		while(it.hasNext())
 		{
@@ -69,9 +69,9 @@ public class DuplicateAndReversedPositionTest extends Setup
 	@Test
 	public void duplicatePositionBadTest() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
-		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputDupBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 
 		assertTrue(it.hasNext());
 
@@ -81,16 +81,16 @@ public class DuplicateAndReversedPositionTest extends Setup
 		}
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
-			assertEquals(ex.getMessage(), "java.lang.Exception: Chrom-pos-ref-alt combination seen twice: 1_2_G_T. This is not allowed. Please check your VCF file.");
+			assertEquals(ex.getMessage(), "Chrom-pos-ref-alt combination seen twice: 1_2_G_T. This is not allowed. Please check your VCF file.");
 		}
 	}
 
 	@Test
 	public void reversePositionTest() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputRevVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
-		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputRevVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 
 		try {
 			while(it.hasNext())
@@ -101,16 +101,16 @@ public class DuplicateAndReversedPositionTest extends Setup
 		}
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
-			assertEquals(ex.getMessage(), "java.lang.Exception: Site position 1 before 6 on the same chromosome (3) not allowed. Please sort your VCF file.");
+			assertEquals(ex.getMessage(), "Site position 1 before 6 on the same chromosome (3) not allowed. Please sort your VCF file.");
 		}
 	}
 
 	@Test
 	public void chromBadTest() throws Exception
 	{
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputChromBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants(), false);
-		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder(), false).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputChromBadVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
+		Iterator<GavinRecord> it = new ConvertBackToPositionalStream(gs.go(), gs.getPositionalOrder()).go();
 
 		try {
 			while(it.hasNext())
@@ -121,7 +121,7 @@ public class DuplicateAndReversedPositionTest extends Setup
 		}
 		catch (RuntimeException ex) {
 			//assertEquals(ex.getCause().getClass(), RuntimeException.class);
-			assertEquals(ex.getMessage(), "java.lang.Exception: Chromosome 1 was interrupted by other chromosomes. Please sort your VCF file.");
+			assertEquals(ex.getMessage(), "Chromosome 1 was interrupted by other chromosomes. Please sort your VCF file.");
 		}
 	}
 

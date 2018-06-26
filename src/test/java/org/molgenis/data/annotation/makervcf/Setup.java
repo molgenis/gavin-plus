@@ -21,8 +21,8 @@ public class Setup {
 
         System.out.println("Java tmp dir: " + FileUtils.getTempDirectory().getAbsolutePath());
 
-        InputStream gavin = DiscoverRelevantVariantsTest.class.getResourceAsStream("/bundle_r0.1/GAVIN_calibrations_r0.1.tsv");
-        gavinFile = new File(FileUtils.getTempDirectory(), "GAVIN_calibrations_r0.1.tsv");
+        InputStream gavin = DiscoverRelevantVariantsTest.class.getResourceAsStream("/bundle_r1.2/GAVIN_calibrations_r1.2.tsv");
+        gavinFile = new File(FileUtils.getTempDirectory(), "GAVIN_calibrations_r1.2.tsv");
         FileCopyUtils.copy(gavin, new FileOutputStream(gavinFile));
 
         InputStream clinvar = DiscoverRelevantVariantsTest.class.getResourceAsStream("/bundle_r0.1/clinvar.patho.fix.5.5.16.vcf.gz");

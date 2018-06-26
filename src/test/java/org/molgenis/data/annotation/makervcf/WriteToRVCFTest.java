@@ -74,23 +74,45 @@ public class WriteToRVCFTest extends Setup
 		cgdFile = new File(FileUtils.getTempDirectory(), "CGD_1jun2016.txt.gz");
 		FileCopyUtils.copy(cgd, new FileOutputStream(cgdFile));
 
-		InputStream outputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream(
-				"/WriteToRVCFTestExpectedOutput.vcf");
-		expectedOutputVcfFile = new File(FileUtils.getTempDirectory(), "WriteToRVCFTestExpectedOutput.vcf");
-		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFile));
-
 		observedOutputVcfFile = new File(FileUtils.getTempDirectory(), "outputVcfFile.vcf");
 	}
 
 	@Test
 	public void test() throws Exception
 	{
+		InputStream outputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream(
+				"/WriteToRVCFTestExpectedOutput.vcf");
+		expectedOutputVcfFile = new File(FileUtils.getTempDirectory(), "WriteToRVCFTestExpectedOutput.vcf");
+		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFile));
+
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile,
 				null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
-				cgdFile, new HashSet<String>(), false).go();
+				cgdFile, new HashSet<String>()).go();
 
-		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, true, false);
+		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test","command",true, false, false);
+
+		System.out.println("Going to compare files:\n" + expectedOutputVcfFile.getAbsolutePath() + "\nvs.\n"
+				+ observedOutputVcfFile.getAbsolutePath());
+		assertEquals(readVcfLinesWithoutHeader(observedOutputVcfFile),
+				readVcfLinesWithoutHeader(expectedOutputVcfFile));
+
+	}
+
+	@Test
+	public void testKeepAll() throws Exception
+	{
+		InputStream outputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream(
+				"/WriteToRVCFTestExpectedOutputKeepAll.vcf");
+		expectedOutputVcfFile = new File(FileUtils.getTempDirectory(), "WriteToRVCFTestExpectedOutputKeepAll.vcf");
+		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFile));
+
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile,
+				null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
+				cgdFile, new HashSet<String>()).go();
+
+		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test","command",true, false, false);
 
 		System.out.println("Going to compare files:\n" + expectedOutputVcfFile.getAbsolutePath() + "\nvs.\n"
 				+ observedOutputVcfFile.getAbsolutePath());
