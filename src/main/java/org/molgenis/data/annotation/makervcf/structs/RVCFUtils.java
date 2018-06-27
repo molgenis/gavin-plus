@@ -59,7 +59,7 @@ public class RVCFUtils
 		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCE,rvcf.getVariantSignificance(), prefix,currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCESOURCE,rvcf.getVariantSignificanceSource(), prefix,currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCEJUSTIFICATION,rvcf.getVariantSignificanceJustification(), prefix,currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTCOMPOUNDHET,rvcf.getVariantMultiGenic(), prefix,currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTMULTIGENIC,rvcf.getVariantMultiGenic(), prefix,currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTGROUP,rvcf.getVariantGroup(), prefix,currentValues, infoFields);
 		return infoFields;
 	}

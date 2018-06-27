@@ -84,7 +84,7 @@ class WriteToRVCF
 			addInfoField(vcfMeta, RLV_VARIANTSIGNIFICANCESOURCE, "1", STRING, "\"VariantSignificanceSource\"");
 			addInfoField(vcfMeta, RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "1", STRING,
 					"\"VariantSignificanceJustification\"");
-			addInfoField(vcfMeta, RLV_VARIANTCOMPOUNDHET, "1", STRING, "\"VariantCompoundHet\"");
+			addInfoField(vcfMeta, RLV_VARIANTMULTIGENIC, "1", STRING, "\"VariantCompoundHet\"");
 			addInfoField(vcfMeta, RLV_VARIANTGROUP, "1", STRING, "\"VariantGroup\"");
 		} return vcfMeta;
 	}
