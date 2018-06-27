@@ -247,7 +247,7 @@ public class MatchVariantsToGenotypeAndInheritance
 					//for recessive we know if its acting or not, but this is handled in the terminology of a homozygous hit being labeled as 'AFFECTED'
 					//for other (digenic, maternal, YL, etc) and not-in-CGD we don't know, but we still report homozygous as 'acting' and heterozygous as 'carrier' to make that distinction
 					else if (inheritance.equals(generalizedInheritance.RECESSIVE) || inheritance.equals(
-							generalizedInheritance.XL_LINKED) || inheritance.equals(generalizedInheritance.OTHER)
+							generalizedInheritance.X_LINKED) || inheritance.equals(generalizedInheritance.OTHER)
 							|| inheritance.equals(generalizedInheritance.NOTINCGD) || inheritance.equals(
 							generalizedInheritance.BLOODGROUP))
 					{

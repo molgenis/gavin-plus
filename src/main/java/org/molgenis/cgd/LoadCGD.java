@@ -78,7 +78,7 @@ public class LoadCGD {
 			}
 			else if(split[4].contains("XL"))
 			{
-				inherMode = generalizedInheritance.XL_LINKED;
+				inherMode = generalizedInheritance.X_LINKED;
 //				if(xlinkedDominantGenes.contains(split[0]))
 //				{
 //					inherMode = generalizedInheritance.XL_DOMINANT;
@@ -103,11 +103,11 @@ public class LoadCGD {
 	public static void main(String[] args) throws IOException {
 		// TODO JvdV: Auto-generated method stub
 
-		Map<String, CGDEntry> cgd = LoadCGD.loadCGD(new File("/Users/joeri/github/gavin/data/other/CGD_1jun2016.txt.gz"));
+		Map<String, CGDEntry> cgd = LoadCGD.loadCGD(new File("/Users/joeri/github/gavin-plus/src/test/resources/bundle_r1.2/CGD_26jun2018.txt.gz"));
 
 		for( String key : cgd.keySet())
 		{
-			System.out.println(cgd.get(key).getGene() + " - " + cgd.get(key).getManifestationCategories() + " - " + cgd.get(key).getManifestationCategoriesList().toString());
+			System.out.println(cgd.get(key).getGene() + "\t" + cgd.get(key).getGeneralizedInheritance());
 		}
 
 	}
