@@ -4,12 +4,12 @@ import java.util.Map;
 
 public class VcfMetaInfo extends VcfMetaEntry
 {
-	private static final String KEY_ID = "ID";
-	private static final String KEY_NUMBER = "Number";
-	private static final String KEY_TYPE = "Type";
-	private static final String KEY_DESCRIPTION = "Description";
-	private static final String KEY_SOURCE = "Source";
-	private static final String KEY_VERSION = "Version";
+	public static final String KEY_ID = "ID";
+	public static final String KEY_NUMBER = "Number";
+	public static final String KEY_TYPE = "Type";
+	public static final String KEY_DESCRIPTION = "Description";
+	public static final String KEY_SOURCE = "Source";
+	public static final String KEY_VERSION = "Version";
 
 	public enum Type
 	{

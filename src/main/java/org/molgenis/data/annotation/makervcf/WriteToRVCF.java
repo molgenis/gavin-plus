@@ -93,10 +93,10 @@ class WriteToRVCF
 	{
 		Map<String, String> properties = new LinkedHashMap<>();
 
-		properties.put("ID", id);
-		properties.put("NUMBER", number);
-		properties.put("TYPE", type);
-		properties.put("Description", description);
+		properties.put(VcfMetaInfo.KEY_ID, id);
+		properties.put(VcfMetaInfo.KEY_NUMBER, number);
+		properties.put(VcfMetaInfo.KEY_TYPE, type);
+		properties.put(VcfMetaInfo.KEY_DESCRIPTION, description);
 		vcfMeta.addInfoMeta(new VcfMetaInfo(properties));
 	}
 }
