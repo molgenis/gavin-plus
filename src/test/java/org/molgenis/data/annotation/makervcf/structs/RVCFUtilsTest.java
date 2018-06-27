@@ -64,7 +64,7 @@ public class RVCFUtilsTest
 		expected.put(RLV_VARIANTSIGNIFICANCE, "[allele|gene]variantSignificance");
 		expected.put(RLV_VARIANTSIGNIFICANCESOURCE, "[allele|gene]variantSignificanceSource");
 		expected.put(RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "[allele|gene]variantSignificanceJustification");
-		expected.put(RLV_VARIANTCOMPOUNDHET, "[allele|gene]variantMultiGenic");
+		expected.put(RLV_VARIANTMULTIGENIC, "[allele|gene]variantMultiGenic");
 		expected.put(RLV_VARIANTGROUP, "[allele|gene]variantGroup");
 
 		assertEquals(RVCFUtils.createRvcfValues(rvcf1, Collections.emptyMap()),expected);
@@ -91,7 +91,7 @@ public class RVCFUtilsTest
 		expected.put(RLV_VARIANTSIGNIFICANCE, "VARIANTSIGNIFICANCE,[allele|gene]variantSignificance");
 		expected.put(RLV_VARIANTSIGNIFICANCESOURCE, "VARIANTSIGNIFICANCESOURCE,[allele|gene]variantSignificanceSource");
 		expected.put(RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "VARIANTSIGNIFICANCEJUSTIFICATION,[allele|gene]variantSignificanceJustification");
-		expected.put(RLV_VARIANTCOMPOUNDHET, "VARIANTCOMPOUNDHET,[allele|gene]variantMultiGenic");
+		expected.put(RLV_VARIANTMULTIGENIC, "VARIANTCOMPOUNDHET,[allele|gene]variantMultiGenic");
 		expected.put(RLV_VARIANTGROUP, "VARIANTGROUP,[allele|gene]variantGroup");
 
 		Map<String, String> existing = new HashMap<>();
@@ -113,7 +113,7 @@ public class RVCFUtilsTest
 		existing.put(RLV_VARIANTSIGNIFICANCE, "VARIANTSIGNIFICANCE");
 		existing.put(RLV_VARIANTSIGNIFICANCESOURCE, "VARIANTSIGNIFICANCESOURCE");
 		existing.put(RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "VARIANTSIGNIFICANCEJUSTIFICATION");
-		existing.put(RLV_VARIANTCOMPOUNDHET, "VARIANTCOMPOUNDHET");
+		existing.put(RLV_VARIANTMULTIGENIC, "VARIANTCOMPOUNDHET");
 		existing.put(RLV_VARIANTGROUP, "VARIANTGROUP");
 
 		assertEquals(RVCFUtils.createRvcfValues(rvcf1, existing),expected);
