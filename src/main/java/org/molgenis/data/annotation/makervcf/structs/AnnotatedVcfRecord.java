@@ -27,7 +27,7 @@ public class AnnotatedVcfRecord extends VcfRecord
 	private static final String CLSF = "CLSF";
 	private static final String ANN = "ANN";
 	private static final String RLV = "RLV";
-	private static final String CLINVAR = "CLINVAR";
+	private static final String REPORTEDPATHOGENIC = "REPORTEDPATHOGENIC";
 	public static final String CADD_SCALED = "CADD_SCALED";
 
 	public AnnotatedVcfRecord(VcfRecord record)
@@ -100,9 +100,9 @@ public class AnnotatedVcfRecord extends VcfRecord
 		return VcfRecordUtils.getAltAlleleOrderedDoubleField(this, CADD_SCALED);
 	}
 
-	public Optional<String> getClinvar()
+	public Optional<String> getReportedPathogenic()
 	{
-		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(CLINVAR, this);
+		Optional<VcfInfo> optionalVcfInfo = VcfRecordUtils.getInformation(REPORTEDPATHOGENIC, this);
 		return optionalVcfInfo.map(vcfInfo -> (String) vcfInfo.getVal());
 	}
 

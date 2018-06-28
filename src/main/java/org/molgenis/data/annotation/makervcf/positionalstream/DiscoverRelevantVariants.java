@@ -7,10 +7,10 @@ import org.molgenis.data.annotation.entity.impl.gavin.GavinAlgorithm;
 import org.molgenis.data.annotation.makervcf.structs.GavinCalibrations;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
-import org.molgenis.data.annotation.makervcf.util.ClinVar;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.molgenis.data.annotation.makervcf.util.LabVariants;
+import org.molgenis.data.annotation.makervcf.util.ReportedPathogenic;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfRecord;
 import org.slf4j.Logger;
@@ -34,14 +34,14 @@ public class DiscoverRelevantVariants
 	private GavinCalibrations gavinCalibrations;
 	private GavinAlgorithm gavin;
 	private HandleMissingCaddScores hmcs;
-	private ClinVar clinvar;
+	private ReportedPathogenic repPatho;
 	private boolean keepAllVariants;
 
-	public DiscoverRelevantVariants(File vcfFile, File gavinFile, File clinvarFile, File caddFile, File labVariants,
+	public DiscoverRelevantVariants(File vcfFile, File gavinFile, File repPathoFile, File caddFile, File labVariants,
 			Mode mode, boolean keepAllVariants) throws Exception
 	{
 		this.vcf = GavinUtils.getVcfReader(vcfFile);
-		this.clinvar = new ClinVar(clinvarFile);
+		this.repPatho = new ReportedPathogenic(repPathoFile);
 		this.keepAllVariants = keepAllVariants;
 		if (labVariants != null)
 		{
@@ -125,7 +125,7 @@ public class DiscoverRelevantVariants
 						 */
 						for (int i = 0; i < gavinRecord.getAlts().length; i++)
 						{
-							Double cadd = null;
+							Double cadd;
 							try
 							{
 								cadd = hmcs.dealWithCaddScores(gavinRecord, i);
@@ -140,7 +140,7 @@ public class DiscoverRelevantVariants
 									|| gavinRecord.getChromosome().equals("mtDNA"))
 							{
 								Judgment judgment = null;
-								Judgment labJudgment = null;
+								Judgment labJudgment;
 								try
 								{
 									labJudgment = lab != null ? lab.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
@@ -150,11 +150,10 @@ public class DiscoverRelevantVariants
 								{
 									throw new RuntimeException(e);
 								}
-								Judgment clinvarJudgment = null;
+								Judgment repPathoJudgment;
 								try
 								{
-									clinvarJudgment = clinvar.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
-											"MT", true);
+									repPathoJudgment = repPatho.classifyVariant(gavinRecord, gavinRecord.getAlt(i), "MT");
 								}
 								catch (Exception e)
 								{
@@ -166,20 +165,20 @@ public class DiscoverRelevantVariants
 								{
 									judgment = labJudgment;
 								}
-								else if (clinvarJudgment != null
-										&& clinvarJudgment.getClassification() == Judgment.Classification.Pathogenic)
+								else if (repPathoJudgment != null
+										&& repPathoJudgment.getClassification() == Judgment.Classification.Pathogenic)
 								{
-									judgment = clinvarJudgment;
+									judgment = repPathoJudgment;
 								}
 
 								if (judgment != null && judgment.getClassification()
 																.equals(Judgment.Classification.Pathogenic))
 								{
 									gavinRecord.setGenes(judgment.getGene());
-									relevance.add(new Relevance(gavinRecord.getAlt(i), clinvarJudgment.getGene(),
+									relevance.add(new Relevance(gavinRecord.getAlt(i), repPathoJudgment.getGene(),
 											gavinRecord.getExAcAlleleFrequencies(i),
-											gavinRecord.getGoNlAlleleFrequencies(i), clinvarJudgment.getGene(),
-											clinvarJudgment));
+											gavinRecord.getGoNlAlleleFrequencies(i), repPathoJudgment.getGene(),
+											repPathoJudgment));
 								}
 							}
 
@@ -189,7 +188,7 @@ public class DiscoverRelevantVariants
 								if (gavinRecord.getGenes().isEmpty())
 								{
 									LOG.debug("[DiscoverRelevantVariants] WARNING: no genes for variant {}",
-											gavinRecord);
+											gavinRecord.toStringShort());
 								}
 								for (String gene : gavinRecord.getGenes())
 								{
@@ -197,7 +196,7 @@ public class DiscoverRelevantVariants
 									Optional<String> transcript = gavinRecord.getTranscript(i, gene);
 
 									Judgment judgment = null;
-									Judgment labJudgment = null;
+									Judgment labJudgment;
 									try
 									{
 										labJudgment = lab != null ? lab.classifyVariant(gavinRecord, gavinRecord.getAlt(i),
@@ -207,11 +206,11 @@ public class DiscoverRelevantVariants
 									{
 										throw new RuntimeException(e);
 									}
-									Judgment clinvarJudgment = null;
+									Judgment repPathoJudgment;
 									try
 									{
-										clinvarJudgment = clinvar.classifyVariant(gavinRecord,
-												gavinRecord.getAlt(i), gene, false);
+										repPathoJudgment = repPatho.classifyVariant(gavinRecord,
+												gavinRecord.getAlt(i), gene);
 									}
 									catch (Exception e)
 									{
@@ -226,10 +225,10 @@ public class DiscoverRelevantVariants
 									{
 										judgment = labJudgment;
 									}
-									else if (clinvarJudgment != null && clinvarJudgment.getClassification()
+									else if (repPathoJudgment != null && repPathoJudgment.getClassification()
 											== Judgment.Classification.Pathogenic)
 									{
-										judgment = clinvarJudgment;
+										judgment = repPathoJudgment;
 									}
 									else if (gavinJudgment != null
 											&& gavinJudgment.getClassification() == Judgment.Classification.Pathogenic)

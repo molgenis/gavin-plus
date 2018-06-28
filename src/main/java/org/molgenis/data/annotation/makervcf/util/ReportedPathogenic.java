@@ -25,14 +25,14 @@ public class ReportedPathogenic
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ReportedPathogenic.class);
 
-	private Map<String, AnnotatedVcfRecord> posRefAltToRepPath;
+	private Map<String, AnnotatedVcfRecord> posRefAltToRepPatho;
 
-	public ReportedPathogenic(File repPathFile) throws Exception
+	public ReportedPathogenic(File repPathoFile) throws Exception
 	{
-		VcfReader repPath = GavinUtils.getVcfReader(repPathFile);
+		VcfReader repPatho = GavinUtils.getVcfReader(repPathoFile);
 		//ClinVar match
-		Iterator<VcfRecord> cvIt = repPath.iterator();
-		this.posRefAltToRepPath = new HashMap<>();
+		Iterator<VcfRecord> cvIt = repPatho.iterator();
+		this.posRefAltToRepPatho = new HashMap<>();
 		while (cvIt.hasNext())
 		{
 			AnnotatedVcfRecord record = new AnnotatedVcfRecord(cvIt.next());
@@ -41,50 +41,26 @@ public class ReportedPathogenic
 				String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(VcfRecordUtils.getRef(record), alt, "_");
 
 				String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
-				posRefAltToRepPath.put(key, record);
+				posRefAltToRepPatho.put(key, record);
 			}
 		}
 	}
 
-	public Judgment classifyVariant(GavinRecord record, String alt, String gene, boolean overrideGeneWithClinvarGene)
+	public Judgment classifyVariant(GavinRecord record, String alt, String gene)
 			throws Exception
 	{
 		String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(record.getRef(), alt, "_");
 		String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
 
-		if (posRefAltToClinVar.containsKey(key))
+		if (posRefAltToRepPatho.containsKey(key))
 		{
 			// e.g.
-			// REPORTEDPATHOGENIC=CLINVAR:NM_007375.3(TARDBP):c.1043G>T (p.Gly348Val)|TARDBP|Pathogenic
-			Optional<String> clinVar = posRefAltToClinVar.get(key).getClinvar();
-			if (clinVar.isPresent())
+			// REPORTEDPATHOGENIC=CLINVAR|NM_002074.4(GNB1):c.284T>C (p.Leu95Pro)|GNB1|Pathogenic
+			Optional<String> repPatho = posRefAltToRepPatho.get(key).getReportedPathogenic();
+			if (repPatho.isPresent())
 			{
-				String clinvarInfo = clinVar.get();
-				//FIXME: is this check robust enough?
-				if (StringUtils.containsIgnoreCase(clinvarInfo,"pathogenic"))
-				{
-					String clinvarGene = clinvarInfo.split("\\|", -1)[1];
-					if (!clinvarGene.equalsIgnoreCase(gene))
-					{
-						if (overrideGeneWithClinvarGene)
-						{
-							gene = clinvarGene;
-						}
-						else
-						{
-							LOG.debug(
-									"genes did not match: {} vs {}. Reporting under '{}' while preserving ClinVar data '{}'.",
-									clinvarGene, gene, gene, clinvarInfo);
-
-						}
-					}
-					return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene,
-							clinvarInfo, "ClinVar", "Reported pathogenic");
-				}
-				else
-				{
-					throw new Exception("clinvar hit is not pathogenic: " + clinvarInfo);
-				}
+				String repPathoInfo = repPatho.get();
+				return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, repPathoInfo, "GAVIN+RepPatho", "Reported pathogenic");
 			}
 		}
 		return null;//TODO JvdV: return VOUS?
