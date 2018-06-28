@@ -85,7 +85,7 @@ public class WriteToRVCFTest extends Setup
 		expectedOutputVcfFile = new File(FileUtils.getTempDirectory(), "WriteToRVCFTestExpectedOutput.vcf");
 		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFile));
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile,
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile, caddFile,
 				null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
@@ -107,7 +107,7 @@ public class WriteToRVCFTest extends Setup
 		expectedOutputVcfFile = new File(FileUtils.getTempDirectory(), "WriteToRVCFTestExpectedOutputKeepAll.vcf");
 		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFile));
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile,
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile, caddFile,
 				null, HandleMissingCaddScores.Mode.ANALYSIS, true);
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
