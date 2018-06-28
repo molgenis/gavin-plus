@@ -55,8 +55,7 @@ public class ClinVar
 		if (posRefAltToClinVar.containsKey(key))
 		{
 			// e.g.
-			// CLINVAR=NM_005691.3(ABCC9):c.2554C>T (p.Gln852Ter)|ABCC9|Likely pathogenic
-			// CLINVAR=NM_004612.3(TGFBR1):c.428T>A (p.Leu143Ter)|TGFBR1|Pathogenic
+			// REPORTEDPATHOGENIC=CLINVAR:NM_007375.3(TARDBP):c.1043G>T (p.Gly348Val)|TARDBP|Pathogenic
 			Optional<String> clinVar = posRefAltToClinVar.get(key).getClinvar();
 			if (clinVar.isPresent())
 			{
