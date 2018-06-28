@@ -31,11 +31,11 @@ public class DiscoverRelevantVariantsTest extends Setup
 	public void testPredictedPathogenic() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		Iterator<GavinRecord> it = discover.findRelevantVariants();
 
 		assertTrue(it.hasNext());
-		Judgment expected = new Judgment(Judgment.Classification.Pathogenic,Judgment.Method.genomewide,"PARK2","NM_004562.2(PARK2):c.823C>T (p.Arg275Trp)|PARK2|Pathogenic","ClinVar","Reported pathogenic");
+		Judgment expected = new Judgment(Judgment.Classification.Pathogenic,Judgment.Method.genomewide,"PARK2","CLINVAR|NM_004562.2(PARK2):c.823C>T (p.Arg275Trp)|PARK2|Pathogenic","GAVIN+RepPatho","Reported pathogenic");
 		assertEquals(it.next().getRelevance().get(0).getJudgment(),expected);
 
 		assertTrue(it.hasNext());

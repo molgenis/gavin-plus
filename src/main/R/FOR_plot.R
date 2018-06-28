@@ -1,5 +1,5 @@
 library(ggplot2)
-setwd("/Users/joeri/github/rvcf/src/test/resources/")
+setwd("/Users/joeri/github/gavin-plus/src/test/resources/")
 
 # load FOR and CGD sets
 falseOmRate <- read.table("FOR_results_per_gene_r1.0.tsv", sep="\t", header=T)
