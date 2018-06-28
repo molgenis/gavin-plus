@@ -21,18 +21,18 @@ import java.util.Optional;
 /**
  * Created by joeri on 6/1/16.
  */
-public class ClinVar
+public class ReportedPathogenic
 {
-	private static final Logger LOG = LoggerFactory.getLogger(ClinVar.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ReportedPathogenic.class);
 
-	private Map<String, AnnotatedVcfRecord> posRefAltToClinVar;
+	private Map<String, AnnotatedVcfRecord> posRefAltToRepPath;
 
-	public ClinVar(File clinvarFile) throws Exception
+	public ReportedPathogenic(File repPathFile) throws Exception
 	{
-		VcfReader clinvar = GavinUtils.getVcfReader(clinvarFile);
+		VcfReader repPath = GavinUtils.getVcfReader(repPathFile);
 		//ClinVar match
-		Iterator<VcfRecord> cvIt = clinvar.iterator();
-		this.posRefAltToClinVar = new HashMap<>();
+		Iterator<VcfRecord> cvIt = repPath.iterator();
+		this.posRefAltToRepPath = new HashMap<>();
 		while (cvIt.hasNext())
 		{
 			AnnotatedVcfRecord record = new AnnotatedVcfRecord(cvIt.next());
@@ -41,7 +41,7 @@ public class ClinVar
 				String trimmedRefAlt = FixVcfAlleleNotation.backTrimRefAlt(VcfRecordUtils.getRef(record), alt, "_");
 
 				String key = record.getChromosome() + "_" + record.getPosition() + "_" + trimmedRefAlt;
-				posRefAltToClinVar.put(key, record);
+				posRefAltToRepPath.put(key, record);
 			}
 		}
 	}
