@@ -1,5 +1,5 @@
 library(ggplot2)
-setwd("/Users/joeri/github/rvcf/src/test/resources/")
+setwd("/Users/joeri/github/gavin-plus/src/test/resources/")
 
 # load FDR and CGD sets
 fdr <- read.table("bundle_r1.0/FDR_allGenes_r1.0.tsv", sep="\t", header=T)
