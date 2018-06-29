@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by joeri on 6/1/16.
@@ -60,9 +62,23 @@ public class ReportedPathogenic
 			if (repPatho.isPresent())
 			{
 				String repPathoInfo = repPatho.get();
-				return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, repPathoInfo, "GAVIN+RepPatho", "Reported pathogenic");
+				//SnpEff does not annotate MT genes by default.. but perhaps we can get gene name from info field
+				String MTgene = getMTgene(repPathoInfo);
+				return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, MTgene, repPathoInfo, "GAVIN+RepPatho", "Reported pathogenic");
 			}
 		}
 		return null;//TODO JvdV: return VOUS?
+	}
+
+	// get MT gene name from info field:
+	// REPORTEDPATHOGENIC=CLINVAR|m.9952G>A|MT-CO3|Pathogenic -> MT-CO3
+	public String getMTgene(String repPathoInfo)
+	{
+		Matcher m = Pattern.compile(".+\\|(MT\\-.+?)\\|.+").matcher(repPathoInfo);
+		if (m.matches()) {
+			return m.group(1);
+		} else {
+			return "MT-undefined";
+		}
 	}
 }
