@@ -12,10 +12,14 @@ import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class TrioFilterTest extends Setup
 {
@@ -45,7 +49,7 @@ public class TrioFilterTest extends Setup
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 		Iterator<GavinRecord> gsi = gs.go();
 
-		TrioFilter tf = new TrioFilter(gsi, td);
+		TrioFilter tf = new TrioFilter(gsi, td, false);
 		Iterator<GavinRecord> it = tf.go();
 
 		// heterozygous child, 1 heterozygous parent

@@ -49,9 +49,9 @@ public class PhasingCompoundCheck extends GeneStream
 
 	private static final Logger LOG = LoggerFactory.getLogger(PhasingCompoundCheck.class);
 
-	public PhasingCompoundCheck(Iterator<GavinRecord> relevantVariants)
+	public PhasingCompoundCheck(Iterator<GavinRecord> relevantVariants, boolean keepAllVariants)
 	{
-		super(relevantVariants);
+		super(relevantVariants, keepAllVariants);
 	}
 
 	@Override

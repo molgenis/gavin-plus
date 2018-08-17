@@ -15,11 +15,12 @@ public abstract class GeneStream
 {
 	private static final Logger LOG = LoggerFactory.getLogger(GeneStream.class);
 	private Iterator<GavinRecord> gavinRecordIterator;
-	private boolean isFilterNonRelevant;
+	private boolean keepAllVariants;
 
-	public GeneStream(Iterator<GavinRecord> gavinRecordIterator)
+	public GeneStream(Iterator<GavinRecord> gavinRecordIterator, boolean keepAllVariants)
 	{
 		this.gavinRecordIterator = gavinRecordIterator;
+		this.keepAllVariants = keepAllVariants;
 	}
 
 	public Iterator<GavinRecord> go()
@@ -123,7 +124,7 @@ public abstract class GeneStream
 							//so we go straight to cleanup in the next iteration
 
 						}else{
-							if(!isFilterNonRelevant)
+							if (keepAllVariants)
 							{
 								nextResult = gavinRecord;
 								return true;

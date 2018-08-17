@@ -82,20 +82,20 @@ public class Pipeline
 		Iterator<GavinRecord> gsi = gs.go();
 
 		//convert heterozygous/carrier Status variants to compound heterozygous if they fall within the same gene
-		Iterator<GavinRecord> rv4 = new AssignCompoundHet(gsi).go();
+		Iterator<GavinRecord> rv4 = new AssignCompoundHet(gsi, keepAllVariants).go();
 
 		//if available: use any parental information to filter out variants/Status
-		TrioFilter tf = new TrioFilter(rv4, td);
+		TrioFilter tf = new TrioFilter(rv4, td, keepAllVariants);
 		Iterator<GavinRecord> rv5 = tf.go();
 
 		//if available: use any phasing information to filter out compounds
-		Iterator<GavinRecord> rv6 = new PhasingCompoundCheck(rv5).go();
+		Iterator<GavinRecord> rv6 = new PhasingCompoundCheck(rv5, keepAllVariants).go();
 
 		// TODO JvdV
 		//if available: use any SV data to give weight to carrier/heterozygous variants that may be complemented by a deleterious structural event
 
 		//add gene-specific FDR based on 1000G and this pipeline
-		Iterator<GavinRecord> rv8 = new AddGeneFDR(rv6, FDRfile).go();
+		Iterator<GavinRecord> rv8 = new AddGeneFDR(rv6, FDRfile, keepAllVariants).go();
 
 		//fix order in which variants are written out (was re-ordered by compoundhet check to gene-based)
 		Iterator<GavinRecord> rv9 = new ConvertBackToPositionalStream(rv8, gs.getPositionalOrder()).go();
