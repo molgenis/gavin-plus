@@ -72,7 +72,8 @@ class VcfRecordMapper
 		List<String> filterStatus = gavinRecord.getFilterStatus();
 		tokens.add(!filterStatus.isEmpty() ? filterStatus.stream().collect(joining(";")) : MISSING_VALUE);
 
-		tokens.add(createInfoToken(gavinRecord, vcfRecordMapperSettings.splitRlvField()));
+		tokens.add(createInfoToken(gavinRecord, vcfRecordMapperSettings.splitRlvField(),
+				vcfRecordMapperSettings.prefixRlvFields()));
 
 		if (vcfRecordMapperSettings.includeSamples())
 		{
@@ -88,7 +89,7 @@ class VcfRecordMapper
 		return tokens;
 	}
 
-	private String createInfoToken(GavinRecord gavinRecord, boolean splitRlvField)
+	private String createInfoToken(GavinRecord gavinRecord, boolean splitRlvField, boolean prefixRlvFields)
 	{
 		Iterable<VcfInfo> vcfInformations = gavinRecord.getAnnotatedVcfRecord().getInformation();
 
@@ -123,7 +124,7 @@ class VcfRecordMapper
 		}
 		if (!gavinRecord.getRelevance().isEmpty())
 		{
-			stringBuilder.append(getRlv(gavinRecord, splitRlvField));
+			stringBuilder.append(getRlv(gavinRecord, splitRlvField, prefixRlvFields));
 		}
 		else
 		{
@@ -170,12 +171,12 @@ class VcfRecordMapper
 		return stream(sampleTokens).collect(joining(":"));
 	}
 
-	private String getRlv(GavinRecord gavinRecord, boolean splitRlvField)
+	private String getRlv(GavinRecord gavinRecord, boolean splitRlvField, boolean prefixRlvFields)
 	{
 		LOG.debug("[MakeRVCFforClinicalVariants] Looking at: {}", gavinRecord);
 
 		List<Relevance> relevance = gavinRecord.getRelevance();
-		String rlv = rlvInfoMapper.map(relevance, splitRlvField);
+		String rlv = rlvInfoMapper.map(relevance, splitRlvField, prefixRlvFields);
 
 		LOG.debug("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: {}",
 				rlv);

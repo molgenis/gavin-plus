@@ -37,9 +37,10 @@ public class RVCFUtils
 				+ escapeToSafeVCF(rvcf.getVariantMultiGenic()) + RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getVariantGroup());
 	}
 
-	public static Map<String, String> createRvcfValues(RVCF rvcf, Map<String, String> currentValues)
+	public static Map<String, String> createRvcfValues(RVCF rvcf, Map<String, String> currentValues,
+			boolean prefixRlvFields)
 	{
-		String prefix = "["+rvcf.getAllele() + "|" +rvcf.getGene()+"]";
+		String prefix = prefixRlvFields ? "[" + rvcf.getAllele() + "|" + rvcf.getGene() + "]" : "";
 		Map<String, String> infoFields = new HashMap<>();
 		RVCFUtils.addOrUpdateInfoField(RLV_PRESENT, "TRUE", prefix,currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_ALLELE,rvcf.getAllele(), prefix,currentValues, infoFields);
