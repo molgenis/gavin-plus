@@ -72,6 +72,7 @@ public class VcfRecordMapperTest
 	public void testMapSplitRlv()
 	{
 		when(vcfRecordMapperSettings.splitRlvField()).thenReturn(true);
+		when(vcfRecordMapperSettings.prefixRlvFields()).thenReturn(true);
 		vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 		GavinRecord gavinRecord = createMock(true, true, true, true, true, true, false);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);

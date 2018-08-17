@@ -33,9 +33,9 @@ public class TrioFilter extends GeneStream
 	private Map<String, Trio> trios;
 	private Set<String> parents;
 
-	public TrioFilter(Iterator<GavinRecord> relevantVariants, TrioData td)
+	public TrioFilter(Iterator<GavinRecord> relevantVariants, TrioData td, boolean keepAllVariants)
 	{
-		super(relevantVariants);
+		super(relevantVariants, keepAllVariants);
 		this.trios = td.getTrios();
 		this.parents = td.getParents();
 		LOG.debug("[TrioFilter] Trios: {}", trios);

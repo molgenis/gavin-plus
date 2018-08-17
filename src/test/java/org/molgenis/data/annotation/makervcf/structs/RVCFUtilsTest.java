@@ -9,8 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.molgenis.data.annotation.makervcf.structs.RVCF.*;
-import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_VARIANTGROUP;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class RVCFUtilsTest
 {
@@ -67,8 +66,37 @@ public class RVCFUtilsTest
 		expected.put(RLV_VARIANTCOMPOUNDHET, "[allele|gene]variantMultiGenic");
 		expected.put(RLV_VARIANTGROUP, "[allele|gene]variantGroup");
 
-		assertEquals(RVCFUtils.createRvcfValues(rvcf1, Collections.emptyMap()),expected);
+		assertEquals(RVCFUtils.createRvcfValues(rvcf1, Collections.emptyMap(), true), expected);
 	}
+
+	@Test
+	public void testCreateRvcfInfoFieldsWithoutPrefix()
+	{
+		Map<String, String> expected = new HashMap<>();
+		expected.put(RLV_PRESENT, "TRUE");
+		expected.put(RLV_ALLELE, "allele");
+		expected.put(RLV_ALLELEFREQ, "alleleFreq");
+		expected.put(RLV_GENE, "gene");
+		expected.put(RLV_FDR, "FDR");
+		expected.put(RLV_TRANSCRIPT, "transcript");
+		expected.put(RLV_PHENOTYPE, ".");
+		expected.put(RLV_PHENOTYPEINHERITANCE, "phenotypeInheritance");
+		expected.put(RLV_PHENOTYPEONSET, "phenotypeOnset");
+		expected.put(RLV_PHENOTYPEDETAILS, "phenotypeDetails");
+		expected.put(RLV_PHENOTYPEGROUP, "phenotypeGroup");
+		expected.put(RLV_SAMPLESTATUS, "1:CARRIER_2:AFFECTED");
+		expected.put(RLV_SAMPLEPHENOTYPE, "1:pheno1_2:pheno2");
+		expected.put(RLV_SAMPLEGENOTYPE, "1:1_0_2:1_1");
+		expected.put(RLV_SAMPLEGROUP, "1:group1_2:group2");
+		expected.put(RLV_VARIANTSIGNIFICANCE, "variantSignificance");
+		expected.put(RLV_VARIANTSIGNIFICANCESOURCE, "variantSignificanceSource");
+		expected.put(RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "variantSignificanceJustification");
+		expected.put(RLV_VARIANTCOMPOUNDHET, "variantMultiGenic");
+		expected.put(RLV_VARIANTGROUP, "variantGroup");
+
+		assertEquals(RVCFUtils.createRvcfValues(rvcf1, Collections.emptyMap(), false), expected);
+	}
+
 	@Test
 	public void testCreateRvcfInfoFieldsExistingValues()
 	{
@@ -116,7 +144,7 @@ public class RVCFUtilsTest
 		existing.put(RLV_VARIANTCOMPOUNDHET, "VARIANTCOMPOUNDHET");
 		existing.put(RLV_VARIANTGROUP, "VARIANTGROUP");
 
-		assertEquals(RVCFUtils.createRvcfValues(rvcf1, existing),expected);
+		assertEquals(RVCFUtils.createRvcfValues(rvcf1, existing, true), expected);
 	}
 
 }

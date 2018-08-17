@@ -15,9 +15,7 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class AddGeneFDRTest extends Setup
 {
@@ -49,7 +47,7 @@ public class AddGeneFDRTest extends Setup
 		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>()).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 
-		Iterator<GavinRecord> it = new AddGeneFDR(gs.go(), fdrFile).go();
+		Iterator<GavinRecord> it = new AddGeneFDR(gs.go(), fdrFile, true).go();
 
 		/*
 		FDR data:

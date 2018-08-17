@@ -21,9 +21,10 @@ public class AddGeneFDR extends GeneStream
 	private Map<String, Double> affectedFrac;
 	private Map<String, Double> carrierFrac;
 
-	public AddGeneFDR(Iterator<GavinRecord> relevantVariants, File fdrFile) throws FileNotFoundException
+	public AddGeneFDR(Iterator<GavinRecord> relevantVariants, File fdrFile, boolean keepAllVariants)
+			throws FileNotFoundException
 	{
-		super(relevantVariants);
+		super(relevantVariants, keepAllVariants);
 
 		this.affectedFrac = new HashMap<>();
 		this.carrierFrac = new HashMap<>();

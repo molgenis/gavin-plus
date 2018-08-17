@@ -46,7 +46,8 @@ public class GeneStreamTest extends Setup
 
 		HashMap<String, Integer> observedVariantsPerGene = new HashMap<>();
 
-		GeneStream gsTest = new GeneStream(reorder) {
+		GeneStream gsTest = new GeneStream(reorder, true)
+		{
 			@Override
 			public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {
 				observedVariantsPerGene.put(gene, variantsPerGene.size());
@@ -114,7 +115,8 @@ public class GeneStreamTest extends Setup
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile2, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 		Iterator<GavinRecord> reorder = new ConvertToGeneStream(discover.findRelevantVariants()).go();
 
-		GeneStream gsTest = new GeneStream(reorder) {
+		GeneStream gsTest = new GeneStream(reorder, true)
+		{
 			@Override
 			public void perGene(String gene, List<GavinRecord> variantsPerGene) throws Exception {}
 		};

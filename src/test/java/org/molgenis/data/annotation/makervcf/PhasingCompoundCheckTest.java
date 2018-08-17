@@ -45,9 +45,9 @@ public class PhasingCompoundCheckTest extends Setup
 		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, new HashSet<String>()).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 		Iterator<GavinRecord> gsi = gs.go();
-		Iterator<GavinRecord> assignCompHet = new AssignCompoundHet(gsi).go();
+		Iterator<GavinRecord> assignCompHet = new AssignCompoundHet(gsi, false).go();
 
-		Iterator<GavinRecord> it = new PhasingCompoundCheck(assignCompHet).go();
+		Iterator<GavinRecord> it = new PhasingCompoundCheck(assignCompHet, false).go();
 
 		// AIMP1
 		assertTrue(it.hasNext());

@@ -12,7 +12,10 @@ import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -45,7 +48,7 @@ public class AssignCompoundHetTest extends Setup
 		ConvertToGeneStream gs = new ConvertToGeneStream(match);
 		Iterator<GavinRecord> gsi = gs.go();
 
-		Iterator<GavinRecord> it = new AssignCompoundHet(gsi).go();
+		Iterator<GavinRecord> it = new AssignCompoundHet(gsi, false).go();
 
 
 		// AIMP1

@@ -44,6 +44,7 @@ public class Main
 	public static final String HELP = "help";
 	public static final String RESTORE = "restore";
 	public static final String SPLIT_RLV_FIELD = "separate_fields";
+	public static final String NO_PREFIX_RLV_FIELDS = "no_prefix_rlv_fields";
 	public static final String KEEP_ALL_VARIANTS = "keep_all_variants";
 	public static final String INCLUDE_SAMPLES = "include_samples";
 
@@ -85,6 +86,7 @@ public class Main
 		parser.acceptsAll(asList("k", KEEP_ALL_VARIANTS), "Do not filter the non relevant variants, return all variants from the input");
 		parser.acceptsAll(asList("s", INCLUDE_SAMPLES), "Include samples is output");
 		parser.acceptsAll(asList("q", SPLIT_RLV_FIELD), "Create separate INFO fields for every part of the RLV information");
+		parser.acceptsAll(asList("y", NO_PREFIX_RLV_FIELDS), "No prefix GAVIN info fields with allele and gene");
 
 		return parser;
 	}
@@ -338,6 +340,13 @@ public class Main
 			splitRlvField = true;
 		}
 
+		boolean prefixRlvFields = true;
+		if (options.has(NO_PREFIX_RLV_FIELDS))
+		{
+			prefixRlvFields = false;
+		}
+
+
 		boolean keepAllVariants = false;
 		if (options.has(KEEP_ALL_VARIANTS))
 		{
@@ -354,7 +363,7 @@ public class Main
 		  Everything OK, start pipeline
 		 */
 		LOG.info("Starting..");
-		Pipeline pipeline = new Pipeline( version,  cmdString,  splitRlvField,  keepAllVariants,
+		Pipeline pipeline = new Pipeline(version, cmdString, splitRlvField, prefixRlvFields, keepAllVariants,
 		 mode,  inputVcfFile,  gavinFile,  clinvarFile,  cgdFile,
 			 caddFile,  fdrFile,  outputVCFFile,  labVariants, includeSamples);
 		pipeline.start();

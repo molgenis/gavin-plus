@@ -22,9 +22,9 @@ public class AssignCompoundHet extends GeneStream
 
 	private static final Logger LOG = LoggerFactory.getLogger(AssignCompoundHet.class);
 
-	public AssignCompoundHet(Iterator<GavinRecord> relevantVariants)
+	public AssignCompoundHet(Iterator<GavinRecord> relevantVariants, boolean keepAllVariants)
 	{
-		super(relevantVariants);
+		super(relevantVariants, keepAllVariants);
 	}
 
 	@Override

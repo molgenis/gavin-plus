@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class CleanupVariantsWithoutSamplesTest extends Setup
 {
@@ -46,7 +45,7 @@ public class CleanupVariantsWithoutSamplesTest extends Setup
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 		Iterator<GavinRecord> gsi = gs.go();
 		TrioData td = TrioFilter.getTrioData(inputVcfFile);
-		TrioFilter tf = new TrioFilter(gsi, td);
+		TrioFilter tf = new TrioFilter(gsi, td, false);
 		CleanupVariantsWithoutSamples cleanup = new CleanupVariantsWithoutSamples(tf.go(), false);
 		Iterator<GavinRecord> it = cleanup.go();
 
