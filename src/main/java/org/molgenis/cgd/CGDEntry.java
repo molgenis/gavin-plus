@@ -23,10 +23,10 @@ public class CGDEntry
 
 	public enum generalizedInheritance {
 
-		DOMINANT, RECESSIVE, DOMINANT_OR_RECESSIVE, XL_LINKED, BLOODGROUP, OTHER, NOTINCGD;
+		DOMINANT, RECESSIVE, DOMINANT_OR_RECESSIVE, X_LINKED, BLOODGROUP, OTHER, NOTINCGD;
 
 		public static boolean hasKnownInheritance(generalizedInheritance gi) {
-			return (gi == RECESSIVE || gi == DOMINANT || gi == DOMINANT_OR_RECESSIVE || gi == XL_LINKED) ? true : false;
+			return (gi == RECESSIVE || gi == DOMINANT || gi == DOMINANT_OR_RECESSIVE || gi == X_LINKED) ? true : false;
 		}
 	}
 	

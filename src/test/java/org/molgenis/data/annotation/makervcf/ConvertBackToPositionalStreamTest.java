@@ -32,7 +32,7 @@ public class ConvertBackToPositionalStreamTest extends Setup
 	public void test() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
 
 		ConvertToGeneStream gs = new ConvertToGeneStream(discover.findRelevantVariants());
 

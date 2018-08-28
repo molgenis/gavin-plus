@@ -40,7 +40,7 @@ public class TrioFilterTest extends Setup
 	public void test() throws Exception
 	{
 		TrioData td = TrioFilter.getTrioData(inputVcfFile);
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, clinvarFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
 		Iterator<GavinRecord> rv3 = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(), cgdFile, td.getParents()).go();
 		ConvertToGeneStream gs = new ConvertToGeneStream(rv3);
 		Iterator<GavinRecord> gsi = gs.go();

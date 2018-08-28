@@ -84,7 +84,7 @@ class WriteToRVCF
 			addInfoField(vcfMeta, RLV_VARIANTSIGNIFICANCESOURCE, "1", STRING, "\"VariantSignificanceSource\"");
 			addInfoField(vcfMeta, RLV_VARIANTSIGNIFICANCEJUSTIFICATION, "1", STRING,
 					"\"VariantSignificanceJustification\"");
-			addInfoField(vcfMeta, RLV_VARIANTCOMPOUNDHET, "1", STRING, "\"VariantCompoundHet\"");
+			addInfoField(vcfMeta, RLV_VARIANTMULTIGENIC, "1", STRING, "\"VariantCompoundHet\"");
 			addInfoField(vcfMeta, RLV_VARIANTGROUP, "1", STRING, "\"VariantGroup\"");
 		} return vcfMeta;
 	}
@@ -93,10 +93,10 @@ class WriteToRVCF
 	{
 		Map<String, String> properties = new LinkedHashMap<>();
 
-		properties.put("ID", id);
-		properties.put("NUMBER", number);
-		properties.put("TYPE", type);
-		properties.put("Description", description);
+		properties.put(VcfMetaInfo.KEY_ID, id);
+		properties.put(VcfMetaInfo.KEY_NUMBER, number);
+		properties.put(VcfMetaInfo.KEY_TYPE, type);
+		properties.put(VcfMetaInfo.KEY_DESCRIPTION, description);
 		vcfMeta.addInfoMeta(new VcfMetaInfo(properties));
 	}
 }

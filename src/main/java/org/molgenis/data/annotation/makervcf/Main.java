@@ -33,7 +33,7 @@ public class Main
 	public static final String INPUT = "input";
 	public static final String OUTPUT = "output";
 	public static final String GAVIN = "gavin";
-	public static final String CLINVAR = "clinvar";
+	public static final String REPPATHO = "reppatho";
 	public static final String CGD = "cgd";
 	public static final String FDR = "fdr";
 	public static final String CADD = "cadd";
@@ -54,20 +54,20 @@ public class Main
 		new Main().run(options, parser, Arrays.toString(args));
 	}
 
-	protected static OptionParser createOptionParser()
+	private static OptionParser createOptionParser()
 	{
 		OptionParser parser = new OptionParser();
 
 		parser.acceptsAll(asList("i", INPUT), "Input VCF file").withRequiredArg().ofType(File.class);
 		parser.acceptsAll(asList("o", OUTPUT), "Output RVCF file").withRequiredArg().ofType(File.class);
 		parser.acceptsAll(asList("g", GAVIN), "GAVIN calibration file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("c", CLINVAR), "ClinVar pathogenic VCF file").withRequiredArg().ofType(File.class);
+		parser.acceptsAll(asList("p", REPPATHO), "VCF file containing reported pathogenic/likely pathogenic variants").withRequiredArg().ofType(File.class);
 		parser.acceptsAll(asList("d", CGD), "CGD file").withRequiredArg().ofType(File.class);
 		parser.acceptsAll(asList("f", FDR), "Gene-specific FDR file").withRequiredArg().ofType(File.class);
-		parser.acceptsAll(asList("a", CADD), "Input/output CADD missing annotations")
+		parser.acceptsAll(asList("c", CADD), "Input/output CADD missing annotations")
 			  .withRequiredArg()
 			  .ofType(File.class);
-		parser.acceptsAll(asList("l", LAB), "VCF file with lab specific variant classifications")
+		parser.acceptsAll(asList("l", LAB), "VCF file with custom lab specific variant classifications")
 			  .withOptionalArg()
 			  .ofType(File.class);
 		parser.acceptsAll(asList("m", MODE),
@@ -89,19 +89,18 @@ public class Main
 		return parser;
 	}
 
-	public void printHelp(String version, String title, OptionParser parser) throws IOException
+	private void printHelp(String version, String title, OptionParser parser) throws IOException
 	{
 		System.out.println("" + "Detect likely relevant clinical variants and matching samples in a VCF file.\n"
 				+ "Your input VCF must be fully annotated with SnpEff, ExAC frequencies and CADD scores, and optionally frequencies from GoNL and 1000G.\n"
 				+ "This can be done with MOLGENIS CmdlineAnnotator, available at https://github.com/molgenis/molgenis/releases/download/v1.21.1/CmdLineAnnotator-1.21.1.jar\n"
-				+ "\n" + "-- PLEASE BE ADVISED --\n"
-				+ "This is the first production version. Crashed and bugs may still happen. Please report them at https://github.com/molgenis/rvcf\n"
-				+ "\n" + "Typical usage: java -jar GAVIN-APP-" + version
+				+ "Please report any bugs, issues and feature requests at https://github.com/molgenis/gavin-plus\n"
+				+ "\n" + "Typical usage: java -jar GAVIN-Plus-" + version
 				+ ".jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n" + "Example usage:\n"
-				+ "java -Xmx4g -jar GAVIN-APP-" + version + ".jar \\\n"
+				+ "java -Xmx4g -jar GAVIN-Plus-" + version + ".jar \\\n"
 				+ "-i patient76.snpeff.exac.gonl.caddsnv.vcf \\\n" + "-o patient76_RVCF.vcf \\\n"
-				+ "-g GAVIN_calibrations_r0.3.tsv \\\n" + "-c clinvar.patho.fix.11oct2016.vcf.gz \\\n"
-				+ "-d CGD_11oct2016.txt.gz \\\n" + "-f FDR_allGenes_r1.0.tsv \\\n" + "-a fromCadd.tsv \\\n"
+				+ "-g GAVIN_calibrations_r0.5.tsv \\\n" + "-p clinvar.vkgl.patho.26june2018.vcf.gz \\\n"
+				+ "-d CGD_26jun2018.txt.gz \\\n" + "-f FDR_allGenes_r1.2.tsv \\\n" + "-c fromCadd.tsv \\\n"
 				+ "-m ANALYSIS \n" + "\n" + "Dealing with CADD intermediate files:\n"
 				+ "You first want to generate a intermediate file with any missing CADD annotations using '-d toCadd.tsv -m CREATEFILEFORCADD'\n"
 				+ "After which, you want to score the variants in toCadd.tsv with the web service at http://cadd.gs.washington.edu/score\n"
@@ -139,7 +138,7 @@ public class Main
 		System.out.println(appTitle);
 
 		if ((options.has(RESTORE) && options.has(INPUT) && options.has(OUTPUT)) || (options.has(INPUT)
-				&& options.has(OUTPUT) && options.has(GAVIN) && options.has(CLINVAR) && options.has(CGD)
+				&& options.has(OUTPUT) && options.has(GAVIN) && options.has(REPPATHO) && options.has(CGD)
 				&& options.has(FDR) && options.has(CADD) && options.has(MODE)))
 		{
 			System.out.println("Arguments OK.");
@@ -219,15 +218,15 @@ public class Main
 			return;
 		}
 
-		File clinvarFile = (File) options.valueOf(CLINVAR);
-		if (!clinvarFile.exists())
+		File repPathoFile = (File) options.valueOf(REPPATHO);
+		if (!repPathoFile.exists())
 		{
-			System.out.println("ClinVar pathogenic VCF file not found at " + clinvarFile);
+			System.out.println("VCF file (containing reported LP/P variants) not found at " + repPathoFile);
 			return;
 		}
-		else if (clinvarFile.isDirectory())
+		else if (repPathoFile.isDirectory())
 		{
-			System.out.println("ClinVar pathogenic VCF file location is a directory, not a file!");
+			System.out.println("VCF file (containing reported LP/P variants) location is a directory, not a file!");
 			return;
 		}
 
@@ -355,7 +354,7 @@ public class Main
 		 */
 		LOG.info("Starting..");
 		Pipeline pipeline = new Pipeline( version,  cmdString,  splitRlvField,  keepAllVariants,
-		 mode,  inputVcfFile,  gavinFile,  clinvarFile,  cgdFile,
+		 mode,  inputVcfFile,  gavinFile,  repPathoFile,  cgdFile,
 			 caddFile,  fdrFile,  outputVCFFile,  labVariants, includeSamples);
 		pipeline.start();
 		LOG.info("..done!");
@@ -364,7 +363,7 @@ public class Main
 	/**
 	 * Copied from Apache Commons Lang 3.7
 	 */
-	public static <E extends Enum<E>> boolean isValidEnum(final Class<E> enumClass, final String enumName)
+	private static <E extends Enum<E>> boolean isValidEnum(final Class<E> enumClass, final String enumName)
 	{
 		if (enumName == null)
 		{
