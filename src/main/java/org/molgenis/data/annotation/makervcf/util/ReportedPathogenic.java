@@ -63,8 +63,11 @@ public class ReportedPathogenic
 			{
 				String repPathoInfo = repPatho.get();
 				//SnpEff does not annotate MT genes by default.. but perhaps we can get gene name from info field
-				String MTgene = getMTgene(repPathoInfo);
-				return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, MTgene, repPathoInfo, "GAVIN+RepPatho", "Reported pathogenic");
+				if(gene.equals("MT"))
+				{
+					gene = getMTgene(repPathoInfo);
+				}
+				return new Judgment(Judgment.Classification.Pathogenic, Judgment.Method.genomewide, gene, repPathoInfo, "GAVIN+RepPatho", "Reported pathogenic");
 			}
 		}
 		return null;//TODO JvdV: return VOUS?

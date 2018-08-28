@@ -50,6 +50,13 @@ public class DiscoverRelevantVariantsTest extends Setup
 		assertEquals(it.next().getRelevance().get(1).getGene(), "TERC");
 		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(),"Variant CADD score of 32.0 is greater than 30.4 for this gene.");
 		assertEquals(it.next().getRelevance().get(1).getJudgment().getReason(),"Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, the variant MAF of 0.0 is less than a MAF of 0.005591579999999973.");
+
+		// mitochondrial with gene name derived from reported pathogenic annotation
+		assertTrue(it.hasNext());
+		assertEquals(it.next().getChromosome(),"MT");
+		assertEquals(it.next().getRelevance().get(0).getAllele(), "T");
+		assertEquals(it.next().getRelevance().get(0).getGene(), "MT-TP");
+		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(), "CLINVAR|m.15990C>T|MT-TP|Pathogenic");
 		assertFalse(it.hasNext());
 	}
 
