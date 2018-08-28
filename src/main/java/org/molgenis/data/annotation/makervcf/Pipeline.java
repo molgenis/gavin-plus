@@ -24,7 +24,6 @@ public class Pipeline
 {
 	private final String version;
 	private final String cmdString;
-	private final boolean splitRlvField;
 	private final boolean keepAllVariants;
 	private final HandleMissingCaddScores.Mode mode;
 
@@ -36,17 +35,15 @@ public class Pipeline
 	private final File FDRfile;
 	private final File outputVcfFile;
 	private final File labVariants;
-	private final boolean includeSamples;
-	private final boolean disablePrefix;
+	private final VcfRecordMapperSettings vcfRecordMapperSettings;
 
-	public Pipeline(String version, String cmdString, boolean splitRlvField, boolean disablePrefix,
+	public Pipeline(String version, String cmdString, VcfRecordMapperSettings vcfRecordMapperSettings,
 			boolean keepAllVariants,
 			HandleMissingCaddScores.Mode mode, File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile,
-			File caddFile, File FDRfile, File outputVcfFile, File labVariants, boolean includeSamples)
+			File caddFile, File FDRfile, File outputVcfFile, File labVariants)
 	{
 		this.version = version;
 		this.cmdString = cmdString;
-		this.splitRlvField = splitRlvField;
 		this.keepAllVariants = keepAllVariants;
 		this.mode = mode;
 		this.inputVcfFile = inputVcfFile;
@@ -57,8 +54,7 @@ public class Pipeline
 		this.FDRfile = FDRfile;
 		this.outputVcfFile = outputVcfFile;
 		this.labVariants = labVariants;
-		this.includeSamples = includeSamples;
-		this.disablePrefix = disablePrefix;
+		this.vcfRecordMapperSettings = vcfRecordMapperSettings;
 	}
 
 	public void start() throws Exception
@@ -104,8 +100,8 @@ public class Pipeline
 		Iterator<GavinRecord> rv10 = new CleanupVariantsWithoutSamples(rv9, keepAllVariants).go();
 
 		//write Entities output VCF file
-		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile, version, cmdString, true, splitRlvField,
-				disablePrefix, includeSamples);
+		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile, version, cmdString, true,
+				vcfRecordMapperSettings);
 
 	}
 }

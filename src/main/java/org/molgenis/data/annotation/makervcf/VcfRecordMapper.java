@@ -1,19 +1,19 @@
 package org.molgenis.data.annotation.makervcf;
 
 import joptsimple.internal.Strings;
+import org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.stream;
@@ -72,8 +72,7 @@ class VcfRecordMapper
 		List<String> filterStatus = gavinRecord.getFilterStatus();
 		tokens.add(!filterStatus.isEmpty() ? filterStatus.stream().collect(joining(";")) : MISSING_VALUE);
 
-		tokens.add(createInfoToken(gavinRecord, vcfRecordMapperSettings.splitRlvField(),
-				vcfRecordMapperSettings.prefixRlvFields()));
+		tokens.add(createInfoToken(gavinRecord, vcfRecordMapperSettings));
 
 		if (vcfRecordMapperSettings.includeSamples())
 		{
@@ -89,7 +88,7 @@ class VcfRecordMapper
 		return tokens;
 	}
 
-	private String createInfoToken(GavinRecord gavinRecord, boolean splitRlvField, boolean prefixRlvFields)
+	private String createInfoToken(GavinRecord gavinRecord, VcfRecordMapperSettings vcfRecordMapperSettings)
 	{
 		Iterable<VcfInfo> vcfInformations = gavinRecord.getAnnotatedVcfRecord().getInformation();
 
@@ -124,12 +123,16 @@ class VcfRecordMapper
 		}
 		if (!gavinRecord.getRelevance().isEmpty())
 		{
-			stringBuilder.append(getRlv(gavinRecord, splitRlvField, prefixRlvFields));
+			stringBuilder.append(getRlv(gavinRecord, vcfRecordMapperSettings.splitRlvField(),
+					vcfRecordMapperSettings.prefixSplittedRlvFields()));
 		}
 		else
 		{
-
 			stringBuilder.append(createInfoTokenPart(RLV_PRESENT, "FALSE"));
+		}
+		if (vcfRecordMapperSettings.addSplittedAnnFields())
+		{
+			stringBuilder.append(getAnn(gavinRecord));
 		}
 
 		return stringBuilder.toString();
@@ -171,16 +174,36 @@ class VcfRecordMapper
 		return stream(sampleTokens).collect(joining(":"));
 	}
 
-	private String getRlv(GavinRecord gavinRecord, boolean splitRlvField, boolean prefixRlvFields)
+	private String getRlv(GavinRecord gavinRecord, boolean splitRlvField, boolean prefixSplittedFields)
 	{
 		LOG.debug("[MakeRVCFforClinicalVariants] Looking at: {}", gavinRecord);
 
 		List<Relevance> relevance = gavinRecord.getRelevance();
-		String rlv = rlvInfoMapper.map(relevance, splitRlvField, prefixRlvFields);
+		String rlv = rlvInfoMapper.map(relevance, splitRlvField, prefixSplittedFields);
 
 		LOG.debug("[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: {}",
 				rlv);
 
 		return rlv;
+	}
+
+	private String getAnn(GavinRecord gavinRecord)
+	{
+		String result = "";
+		Optional<VcfInfo> annotationInfoField = VcfRecordUtils.getInformation("ANN",
+				gavinRecord.getAnnotatedVcfRecord());
+		if (annotationInfoField.isPresent())
+		{
+			Annotation annotation = new Annotation(annotationInfoField.get().getValRaw());
+			List<String> results = new ArrayList<>();
+			Map<String, String> infoFields = annotation.getAnnInfoFields();
+			Set<String> fields = infoFields.keySet();
+			for (String field : fields)
+			{
+				results.add(field + "=" + infoFields.get(field));
+			}
+			result = Strings.join(results, ";");
+		}
+		return result;
 	}
 }

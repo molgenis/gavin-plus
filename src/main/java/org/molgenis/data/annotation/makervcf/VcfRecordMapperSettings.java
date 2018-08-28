@@ -9,10 +9,14 @@ public abstract class VcfRecordMapperSettings
 
 	public abstract boolean splitRlvField();
 
-	public abstract boolean prefixRlvFields();
+	public abstract boolean addSplittedAnnFields();
 
-	public static VcfRecordMapperSettings create(boolean includeSamples, boolean splitRlvField, boolean prefixRlvFields)
+	public abstract boolean prefixSplittedRlvFields();
+
+	public static VcfRecordMapperSettings create(boolean includeSamples, boolean splitRlvField,
+			boolean addSplittedAnnFields, boolean prefixSplittedRlvFields)
 	{
-		return new AutoValue_VcfRecordMapperSettings(includeSamples, splitRlvField, prefixRlvFields);
+		return new AutoValue_VcfRecordMapperSettings(includeSamples, splitRlvField, addSplittedAnnFields,
+				prefixSplittedRlvFields);
 	}
 }

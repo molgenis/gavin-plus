@@ -72,7 +72,7 @@ public class VcfRecordMapperTest
 	public void testMapSplitRlv()
 	{
 		when(vcfRecordMapperSettings.splitRlvField()).thenReturn(true);
-		when(vcfRecordMapperSettings.prefixRlvFields()).thenReturn(true);
+		when(vcfRecordMapperSettings.prefixSplittedRlvFields()).thenReturn(true);
 		vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 		GavinRecord gavinRecord = createMock(true, true, true, true, true, true, false);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);
@@ -85,7 +85,7 @@ public class VcfRecordMapperTest
 	public void testMapSplitRlvNoPrefix()
 	{
 		when(vcfRecordMapperSettings.splitRlvField()).thenReturn(true);
-		when(vcfRecordMapperSettings.prefixRlvFields()).thenReturn(false);
+		when(vcfRecordMapperSettings.prefixSplittedRlvFields()).thenReturn(false);
 		vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 		GavinRecord gavinRecord = createMock(true, true, true, true, true, true, false);
 		VcfRecord mappedVcfRecord = vcfRecordMapper.map(gavinRecord);

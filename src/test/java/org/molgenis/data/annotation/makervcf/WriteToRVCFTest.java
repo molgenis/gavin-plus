@@ -90,8 +90,9 @@ public class WriteToRVCFTest extends Setup
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
 
-		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true, false, false,
-				false);
+		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false, false, false, false);
+		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
+				vcfRecordMapperSettings);
 
 		System.out.println("Going to compare files:\n" + expectedOutputVcfFile.getAbsolutePath() + "\nvs.\n"
 				+ observedOutputVcfFile.getAbsolutePath());
@@ -113,14 +114,38 @@ public class WriteToRVCFTest extends Setup
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
 
-		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true, false, false,
-				false);
+		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false, false, false, false);
+		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
+				vcfRecordMapperSettings);
 
 		System.out.println("Going to compare files:\n" + expectedOutputVcfFile.getAbsolutePath() + "\nvs.\n"
 				+ observedOutputVcfFile.getAbsolutePath());
 		assertEquals(readVcfLinesWithoutHeader(observedOutputVcfFile),
 				readVcfLinesWithoutHeader(expectedOutputVcfFile));
+	}
 
+	@Test
+	public void testKeepAllAddAnnFields() throws Exception
+	{
+		InputStream outputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream(
+				"/WriteToRVCFTestExpectedOutputKeepAllSplittedAnn.vcf");
+		File expectedOutputVcfFileSplittedAnn = new File(FileUtils.getTempDirectory(),
+				"WriteToRVCFTestExpectedOutputKeepAllSplittedAnn.vcf");
+		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFileSplittedAnn));
+
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile,
+				caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
+		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
+				cgdFile, new HashSet<String>()).go();
+
+		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false, false, true, false);
+		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
+				vcfRecordMapperSettings);
+
+		System.out.println("Going to compare files:\n" + expectedOutputVcfFileSplittedAnn.getAbsolutePath() + "\nvs.\n"
+				+ observedOutputVcfFile.getAbsolutePath());
+		assertEquals(readVcfLinesWithoutHeader(observedOutputVcfFile),
+				readVcfLinesWithoutHeader(expectedOutputVcfFileSplittedAnn));
 	}
 
 	public ArrayList<String> readVcfLinesWithoutHeader(File vcf) throws FileNotFoundException
