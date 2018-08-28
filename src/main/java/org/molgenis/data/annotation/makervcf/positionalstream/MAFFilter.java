@@ -56,6 +56,7 @@ public class MAFFilter
 								if (keepAllVariants)
 								{
 									gavinRecord.setRelevances(Collections.emptyList());
+									nextResult = gavinRecord;
 									return true;
 								}
 							}
