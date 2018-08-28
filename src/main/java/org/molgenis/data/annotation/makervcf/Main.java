@@ -46,6 +46,7 @@ public class Main
 	public static final String SPLIT_RLV_FIELD = "separate_fields";
 	public static final String KEEP_ALL_VARIANTS = "keep_all_variants";
 	public static final String INCLUDE_SAMPLES = "include_samples";
+	public static final String DISABLE_PREFIX = "disable_prefix";
 
 	public static void main(String[] args) throws Exception
 	{
@@ -85,6 +86,8 @@ public class Main
 		parser.acceptsAll(asList("k", KEEP_ALL_VARIANTS), "Do not filter the non relevant variants, return all variants from the input");
 		parser.acceptsAll(asList("s", INCLUDE_SAMPLES), "Include samples is output");
 		parser.acceptsAll(asList("q", SPLIT_RLV_FIELD), "Create separate INFO fields for every part of the RLV information");
+		parser.acceptsAll(asList("y", DISABLE_PREFIX),
+				"In case of a splitted RLV field the option will not add a prefix, only use for input wit one variant per line.");
 
 		return parser;
 	}
@@ -337,6 +340,12 @@ public class Main
 			splitRlvField = true;
 		}
 
+		boolean disable_prefix = false;
+		if (options.has(DISABLE_PREFIX))
+		{
+			disable_prefix = true;
+		}
+
 		boolean keepAllVariants = false;
 		if (options.has(KEEP_ALL_VARIANTS))
 		{
@@ -353,7 +362,7 @@ public class Main
 		  Everything OK, start pipeline
 		 */
 		LOG.info("Starting..");
-		Pipeline pipeline = new Pipeline( version,  cmdString,  splitRlvField,  keepAllVariants,
+		Pipeline pipeline = new Pipeline(version, cmdString, splitRlvField, disable_prefix, keepAllVariants,
 		 mode,  inputVcfFile,  gavinFile,  repPathoFile,  cgdFile,
 			 caddFile,  fdrFile,  outputVCFFile,  labVariants, includeSamples);
 		pipeline.start();

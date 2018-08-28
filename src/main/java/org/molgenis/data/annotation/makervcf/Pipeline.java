@@ -2,8 +2,14 @@ package org.molgenis.data.annotation.makervcf;
 
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertBackToPositionalStream;
 import org.molgenis.data.annotation.makervcf.genestream.core.ConvertToGeneStream;
-import org.molgenis.data.annotation.makervcf.genestream.impl.*;
-import org.molgenis.data.annotation.makervcf.positionalstream.*;
+import org.molgenis.data.annotation.makervcf.genestream.impl.AddGeneFDR;
+import org.molgenis.data.annotation.makervcf.genestream.impl.AssignCompoundHet;
+import org.molgenis.data.annotation.makervcf.genestream.impl.PhasingCompoundCheck;
+import org.molgenis.data.annotation.makervcf.genestream.impl.TrioFilter;
+import org.molgenis.data.annotation.makervcf.positionalstream.CleanupVariantsWithoutSamples;
+import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
+import org.molgenis.data.annotation.makervcf.positionalstream.MAFFilter;
+import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
@@ -31,8 +37,10 @@ public class Pipeline
 	private final File outputVcfFile;
 	private final File labVariants;
 	private final boolean includeSamples;
+	private final boolean disablePrefix;
 
-	public Pipeline(String version, String cmdString, boolean splitRlvField, boolean keepAllVariants,
+	public Pipeline(String version, String cmdString, boolean splitRlvField, boolean disablePrefix,
+			boolean keepAllVariants,
 			HandleMissingCaddScores.Mode mode, File inputVcfFile, File gavinFile, File clinvarFile, File cgdFile,
 			File caddFile, File FDRfile, File outputVcfFile, File labVariants, boolean includeSamples)
 	{
@@ -50,6 +58,7 @@ public class Pipeline
 		this.outputVcfFile = outputVcfFile;
 		this.labVariants = labVariants;
 		this.includeSamples = includeSamples;
+		this.disablePrefix = disablePrefix;
 	}
 
 	public void start() throws Exception
@@ -95,7 +104,8 @@ public class Pipeline
 		Iterator<GavinRecord> rv10 = new CleanupVariantsWithoutSamples(rv9, keepAllVariants).go();
 
 		//write Entities output VCF file
-		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile, version, cmdString, true, splitRlvField, includeSamples);
+		new WriteToRVCF().writeRVCF(rv10, outputVcfFile, inputVcfFile, version, cmdString, true, splitRlvField,
+				disablePrefix, includeSamples);
 
 	}
 }

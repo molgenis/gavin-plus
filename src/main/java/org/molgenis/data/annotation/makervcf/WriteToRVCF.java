@@ -23,7 +23,8 @@ class WriteToRVCF
 	public static final String STRING = "String";
 
 	void writeRVCF(Iterator<GavinRecord> gavinRecords, File writeTo, File inputVcfFile, String version,
-			String cmdString, boolean writeToDisk, boolean splitRlvField, boolean includeSamples) throws Exception
+			String cmdString, boolean writeToDisk, boolean splitRlvField, boolean disablePrefix, boolean includeSamples)
+			throws Exception
 	{
 		VcfMeta vcfMeta = createRvcfMeta(inputVcfFile, splitRlvField, includeSamples);
 		vcfMeta.add("GavinVersion", StringUtils.wrap(version, "\""));
@@ -32,7 +33,8 @@ class WriteToRVCF
 
 		try (VcfWriter vcfWriter = new VcfWriterFactory().create(writeTo, vcfMeta))
 		{
-			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(includeSamples, splitRlvField);
+			VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(includeSamples,
+					splitRlvField, !disablePrefix);
 			VcfRecordMapper vcfRecordMapper = new VcfRecordMapper(vcfMeta, vcfRecordMapperSettings);
 			while (gavinRecords.hasNext())
 			{

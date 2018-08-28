@@ -9,8 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.molgenis.data.annotation.makervcf.structs.RVCF.*;
-import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_VARIANTGROUP;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class RVCFUtilsTest
 {
@@ -67,7 +66,7 @@ public class RVCFUtilsTest
 		expected.put(RLV_VARIANTMULTIGENIC, "[allele|gene]variantMultiGenic");
 		expected.put(RLV_VARIANTGROUP, "[allele|gene]variantGroup");
 
-		assertEquals(RVCFUtils.createRvcfValues(rvcf1, Collections.emptyMap()),expected);
+		assertEquals(RVCFUtils.createRvcfValues(rvcf1, Collections.emptyMap(), true), expected);
 	}
 	@Test
 	public void testCreateRvcfInfoFieldsExistingValues()
@@ -116,7 +115,7 @@ public class RVCFUtilsTest
 		existing.put(RLV_VARIANTMULTIGENIC, "VARIANTCOMPOUNDHET");
 		existing.put(RLV_VARIANTGROUP, "VARIANTGROUP");
 
-		assertEquals(RVCFUtils.createRvcfValues(rvcf1, existing),expected);
+		assertEquals(RVCFUtils.createRvcfValues(rvcf1, existing, true), expected);
 	}
 
 }
