@@ -130,11 +130,10 @@ class VcfRecordMapper
 		{
 			stringBuilder.append(createInfoTokenPart(RLV_PRESENT, "FALSE"));
 		}
-		stringBuilder.append(';');
 		if (vcfRecordMapperSettings.addSplittedAnnFields())
 		{
-			stringBuilder.append(getAnn(gavinRecord));
 			stringBuilder.append(';');
+			stringBuilder.append(getAnn(gavinRecord));
 		}
 
 		return stringBuilder.toString();
