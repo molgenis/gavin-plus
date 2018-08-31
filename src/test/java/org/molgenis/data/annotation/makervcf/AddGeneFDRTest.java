@@ -15,9 +15,7 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class AddGeneFDRTest extends Setup
 {
@@ -72,14 +70,12 @@ public class AddGeneFDRTest extends Setup
 		assertTrue(it.hasNext());
 		assertEquals(it.next().getRelevance().get(0).getFDR(), "0.004792332268370607,0.0");
 
-		assertTrue(it.hasNext());//non relevant variant
-		assertTrue(it.hasNext());//non relevant variant
-
 		assertTrue(it.hasNext());
 		assertEquals(it.next().getRelevance().get(0).getFDR(), "0.012779552715654952,0.0");
 
+		assertTrue(it.hasNext());//non relevant variant
+		assertTrue(it.hasNext());//non relevant variant
 		assertFalse(it.hasNext());
-
 	}
 
 }
