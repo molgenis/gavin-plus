@@ -170,12 +170,6 @@ class VcfRecordMapper
 		return stream(formatTokens).collect(joining(":"));
 	}
 
-	private String createSampleToken(VcfSample vcfSample)
-	{
-		String[] sampleTokens = vcfSample.getTokens();
-		return stream(sampleTokens).collect(joining(":"));
-	}
-
 	private String getRlv(GavinRecord gavinRecord, boolean splitRlvField, boolean prefixSplittedFields)
 	{
 		LOG.debug("[MakeRVCFforClinicalVariants] Looking at: {}", gavinRecord);
