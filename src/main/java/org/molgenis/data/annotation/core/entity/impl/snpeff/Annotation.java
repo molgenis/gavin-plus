@@ -93,8 +93,7 @@ public class Annotation
 					}
 					else
 					{
-						throw new RuntimeException(
-								"expected either no value or a value containing a '" + POS_LEN_SEPERATOR + "' found ["
+						throw new RuntimeException("expected either no value or a value containing a '/', found ["
 										+ value + "] instead.");
 					}
 				}
