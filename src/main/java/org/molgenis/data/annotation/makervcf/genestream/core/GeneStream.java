@@ -15,7 +15,6 @@ public abstract class GeneStream
 {
 	private static final Logger LOG = LoggerFactory.getLogger(GeneStream.class);
 	private Iterator<GavinRecord> gavinRecordIterator;
-	private boolean isFilterNonRelevant;
 
 	public GeneStream(Iterator<GavinRecord> gavinRecordIterator)
 	{
@@ -50,8 +49,6 @@ public abstract class GeneStream
 					while (gavinRecordIterator.hasNext())
 					{
 						GavinRecord gavinRecord = gavinRecordIterator.next();
-						if (gavinRecord.isRelevant())
-						{
 							// cleanup of result batch after previously flushed results
 							if (resultBatch != null)
 							{
@@ -121,14 +118,6 @@ public abstract class GeneStream
 							}
 							//else: nothing to return for this gene after perGene(previousGene, variantsForGene)
 							//so we go straight to cleanup in the next iteration
-
-						}else{
-							if(!isFilterNonRelevant)
-							{
-								nextResult = gavinRecord;
-								return true;
-							}
-						}
 					}
 				}
 

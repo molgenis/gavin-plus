@@ -17,7 +17,7 @@ public class RlvInfoMapper
 {
 	private String infoField;
 
-	public String map(List<Relevance> relevanceList, boolean splitRlvField)
+	public String map(List<Relevance> relevanceList, boolean splitRlvField, boolean prefixRlvFields)
 	{
 		if(!relevanceList.isEmpty())
 		{
@@ -61,7 +61,7 @@ public class RlvInfoMapper
 				Map<String, String> rvcfValues = new HashMap<>();
 				for (RVCF rvcf : rvcfList)
 				{
-					rvcfValues = createRvcfValues(rvcf, rvcfValues);
+					rvcfValues = createRvcfValues(rvcf, rvcfValues, prefixRlvFields);
 				}
 				List<String> rlvInfoFields = new ArrayList<>();
 				for(Map.Entry<String,String> entry : rvcfValues.entrySet()){
