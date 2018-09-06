@@ -1,6 +1,11 @@
 package org.molgenis.data.annotation.core.entity.impl.snpeff;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.molgenis.exception.UnexpectedAnnValueException;
 
 public class Annotation
 {
@@ -93,8 +98,9 @@ public class Annotation
 					}
 					else
 					{
-						throw new RuntimeException("expected either no value or a value containing a '/', found ["
-										+ value + "] instead.");
+            throw new UnexpectedAnnValueException(String
+                .format("expected either no value or a value containing a '/', found [%s] instead.",
+                    value));
 					}
 				}
 				else

@@ -1,17 +1,16 @@
 package org.molgenis.data.annotation.makervcf;
 
+import static java.util.Arrays.asList;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
-import static java.util.Arrays.asList;
 
 /**
  * Created by joeri on 6/1/16.
@@ -343,10 +342,10 @@ public class Main
 			splitRlvField = true;
 		}
 
-		boolean disable_prefix = false;
+		boolean disablePrefix = false;
 		if (options.has(DISABLE_PREFIX))
 		{
-			disable_prefix = true;
+			disablePrefix = true;
 		}
 
 		boolean addSplittedAnnFields = false;
@@ -372,7 +371,7 @@ public class Main
 		 */
 		LOG.info("Starting..");
 		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(includeSamples, splitRlvField,
-				addSplittedAnnFields, !disable_prefix);
+				addSplittedAnnFields, !disablePrefix);
 		Pipeline pipeline = new Pipeline(version, cmdString, vcfRecordMapperSettings, keepAllVariants, mode,
 				inputVcfFile, gavinFile, repPathoFile, cgdFile, caddFile, fdrFile, outputVCFFile, labVariants);
 		pipeline.start();
