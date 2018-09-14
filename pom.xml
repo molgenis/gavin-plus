@@ -37,7 +37,18 @@
         <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
     </properties>
 
-    <build>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>registry.molgenis.org</id>
+      <url>https://registry.molgenis.org/repository/maven-snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>registry.molgenis.org</id>
+      <url>https://registry.molgenis.org/repository/maven-releases/</url>
+    </repository>
+  </distributionManagement>
+
+  <build>
         <pluginManagement>
             <plugins>
                 <plugin>
