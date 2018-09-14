@@ -64,12 +64,9 @@ pipeline {
             when {
                 expression { BRANCH_NAME ==~ /[0-9]\.[0-9]/ }
             }
-            environment {
-                TAG = 'stable'
-            }
             steps {
                 container('maven') {
-                    sh "mvn clean install -Dmaven.test.redirectTestOutputToFile=true -DskipITs -Ddockerfile.tag=${BRANCH_NAME}-${TAG} -Ddockerfile.skip=false"
+                    sh "mvn clean install -Dmaven.test.redirectTestOutputToFile=true"
                 }
             }
             post {
@@ -87,7 +84,6 @@ pipeline {
                 expression { BRANCH_NAME ==~ /[0-9]\.[0-9]/ }
             }
             environment {
-                TAG = 'lts'
                 ORG = 'molgenis'
                 REPO = 'gavin-plus'
                 MAVEN_ARTIFACT_ID = 'gavin-plus'
