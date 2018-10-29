@@ -42,11 +42,15 @@ public class Main
 	public static final String REPLACE = "replace";
 	public static final String HELP = "help";
 	public static final String RESTORE = "restore";
-	public static final String SPLIT_RLV_FIELD = "separate_fields";
+  public static final String RLV_FIELD_MODE = "separate_fields";
 	public static final String KEEP_ALL_VARIANTS = "keep_all_variants";
 	public static final String INCLUDE_SAMPLES = "include_samples";
 	public static final String DISABLE_PREFIX = "disable_prefix";
 	public static final String ADD_SPLITTED_ANN_FIELDS = "add_splitted_ann_fields";
+
+  public enum RlvMode {
+    MERGED, SPLITTED, BOTH
+  }
 
 	public static void main(String[] args) throws Exception
 	{
@@ -85,7 +89,10 @@ public class Main
 			  .ofType(File.class);
 		parser.acceptsAll(asList("k", KEEP_ALL_VARIANTS), "Do not filter the non relevant variants, return all variants from the input");
 		parser.acceptsAll(asList("s", INCLUDE_SAMPLES), "Include samples is output");
-		parser.acceptsAll(asList("q", SPLIT_RLV_FIELD), "Create separate INFO fields for every part of the RLV information");
+    parser.acceptsAll(asList("q", RLV_FIELD_MODE),
+        "The format mode of the RLV field: MERGED, SPLITTED, BOTH").withRequiredArg()
+        .ofType(String.class);
+    ;
 		parser.acceptsAll(asList("y", DISABLE_PREFIX),
 				"In case of a splitted RLV field this option will NOT add the '[GENE|ALLELE]' prefix, only use for input with one variant per line.");
 		parser.acceptsAll(asList("x", ADD_SPLITTED_ANN_FIELDS),
@@ -114,6 +121,7 @@ public class Main
 				+ "The required helper files for -g, -c, -d and -f can be downloaded from: http://molgenis.org/downloads/gavin at 'data_bundle'.\n"
 				+ "The -a file is either produced by the analysis (using -m CREATEFILEFORCADD) or used as an existing file (using -m ANALYSIS).\n"
 				+ "The -l is a user-supplied VCF of interpreted variants. Use 'CLSF=LP' or 'CLSF=P' as info field to denote (likely) pathogenic variants.\n"
+        + "The -q option determines if the GAVIN information should be added as separate fields, one merged field, or both.\n"
 				+ "\n" + "Using pedigree data for filtering:\n"
 				+ "Please use the standard PEDIGREE notation in your VCF header, e.g. '##PEDIGREE=<Child=p01,Mother=p02,Father=p03>'. Trios and duos are allowed.\n"
 				+ "Parents are assumed unaffected, children affected. Using complex family trees, grandparents and siblings is not yet supported.\n"
@@ -336,11 +344,12 @@ public class Main
 			setLogLevelToDebug();
 		}
 
-		boolean splitRlvField = false;
-		if (options.has(SPLIT_RLV_FIELD))
-		{
-			splitRlvField = true;
-		}
+    String rlvModeString = (String) options.valueOf(RLV_FIELD_MODE);
+    if (!isValidEnum(RlvMode.class, rlvModeString)) {
+      System.out.println("Mode must be one of the following: " + Arrays.toString(RlvMode.values()));
+      return;
+    }
+    RlvMode rlvMode = RlvMode.valueOf(rlvModeString);
 
 		boolean disablePrefix = false;
 		if (options.has(DISABLE_PREFIX))
@@ -370,7 +379,8 @@ public class Main
 		  Everything OK, start pipeline
 		 */
 		LOG.info("Starting..");
-		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(includeSamples, splitRlvField,
+    VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings
+        .create(includeSamples, rlvMode,
 				addSplittedAnnFields, !disablePrefix);
 		Pipeline pipeline = new Pipeline(version, cmdString, vcfRecordMapperSettings, keepAllVariants, mode,
 				inputVcfFile, gavinFile, repPathoFile, cgdFile, caddFile, fdrFile, outputVCFFile, labVariants);
