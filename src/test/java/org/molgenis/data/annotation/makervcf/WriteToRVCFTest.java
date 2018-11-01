@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Scanner;
 import org.apache.commons.io.FileUtils;
+import org.molgenis.data.annotation.makervcf.Main.RlvMode;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
@@ -93,7 +94,8 @@ public class WriteToRVCFTest extends Setup
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
 
-		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false, false, false, false);
+		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings
+				.create(false, RlvMode.MERGED, false, false);
 		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
 				vcfRecordMapperSettings);
 
@@ -115,7 +117,8 @@ public class WriteToRVCFTest extends Setup
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
 
-		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false, false, false, false);
+		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings
+				.create(false, RlvMode.MERGED, false, false);
 		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
 				vcfRecordMapperSettings);
 
@@ -137,7 +140,8 @@ public class WriteToRVCFTest extends Setup
 		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
 				cgdFile, new HashSet<String>()).go();
 
-		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(false, false, true, false);
+		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings
+				.create(false, RlvMode.MERGED, true, false);
 		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
 				vcfRecordMapperSettings);
 

@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.stream.StreamSupport;
 import joptsimple.internal.Strings;
 import org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation;
+import org.molgenis.data.annotation.makervcf.Main.RlvMode;
 import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
@@ -116,7 +117,7 @@ class VcfRecordMapper {
       stringBuilder.append(';');
     }
     if (!gavinRecord.getRelevance().isEmpty()) {
-      stringBuilder.append(getRlv(gavinRecord, vcfRecordMapperSettings.splitRlvField(),
+      stringBuilder.append(getRlv(gavinRecord, vcfRecordMapperSettings.rlvMode(),
           vcfRecordMapperSettings.prefixSplittedRlvFields()));
     } else {
       stringBuilder.append(createInfoTokenPart(RLV_PRESENT, "FALSE"));
@@ -152,12 +153,12 @@ class VcfRecordMapper {
     return stream(formatTokens).collect(joining(":"));
   }
 
-  private String getRlv(GavinRecord gavinRecord, boolean splitRlvField,
+  private String getRlv(GavinRecord gavinRecord, RlvMode rlvMode,
       boolean prefixSplittedFields) {
     LOG.debug("[MakeRVCFforClinicalVariants] Looking at: {}", gavinRecord);
 
     List<Relevance> relevance = gavinRecord.getRelevance();
-    String rlv = rlvInfoMapper.map(relevance, splitRlvField, prefixSplittedFields);
+    String rlv = rlvInfoMapper.map(relevance, rlvMode, prefixSplittedFields);
 
     LOG.debug(
         "[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: {}",

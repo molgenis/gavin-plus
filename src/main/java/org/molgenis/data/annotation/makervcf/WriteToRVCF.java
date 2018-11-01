@@ -1,7 +1,55 @@
 package org.molgenis.data.annotation.makervcf;
 
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.AA_LEN;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.AA_POS;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.ALLELE;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.BIOTYPE;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.CDNA_LEN;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.CDNA_POS;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.CDS_LEN;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.CDS_POS;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.DISTANCE;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.EFFECT;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.ERRORS;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.FEATURE;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.FEATUREID;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.GENE;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.GENEID;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.HGVS_C;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.HGVS_P;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.IMPACT;
+import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.RANK;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_ALLELE;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_ALLELEFREQ;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_FDR;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_GENE;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_PHENOTYPE;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_PHENOTYPEDETAILS;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_PHENOTYPEGROUP;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_PHENOTYPEINHERITANCE;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_PHENOTYPEONSET;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_PRESENT;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_SAMPLEGENOTYPE;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_SAMPLEGROUP;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_SAMPLEPHENOTYPE;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_SAMPLESTATUS;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_TRANSCRIPT;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_VARIANTGROUP;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_VARIANTMULTIGENIC;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_VARIANTSIGNIFICANCE;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_VARIANTSIGNIFICANCEJUSTIFICATION;
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_VARIANTSIGNIFICANCESOURCE;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.molgenis.calibratecadd.support.GavinUtils;
+import org.molgenis.data.annotation.makervcf.Main.RlvMode;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.vcf.VcfReader;
 import org.molgenis.vcf.VcfWriter;
@@ -10,13 +58,6 @@ import org.molgenis.vcf.meta.VcfMeta;
 import org.molgenis.vcf.meta.VcfMetaInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
-import static org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation.*;
-import static org.molgenis.data.annotation.makervcf.structs.RVCF.*;
 
 class WriteToRVCF
 {
@@ -61,12 +102,14 @@ class WriteToRVCF
 			vcfMeta.setColNames(Arrays.copyOfRange(vcfMeta.getColNames(), 0, VcfMeta.COL_FORMAT_IDX));
 			vcfMeta.setVcfMetaSamples(Collections.emptyMap());
 		}
-		if (!vcfRecordMapperSettings.splitRlvField())
+		if (vcfRecordMapperSettings.rlvMode() == RlvMode.MERGED
+				|| vcfRecordMapperSettings.rlvMode() == RlvMode.BOTH)
 		{
 			addInfoField(vcfMeta, "RLV", ".", STRING,
 					"Allele | AlleleFreq | Gene | FDR | Transcript | Phenotype | PhenotypeInheritance | PhenotypeOnset | PhenotypeDetails | PhenotypeGroup | SampleStatus | SamplePhenotype | SampleGenotype | SampleGroup | VariantSignificance | VariantSignificanceSource | VariantSignificanceJustification | VariantCompoundHet | VariantGroup");
 		}
-		else
+		if (vcfRecordMapperSettings.rlvMode() == RlvMode.SPLITTED
+				|| vcfRecordMapperSettings.rlvMode() == RlvMode.BOTH)
 		{
 			addRvcfHeaders(vcfMeta);
 		}
