@@ -35,7 +35,7 @@ pipeline {
                     junit '**/target/surefire-reports/**.xml'
                     container('maven') {
                         sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K"
-                        sh "mvn sonar:sonar -Dsonar.analysis.mode=preview -Dsonar.login=${env.SONAR_TOKEN} -Dsonar.github.oauth=${env.GITHUB_TOKEN} -Dsonar.github.pullRequest=${env.CHANGE_ID} -Dsonar.ws.timeout=120"
+                        sh "mvn -q -B sonar:sonar -Dsonar.login=${env.SONAR_TOKEN} -Dsonar.github.oauth=${env.GITHUB_TOKEN} -Dsonar.pullrequest.base=${CHANGE_TARGET} -Dsonar.pullrequest.branch=${BRANCH_NAME} -Dsonar.pullrequest.key=${env.CHANGE_ID} -Dsonar.pullrequest.provider=GitHub -Dsonar.pullrequest.github.repository=molgenis/gavin-plus -Dsonar.ws.timeout=120"
                     }
                 }
             }
@@ -55,7 +55,7 @@ pipeline {
                     junit '**/target/surefire-reports/**.xml'
                     container('maven') {
                         sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K"
-                        sh "mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.branch=${BRANCH_NAME} --batch-mode --quiet -Dsonar.ws.timeout=120"
+                        sh "mvn -q -B sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.ws.timeout=120"
                     }
                 }
             }
@@ -74,7 +74,7 @@ pipeline {
                     junit '**/target/surefire-reports/**.xml'
                     container('maven') {
                         sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K"
-                        sh "mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.branch=${BRANCH_NAME} --batch-mode --quiet -Dsonar.ws.timeout=120"
+                        sh "mvn -q -B sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.branch=${BRANCH_NAME} --batch-mode --quiet -Dsonar.ws.timeout=120"
                     }
                 }
             }
@@ -110,6 +110,30 @@ pipeline {
                     sh ".release/generate_release_properties.bash ${MAVEN_ARTIFACT_ID} ${MAVEN_GROUP_ID} ${RELEASE_SCOPE}"
                     sh "mvn release:prepare release:perform -Dmaven.test.redirectTestOutputToFile=true"
                     sh "git push --tags origin ${BRANCH_NAME}"
+                }
+            }
+        }
+        stage('Steps [ feature ]') {
+            when {
+                expression { BRANCH_NAME ==~ /feature\/.*/ }
+            }
+            environment {
+                TAG = "$BRANCH_NAME-$BUILD_NUMBER".replaceAll(~/[^\w.-]/, '-').toLowerCase()
+            }
+            stages {
+                stage('Build [ feature ]') {
+                    steps {
+                        container('maven') {
+                            sh "mvn -q -B clean verify -Dmaven.test.redirectTestOutputToFile=true -DskipITs"
+                            sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K  -C ${GIT_COMMIT}"
+                            sh "mvn -q -B sonar:sonar -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN} -Dsonar.ws.timeout=120"
+                        }
+                    }
+                    post {
+                        always {
+                            junit '**/target/surefire-reports/**.xml'
+                        }
+                    }
                 }
             }
         }
