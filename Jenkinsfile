@@ -19,9 +19,6 @@ pipeline {
                         env.SONAR_TOKEN = sh(script: 'vault read -field=value secret/ops/token/sonar', returnStdout: true)
                         env.GITHUB_USER = sh(script: 'vault read -field=username secret/ops/token/github', returnStdout: true)
                     }
-                    dir('/home/jenkins/.m2') {
-                        stash includes: 'settings.xml', name: 'maven-settings'
-                    }
                 }
             }
         }
@@ -71,9 +68,6 @@ pipeline {
             stages {
                 stage('Build [ x.x ]') {
                     steps {
-                        dir('/home/jenkins/.m2') {
-                            unstash 'maven-settings'
-                        }
                         container('maven') {
                             sh "mvn -q -B clean deploy -Dmaven.test.redirectTestOutputToFile=true -T4"
                             sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K  -C ${GIT_COMMIT}"
