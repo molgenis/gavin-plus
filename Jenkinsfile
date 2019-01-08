@@ -91,11 +91,6 @@ pipeline {
                         }
                     }
                 }
-                stage('Manual test [ x.x ]') {
-                    steps {
-                        input(message: 'Ok to release?')
-                    }
-                }
                 stage('Perform release [ x.x ]') {
                     steps {
                         container('maven') {
