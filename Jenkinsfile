@@ -58,25 +58,7 @@ pipeline {
                 }
             }
         }
-        stage('Build [ x.x ]') {
-            when {
-                expression { BRANCH_NAME ==~ /[0-9]\.[0-9]/ }
-            }
-            steps {
-                container('maven') {
-                    sh "mvn clean install -Dmaven.test.redirectTestOutputToFile=true"
-                }
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/**.xml'
-                    container('maven') {
-                        sh "mvn -q -B sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.branch=${BRANCH_NAME} --batch-mode --quiet -Dsonar.ws.timeout=120"
-                    }
-                }
-            }
-        }
-        stage('Release: [ x.x ]') {
+        stage('Steps: [ x.x ]') {
             when {
                 expression { BRANCH_NAME ==~ /[0-9]\.[0-9]/ }
             }
