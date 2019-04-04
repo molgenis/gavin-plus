@@ -29,6 +29,9 @@ public class RlvInfoMapper
       if (rlvMode == RlvMode.SPLITTED || rlvMode == RlvMode.BOTH) {
         infoField.append(getSplittedFields(rvcfList, prefixRlvFields));
       }
+      if (rlvMode == RlvMode.BOTH) {
+        infoField.append(";");
+      }
       if (rlvMode == RlvMode.MERGED || rlvMode == RlvMode.BOTH) {
         infoField.append(getMergedFields(rvcfList));
       }
