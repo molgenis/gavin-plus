@@ -1,19 +1,20 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import org.apache.commons.lang3.StringUtils;
-import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
-import org.molgenis.data.vcf.datastructures.Sample;
-import org.molgenis.vcf.VcfRecord;
-import org.molgenis.vcf.VcfRecordUtils;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.*;
-import static java.util.Objects.requireNonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
+import org.molgenis.data.vcf.datastructures.Sample;
+import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
 
 public class GavinRecord
 {
@@ -97,7 +98,7 @@ public class GavinRecord
 
 	public Stream<Sample> getSamples()
 	{
-		return VcfRecordUtils.toSamples(annotatedVcfRecord);
+		return AnnotatedVcfRecord.toSamples(annotatedVcfRecord);
 	}
 
 	public int getAltAlleleIndex(String alt)

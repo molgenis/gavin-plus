@@ -21,7 +21,8 @@
 
       <!-- dependency versions not managed by parent pom -->
         <google.auto-value.version>1.4.1</google.auto-value.version>
-        <Genotype-IO.version>1.0.3</Genotype-IO.version>
+      <molgenis.vcf-io.version>1.1.1</molgenis.vcf-io.version>
+      <commons-io.version>2.4</commons-io.version>
         <utgenome-picard.version>1.102.0</utgenome-picard.version>
         <mockito.version>2.7.22</mockito.version>
 
@@ -37,7 +38,7 @@
         <sonar.java.codeCoveragePlugin>jacoco</sonar.java.codeCoveragePlugin>
 
         <!-- plugin versions not managed by parent pom -->
-        <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
+      <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
     </properties>
 
   <distributionManagement>
@@ -134,36 +135,15 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>nl.systemsgenetics</groupId>
-                <artifactId>Genotype-IO</artifactId>
-                <version>${Genotype-IO.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>mockito-all</artifactId>
-                        <groupId>org.mockito</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>log4j</artifactId>
-                        <groupId>log4j</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>trove4j</artifactId>
-                        <groupId>net.sf.trove4j</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>commons-cli</artifactId>
-                        <groupId>org.apache.commons</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>edu-umd-cs-findbugs-annotations</artifactId>
-                        <groupId>com.kenai.nbpwr</groupId>
-                    </exclusion>
-                </exclusions>
+              <groupId>org.molgenis</groupId>
+              <artifactId>vcf-io</artifactId>
+              <version>${molgenis.vcf-io.version}</version>
             </dependency>
+          <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+          </dependency>
             <dependency>
                 <groupId>org.utgenome.thirdparty</groupId>
                 <artifactId>picard</artifactId>
@@ -195,13 +175,17 @@
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>nl.systemsgenetics</groupId>
-            <artifactId>Genotype-IO</artifactId>
+          <groupId>org.molgenis</groupId>
+          <artifactId>vcf-io</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+      </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
