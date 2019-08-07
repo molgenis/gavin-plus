@@ -45,7 +45,7 @@
     <sonar.java.codeCoveragePlugin>jacoco</sonar.java.codeCoveragePlugin>
 
     <!-- plugin versions not managed by parent pom -->
-    <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
   </properties>
 
   <distributionManagement>
