@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

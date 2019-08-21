@@ -8,9 +8,9 @@
   <version>1.6.0-SNAPSHOT</version>
 
   <parent>
-    <groupId>io.spring.platform</groupId>
-    <artifactId>platform-bom</artifactId>
-    <version>Cairo-SR1</version>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.1.7.RELEASE</version>
   </parent>
 
   <scm>
@@ -31,8 +31,10 @@
     <google.auto-value.version>1.4.1</google.auto-value.version>
     <molgenis.vcf-io.version>1.1.1</molgenis.vcf-io.version>
     <commons-io.version>2.4</commons-io.version>
+    <commons-collections.version>3.2.2</commons-collections.version>
     <utgenome-picard.version>1.102.0</utgenome-picard.version>
-    <mockito.version>2.7.22</mockito.version>
+    <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
+    <jopt-simple.version>5.0.4</jopt-simple.version>
 
     <!-- override dependency versions managed by parent pom -->
     <testng.version>6.8</testng.version>
@@ -46,7 +48,7 @@
     <sonar.java.codeCoveragePlugin>jacoco</sonar.java.codeCoveragePlugin>
 
     <!-- plugin versions not managed by parent pom -->
-    <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
   </properties>
 
   <distributionManagement>
@@ -164,9 +166,29 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.testng</groupId>
+        <artifactId>testng</artifactId>
+        <version>${testng.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>${findbugs-jsr305.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.jopt-simple</groupId>
+        <artifactId>jopt-simple</artifactId>
+        <version>${jopt-simple.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>${commons-collections.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -195,8 +217,8 @@
       <artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>

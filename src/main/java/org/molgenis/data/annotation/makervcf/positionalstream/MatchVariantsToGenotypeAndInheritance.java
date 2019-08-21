@@ -1,7 +1,16 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
+import static org.molgenis.cgd.CGDEntry.generalizedInheritance;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.molgenis.cgd.CGDEntry;
 import org.molgenis.cgd.LoadCGD;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
@@ -11,12 +20,6 @@ import org.molgenis.data.annotation.makervcf.structs.RelevanceUtils;
 import org.molgenis.data.vcf.datastructures.Sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
-import static org.molgenis.cgd.CGDEntry.generalizedInheritance;
 
 /**
  * Created by joeri on 6/1/16.

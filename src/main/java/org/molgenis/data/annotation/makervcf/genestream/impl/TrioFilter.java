@@ -1,6 +1,13 @@
 package org.molgenis.data.annotation.makervcf.genestream.impl;
 
-import org.apache.commons.lang.StringUtils;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.makervcf.genestream.core.GeneStream;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
@@ -9,9 +16,6 @@ import org.molgenis.data.annotation.makervcf.structs.TrioData;
 import org.molgenis.data.vcf.datastructures.Trio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.*;
 
 /**
  * Created by joeri on 6/29/16.
