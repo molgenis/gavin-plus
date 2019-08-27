@@ -65,6 +65,11 @@ class WriteToRVCF
 	public static final String STRING = "String";
 	public static final String INTEGER = "Integer";
 
+	private static final String KEY_ID = "ID";
+	private static final String KEY_NUMBER = "Number";
+	private static final String KEY_TYPE = "Type";
+	private static final String KEY_DESCRIPTION = "Description";
+
 	void writeRVCF(Iterator<GavinRecord> gavinRecords, File writeTo, File inputVcfFile, String version,
 			String cmdString, boolean writeToDisk, VcfRecordMapperSettings vcfRecordMapperSettings)
 			throws Exception
@@ -173,10 +178,10 @@ class WriteToRVCF
 	{
 		Map<String, String> properties = new LinkedHashMap<>();
 
-		properties.put(VcfMetaInfo.KEY_ID, id);
-		properties.put(VcfMetaInfo.KEY_NUMBER, number);
-		properties.put(VcfMetaInfo.KEY_TYPE, type);
-		properties.put(VcfMetaInfo.KEY_DESCRIPTION, description);
+		properties.put(KEY_ID, id);
+		properties.put(KEY_NUMBER, number);
+		properties.put(KEY_TYPE, type);
+		properties.put(KEY_DESCRIPTION, description);
 		vcfMeta.addInfoMeta(new VcfMetaInfo(properties));
 	}
 }

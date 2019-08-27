@@ -1,19 +1,24 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
-import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
-import org.molgenis.vcf.VcfInfo;
-import org.molgenis.vcf.VcfRecord;
-import org.molgenis.vcf.VcfRecordUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
+import org.molgenis.data.vcf.datastructures.Sample;
+import org.molgenis.vcf.VcfInfo;
+import org.molgenis.vcf.VcfRecord;
+import org.molgenis.vcf.VcfRecordUtils;
+import org.molgenis.vcf.meta.VcfMeta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link VcfRecord} annotated with SnpEff, CADD (as much as possible), ExAC, GoNL and 1000G.
@@ -160,4 +165,23 @@ public class AnnotatedVcfRecord extends VcfRecord
 		LOG.warn("annotation could not be found for {}, allele={}, ann={}", gene, allele, ann);
 		return null;
 	}
+
+  public String[] getSampleTokens() {
+    int firstSample = VcfMeta.COL_FORMAT_IDX + 1;
+    return Arrays.copyOfRange(getTokens(), firstSample, firstSample + getNrSamples());
+  }
+
+  public static Stream<Sample> toSamples(VcfRecord vcfRecord) {
+    AtomicInteger counter = new AtomicInteger(0);
+    VcfMeta vcfMeta = vcfRecord.getVcfMeta();
+    return StreamSupport.stream(vcfRecord.getSamples().spliterator(), false).map(vcfSample ->
+    {
+      String sampleName = vcfMeta.getSampleName(counter.getAndIncrement());
+      String genoType = VcfRecordUtils.getSampleFieldValue(vcfRecord, vcfSample, "GT");
+      String doubleString = VcfRecordUtils.getSampleFieldValue(vcfRecord, vcfSample, "DP");
+      Double depth = doubleString != null ? Double.parseDouble(doubleString) : null;
+
+      return new Sample(sampleName, genoType, depth);
+    });
+  }
 }
