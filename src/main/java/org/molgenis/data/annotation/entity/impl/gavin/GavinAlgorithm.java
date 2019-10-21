@@ -1,7 +1,7 @@
 package org.molgenis.data.annotation.entity.impl.gavin;
 
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
-import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
+import org.molgenis.data.annotation.core.entity.impl.gavin.Impact;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category;
 import org.molgenis.data.annotation.makervcf.structs.GavinCalibrations;
 
@@ -12,7 +12,7 @@ import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Class
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification.Pathogenic;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Method.calibrated;
 import static org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Method.genomewide;
-import static org.molgenis.data.annotation.core.entity.impl.snpeff.Impact.*;
+import static org.molgenis.data.annotation.core.entity.impl.gavin.Impact.*;
 import static org.molgenis.data.annotation.entity.impl.gavin.GavinEntry.Category.*;
 
 public class GavinAlgorithm

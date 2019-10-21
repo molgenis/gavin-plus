@@ -4,7 +4,6 @@ import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
-import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -20,7 +19,7 @@ public class DiscoverRelevantVariantsTest extends Setup
 	protected File inputVcfFile;
 
 	@BeforeClass
-	public void beforeClass() throws FileNotFoundException, IOException {
+	public void beforeClass() throws IOException {
 		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream("/DiscoverRelevantVariantsTestFile.vcf");
 		inputVcfFile = new File(FileUtils.getTempDirectory(), "DiscoverRelevantVariantsTestFile.vcf");
 		FileCopyUtils.copy(inputVcf, new FileOutputStream(inputVcfFile));
@@ -31,7 +30,7 @@ public class DiscoverRelevantVariantsTest extends Setup
 	public void testPredictedPathogenic() throws Exception
 	{
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile, caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, false);
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, false);
 		Iterator<GavinRecord> it = discover.findRelevantVariants();
 
 		assertTrue(it.hasNext());
@@ -53,7 +52,7 @@ public class DiscoverRelevantVariantsTest extends Setup
 
 		// mitochondrial with gene name derived from reported pathogenic annotation
 		assertTrue(it.hasNext());
-		assertEquals(it.next().getChromosome(),"MT");
+		assertEquals(it.next().getVcfRecord().getChromosome(),"MT");
 		assertEquals(it.next().getRelevance().get(0).getAllele(), "T");
 		assertEquals(it.next().getRelevance().get(0).getGene(), "MT-TP");
 		assertEquals(it.next().getRelevance().get(0).getJudgment().getReason(), "CLINVAR|m.15990C>T|MT-TP|Pathogenic");

@@ -8,15 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Scanner;
 import org.apache.commons.io.FileUtils;
 import org.molgenis.data.annotation.makervcf.Main.RlvMode;
 import org.molgenis.data.annotation.makervcf.positionalstream.DiscoverRelevantVariants;
-import org.molgenis.data.annotation.makervcf.positionalstream.MatchVariantsToGenotypeAndInheritance;
-import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
-import org.molgenis.data.annotation.makervcf.util.HandleMissingCaddScores;
 import org.springframework.util.FileCopyUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -67,7 +62,7 @@ public class WriteToRVCFTest extends Setup
 	protected File cgdFile;
 
 	@BeforeClass
-	public void beforeClass() throws FileNotFoundException, IOException
+	public void beforeClass() throws IOException
 	{
 		InputStream inputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream(
 				"/MatchVariantsToGenotypeAndInheritanceTestFile.vcf");
@@ -89,14 +84,11 @@ public class WriteToRVCFTest extends Setup
 		expectedOutputVcfFile = new File(FileUtils.getTempDirectory(), "WriteToRVCFTestExpectedOutput.vcf");
 		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFile));
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile, caddFile,
-				null, HandleMissingCaddScores.Mode.ANALYSIS, false);
-		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
-				cgdFile, new HashSet<String>()).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, false);
 
 		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings
-				.create(false, RlvMode.MERGED, false, false);
-		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
+				.create(RlvMode.MERGED);
+		new WriteToRVCF().writeRVCF(discover.findRelevantVariants(), observedOutputVcfFile, inputVcfFile, "test", "command", true,
 				vcfRecordMapperSettings);
 
 		assertEquals(readVcfLinesWithoutHeader(observedOutputVcfFile),
@@ -112,41 +104,15 @@ public class WriteToRVCFTest extends Setup
 		expectedOutputVcfFile = new File(FileUtils.getTempDirectory(), "WriteToRVCFTestExpectedOutputKeepAll.vcf");
 		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFile));
 
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile, caddFile,
-				null, HandleMissingCaddScores.Mode.ANALYSIS, true);
-		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
-				cgdFile, new HashSet<String>()).go();
+		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, true);
 
 		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings
-				.create(false, RlvMode.MERGED, false, false);
-		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
+				.create(RlvMode.MERGED);
+		new WriteToRVCF().writeRVCF(discover.findRelevantVariants(), observedOutputVcfFile, inputVcfFile, "test", "command", true,
 				vcfRecordMapperSettings);
 
 		assertEquals(readVcfLinesWithoutHeader(observedOutputVcfFile),
 				readVcfLinesWithoutHeader(expectedOutputVcfFile));
-	}
-
-	@Test
-	public void testKeepAllAddAnnFields() throws Exception
-	{
-		InputStream outputVcf = DiscoverRelevantVariantsTest.class.getResourceAsStream(
-				"/WriteToRVCFTestExpectedOutputKeepAllSplittedAnn.vcf");
-		File expectedOutputVcfFileSplittedAnn = new File(FileUtils.getTempDirectory(),
-				"WriteToRVCFTestExpectedOutputKeepAllSplittedAnn.vcf");
-		FileCopyUtils.copy(outputVcf, new FileOutputStream(expectedOutputVcfFileSplittedAnn));
-
-		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, repPathoFile,
-				caddFile, null, HandleMissingCaddScores.Mode.ANALYSIS, true);
-		Iterator<GavinRecord> match = new MatchVariantsToGenotypeAndInheritance(discover.findRelevantVariants(),
-				cgdFile, new HashSet<String>()).go();
-
-		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings
-				.create(false, RlvMode.MERGED, true, false);
-		new WriteToRVCF().writeRVCF(match, observedOutputVcfFile, inputVcfFile, "test", "command", true,
-				vcfRecordMapperSettings);
-
-		assertEquals(readVcfLinesWithoutHeader(observedOutputVcfFile),
-				readVcfLinesWithoutHeader(expectedOutputVcfFileSplittedAnn));
 	}
 
 	public ArrayList<String> readVcfLinesWithoutHeader(File vcf) throws FileNotFoundException
