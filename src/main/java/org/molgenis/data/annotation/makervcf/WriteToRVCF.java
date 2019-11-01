@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf;
 
+import static org.molgenis.data.annotation.makervcf.structs.RVCF.DESCRIPTION;
 import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_ALLELE;
 import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_GENE;
 import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_VARIANTSIGNIFICANCE;
@@ -26,7 +27,6 @@ class WriteToRVCF
 {
 	private static final Logger LOG = LoggerFactory.getLogger(WriteToRVCF.class);
 	public static final String STRING = "String";
-	public static final String INTEGER = "Integer";
 
 	private static final String KEY_ID = "ID";
 	private static final String KEY_NUMBER = "Number";
@@ -69,7 +69,7 @@ class WriteToRVCF
 				|| vcfRecordMapperSettings.rlvMode() == RlvMode.BOTH)
 		{
 			addInfoField(vcfMeta, "RLV", ".", STRING,
-					"Allele | AlleleFreq | Gene | FDR | Transcript | Phenotype | PhenotypeInheritance | PhenotypeOnset | PhenotypeDetails | PhenotypeGroup | SampleStatus | SamplePhenotype | SampleGenotype | SampleGroup | VariantSignificance | VariantSignificanceSource | VariantSignificanceJustification | VariantCompoundHet | VariantGroup");
+					DESCRIPTION);
 		}
 		if (vcfRecordMapperSettings.rlvMode() == RlvMode.SPLITTED
 				|| vcfRecordMapperSettings.rlvMode() == RlvMode.BOTH)

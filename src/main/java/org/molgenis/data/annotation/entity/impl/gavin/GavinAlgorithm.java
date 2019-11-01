@@ -27,12 +27,12 @@ public class GavinAlgorithm
 	/**
 	 * @param impact
 	 * @param caddScaled
-	 * @param exacMAF
+	 * @param variantMaf
 	 * @param gene
 	 * @param gavinCalibrations
 	 * @return
 	 */
-	public Judgment classifyVariant(Impact impact, Double caddScaled, Double exacMAF, String gene,
+	public Judgment classifyVariant(Impact impact, Double caddScaled, Double variantMaf, String gene,
 			GavinCalibrations gavinCalibrations)
 	{
 		Double pathoMAFThreshold;
@@ -47,7 +47,7 @@ public class GavinAlgorithm
 		if (!geneToEntry.containsKey(gene))
 		{
 			//if we have no data for this gene, immediately fall back to the genomewide method
-			return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene, gavinCalibrations);
+			return genomewideClassifyVariant(impact, caddScaled, variantMaf, gene, gavinCalibrations);
 		}
 		else
 		{
@@ -102,17 +102,19 @@ public class GavinAlgorithm
 					}
 					//else: this rule does not classify apparently, just continue onto the next rules
 					break;
+				default:
+					throw new RuntimeException("Unexpected enum value ["+category+"] for category field");
 			}
 		}
 
 		// MAF-based classification, calibrated
-		if (pathoMAFThreshold != null && exacMAF > pathoMAFThreshold)
+		if (pathoMAFThreshold != null && variantMaf > pathoMAFThreshold)
 		{
 			return new Judgment(Benign, calibrated, gene,
-					"Variant MAF of " + exacMAF + " is greater than " + pathoMAFThreshold + ".", null, null);
+					"Variant MAF of " + variantMaf + " is greater than " + pathoMAFThreshold + ".", null, null);
 		}
 
-		String mafReason = "the variant MAF of " + exacMAF + " is less than a MAF of " + pathoMAFThreshold + ".";
+		String mafReason = "the variant MAF of " + variantMaf + " is less than a MAF of " + pathoMAFThreshold + ".";
 
 		// Impact based classification, calibrated
 		if (impact != null)
@@ -145,7 +147,7 @@ public class GavinAlgorithm
 		}
 
 		//if everything so far has failed, we can still fall back to the genome-wide method
-		return genomewideClassifyVariant(impact, caddScaled, exacMAF, gene, gavinCalibrations);
+		return genomewideClassifyVariant(impact, caddScaled, variantMaf, gene, gavinCalibrations);
 	}
 
 	/**

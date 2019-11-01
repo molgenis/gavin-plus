@@ -60,33 +60,17 @@ public class Main
 
 	private void printHelp(String version, String title, OptionParser parser) throws IOException
 	{
-		System.out.println("" + "Detect likely relevant clinical variants and matching samples in a VCF file.\n"
-				+ "Your input VCF must be fully annotated with SnpEff, ExAC frequencies and CADD scores, and optionally frequencies from GoNL and 1000G.\n"
-				+ "This can be done with MOLGENIS CmdlineAnnotator, available at https://github.com/molgenis/molgenis/releases/download/v1.21.1/CmdLineAnnotator-1.21.1.jar\n"
+		System.out.println("" + "Detect likely relevant clinical variants in a VCF file.\n"
+				+ "Your input VCF must be fully annotated with VEP including the CADD plugin.\n"
 				+ "Please report any bugs, issues and feature requests at https://github.com/molgenis/gavin-plus\n"
 				+ "\n" + "Typical usage: java -jar GAVIN-Plus-" + version
 				+ ".jar [inputfile] [outputfile] [helperfiles] [mode/flags]\n" + "Example usage:\n"
 				+ "java -Xmx4g -jar GAVIN-Plus-" + version + ".jar \\\n"
 				+ "-i patient76.snpeff.exac.gonl.caddsnv.vcf \\\n" + "-o patient76_RVCF.vcf \\\n"
-				+ "-g GAVIN_calibrations_r0.5.tsv \\\n" + "-p clinvar.vkgl.patho.26june2018.vcf.gz \\\n"
-				+ "-d CGD_26jun2018.txt.gz \\\n" + "-f FDR_allGenes_r1.2.tsv \\\n" + "-c fromCadd.tsv \\\n"
-				+ "-m ANALYSIS \n" + "\n" + "Dealing with CADD intermediate files:\n"
-				+ "You first want to generate a intermediate file with any missing CADD annotations using '-d toCadd.tsv -m CREATEFILEFORCADD'\n"
-				+ "After which, you want to score the variants in toCadd.tsv with the web service at http://cadd.gs.washington.edu/score\n"
-				+ "The resulting scored file should be unpacked and then used for analysis with '-d fromCadd.tsv -m ANALYSIS'\n"
+				+ "-g GAVIN_calibrations_r0.5.tsv \\\n"
 				+ "\n" + "Details on the various helper files:\n"
-				+ "The required helper files for -g, -c, -d and -f can be downloaded from: http://molgenis.org/downloads/gavin at 'data_bundle'.\n"
-				+ "The -a file is either produced by the analysis (using -m CREATEFILEFORCADD) or used as an existing file (using -m ANALYSIS).\n"
-				+ "The -l is a user-supplied VCF of interpreted variants. Use 'CLSF=LP' or 'CLSF=P' as info field to denote (likely) pathogenic variants.\n"
-        + "The -q option determines if the GAVIN information should be added as separate fields, one merged field, or both.\n"
-				+ "\n" + "Using pedigree data for filtering:\n"
-				+ "Please use the standard PEDIGREE notation in your VCF header, e.g. '##PEDIGREE=<Child=p01,Mother=p02,Father=p03>'. Trios and duos are allowed.\n"
-				+ "Parents are assumed unaffected, children affected. Using complex family trees, grandparents and siblings is not yet supported.\n"
-				+ "\n" + "Some other notes:\n"
-				+ "Phased genotypes are used to remove obvious false compound heterozygous hits. These are demoted to heterozygous multihit.\n"
-				+ "If GoNL annotations are provided, variants above 5% MAF are removed as presumed false positives (in addition to ExAC >5%).\n"
-				+ "The gene FDR values are based on 2,504 individuals from The 1000 Genomes project and may be used as a general indication of significance -\n"
-				+ "however - high FDR values may be caused by either faulty detection OR false positives from the low-coverage sequencing data.\n"
+				+ "The required helper file for -g can be downloaded from: http://molgenis.org/downloads/gavin at 'data_bundle'.\n"
+				+ "The -q option determines if the GAVIN information should be added as separate fields, one merged field, or both.\n"
 				+ StringUtils.repeat("-", title.length()) + "\n" + "\n" + "Available options:\n");
 
 		parser.printHelpOn(System.out);
@@ -98,7 +82,7 @@ public class Main
 	{
 		String version = VersionUtils.getVersion();
 		String title = "* MOLGENIS GAVIN+ for genome diagnostics, release " + version + "";
-		String titl2 = "* Gene-Aware Variant INterpretation Plus";
+		String titl2 = "* Gene-Aware Variant INterpretation";
 
 		int len = Math.max(title.length(), titl2.length());
 		String appTitle =
@@ -171,12 +155,15 @@ public class Main
 		}
 
     String rlvModeString = (String) options.valueOf(RLV_FIELD_MODE);
-    if (!isValidEnum(RlvMode.class, rlvModeString)) {
+		RlvMode rlvMode;
+		if(StringUtils.isEmpty(rlvModeString)){
+			rlvMode = RlvMode.MERGED;
+		}else if (!isValidEnum(RlvMode.class, rlvModeString)) {
       System.out.println("Mode must be one of the following: " + Arrays.toString(RlvMode.values()));
       return;
-    }
-    RlvMode rlvMode = RlvMode.valueOf(rlvModeString);
-
+    }else {
+			rlvMode = RlvMode.valueOf(rlvModeString);
+		}
 		boolean keepAllVariants = false;
 		if (options.has(KEEP_ALL_VARIANTS))
 		{

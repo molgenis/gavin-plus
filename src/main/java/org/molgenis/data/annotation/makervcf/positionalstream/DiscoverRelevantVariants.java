@@ -1,10 +1,9 @@
 package org.molgenis.data.annotation.makervcf.positionalstream;
 
-import static org.molgenis.data.annotation.makervcf.structs.InfoUtils.getInfoValue;
 import static org.molgenis.data.annotation.makervcf.structs.VepUtils.IMPACT;
 import static org.molgenis.data.annotation.makervcf.structs.VepUtils.SYMBOL;
+import static org.molgenis.data.annotation.makervcf.structs.VepUtils.getVepValue;
 import static org.molgenis.data.annotation.makervcf.structs.VepUtils.getVepValues;
-
 import org.molgenis.calibratecadd.support.GavinUtils;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment;
 import org.molgenis.data.annotation.core.entity.impl.gavin.Impact;
@@ -56,19 +55,17 @@ public class DiscoverRelevantVariants
 				while (vcfIterator.hasNext())
 				{
 						GavinRecord gavinRecord = new GavinRecord(vcfIterator.next());
-
-
 						List<Relevance> relevance = new ArrayList<>();
 						List<String> genes = getVepValues(SYMBOL, gavinRecord.getVcfRecord());
 
-						for(int i = 0; i < gavinRecord.getAlts().length; i++)
+					String[] alts = gavinRecord.getAlts();
+					for(int i = 0; i < alts.length; i++)
 						{
-								String caddValue = getInfoValue("CADD_SCALED", gavinRecord.getVcfRecord(),
-										i);
+							//FIXME: expect one transcript
+								String caddValue = getVepValues("CADD_SCALED", gavinRecord.getVcfRecord(), alts[i]).get(0);
 								Double cadd = caddValue != null ? Double.parseDouble(caddValue) : null;
-								String mafValue = getInfoValue("gnomAD",gavinRecord.getVcfRecord(), i);
+								String mafValue = getVepValues("gnomAD_AF",gavinRecord.getVcfRecord(), alts[i]).get(0);
 								Double maf = mafValue !=null ? Double.parseDouble(mafValue):null;
-
 							if (genes.isEmpty())
 							{
 								LOG.debug("[DiscoverRelevantVariants] WARNING: no genes for variant {}",
@@ -76,18 +73,10 @@ public class DiscoverRelevantVariants
 							}
 								for (String gene : genes)
 								{
-									List<String> vepImpact = getVepValues(IMPACT, gavinRecord.getVcfRecord(), "allele","gene");
-									Impact impact = null;
-									if(vepImpact.size() > 0) {
-										impact = vepImpact != null ? Impact.valueOf(vepImpact.get(0)) : null;//FIXME: how to treat multiple transcrips
-									}
-
-									Judgment judgment = null;
-									Judgment gavinJudgment = gavin.classifyVariant(impact, cadd, maf, gene, gavinCalibrations);
-
-									if (gavinJudgment != null
-											&& gavinJudgment.getClassification() == Judgment.Classification.Pathogenic)
-										relevance.add(new Relevance(gavinRecord.getAlt(i), gene, judgment));
+									List<String> vepImpact = getVepValues(IMPACT, gavinRecord.getVcfRecord(), alts[i],gene);
+									Impact impact = vepImpact != null ? Impact.valueOf(vepImpact.get(0)) : null;
+									Judgment judgment = gavin.classifyVariant(impact, cadd, maf, gene, gavinCalibrations);
+									relevance.add(new Relevance(gavinRecord.getAlt(i), gene, judgment));
 									}
 						}
 

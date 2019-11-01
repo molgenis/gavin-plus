@@ -21,7 +21,7 @@ public class RlvInfoMapper
 {
 
   public String map(List<Relevance> relevanceList, RlvMode rlvMode) {
-    StringBuffer infoField = new StringBuffer();
+    StringBuilder infoField = new StringBuilder();
     if (!relevanceList.isEmpty()) {
       List<RVCF> rvcfList = mapRelevanceListToRVcfList(relevanceList);
 
@@ -36,7 +36,7 @@ public class RlvInfoMapper
       }
     } else {
       if (rlvMode == RlvMode.MERGED || rlvMode == RlvMode.BOTH) {
-        if (!(infoField.length() == 0)) {
+        if (infoField.length() != 0) {
           infoField.append(",");
         }
         infoField.append(RVCF.FIELD_NAME + "=" + RVCFUtils.EMPTY_VALUE);
@@ -72,7 +72,7 @@ public class RlvInfoMapper
 
   private String getMergedFields(List<RVCF> rvcfList) {
     List<String> rvcfStringList = new ArrayList<>();
-    StringBuffer infoField = new StringBuffer();
+    StringBuilder infoField = new StringBuilder();
     infoField.append(FIELD_NAME + "=");
     for (RVCF rvcf : rvcfList) {
       rvcfStringList.add(RVCFUtils.getMergedFieldVcfString(rvcf));

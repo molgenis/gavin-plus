@@ -240,7 +240,8 @@ public class VcfRecordMapperTest
 			when(vcfRecord.getSamples()).thenReturn(asList(sample0, sample1));
 
 			when(vcfRecord.getFormat()).thenReturn(new String[]{"GT","DP"});
-			when(gavinRecord.getVcfRecord().getTokens()).thenReturn(new String[] { "0|1:1", "1|1:2" });
+			//FIXME: actual token values
+			when(gavinRecord.getVcfRecord().getTokens()).thenReturn(new String[] {"","","","","","","","","", "0|1:1", "1|1:2" });
 		}
 		return gavinRecord;
 	}
