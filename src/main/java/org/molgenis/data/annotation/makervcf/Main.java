@@ -170,8 +170,13 @@ public class Main
 			keepAllVariants = true;
 		}
 
+		run(cmdString, version, inputVcfFile, outputVCFFile, gavinFile, rlvMode, keepAllVariants);
+	}
+
+	static void run(String cmdString, String version, File inputVcfFile, File outputVCFFile,
+			File gavinFile, RlvMode rlvMode, boolean keepAllVariants) throws Exception {
 		LOG.info("Starting..");
-    VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(rlvMode);
+		VcfRecordMapperSettings vcfRecordMapperSettings = VcfRecordMapperSettings.create(rlvMode);
 		DiscoverRelevantVariants discover = new DiscoverRelevantVariants(inputVcfFile, gavinFile, keepAllVariants);
 		Iterator<GavinRecord> gavinResults = discover.findRelevantVariants();
 
