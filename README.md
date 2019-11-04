@@ -15,12 +15,21 @@ Application expects the following fields to be present in the VEP output:
     -   gnomAD_AF
 
 Example VEP command to get these:
-../ensembl-vep/vep --i VKGL.vcf --format vcf -o input_vep.vcf --force_overwrite 
---species homo_sapiens --vcf --cache --offline --assembly GRCh37 --use_given_ref 
---everything 
--fa ../.vep/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz 
+../ensembl-vep/vep --i input.vcf --format vcf -o vep_annotated_input.vcf 
+--force_overwrite 
+--species homo_sapiens --vcf --cache --offline 
+--pick_allele 
+--assembly GRCh37 --use_given_ref --everything -fa ../.vep/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz 
 --hgvs 
---plugin CADD,/home/bart/.vep/cadd/gnomad.genomes.r2.0.1.sites.tsv.gz
+--plugin CADD,/home/useraccount/.vep/cadd/gnomad.genomes.r2.0.1.sites.tsv.gz
+
+##Usage
+Example gavin command:
+java -jar gavin-plus-1.6.0-SNAPSHOT.jar
+-g C:\Users\useraccount\gavin\GAVIN_calibrations_r0.5.tsv 
+-i C:\Users\useraccount\vep_annotated_input.vcf 
+-o C:\Users\useraccount\gavin_output.vcf 
+-r -k
 
 ## Multiple transcripts
 Please note the following:
