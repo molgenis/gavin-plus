@@ -14,7 +14,6 @@ public class VepUtils {
   public static final String VEP_INFO_NAME = "CSQ";
   public static String 	ALLELE	=	 "Allele";
   public static String 	IMPACT	=	 "IMPACT";
-  public static String 	SYMBOL	=	 "SYMBOL";
   public static String 	GENE	=	 "Gene";
 
 
@@ -64,7 +63,7 @@ public class VepUtils {
   private static String getValueForKey(String key, VcfMeta vcfMeta,
       String singleVepResult) {
     int index = getIndex(key, vcfMeta);
-    String[] vepValues = singleVepResult.split(VEP_SEPERATOR);
+    String[] vepValues = singleVepResult.split(VEP_SEPERATOR, -1);
     if(vepValues.length >= index) {
       return vepValues[index];
     }else{

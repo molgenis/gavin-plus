@@ -73,15 +73,15 @@ public class GavinAlgorithm
 				case C2:
 					if (caddScaled > meanPathogenicCADDScore)
 					{
-						return new Judgment(Pathogenic, calibrated, gene,
+						return new Judgment(Pathogenic, calibrated,
 								"Variant CADD score of " + caddScaled + " is greater than " + meanPathogenicCADDScore
-										+ " in a gene for which CADD scores are informative.", null, null);
+										+ " in a gene for which CADD scores are informative.");
 					}
 					else if (caddScaled < meanPopulationCADDScore)
 					{
-						return new Judgment(Benign, calibrated, gene,
+						return new Judgment(Benign, calibrated,
 								"Variant CADD score of " + caddScaled + " is less than " + meanPopulationCADDScore
-										+ " in a gene for which CADD scores are informative.", null, null);
+										+ " in a gene for which CADD scores are informative.");
 					}
 					//else: this rule does not classify apparently, just continue onto the next rules
 					break;
@@ -90,15 +90,15 @@ public class GavinAlgorithm
 				case C5:
 					if (caddScaled > spec95thPerCADDThreshold)
 					{
-						return new Judgment(Pathogenic, calibrated, gene,
+						return new Judgment(Pathogenic, calibrated,
 								"Variant CADD score of " + caddScaled + " is greater than " + spec95thPerCADDThreshold
-										+ " for this gene.", null, null);
+										+ " for this gene.");
 					}
 					else if (caddScaled < sens95thPerCADDThreshold)
 					{
-						return new Judgment(Benign, calibrated, gene,
+						return new Judgment(Benign, calibrated,
 								"Variant CADD score of " + caddScaled + " is less than " + sens95thPerCADDThreshold
-										+ " for this gene.", null, null);
+										+ " for this gene.");
 					}
 					//else: this rule does not classify apparently, just continue onto the next rules
 					break;
@@ -108,10 +108,10 @@ public class GavinAlgorithm
 		}
 
 		// MAF-based classification, calibrated
-		if (pathoMAFThreshold != null && variantMaf > pathoMAFThreshold)
+		if (pathoMAFThreshold != null && variantMaf !=null && variantMaf > pathoMAFThreshold)
 		{
-			return new Judgment(Benign, calibrated, gene,
-					"Variant MAF of " + variantMaf + " is greater than " + pathoMAFThreshold + ".", null, null);
+			return new Judgment(Benign, calibrated,
+					"Variant MAF of " + variantMaf + " is greater than " + pathoMAFThreshold + ".");
 		}
 
 		String mafReason = "the variant MAF of " + variantMaf + " is less than a MAF of " + pathoMAFThreshold + ".";
@@ -121,28 +121,28 @@ public class GavinAlgorithm
 		{
 			if (category == I1 && impact == HIGH)
 			{
-				return new Judgment(Pathogenic, calibrated, gene,
+				return new Judgment(Pathogenic, calibrated,
 						"Variant is of high impact, while there are no known high impact variants in the population. Also, "
-								+ mafReason, null, null);
+								+ mafReason);
 			}
 			else if (category == I2 && (impact == MODERATE || impact == HIGH))
 			{
 
-				return new Judgment(Pathogenic, calibrated, gene,
+				return new Judgment(Pathogenic, calibrated,
 						"Variant is of high/moderate impact, while there are no known high/moderate impact variants in the population. Also, "
-								+ mafReason, null, null);
+								+ mafReason);
 			}
 			else if (category == I3 && (impact == LOW || impact == MODERATE || impact == HIGH))
 			{
-				return new Judgment(Pathogenic, calibrated, gene,
+				return new Judgment(Pathogenic, calibrated,
 						"Variant is of high/moderate/low impact, while there are no known high/moderate/low impact variants in the population. Also, "
-								+ mafReason, null, null);
+								+ mafReason);
 			}
 			else if (impact == MODIFIER)
 			{
-				return new Judgment(Benign, calibrated, gene,
+				return new Judgment(Benign, calibrated,
 						"Variant is of 'modifier' impact, and therefore unlikely to be pathogenic. However, "
-								+ mafReason, null, null);
+								+ mafReason);
 			}
 		}
 
@@ -166,36 +166,34 @@ public class GavinAlgorithm
 
 		if (exacMAF > mafThreshold)
 		{
-			return new Judgment(Benign, genomewide, gene,
-					"Variant MAF of " + exacMAF + " is not rare enough to generally be considered pathogenic.", null,
-					null);
+			return new Judgment(Benign, genomewide,
+					"Variant MAF of " + exacMAF + " is not rare enough to generally be considered pathogenic.");
 		}
 		if (impact != null && impact == MODIFIER)
 		{
-			return new Judgment(Benign, genomewide, gene,
-					"Variant is of 'modifier' impact, and therefore unlikely to be pathogenic.", null, null);
+			return new Judgment(Benign, genomewide,					"Variant is of 'modifier' impact, and therefore unlikely to be pathogenic.");
 		}
 		else
 		{
 			if (caddScaled != null && caddScaled > caddThreshold)
 			{
-				return new Judgment(Pathogenic, genomewide, gene, "Variant MAF of " + exacMAF
+				return new Judgment(Pathogenic, genomewide, "Variant MAF of " + exacMAF
 						+ " is rare enough to be potentially pathogenic and its CADD score of " + caddScaled
-						+ " is greater than a global threshold of " + caddThreshold + ".", null, null);
+						+ " is greater than a global threshold of " + caddThreshold + ".");
 			}
 			else if (caddScaled != null && caddScaled <= caddThreshold)
 			{
-				return new Judgment(Benign, genomewide, gene,
+				return new Judgment(Benign, genomewide,
 						"Variant CADD score of " + caddScaled + " is less than a global threshold of "
 								+ caddThreshold + ", although the variant MAF of " + exacMAF
-								+ " is rare enough to be potentially pathogenic.", null, null);
+								+ " is rare enough to be potentially pathogenic.");
 			}
 			else
 			{
-				return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide, gene,
+				return new Judgment(Judgment.Classification.VOUS, Judgment.Method.genomewide,
 						"Unable to classify variant as benign or pathogenic. The combination of " + impact
-								+ " impact, a CADD score of " + caddScaled + " and MAF of " + exacMAF + " in " + gene
-								+ " is inconclusive.", null, null);
+								+ " impact, a missing CADD score and MAF of " + exacMAF + " in " + gene
+								+ " is inconclusive.");
 			}
 		}
 	}

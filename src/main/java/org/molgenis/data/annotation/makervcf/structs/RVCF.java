@@ -1,5 +1,6 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
+import org.molgenis.data.annotation.core.entity.impl.gavin.Judgment.Classification;
 import org.molgenis.vcf.VcfInfo;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
@@ -22,7 +23,7 @@ public class RVCF
 
 	String allele;
 	String gene;
-	String variantSignificance;
+	Classification variantSignificance;
 	String variantSignificanceJustification;
 
 	public static List<RVCF> fromVcfInfo(VcfInfo vcfInfo)
@@ -43,7 +44,7 @@ public class RVCF
 		//empty constructor used in the RlvInfoMapper and this classes' "fromString()" method
 	}
 
-	public RVCF(String allele, String gene, String variantSignificance,
+	public RVCF(String allele, String gene, Classification variantSignificance,
 			String variantSignificanceJustification)
 	{
 		this.allele = allele;
@@ -65,7 +66,7 @@ public class RVCF
 		rvcfInstance.setAllele(split[0]);
 		rvcfInstance.setGene(split[2]);
 
-		rvcfInstance.setVariantSignificance(split[14]);
+		rvcfInstance.setVariantSignificance(Classification.valueOf(split[14]));
 		rvcfInstance.setVariantSignificanceJustification(split[16]);
 
 		return rvcfInstance;
@@ -91,12 +92,12 @@ public class RVCF
 		this.gene = gene;
 	}
 
-	public String getVariantSignificance()
+	public Classification getVariantSignificance()
 	{
-		return variantSignificance != null ? variantSignificance : "";
+		return variantSignificance;
 	}
 
-	public void setVariantSignificance(String variantSignificance)
+	public void setVariantSignificance(Classification variantSignificance)
 	{
 		this.variantSignificance = variantSignificance;
 	}

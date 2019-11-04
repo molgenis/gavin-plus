@@ -18,14 +18,12 @@ public class Judgment
 	private Classification classification;
 	private Method confidence;
 	private String reason;
-	private String type;
 
-	public Judgment(Classification classification, Method confidence, String reason, String type)
+	public Judgment(Classification classification, Method confidence, String reason)
 	{
 		this.classification = classification;
 		this.confidence = confidence;
 		this.reason = reason;
-		this.type = type;
 	}
 
 	public Classification getClassification()
@@ -41,10 +39,5 @@ public class Judgment
 	public String getReason()
 	{
 		return reason;
-	}
-
-	public String getType()
-	{
-		return type;
 	}
 }

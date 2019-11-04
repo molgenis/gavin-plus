@@ -51,7 +51,7 @@ public class RlvInfoMapper
       RVCF rvcf = new RVCF();
       rvcf.setGene(rlv.getGene());
       rvcf.setAllele(rlv.getAllele());
-      rvcf.setVariantSignificance(rlv.getJudgment().getType());
+      rvcf.setVariantSignificance(rlv.getJudgment().getClassification());
       rvcf.setVariantSignificanceJustification(rlv.getJudgment().getReason());
       rvcfList.add(rvcf);
     }

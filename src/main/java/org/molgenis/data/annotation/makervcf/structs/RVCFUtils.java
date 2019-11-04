@@ -25,7 +25,7 @@ public class RVCFUtils
 	{
 		return escapeToSafeVCF(rvcf.getAllele())
 				+ RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getGene())
-				+ RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getVariantSignificance())
+				+ RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getVariantSignificance().name())
 				+ RVCF_FIELDSEP + escapeToSafeVCF(rvcf.getVariantSignificanceJustification());
 	}
 
@@ -34,7 +34,7 @@ public class RVCFUtils
 		Map<String, String> infoFields = new HashMap<>();
 		RVCFUtils.addOrUpdateInfoField(RLV_ALLELE,rvcf.getAllele(), currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_GENE, rvcf.getGene(), currentValues, infoFields);
-		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCE,rvcf.getVariantSignificance(), currentValues, infoFields);
+		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCE,rvcf.getVariantSignificance().name(), currentValues, infoFields);
 		RVCFUtils.addOrUpdateInfoField(RLV_VARIANTSIGNIFICANCEJUSTIFICATION,rvcf.getVariantSignificanceJustification(), currentValues, infoFields);
 		return infoFields;
 	}

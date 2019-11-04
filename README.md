@@ -1,3 +1,31 @@
+# Algorithm only version notes:
+
+##Input
+Application expects the following fields to be present in the VEP output:
+    -   Allele
+    
+    -   IMPACT
+    
+    -   SYMBOL
+    
+    -   Gene
+    
+    -   CADD_PHRED
+    
+    -   gnomAD_AF
+
+Example VEP command to get these:
+../ensembl-vep/vep --i VKGL.vcf --format vcf -o input_vep.vcf --force_overwrite 
+--species homo_sapiens --vcf --cache --offline --assembly GRCh37 --use_given_ref 
+--everything 
+-fa ../.vep/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz 
+--hgvs 
+--plugin CADD,/home/bart/.vep/cadd/gnomad.genomes.r2.0.1.sites.tsv.gz
+
+## Multiple transcripts
+Please note the following:
+In case of multiple transcripts the first one is used and the rest ignored. A warning is logged.
+
 # GAVIN+ 
 ## Gene-Aware Variant INterpretation for genome diagnostics
 
