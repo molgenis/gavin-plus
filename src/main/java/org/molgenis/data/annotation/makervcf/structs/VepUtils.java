@@ -1,8 +1,10 @@
 package org.molgenis.data.annotation.makervcf.structs;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.meta.VcfMeta;
@@ -17,8 +19,8 @@ public class VepUtils {
   public static String 	GENE	=	 "Gene";
 
 
-  public static List<String> getVepValues(String key, VcfRecord record){
-    List<String> result = new ArrayList<>();
+  public static Set<String> getVepValues(String key, VcfRecord record){
+    Set<String> result = new HashSet<>();
     String[] vepResults = getVepValues(record);
     for(String singleVepResult : vepResults) {
       result.add(getValueForKey(key, record.getVcfMeta(), singleVepResult));
@@ -26,8 +28,8 @@ public class VepUtils {
     return result;
   }
 
-  public static List<String> getVepValues(String key, VcfRecord record, String allele){
-    List<String> result = new ArrayList<>();
+  public static Set<String> getVepValues(String key, VcfRecord record, String allele){
+    Set<String> result = new HashSet<>();
     String[] vepResults = getVepValues(record);
     for(String singleVepResult : vepResults) {
       String vepAllele = getValueForKey(ALLELE, record.getVcfMeta(), singleVepResult);
@@ -38,8 +40,8 @@ public class VepUtils {
     return result;
   }
 
-  public static List<String> getVepValues(String key, VcfRecord record, String allele, String gene){
-    List<String> result = new ArrayList<>();
+  public static Set<String> getVepValues(String key, VcfRecord record, String allele, String gene){
+    Set<String> result = new HashSet<>();
     String[] vepResults = getVepValues(record);
     for(String singleVepResult : vepResults) {
       String vepAllele = getValueForKey(ALLELE, record.getVcfMeta(), singleVepResult);

@@ -52,45 +52,45 @@ public class DiscoverRelevantVariants {
         while (vcfIterator.hasNext()) {
           GavinRecord gavinRecord = new GavinRecord(vcfIterator.next());
           List<Relevance> relevance = new ArrayList<>();
-          List<String> genes = getVepValues("SYMBOL", gavinRecord.getVcfRecord());
+          Set<String> genes = getVepValues("SYMBOL", gavinRecord.getVcfRecord());
 
           String[] alts = gavinRecord.getAlts();
           for (int i = 0; i < alts.length; i++) {
-            List<String> caddValues = getVepValues("CADD_PHRED", gavinRecord.getVcfRecord(),
+            Set<String> caddValues = getVepValues("CADD_PHRED", gavinRecord.getVcfRecord(),
                 alts[i]);
             Double cadd = null;
             if (caddValues.size() >= 1) {
-              String caddValue = caddValues.get(0);
+              String caddValue = caddValues.iterator().next();
               cadd =
                   !Strings.isNullOrEmpty(caddValue) ? Double.parseDouble(caddValue) : null;
 							if (caddValues.size() > 1) {
 								LOG.warn("More than one CADD score detected for ALT [" + alts[i]
-										+ "], using the first one");
+										+ "] on position: ["+gavinRecord.getVcfRecord().getChromosome()+":"+gavinRecord.getVcfRecord().getPosition()+"]"+", using the first one");
 							}
             } else{
-              LOG.warn("No CADD score detected for ALT [" + alts[i] + "]");
+              LOG.warn("No CADD score detected for ALT [" + alts[i] + "] on position: ["+gavinRecord.getVcfRecord().getChromosome()+":"+gavinRecord.getVcfRecord().getPosition()+"]");
             }
-            List<String> mafValues = getVepValues("gnomAD_AF", gavinRecord.getVcfRecord(), alts[i]);
+            Set<String> mafValues = getVepValues("gnomAD_AF", gavinRecord.getVcfRecord(), alts[i]);
             Double maf = null;
             if (mafValues.size() >= 1) {
-              String mafValue = mafValues.get(0);
+              String mafValue = mafValues.iterator().next();
               maf = !Strings.isNullOrEmpty(mafValue) ? Double.parseDouble(mafValue) : null;
 							if (caddValues.size() > 1) {
 								LOG.warn("More than one MAF score detected for ALT [" + alts[i]
-										+ "], using the first one");
+										+ "] on position: ["+gavinRecord.getVcfRecord().getChromosome()+":"+gavinRecord.getVcfRecord().getPosition()+"], using the first one");
 							}
             } else{
-              LOG.warn("No MAF score detected for ALT [" + alts[i] + "]");
+              LOG.warn("No MAF score detected for ALT [" + alts[i] + "] on position: ["+gavinRecord.getVcfRecord().getChromosome()+":"+gavinRecord.getVcfRecord().getPosition()+"]");
             }
             if (genes.isEmpty()) {
               LOG.debug("[DiscoverRelevantVariants] WARNING: no genes for variant {}",
                   gavinRecord.getChrPosRefAlt());
             }
             for (String gene : genes) {
-              List<String> vepImpact = getVepValues(IMPACT, gavinRecord.getVcfRecord(), alts[i],
+              Set<String> vepImpact = getVepValues(IMPACT, gavinRecord.getVcfRecord(), alts[i],
                   gene);
               Impact impact =
-                  vepImpact != null && !vepImpact.isEmpty() ? Impact.valueOf(vepImpact.get(0))
+                  vepImpact != null && !vepImpact.isEmpty() ? Impact.valueOf(vepImpact.iterator().next())
                       : null;
               Judgment judgment = gavin.classifyVariant(impact, cadd, maf, gene, gavinCalibrations);
               relevance.add(new Relevance(gavinRecord.getAlt(i), gene, judgment));
