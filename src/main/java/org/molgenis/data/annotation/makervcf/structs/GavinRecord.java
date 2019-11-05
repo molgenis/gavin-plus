@@ -9,22 +9,15 @@ import static java.util.Objects.requireNonNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.molgenis.data.annotation.core.entity.impl.snpeff.Impact;
-import org.molgenis.data.vcf.datastructures.Sample;
+import org.molgenis.data.annotation.core.entity.impl.gavin.Impact;
 import org.molgenis.vcf.VcfRecord;
 import org.molgenis.vcf.VcfRecordUtils;
 
 public class GavinRecord
 {
-	private AnnotatedVcfRecord annotatedVcfRecord;
+	private VcfRecord vcfRecord;
 	private List<Relevance> relevances;
-	/**
-	 * Any associated genes
-	 */
-	private Set<String> genes;
-	private Double[] caddPhredScores;
 
 	public GavinRecord(VcfRecord record)
 	{
@@ -33,16 +26,13 @@ public class GavinRecord
 
 	public GavinRecord(VcfRecord record, List<Relevance> relevances)
 	{
-		this.annotatedVcfRecord = new AnnotatedVcfRecord(record);
+		this.vcfRecord = record;
 		this.relevances = requireNonNull(relevances);
-
-		this.genes = annotatedVcfRecord.getGenesFromAnn();
-		this.caddPhredScores = annotatedVcfRecord.getCaddPhredScores();
 	}
 
-	public AnnotatedVcfRecord getAnnotatedVcfRecord()
+	public VcfRecord getVcfRecord()
 	{
-		return annotatedVcfRecord;
+		return vcfRecord;
 	}
 
 	public void setRelevances(List<Relevance> relevances)
@@ -55,75 +45,14 @@ public class GavinRecord
 		return !relevances.isEmpty();
 	}
 
-	public Double getCaddPhredScore(int i)
-	{
-		return caddPhredScores[i];
-	}
-
-	public Double[] getCaddPhredScores()
-	{
-		return caddPhredScores;
-	}
-
-	public void setCaddPhredScore(int i, Double phredScore)
-	{
-		this.caddPhredScores[i] = phredScore;
-	}
-
-	public Set<String> getGenes()
-	{
-		return genes;
-	}
-
-	public void setGenes(String gene)
-	{
-		this.genes = singleton(gene);
-	}
-
-	public void setGenes(Set<String> genes)
-	{
-		this.genes = genes;
-	}
-
 	public List<Relevance> getRelevance()
 	{
 		return relevances;
 	}
 
-	public String toStringShort()
-	{
-		return annotatedVcfRecord.getChromosome() + " " + annotatedVcfRecord.getPosition() + " "
-				+ VcfRecordUtils.getRef(annotatedVcfRecord) + " " + VcfRecordUtils.getAltString(annotatedVcfRecord);
-	}
-
-	public Stream<Sample> getSamples()
-	{
-		return AnnotatedVcfRecord.toSamples(annotatedVcfRecord);
-	}
-
-	public int getAltAlleleIndex(String alt)
-	{
-		return VcfRecordUtils.getAltAlleleIndex(annotatedVcfRecord, alt);
-	}
-
-	public String getChromosome()
-	{
-		return annotatedVcfRecord.getChromosome();
-	}
-
-	public int getPosition()
-	{
-		return annotatedVcfRecord.getPosition();
-	}
-
-	public List<String> getIdentifiers()
-	{
-		return annotatedVcfRecord.getIdentifiers();
-	}
-
 	public Optional<Double> getQuality()
 	{
-		String quality = annotatedVcfRecord.getQuality();
+		String quality = vcfRecord.getQuality();
 		return quality != null ? Optional.of(Double.valueOf(quality)) : Optional.empty();
 	}
 
@@ -135,7 +64,7 @@ public class GavinRecord
 	 */
 	public List<String> getFilterStatus()
 	{
-		String filterStatus = annotatedVcfRecord.getFilterStatus();
+		String filterStatus = vcfRecord.getFilterStatus();
 		if (filterStatus == null)
 		{
 			return emptyList();
@@ -152,56 +81,36 @@ public class GavinRecord
 
 	public String getRef()
 	{
-		return VcfRecordUtils.getRef(annotatedVcfRecord);
+		return VcfRecordUtils.getRef(vcfRecord);
 	}
 
 	public String getAlt()
 	{
-		return VcfRecordUtils.getAlt(annotatedVcfRecord);
+		return VcfRecordUtils.getAlt(vcfRecord);
 	}
 
 	public String getAlt(int altIndex)
 	{
-		return VcfRecordUtils.getAlt(annotatedVcfRecord, altIndex);
+		return VcfRecordUtils.getAlt(vcfRecord, altIndex);
 	}
 
 	public String getChrPosRefAlt()
 	{
-		return VcfRecordUtils.getChrPosRefAlt(annotatedVcfRecord);
+		return VcfRecordUtils.getChrPosRefAlt(vcfRecord);
 	}
 
 	public int getAltIndex(String allele) throws Exception
 	{
-		return VcfRecordUtils.getAltIndex(annotatedVcfRecord, allele);
+		return VcfRecordUtils.getAltIndex(vcfRecord, allele);
 	}
 
 	public String[] getAlts()
 	{
-		return VcfRecordUtils.getAlts(annotatedVcfRecord);
-	}
-
-	public double getExAcAlleleFrequencies(int i)
-	{
-		return annotatedVcfRecord.getExAcAlleleFrequencies(i);
-	}
-
-	public double getGoNlAlleleFrequencies(int i)
-	{
-		return annotatedVcfRecord.getGoNlAlleleFrequencies(i);
-	}
-
-	public Optional<Impact> getImpact(int i, String gene)
-	{
-		return annotatedVcfRecord.getImpact(i, gene);
-	}
-
-	public Optional<String> getTranscript(int i, String gene)
-	{
-		return annotatedVcfRecord.getTranscript(i, gene);
+		return VcfRecordUtils.getAlts(vcfRecord);
 	}
 
 	public String getId()
 	{
-		return VcfRecordUtils.getId(annotatedVcfRecord);
+		return VcfRecordUtils.getId(vcfRecord);
 	}
 }

@@ -3,8 +3,6 @@ package org.molgenis.calibratecadd.support;
 import net.sf.samtools.util.BlockCompressedInputStream;
 import org.molgenis.data.annotation.entity.impl.gavin.GavinEntry;
 import org.molgenis.data.annotation.makervcf.structs.GavinCalibrations;
-import org.molgenis.data.vcf.datastructures.Sample;
-import org.molgenis.data.vcf.datastructures.Trio;
 import org.molgenis.vcf.VcfReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
@@ -22,10 +19,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GavinUtils
 {
-	private static final Logger LOG = LoggerFactory.getLogger(GavinUtils.class);
-
-	private static final String HEADER_PREFIX = "##";
-	private static final String PEDIGREE = "##PEDIGREE";
 	private static final String CADD_THRESHOLD_KEY = "##CADD_THRESHOLD";
 	private static final String MAF_THRESHOLD_KEY = "##MAF_THRESHOLD";
 	private static final String CALIBRATIONS_HEADER_PREFIX = "#Gene";
@@ -112,67 +105,6 @@ public class GavinUtils
 		}
 
 		return reader;
-	}
-
-	public static Map<String, Trio> getPedigree(Scanner inputVcfFileScanner)
-	{
-		HashMap<String, Trio> result = new HashMap<>();
-
-		while (inputVcfFileScanner.hasNextLine())
-		{
-			String line = inputVcfFileScanner.nextLine();
-
-			// quit when we don't see header lines anymore
-			if (!line.startsWith(HEADER_PREFIX))
-			{
-				break;
-			}
-
-			// detect pedigree line
-			// expecting e.g. ##PEDIGREE=<Child=100400,Mother=100402,Father=100401>
-			if (line.startsWith(PEDIGREE))
-			{
-				parsePedigree(result, line);
-			}
-		}
-		return result;
-	}
-
-	private static void parsePedigree(HashMap<String, Trio> result, String line)
-	{
-		LOG.info("Pedigree data line: {}", line);
-
-		String childID = null;
-		String motherID = null;
-		String fatherID = null;
-
-		String lineStripped = line.replace("##PEDIGREE=<", "").replace(">", "");
-		String[] lineSplit = lineStripped.split(",", -1);
-		for (String element : lineSplit)
-		{
-			if (element.startsWith("Child"))
-			{
-				childID = element.replace("Child=", "");
-			}
-			else if (element.startsWith("Mother"))
-			{
-				motherID = element.replace("Mother=", "");
-			}
-			else if (element.startsWith("Father"))
-			{
-				fatherID = element.replace("Father=", "");
-			}
-			else
-			{
-				throw new RuntimeException(
-						"Expected Child, Mother or Father, but found: " + element + " in line " + line);
-			}
-		}
-		Sample child = childID != null ? new Sample(childID, null, null) : null;
-		Sample mother = motherID != null ? new Sample(motherID, null, null) : null;
-		Sample father = fatherID != null ? new Sample(fatherID, null, null) : null;
-
-		result.put(childID, new Trio(child, mother, father));
 	}
 
 	public static Scanner createVcfFileScanner(File vcfFile) throws IOException

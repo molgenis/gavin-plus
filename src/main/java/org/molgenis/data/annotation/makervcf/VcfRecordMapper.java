@@ -3,26 +3,16 @@ package org.molgenis.data.annotation.makervcf;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord.CADD_SCALED;
-import static org.molgenis.data.annotation.makervcf.structs.RVCF.RLV_PRESENT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.StreamSupport;
-import joptsimple.internal.Strings;
-import org.molgenis.data.annotation.core.entity.impl.snpeff.Annotation;
 import org.molgenis.data.annotation.makervcf.Main.RlvMode;
-import org.molgenis.data.annotation.makervcf.structs.AnnotatedVcfRecord;
 import org.molgenis.data.annotation.makervcf.structs.GavinRecord;
 import org.molgenis.data.annotation.makervcf.structs.Relevance;
 import org.molgenis.vcf.VcfInfo;
 import org.molgenis.vcf.VcfRecord;
-import org.molgenis.vcf.VcfRecordUtils;
 import org.molgenis.vcf.VcfSample;
 import org.molgenis.vcf.meta.VcfMeta;
 import org.slf4j.Logger;
@@ -36,6 +26,7 @@ class VcfRecordMapper {
   private static final Logger LOG = LoggerFactory.getLogger(VcfRecordMapper.class);
   private static final String MISSING_VALUE = ".";
   public static final String ANN = "ANN";
+  public static final String CADD_SCALED = "CADD_SCALED";
 
   private final VcfMeta vcfMeta;
   private final VcfRecordMapperSettings vcfRecordMapperSettings;
@@ -54,10 +45,10 @@ class VcfRecordMapper {
 
   private List<String> createTokens(GavinRecord gavinRecord) {
     List<String> tokens = new ArrayList<>();
-    tokens.add(gavinRecord.getChromosome());
-    tokens.add(String.valueOf(gavinRecord.getPosition()));
+    tokens.add(gavinRecord.getVcfRecord().getChromosome());
+    tokens.add(String.valueOf(gavinRecord.getVcfRecord().getPosition()));
 
-    List<String> identifiers = gavinRecord.getIdentifiers();
+    List<String> identifiers = gavinRecord.getVcfRecord().getIdentifiers();
     tokens.add(!identifiers.isEmpty() ? identifiers.stream().collect(joining(";")) : MISSING_VALUE);
 
     tokens.add(gavinRecord.getRef());
@@ -75,69 +66,41 @@ class VcfRecordMapper {
 
     tokens.add(createInfoToken(gavinRecord, vcfRecordMapperSettings));
 
-    if (vcfRecordMapperSettings.includeSamples()) {
-
-      AnnotatedVcfRecord annotatedVcfRecord = gavinRecord.getAnnotatedVcfRecord();
+      VcfRecord annotatedVcfRecord = gavinRecord.getVcfRecord();
       Iterable<VcfSample> vcfSamples = annotatedVcfRecord.getSamples();
       if (vcfSamples.iterator().hasNext()) {
         tokens.add(createFormatToken(annotatedVcfRecord));
-        tokens.addAll(Arrays.asList(annotatedVcfRecord.getSampleTokens()));
+        tokens.addAll(getSampleTokens(annotatedVcfRecord));
       }
-    }
     return tokens;
+  }
+  private List<String> getSampleTokens(VcfRecord vcfRecord) {
+    int firstSample = VcfMeta.COL_FORMAT_IDX + 1;
+    return Arrays.asList(Arrays.copyOfRange(vcfRecord.getTokens(), firstSample, firstSample + vcfRecord.getNrSamples()));
   }
 
   private String createInfoToken(GavinRecord gavinRecord,
       VcfRecordMapperSettings vcfRecordMapperSettings) {
-    Iterable<VcfInfo> vcfInformations = gavinRecord.getAnnotatedVcfRecord().getInformation();
+    Iterable<VcfInfo> vcfInformations = gavinRecord.getVcfRecord().getInformation();
 
     boolean hasInformation = vcfInformations.iterator().hasNext();
 
     StringBuilder stringBuilder = new StringBuilder();
 
     if (hasInformation) {
-      //process all info fields except CADD_SCALED, we might have added values there so we process it seperately
       stringBuilder.append(StreamSupport.stream(vcfInformations.spliterator(), false)
-          .filter(vcfInfo -> !vcfInfo.getKey().equals(CADD_SCALED))
           .map(this::createInfoTokenPart)
           .collect(joining(";")));
-
-      Double[] caddScores = gavinRecord.getCaddPhredScores();
-      if (caddScores != null && caddScores.length > 0) {
-        List<String> caddScoresList = Arrays.stream(caddScores).map(this::caddToString)
-            .collect(toList());
-        if (!caddScoresList.isEmpty()) {
-          stringBuilder.append(";")
-              .append(createInfoTokenPart(CADD_SCALED, Strings.join(caddScoresList, ",")));
-        }
-      }
     }
 
     if (stringBuilder.length() > 0) {
       stringBuilder.append(';');
     }
     if (!gavinRecord.getRelevance().isEmpty()) {
-      stringBuilder.append(getRlv(gavinRecord, vcfRecordMapperSettings.rlvMode(),
-          vcfRecordMapperSettings.prefixSplittedRlvFields()));
-    } else {
-      stringBuilder.append(createInfoTokenPart(RLV_PRESENT, "FALSE"));
-    }
-    if (vcfRecordMapperSettings.addSplittedAnnFields()) {
-      stringBuilder.append(';');
-      stringBuilder.append(getAnn(gavinRecord));
+      stringBuilder.append(getRlv(gavinRecord, vcfRecordMapperSettings.rlvMode()));
     }
 
     return stringBuilder.toString();
-  }
-
-  private String caddToString(Double score) {
-    String stringValue;
-    if (score != null) {
-      stringValue = Double.toString(score);
-    } else {
-      stringValue = ".";
-    }
-    return stringValue;
   }
 
   private String createInfoTokenPart(VcfInfo vcfInfo) {
@@ -148,39 +111,21 @@ class VcfRecordMapper {
     return key + '=' + value;
   }
 
-  private String createFormatToken(AnnotatedVcfRecord vcfEntity) {
+  private String createFormatToken(VcfRecord vcfEntity) {
     String[] formatTokens = vcfEntity.getFormat();
     return stream(formatTokens).collect(joining(":"));
   }
 
-  private String getRlv(GavinRecord gavinRecord, RlvMode rlvMode,
-      boolean prefixSplittedFields) {
+  private String getRlv(GavinRecord gavinRecord, RlvMode rlvMode) {
     LOG.debug("[MakeRVCFforClinicalVariants] Looking at: {}", gavinRecord);
 
     List<Relevance> relevance = gavinRecord.getRelevance();
-    String rlv = rlvInfoMapper.map(relevance, rlvMode, prefixSplittedFields);
+    String rlv = rlvInfoMapper.map(relevance, rlvMode);
 
     LOG.debug(
         "[MakeRVCFforClinicalVariants] Converted relevant variant to a VCF INFO field for writing out: {}",
         rlv);
 
     return rlv;
-  }
-
-  private String getAnn(GavinRecord gavinRecord) {
-    String result = "";
-    Optional<VcfInfo> annotationInfoField = VcfRecordUtils.getInformation(ANN,
-        gavinRecord.getAnnotatedVcfRecord());
-    if (annotationInfoField.isPresent()) {
-      Annotation annotation = new Annotation(annotationInfoField.get().getValRaw());
-      List<String> results = new ArrayList<>();
-      Map<String, String> infoFields = annotation.getAnnInfoFields();
-      Set<String> fields = infoFields.keySet();
-      for (String field : fields) {
-        results.add(field + "=" + infoFields.get(field));
-      }
-      result = Strings.join(results, ";");
-    }
-    return result;
   }
 }

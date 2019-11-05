@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import joptsimple.internal.Strings;
 import org.molgenis.data.annotation.makervcf.Main.RlvMode;
 import org.molgenis.data.annotation.makervcf.structs.RVCF;
@@ -21,13 +20,13 @@ import org.molgenis.data.annotation.makervcf.structs.Relevance;
 public class RlvInfoMapper
 {
 
-  public String map(List<Relevance> relevanceList, RlvMode rlvMode, boolean prefixRlvFields) {
-    StringBuffer infoField = new StringBuffer();
+  public String map(List<Relevance> relevanceList, RlvMode rlvMode) {
+    StringBuilder infoField = new StringBuilder();
     if (!relevanceList.isEmpty()) {
       List<RVCF> rvcfList = mapRelevanceListToRVcfList(relevanceList);
 
       if (rlvMode == RlvMode.SPLITTED || rlvMode == RlvMode.BOTH) {
-        infoField.append(getSplittedFields(rvcfList, prefixRlvFields));
+        infoField.append(getSplittedFields(rvcfList));
       }
       if (rlvMode == RlvMode.BOTH) {
         infoField.append(";");
@@ -36,11 +35,8 @@ public class RlvInfoMapper
         infoField.append(getMergedFields(rvcfList));
       }
     } else {
-      if (rlvMode == RlvMode.SPLITTED || rlvMode == RlvMode.BOTH) {
-        infoField.append(RVCF.RLV_PRESENT + "=" + "FALSE");
-      }
       if (rlvMode == RlvMode.MERGED || rlvMode == RlvMode.BOTH) {
-        if (!(infoField.length() == 0)) {
+        if (infoField.length() != 0) {
           infoField.append(",");
         }
         infoField.append(RVCF.FIELD_NAME + "=" + RVCFUtils.EMPTY_VALUE);
@@ -53,42 +49,19 @@ public class RlvInfoMapper
     List<RVCF> rvcfList = newArrayList();
     for (Relevance rlv : relevanceList) {
       RVCF rvcf = new RVCF();
-
       rvcf.setGene(rlv.getGene());
-      rvcf.setFDR(rlv.getFDR());
       rvcf.setAllele(rlv.getAllele());
-      rvcf.setAlleleFreq(String.valueOf(rlv.getAlleleFreq()));
-      Optional<String> transcript = rlv.getTranscript();
-      rvcf.setTranscript(transcript.orElse(""));
-
-      if (rlv.getCgdInfo() != null) {
-        rvcf.setPhenotype(rlv.getCgdInfo().getCondition());
-        rvcf.setPhenotypeInheritance(rlv.getCgdInfo().getGeneralizedInheritance().toString());
-        rvcf.setPhenotypeOnset(rlv.getCgdInfo().getAge_group());
-        rvcf.setPhenotypeDetails(rlv.getCgdInfo().getComments());
-        rvcf.setPhenotypeGroup(null);
-      }
-
-      rvcf.setVariantSignificance(rlv.getJudgment().getType());
-      rvcf.setVariantSignificanceSource(rlv.getJudgment().getSource());
+      rvcf.setVariantSignificance(rlv.getJudgment().getClassification());
       rvcf.setVariantSignificanceJustification(rlv.getJudgment().getReason());
-      rvcf.setVariantMultiGenic(null);
-      rvcf.setVariantGroup(null);
-
-      rvcf.setSampleStatus(rlv.getSampleStatus());
-      rvcf.setSampleGenotype(rlv.getSampleGenotypes());
-      rvcf.setSamplePhenotype(null);
-      rvcf.setSampleGroup(null);
-
       rvcfList.add(rvcf);
     }
     return rvcfList;
   }
 
-  private String getSplittedFields(List<RVCF> rvcfList, boolean prefixRlvFields) {
+  private String getSplittedFields(List<RVCF> rvcfList) {
     Map<String, String> rvcfValues = new HashMap<>();
     for (RVCF rvcf : rvcfList) {
-      rvcfValues = createRvcfValues(rvcf, rvcfValues, prefixRlvFields);
+      rvcfValues = createRvcfValues(rvcf, rvcfValues);
     }
     List<String> rlvInfoFields = new ArrayList<>();
     for (Map.Entry<String, String> entry : rvcfValues.entrySet()) {
@@ -99,7 +72,7 @@ public class RlvInfoMapper
 
   private String getMergedFields(List<RVCF> rvcfList) {
     List<String> rvcfStringList = new ArrayList<>();
-    StringBuffer infoField = new StringBuffer();
+    StringBuilder infoField = new StringBuilder();
     infoField.append(FIELD_NAME + "=");
     for (RVCF rvcf : rvcfList) {
       rvcfStringList.add(RVCFUtils.getMergedFieldVcfString(rvcf));
