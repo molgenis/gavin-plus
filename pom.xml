@@ -30,7 +30,7 @@
     <!-- dependency versions not managed by parent pom -->
     <google.auto-value.version>1.4.1</google.auto-value.version>
     <molgenis.vcf-io.version>1.1.1</molgenis.vcf-io.version>
-    <commons-io.version>2.4</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <commons-collections.version>3.2.2</commons-collections.version>
     <utgenome-picard.version>1.102.0</utgenome-picard.version>
     <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
