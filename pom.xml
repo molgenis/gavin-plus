@@ -38,7 +38,7 @@
 
     <!-- override dependency versions managed by parent pom -->
     <testng.version>6.8</testng.version>
-    <guava.version>25.0-jre</guava.version>
+    <guava.version>29.0-jre</guava.version>
 
     <!-- code quality monitoring properties -->
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
