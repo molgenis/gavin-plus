@@ -35,7 +35,8 @@ pipeline {
                 always {
                     junit '**/target/surefire-reports/**.xml'
                     container('maven') {
-                        sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K  -C ${GIT_COMMIT}"
+                        fetch_codecov()
+                        sh "./codecov -c -F unit -K -C ${GIT_COMMIT}"
                         sh "mvn -q -B sonar:sonar -Dsonar.login=${env.SONAR_TOKEN} -Dsonar.github.oauth=${env.GITHUB_TOKEN} -Dsonar.pullrequest.base=${CHANGE_TARGET} -Dsonar.pullrequest.branch=${BRANCH_NAME} -Dsonar.pullrequest.key=${env.CHANGE_ID} -Dsonar.pullrequest.provider=GitHub -Dsonar.pullrequest.github.repository=molgenis/gavin-plus -Dsonar.ws.timeout=120"
                     }
                 }
@@ -55,7 +56,8 @@ pipeline {
                 always {
                     junit '**/target/surefire-reports/**.xml'
                     container('maven') {
-                        sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K  -C ${GIT_COMMIT}"
+                        fetch_codecov()
+                        sh "./codecov -c -F unit -K -C ${GIT_COMMIT}"
                         sh "mvn -q -B sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.ws.timeout=120"
                     }
                 }
@@ -70,7 +72,8 @@ pipeline {
                     steps {
                         container('maven') {
                             sh "mvn -q -B clean deploy -Dmaven.test.redirectTestOutputToFile=true -T4"
-                            sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K  -C ${GIT_COMMIT}"
+                            fetch_codecov()
+                            sh "./codecov -c -F unit -K -C ${GIT_COMMIT}"
                             sh "mvn -q -B sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.ws.timeout=120"
                         }
                     }
@@ -106,7 +109,8 @@ pipeline {
                     steps {
                         container('maven') {
                             sh "mvn -q -B clean verify -Dmaven.test.redirectTestOutputToFile=true"
-                            sh "curl -s https://codecov.io/bash | bash -s - -c -F unit -K  -C ${GIT_COMMIT}"
+                            fetch_codecov()
+                            sh "./codecov -c -F unit -K -C ${GIT_COMMIT}"
                             sh "mvn -q -B sonar:sonar -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN} -Dsonar.ws.timeout=120"
                         }
                     }
